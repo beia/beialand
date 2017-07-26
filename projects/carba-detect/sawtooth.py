@@ -35,27 +35,19 @@ def setOutput(val):
     # value to the output pin.
     spi.xfer2([highByte, lowByte])
 
-
-try:
-    while(True):
-        # create a sawtooth ramp starting from 0 to V-ref in digital_amplitude steps
-        for step in range(0,digital_amplitude):
-            setOutput(step)
-            sleep(time_sleep)
-        while (step >= 0):
-            setOutput(step)
-            step = step -1
-            sleep(time_sleep)
-
-
-
-except (KeyboardInterrupt, Exception) as e:
-    print(e)
-    print ("Closing SPI channel")
-    spi.close()
-
-def main():
-    pass
-
 if __name__ == '__main__':
-    main()
+    try:
+        while(True):
+        # create a sawtooth ramp starting from 0 to V-ref in digital_amplitude steps
+            for step in range(0,digital_amplitude):
+                setOutput(step)
+                sleep(time_sleep)
+            while (step >= 0):
+                setOutput(step)
+                step = step -1
+                sleep(time_sleep)
+
+    except (KeyboardInterrupt, Exception) as e:
+        print(e)
+        print ("Closing SPI channel")
+        spi.close()
