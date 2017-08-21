@@ -1,0 +1,61 @@
+version: '3.1'
+
+services:
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  aladin:
+    image: wordpress:4.8.1-apache
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: aladin_db
+      VIRTUAL_HOST: aladin.beia-consult.ro
+
+  odsi:
+    image: wordpress:4.8.1-apache
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: odsi_db
+      VIRTUAL_HOST: odsi.beia-consult.ro
+
+  citisim:
+    image: wordpress:4.8.1-apache
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: citisim_db
+      VIRTUAL_HOST: citisim.beia-consult.ro
+
+  3dsafeguard:
+    image: wordpress:4.8.1-apache
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: 3dsafeguard_db
+      VIRTUAL_HOST: 3dsafeguard.beia-consult.ro
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
+volumes:
+  mysql:
