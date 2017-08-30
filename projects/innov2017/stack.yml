@@ -12,6 +12,8 @@ services:
   aladin:
     image: wordpress:4.8.1-apache
     restart: always
+    volumes:
+     - cnt_aladin:/var/www/html/wp-content
     depends_on:
       - mysql
     environment:
@@ -22,6 +24,8 @@ services:
   odsi:
     image: wordpress:4.8.1-apache
     restart: always
+    volumes:
+     - cnt_odsi:/var/www/html/wp-content
     depends_on:
       - mysql
     environment:
@@ -32,6 +36,8 @@ services:
   citisim:
     image: wordpress:4.8.1-apache
     restart: always
+    volumes:
+     - cnt_citisim:/var/www/html/wp-content
     depends_on:
       - mysql
     environment:
@@ -42,6 +48,8 @@ services:
   3dsafeguard:
     image: wordpress:4.8.1-apache
     restart: always
+    volumes:
+     - cnt_3dsafe:/var/www/html/wp-content
     depends_on:
       - mysql
     environment:
@@ -59,3 +67,7 @@ services:
 
 volumes:
   mysql:
+  cnt_3dsafe:
+  cnt_aladin:
+  cnt_citisim:
+  cnt_odsi:
