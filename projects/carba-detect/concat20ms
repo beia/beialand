@@ -46,6 +46,10 @@ second_part_values_list=[]
 third_part_values_list=[]
 fourth_part_values_list=[]
 
+interval1=9
+interval2=2
+interval3=1
+interval4=1
 sample_interval=0.02
 
 def ReadInput(channel):
@@ -63,42 +67,83 @@ def frange(start, stop, step):
     while i<stop:
         yield i
         i += step
-
-def part(start,stop,part_list):
-    val=0
-    counter=0
-    for step in frange(start,stop,1.63):
-        time1=time()
-        counter_20ms=0
-        val_20ms=0
-        while time()-time1<sample_interval:
-            step_int=int(round(step))
-            setOutput(step_int)
-            val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
-            counter_20ms=counter_20ms+1
-        mean=val_20ms/counter_20ms
-        part_list.append(mean)
-        counter=counter+1
-        val=val+mean
-        part_mean=val/counter
-        return part_mean
-
+        
 
 if _name_ == '_main_':
     stop=0
     cycle=3
     carba=0
     while cycle>0:
-        first_mean=part(0,737,first_part_values_list)
+        val=0
+        counter=0
+        for step in frange(0,737,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms=counter_20ms+1
+            mean=val_20ms/counter_20ms
+            first_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        first_mean=val/counter
         print("1")
 
-        second_mean=part(738,901,second_part_values_list)
+        counter=0
+        val=0
+        for step in frange(738,901,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms+=1
+            mean=val_20ms/counter_20ms
+            second_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        second_mean=val/counter
         print("2")
 
-        third_mean=part(902,983,third_part_values_list)
+        counter=0
+        val=0
+        for step in frange(902,983,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms+=1
+            mean=val_20ms/counter_20ms
+            third_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        third_mean=val/counter
         print("3")
 
-        fourth_mean=part(984,1065,fourth_part_values_list)
+        counter=0
+        val=0
+        for step in frange(984,1065,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms+=1
+            mean=val_20ms/counter_20ms
+            fourth_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        fourth_mean=val/counter
         print("4")
 
         if float(first_mean*2)<second_mean:
@@ -106,8 +151,8 @@ if _name_ == '_main_':
                 if float(third_mean*1.2)<fourth_mean:
                     carba=carba+1
                     print("Carba detected")
-                    
-        step_int=1064
+
+        print(step)
         while (step_int >= 0):
             setOutput(step_int)
             step_int = step_int -1
