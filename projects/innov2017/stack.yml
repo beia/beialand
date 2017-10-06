@@ -9,6 +9,14 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
+  cdn:
+    image: nginx:alpine
+    restart: always
+    volumes:
+     - cnt_cdn:/usr/share/nginx/html
+    environment:
+     VIRTUAL_HOST: cdn.beia-consult.ro
+
   aladin:
     image: wordpress:4.8.1-apache
     restart: always
@@ -71,3 +79,4 @@ volumes:
   cnt_aladin:
   cnt_citisim:
   cnt_odsi:
+  cnt_cdn:
