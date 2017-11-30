@@ -1,7 +1,6 @@
 version: '3.1'
 
 services:
-
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
     ports:
@@ -73,6 +72,34 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
 
+  graphite:
+    restart: always
+    image: vladwing/graphite
+    volumes:
+      - cnt_graphite:/opt/graphite/storage
+    environment:
+      - VIRTUAL_HOST=graphite.beia.cloud
+      - VIRTUAL_PORT=8080
+  grafana:
+    restart: always
+    image: grafana/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-secret}
+      - VIRTUAL_HOST=grafana.beia.cloud
+    volumes:
+      - cnt_grafana:/var/lib/grafana
+    depends_on:
+      - graphite
+  statsd:
+    restart: always
+    image: vladwing/statsd
+    environment:
+      - GRAPHITE_HOST=graphite
+    depends_on:
+      - graphite
+    ports:
+      - "8125:8125/udp"
+
 volumes:
   mysql:
   cnt_3dsafe:
@@ -80,3 +107,5 @@ volumes:
   cnt_citisim:
   cnt_odsi:
   cnt_cdn:
+  cnt_graphite:
+  cnt_grafana:
