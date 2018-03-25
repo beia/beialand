@@ -1,0 +1,168 @@
+#!/usr/bin/env python
+import spidev
+import math
+import os
+from time import time
+from time import sleep
+
+spi_max_speed = 4 * 1000000
+V_ref = 5
+max_value = (2**12)-1
+
+spi = spidev.SpiDev()
+spi.open(0,0)
+spi.max_speed_hz = spi_max_speed
+
+spi2 = spidev.SpiDev()
+spi2.open(0,1)
+spi2.max_speed_hz = spi_max_speed
+
+channel_simu_potentiostat = 0
+
+amplitude = 1.3
+digital_amplitude = int(round(amplitude/V_ref*max_value))
+print ("digital amplitude = {}".format(digital_amplitude))
+
+freq = 0.03846
+period = round(float(1/freq),6)
+time_sleep = round(float((period/2)/digital_amplitude), 8)
+
+print ("freq = {}".format(freq))
+print ("period = {}".format(period))
+print ("time_sleep = {}".format(time_sleep))
+
+def setOutput(val):
+    # lowbyte has 8 data bits
+    lowByte = val & 0b11111111
+    # highbyte has control and 6 data bits
+    highByte = ((val >> 8) & 0xff) | 0b0 << 7 | 0b0 << 6 | 0b1 << 5 | 0b1 << 4
+    # by using spi.xfer2(), the CS is released after each block, transferring the
+    # value to the output pin.
+    spi2.xfer2([highByte, lowByte])
+
+
+first_part_values_list=[]
+second_part_values_list=[]
+third_part_values_list=[]
+fourth_part_values_list=[]
+
+interval1=9
+interval2=2
+interval3=1
+interval4=1
+sample_interval=0.02
+
+def ReadInput(channel):
+    adc = spi.xfer2([6|(channel&4)>>2,(channel&3)<<6,0])
+    data = ((adc[1]&15)<<8)+adc[2]
+    return data
+
+def ConvertVolts(data,places):
+    volts = (data*5)/float(4095)
+    volts = round(volts,places)
+    return volts
+
+def frange(start, stop, step):
+    i=start
+    while i<stop:
+        yield i
+        i += step
+        
+
+if _name_ == '_main_':
+    stop=0
+    cycle=3
+    carba=0
+    while cycle>0:
+        val=0
+        counter=0
+        for step in frange(0,737,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms=counter_20ms+1
+            mean=val_20ms/counter_20ms
+            first_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        first_mean=val/counter
+        print("1")
+
+        counter=0
+        val=0
+        for step in frange(738,901,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms+=1
+            mean=val_20ms/counter_20ms
+            second_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        second_mean=val/counter
+        print("2")
+
+        counter=0
+        val=0
+        for step in frange(902,983,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms+=1
+            mean=val_20ms/counter_20ms
+            third_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        third_mean=val/counter
+        print("3")
+
+        counter=0
+        val=0
+        for step in frange(984,1065,1.63):
+            time1=time()
+            counter_20ms=0
+            val_20ms=0
+            while time()-time1<sample_interval:
+                step_int=int(round(step))
+                setOutput(step_int)
+                val_20ms=val_20ms+ReadInput(channel_simu_potentiostat)
+                counter_20ms+=1
+            mean=val_20ms/counter_20ms
+            fourth_part_values_list.append(mean)
+            counter=counter+1
+            val=val+mean
+        fourth_mean=val/counter
+        print("4")
+
+        if float(first_mean*2)<second_mean:
+            if float(third_mean*1.2)<second_mean:
+                if float(third_mean*1.2)<fourth_mean:
+                    carba=carba+1
+                    print("Carba detected")
+
+        print(step)
+        while (step_int >= 0):
+            setOutput(step_int)
+            step_int = step_int -1
+            sleep(time_sleep)
+
+        print("verificare")
+
+        cycle=cycle-1
+
+    if carba==3:
+        print("Carba detected")
+    else:
+        print("No Carba detected")
