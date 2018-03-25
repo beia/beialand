@@ -16,6 +16,7 @@ services:
     environment:
      VIRTUAL_HOST: cdn.beia-consult.ro
 
+# INNOV 2017 WordPress sites
   aladin:
     image: wordpress:4.8.1-apache
     restart: always
@@ -64,6 +65,20 @@ services:
       WORDPRESS_DB_NAME: 3dsafeguard_db
       VIRTUAL_HOST: 3dsafeguard.beia-consult.ro
 
+# Somedi
+  somedi_drupal:
+    image: beia/somedi_drupal
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      VIRTUAL_HOST: somedi.beia-consult.ro
+    volumes:
+      - somedi_modules:/var/www/html/modules
+      - somedi_profiles:/var/www/html/profiles
+      - somedi_themes:/var/www/html/themes
+      - /var/www/html/sites
+
   mysql:
     image: mysql:5.7
     restart: always
@@ -72,9 +87,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: example
 
+# BEIA IoT Cloud test bed
   graphite:
     restart: always
     image: vladwing/graphite
+    ports:
+      - "2003:2003"
     volumes:
       - cnt_graphite:/opt/graphite/storage
     environment:
@@ -109,3 +127,6 @@ volumes:
   cnt_cdn:
   cnt_graphite:
   cnt_grafana:
+  somedi_modules:
+  somedi_themes:
+  somedi_profiles:
