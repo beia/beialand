@@ -65,6 +65,19 @@ services:
       WORDPRESS_DB_NAME: 3dsafeguard_db
       VIRTUAL_HOST: 3dsafeguard.beia-consult.ro
 
+  telmonair:
+    image: wordpress:4.8.1-apache
+    restart: always
+    volumes:
+     - cnt_telmonair:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: telmonair_db
+      VIRTUAL_HOST: telmonaer.beia-consult.ro,telmonair.beia-consult.ro
+
+
 # Somedi
   somedi_drupal:
     image: beia/somedi_drupal
@@ -123,6 +136,7 @@ volumes:
   cnt_3dsafe:
   cnt_aladin:
   cnt_citisim:
+  cnt_telmonair:
   cnt_odsi:
   cnt_cdn:
   cnt_graphite:
