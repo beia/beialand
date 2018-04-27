@@ -1,0 +1,17 @@
+version: "3"
+services:
+    # Mosquitto MQTT Server
+    mosquitto:
+        image: toke/mosquitto
+        ports:
+          - 1883:1883
+          - 9001:9001
+        
+        volumes:
+          - mosquitto_data:/mqtt/data
+          - mosquitto_log:/mqtt/log
+          - ./mqtt_config:/mqtt/config
+
+volumes:
+    mosquitto_data:
+    mosquitto_log:
