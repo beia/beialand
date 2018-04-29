@@ -1,0 +1,16 @@
+version: "3"
+services:
+    # Mosquitto MQTT Server
+    mosquitto:
+        image: beia/mosquitto
+        ports:
+          - 1883:1883
+          - 9001:9001
+        
+        volumes:
+          - mosquitto_data:/mqtt/data
+          - mosquitto_log:/mqtt/log
+
+volumes:
+    mosquitto_data:
+    mosquitto_log:
