@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using System.Diagnostics;
 
 namespace meteotestforecast
 {
@@ -11,7 +12,9 @@ namespace meteotestforecast
     {
         public MainPage()
         {
+            Debug.WriteLine("Executing MainPage constructor");
             InitializeComponent();
+            logoImage.Source = ImageSource.FromResource("meteotestforecast.sigla-beia.png");
         }
     }
 }
