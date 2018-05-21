@@ -7,4 +7,11 @@
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="3.0.0.446417" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="sigla-beia.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="sigla-beia.png">
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
