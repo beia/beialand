@@ -10,7 +10,7 @@ namespace meteotestforecast
         public App()
         {
             InitializeComponent();
-            MainPage = new NavigationPage(new MainPage());
+            MainPage = new NavigationPage(new MainPage() {Title = Constants.APP_NAME});
         }
 
         protected override void OnStart()

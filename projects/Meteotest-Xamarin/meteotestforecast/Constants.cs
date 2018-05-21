@@ -11,5 +11,6 @@ namespace meteotestforecast
 
         };
 
+        public static readonly string APP_NAME = "Beia Meteotest";
     }
 }
