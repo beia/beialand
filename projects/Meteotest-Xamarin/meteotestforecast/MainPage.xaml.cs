@@ -35,9 +35,7 @@ namespace meteotestforecast
 
             if (selectedIndex != -1)
             {
-                await DisplayAlert("Selection",
-                                   "We found that you selected",
-                                   Constants.locations[selectedIndex].Name);
+                await this.Navigation.PushAsync(new ContentShow(Constants.locations[selectedIndex]));
             }
 
             // Make sure that selecting the same element again will trigger
