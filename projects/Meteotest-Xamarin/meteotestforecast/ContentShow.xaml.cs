@@ -13,6 +13,7 @@ namespace meteotestforecast
 
             WebView web = contentWebview;
             web.Source = city.Url;
+            Title = city.Name;
         }
     }
 }
