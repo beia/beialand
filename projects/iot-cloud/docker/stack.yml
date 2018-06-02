@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+    broker:
+        image: beia/mqtt-broker
+        volumes:
+         - mosca_data:/db
+        environment:
+         - REDIS_HOST=redis
+        depends_on:
+         - redis
+        ports:
+         - "1883:1883"
+         - "8080:80"
+
+    redis:
+        image: redis:alpine
+        volumes:
+         - redis_data:/data
+
+volumes:
+  redis_data:
+  mosca_data:
