@@ -77,29 +77,6 @@ services:
       WORDPRESS_DB_NAME: telmonair_db
       VIRTUAL_HOST: telmonaer.beia-consult.ro,telmonair.beia-consult.ro
 
-
-# Somedi
-  somedi_drupal:
-    image: beia/somedi_drupal
-    restart: always
-    depends_on:
-      - mysql
-    environment:
-      VIRTUAL_HOST: somedi.beia-consult.ro
-    volumes:
-      - somedi_modules:/var/www/html/modules
-      - somedi_profiles:/var/www/html/profiles
-      - somedi_themes:/var/www/html/themes
-      - /var/www/html/sites
-
-  mysql:
-    image: mysql:5.7
-    restart: always
-    volumes:
-      - mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: example
-
 # BEIA IoT Cloud test bed
   graphite:
     restart: always
