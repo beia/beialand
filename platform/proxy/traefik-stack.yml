@@ -8,7 +8,6 @@ services:
       - "--docker.watch"
       - "--docker.swarmmode"
       - "--docker.exposedbydefault=false"
-      - "--debug=true"
       - "--api"
       - "--logLevel=DEBUG"
     ports:
