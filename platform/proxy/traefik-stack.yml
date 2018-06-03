@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  traefik:
+    image: traefik:v1.6.2-alpine
+    command:
+      - "--docker"
+      - "--docker.watch"
+      - "--docker.swarmmode"
+      - "--docker.exposedbydefault=false"
+      - "--debug=true"
+      - "--api"
+      - "--logLevel=DEBUG"
+    ports:
+      - mode: ingress
+        published: 80
+        target: 80
+      - mode: host
+        published: 8080
+        target: 8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - traefik_net
+
+networks:
+  traefik_net:
+    external: true
+
