@@ -1,0 +1,224 @@
+version: '3.1'
+
+services:
+  cdn:
+    image: nginx:alpine
+    volumes:
+     - cnt_cdn:/usr/share/nginx/html
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:cdn.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=cdn"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+      - db_net
+
+
+# INNOV 2017 WordPress sites
+  aladin:
+    image: beia/wordpress
+    volumes:
+     - cnt_aladin:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: aladin_db
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:aladin.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=aladin"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+
+  odsi:
+    image: wordpress
+    volumes:
+     - cnt_odsi:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: odsi_db
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:odsi.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=odsi"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+
+  citisim:
+    image: wordpress
+    volumes:
+     - cnt_citisim:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: citisim_db
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:citisim.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=citisim"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+
+  3dsafeguard:
+    image: wordpress
+    volumes:
+     - cnt_3dsafe:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: 3dsafeguard_db
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:3dsafeguard.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=3dsafeguard"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    networks:
+      - traefik_net
+
+  telmonair:
+    image: wordpress
+    volumes:
+     - cnt_telmonair:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: telmonair_db
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:telmonaer.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=telmonaer"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+
+  winshi:
+    image: wordpress
+    volumes:
+     - cnt_winshi:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: winshi_db
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:winshi.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=winshi"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+
+
+# BEIA IoT Cloud test bed
+  graphite:
+    image: vladwing/graphite
+    ports:
+      - "2003:2003"
+    volumes:
+      - cnt_graphite:/opt/graphite/storage
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:graphite.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=graphite"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+      - default
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-secret}
+    volumes:
+      - cnt_grafana:/var/lib/grafana
+    depends_on:
+      - graphite
+    deploy:
+      labels:
+        - "traefik.frontend.rule=Host:grafana.beia-consult.ro"
+        - "traefik.port=80"
+        - "traefik.backend=grafana"
+        - "traefik.enable=true"
+        - "traefik.backend.loadbalancer.method=drr"
+        - "traefik.docker.network=traefik_net"
+    networks:
+      - traefik_net
+      - default
+
+  statsd:
+    image: vladwing/statsd
+    environment:
+      - GRAPHITE_HOST=graphite
+    depends_on:
+      - graphite
+    ports:
+      - "8125:8125/udp"
+    networks:
+      - default
+
+volumes:
+  mysql:
+  cnt_3dsafe:
+  cnt_aladin:
+  cnt_citisim:
+  cnt_telmonair:
+  cnt_odsi:
+  cnt_winshi:
+  cnt_cdn:
+  cnt_graphite:
+  cnt_grafana:
+
+networks:
+  db_net:
+  traefik_net:
+    external: true
+

@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.6'
 
 services:
   nginx-proxy:
@@ -18,64 +18,100 @@ services:
 
 # INNOV 2017 WordPress sites
   aladin:
-    image: wordpress:4.8.1-apache
+    image: wordpress
     restart: always
     volumes:
      - cnt_aladin:/var/www/html/wp-content
     depends_on:
       - mysql
+    links:
+      - mysql
     environment:
+      WORDPRESS_DB_HOST: db
       WORDPRESS_DB_PASSWORD: example
       WORDPRESS_DB_NAME: aladin_db
       VIRTUAL_HOST: aladin.beia-consult.ro
 
   odsi:
-    image: wordpress:4.8.1-apache
+    image: wordpress
     restart: always
     volumes:
      - cnt_odsi:/var/www/html/wp-content
     depends_on:
       - mysql
+    links:
+      - mysql
     environment:
+      WORDPRESS_DB_HOST: db
       WORDPRESS_DB_PASSWORD: example
       WORDPRESS_DB_NAME: odsi_db
       VIRTUAL_HOST: odsi.beia-consult.ro
 
   citisim:
-    image: wordpress:4.8.1-apache
+    image: wordpress
     restart: always
     volumes:
      - cnt_citisim:/var/www/html/wp-content
     depends_on:
       - mysql
+    links:
+      - mysql
     environment:
+      WORDPRESS_DB_HOST: db
       WORDPRESS_DB_PASSWORD: example
       WORDPRESS_DB_NAME: citisim_db
       VIRTUAL_HOST: citisim.beia-consult.ro
 
   3dsafeguard:
-    image: wordpress:4.8.1-apache
+    image: wordpress
     restart: always
     volumes:
      - cnt_3dsafe:/var/www/html/wp-content
     depends_on:
       - mysql
+    links:
+      - mysql
     environment:
+      WORDPRESS_DB_HOST: db
       WORDPRESS_DB_PASSWORD: example
       WORDPRESS_DB_NAME: 3dsafeguard_db
       VIRTUAL_HOST: 3dsafeguard.beia-consult.ro
 
+  db:
+    image: mysql:5.7
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
   telmonair:
-    image: wordpress:4.8.1-apache
+    image: wordpress
     restart: always
     volumes:
      - cnt_telmonair:/var/www/html/wp-content
     depends_on:
       - mysql
+    links:
+      - mysql
     environment:
+      WORDPRESS_DB_HOST: db
       WORDPRESS_DB_PASSWORD: example
       WORDPRESS_DB_NAME: telmonair_db
       VIRTUAL_HOST: telmonaer.beia-consult.ro,telmonair.beia-consult.ro
+
+  winshi:
+    image: wordpress
+    volumes:
+     - cnt_winshi:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    links:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: winshi_db
+      VIRTUAL_HOST: winshi.beia-consult.ro
 
 # BEIA IoT Cloud test bed
   graphite:
@@ -115,9 +151,7 @@ volumes:
   cnt_citisim:
   cnt_telmonair:
   cnt_odsi:
+  cnt_winshi:
   cnt_cdn:
   cnt_graphite:
   cnt_grafana:
-  somedi_modules:
-  somedi_themes:
-  somedi_profiles:
