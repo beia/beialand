@@ -32,6 +32,21 @@ services:
       WORDPRESS_DB_NAME: aladin_db
       VIRTUAL_HOST: aladin.beia-consult.ro
 
+  cloudbook:
+    image: wordpress
+    restart: always
+    volumes:
+     - cnt_cloudbook:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    links:
+      - mysql
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: cloudbook_db
+      VIRTUAL_HOST: cloudbook.beia-consult.ro
+
   odsi:
     image: wordpress
     restart: always
@@ -155,3 +170,4 @@ volumes:
   cnt_cdn:
   cnt_graphite:
   cnt_grafana:
+  cnt_cloudbook:
