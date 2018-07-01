@@ -1,0 +1,27 @@
+THIS_MAKEFILE_PATH:=$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+THIS_DIR:=$(shell cd $(dir $(THIS_MAKEFILE_PATH));pwd)
+include $(THIS_DIR)/common.mak
+
+-include $(THIS_DIR)/setup
+
+server_deploy: $(STACK_FOLDERS)
+$(STACK_FOLDERS):
+	@make -C $@ -f $(THIS_DIR)/Makefile.stack
+
+container_build: $(DOCKER_FOLDERS)
+	@for i in $< ; do \
+		if [ -f $$i/Makefile ] ; then \
+			make -C $$i build ; \
+		else  \
+			make -C $$i -f $(THIS_DIR)/Makefile.docker build ; \
+		fi ; \
+	done
+
+container_push: $(DOCKER_FOLDERS)
+	@for i in $< ; do \
+		if [ -f $$i/Makefile ] ; then \
+			make -C $$i push ; \
+		else  \
+			make -C $$i -f $(THIS_DIR)/Makefile.docker push ; \
+		fi ; \
+	done

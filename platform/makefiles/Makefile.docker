@@ -1,0 +1,15 @@
+THIS_MAKEFILE_PATH:=$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+THIS_DIR:=$(shell cd $(dir $(THIS_MAKEFILE_PATH));pwd)
+include $(THIS_DIR)/common.mak
+
+.EXPORT_ALL_VARIABLES:
+
+build: prebuild
+	@$(DOCKER) build -f $(DOCKER_FILE) -t $(IMAGE_NAME):$(IMAGE_VERSION_FIXED) $(DOCKER_FOLDER)
+
+push:
+	@$(DOCKER) push $(IMAGE_NAME)
+
+include $(DOCKER_SOURCE)
+.PHONY: $(DOCKER_PREBUILD)
+prebuild: $(DOCKER_PREBUILD)
