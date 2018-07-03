@@ -1,0 +1,7 @@
+STACK_FILE=traefik-stack.yml
+STACK_NAME=proxy
+
+STACK_PREDEPLOY=create_network
+
+create_network:
+	@echo ./create_network.sh

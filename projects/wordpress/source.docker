@@ -1,0 +1,3 @@
+IMAGE_NAME=beia/wordpress
+WORDPRESS_VERSION=alpine
+DOCKER=docker
