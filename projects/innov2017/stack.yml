@@ -128,6 +128,18 @@ services:
       WORDPRESS_DB_NAME: winshi_db
       VIRTUAL_HOST: winshi.beia-consult.ro
 
+  smartagro:
+    image: wordpress
+    volumes:
+     - cnt_smartagro:/var/www/html/wp-content
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_PASSWORD: example
+      WORDPRESS_DB_NAME: smartagro_db
+      VIRTUAL_HOST: smartagro.beia-consult.ro
+
 # BEIA IoT Cloud test bed
   graphite:
     restart: always
@@ -171,3 +183,4 @@ volumes:
   cnt_graphite:
   cnt_grafana:
   cnt_cloudbook:
+  cnt_smartagro:
