@@ -1,0 +1,1 @@
+*/5 * * * *   root    /srv/beialand/platform/scripts/git_update.sh
