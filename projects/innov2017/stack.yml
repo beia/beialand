@@ -1,15 +1,6 @@
 version: '3.6'
 
 services:
-  cdn:
-    image: nginx:alpine
-    volumes:
-     - cnt_cdn:/usr/share/nginx/html
-    networks:
-     - proxy_net
-    environment:
-     VIRTUAL_HOST: cdn.beia-consult.ro
-
 # INNOV 2017 WordPress sites
   aladin:
     image: wordpress
@@ -166,9 +157,6 @@ volumes:
   cnt_telmonair:
   cnt_odsi:
   cnt_winshi:
-  cnt_cdn:
-  cnt_graphite:
-  cnt_grafana:
   cnt_cloudbook:
   cnt_smartagro:
 
