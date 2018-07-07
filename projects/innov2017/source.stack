@@ -1,2 +1,6 @@
 STACK_FILE=stack.yml
 STACK_NAME=innov2017
+STACK_PREDEPLOY=stack.yml
+
+stack.yml:
+	@./generate_stack.py < config.json > stack.yml
