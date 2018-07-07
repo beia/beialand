@@ -1,0 +1,59 @@
+{
+	"containers": [
+		{
+			"name": "aladin",
+			"virtual_hosts": ["aladin.beia-consult.ro"],
+			"db_name": "aladin_db"
+		},
+		{
+			"name": "cloudbook",
+			"virtual_hosts": ["cloudbook.beia-consult.ro"],
+			"db_name": "cloudbook_db"
+		},
+		{
+			"name": "odsi",
+			"virtual_hosts": ["odsi.beia-consult.ro"],
+			"db_name": "odsi_db"
+		},
+		{
+			"name": "citisim",
+			"virtual_hosts": ["citisim.beia-consult.ro"],
+			"db_name": "citisim_db"
+		},
+		{
+			"name": "3dsafeguard",
+			"virtual_hosts": ["3dsafeguard.beia-consult.ro"],
+			"db_name": "3dsafeguard_db",
+			"vol_name": "cnt_3dsafe"
+		},
+		{
+			"name": "telmonair",
+			"virtual_hosts": ["telmonaer.beia-consult.ro", "telmonair.beia-consult.ro"],
+			"db_name": "telmonair_db"
+		},
+		{
+			"name": "winshi",
+			"virtual_hosts": ["winshi.beia-consult.ro"],
+			"db_name": "winshi_db"
+		}
+	],
+	"settings": {
+		"networks": [
+			{
+				"name": "db_net",
+				"type": "db"
+			},
+			{
+				"name": "proxy_net",
+				"type": "external"
+			}
+		],
+		"db": {
+			"name": "db",
+			"type": "mysql",
+			"image": "mysql:5.7",
+			"root_pwd": "example",
+			"volume": "mysql"
+		}
+	}
+}
