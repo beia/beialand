@@ -35,6 +35,11 @@
 			"name": "winshi",
 			"virtual_hosts": ["winshi.beia-consult.ro"],
 			"db_name": "winshi_db"
+		},
+		{
+			"name": "smartagro",
+			"virtual_hosts": ["smartagro.beia-consult.ro"],
+			"db_name": "smartagro_db"
 		}
 	],
 	"settings": {
