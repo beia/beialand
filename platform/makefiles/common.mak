@@ -17,6 +17,7 @@ DOCKER_FOLDERS:=$(foreach src,$(shell find ${GIT_ROOT} -name $(DOCKER_SOURCE)),$
 # Settings for building docker images
 DOCKER_FOLDER?=.
 DOCKER_FILE?=Dockerfile
+DOCKER?=docker
 ifeq (master,${GIT_REF})
 IMAGE_VERSION=latest
 else

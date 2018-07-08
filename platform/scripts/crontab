@@ -1,1 +1,1 @@
-*/5 * * * *   root    /srv/beialand/platform/scripts/git_update.sh
+*/5 * * * *   root    /srv/beialand/platform/scripts/git_update.sh >> /var/log/git_update 2>&1
