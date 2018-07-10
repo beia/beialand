@@ -1,0 +1,2 @@
+STACK_FILE=stack.yml
+STACK_NAME=proxy
