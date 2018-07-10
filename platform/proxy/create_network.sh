@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NETWORK_NAME=${NETWORK_NAME:-traefik_net}
+NETWORK_NAME=${NETWORK_NAME:-proxy_net}
 DOCKER=${DOCKER:-docker}
 
 if [ ! "$(${DOCKER} network ls --filter name=${NETWORK_NAME} -q)" ];then

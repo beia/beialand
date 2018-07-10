@@ -1,0 +1,16 @@
+version: '3.6'
+
+services:
+  frontend:
+    image: jwilder/nginx-proxy:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy_net
+
+networks:
+  proxy_net:
+    external: true
+
