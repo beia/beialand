@@ -1,0 +1,33 @@
+version: '3.1'
+
+services:
+  mariadb:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: DgPTGyhM8ukkqTJ9
+    volumes:
+       - mariadb-data:/var/lib/mysql
+    networks:
+      - data
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+     - PMA_ARBITRARY=1
+     - VIRTUAL_HOST=liback-pma.beia.cloud
+    deploy:
+      replicas: 0
+    networks:
+     - proxy_net
+     - data
+    volumes:
+     - pma-sessions:/sessions
+
+volumes:
+  mariadb-data:
+  pma-sessions:
+
+networks:
+  data:
+  proxy_net:
+    external: true
