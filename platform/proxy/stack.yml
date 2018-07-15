@@ -7,6 +7,9 @@ services:
       - "80:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    deploy:
+      placement:
+        constraints: [node.role == manager]
     networks:
       - proxy_net
 
