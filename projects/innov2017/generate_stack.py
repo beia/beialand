@@ -19,7 +19,7 @@ class Yaml:
                 self.file.write(prefix + '%s:\n' % (key,))
             elif isinstance(value, bool):
                 self.file.write(prefix + "%s: %s\n" % (key, 'true' if value else 'false'))
-            elif isinstance(value, str):
+            elif isinstance(value, ("".__class__, u"".__class__)):
                 self.file.write(prefix + "%s: %s\n" % (key, value))
             elif isinstance(value, dict):
                 self.file.write(prefix + '%s:\n' % (key,))
