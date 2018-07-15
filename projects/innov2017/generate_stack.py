@@ -5,6 +5,8 @@ from collections import OrderedDict
 import sys
 import subprocess
 import json
+# all the strings types from the current Python version
+string_types = ("".__class__, u"".__class__)
 
 class Yaml:
     def __init__(self, f=sys.stdout, indent=2):
@@ -19,8 +21,8 @@ class Yaml:
                 self.file.write(prefix + '%s:\n' % (key,))
             elif isinstance(value, bool):
                 self.file.write(prefix + "%s: %s\n" % (key, 'true' if value else 'false'))
-            elif isinstance(value, ("".__class__, u"".__class__)):
-                self.file.write(prefix + "%s: %s\n" % (key, value))
+            elif isinstance(value, string_types):
+                self.file.write(prefix + "%s: '%s'\n" % (key, value))
             elif isinstance(value, dict):
                 self.file.write(prefix + '%s:\n' % (key,))
                 self.dump(value, prefix + ' ' * self.indent)
