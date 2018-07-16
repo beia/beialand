@@ -13,6 +13,7 @@ services:
     networks:
      - graphite
      - proxy_net
+
   grafana:
     image: grafana/grafana
     environment:
@@ -23,6 +24,7 @@ services:
      - proxy_net
     volumes:
       - grafana:/var/lib/grafana
+
   statsd:
     image: vladwing/statsd
     environment:
@@ -31,6 +33,7 @@ services:
      - graphite
     ports:
       - "8125:8125/udp"
+
   broker:
     image: beia/mqtt-broker
     volumes:
@@ -43,13 +46,27 @@ services:
       REDIS_HOST: 'redis'
     networks:
      - redis
+     - broker
      - proxy_net
+
   redis:
     image: redis:alpine
     networks:
      - redis
     volumes:
      - redis:/data
+
+  # MQTT -- Graphite Midleware
+  mqtt2graphite:
+    image: beia/mqtt-to-graphite
+    environment:
+      - CARBON_SERVER=graphite
+      # - CARBON_PORT=2003
+      - MQTT_HOST=broker
+      # -MQTT_PORT=1883
+    networks:
+     - broker
+     - graphite
 
 volumes:
   graphite:
@@ -59,5 +76,6 @@ volumes:
 networks:
   redis:
   graphite:
+  broker:
   proxy_net:
     external: true
