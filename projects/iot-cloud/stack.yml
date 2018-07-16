@@ -2,35 +2,62 @@ version: '3.6'
 
 services:
   graphite:
-    restart: always
     image: vladwing/graphite
     ports:
       - "2003:2003"
     volumes:
-      - cnt_graphite:/opt/graphite/storage
+      - graphite:/opt/graphite/storage
     environment:
-      - VIRTUAL_HOST=graphite.beia.cloud,graphite.beia-telemetrie.ro,graphite.beia-consult.ro
-      - VIRTUAL_PORT=80
+      VIRTUAL_HOST: 'graphite.beia.cloud,graphite.beia-telemetrie.ro,graphite.beia-consult.ro'
+      VIRTUAL_PORT: 80
+    networks:
+     - graphite
+     - proxy_net
   grafana:
-    restart: always
     image: grafana/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-secret}
-      - VIRTUAL_HOST=grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro
+      GF_SECURITY_ADMIN_PASSWORD: '${GRAFANA_PASSWORD:-secret}'
+      VIRTUAL_HOST: 'grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
+    networks:
+     - graphite
+     - proxy_net
     volumes:
-      - cnt_grafana:/var/lib/grafana
-    depends_on:
-      - graphite
+      - grafana:/var/lib/grafana
   statsd:
-    restart: always
     image: vladwing/statsd
     environment:
-      - GRAPHITE_HOST=graphite
-    depends_on:
-      - graphite
+      GRAPHITE_HOST: 'graphite'
+    networks:
+     - graphite
     ports:
       - "8125:8125/udp"
+  broker:
+    image: beia/mqtt-broker
+    volumes:
+     - mosca:/db
+    ports:
+     - "1883:1883"
+    environment:
+      VIRTUAL_HOST: 'mqtt.beia-consult.ro'
+      VIRTUAL_PORT: 80
+      REDIS_HOST: 'redis'
+    networks:
+     - redis
+     - proxy_net
+  redis:
+    image: redis:alpine
+    networks:
+     - redis
+    volumes:
+     - redis:/data
 
 volumes:
-  cnt_graphite:
-  cnt_grafana:
+  graphite:
+  grafana:
+  mosca:
+  redis:
+networks:
+  redis:
+  graphite:
+  proxy_net:
+    external: true
