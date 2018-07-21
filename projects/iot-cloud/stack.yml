@@ -3,16 +3,10 @@ version: '3.6'
 services:
   graphite:
     image: vladwing/graphite
-    ports:
-      - "2003:2003"
     volumes:
       - graphite:/opt/graphite/storage
-    environment:
-      VIRTUAL_HOST: 'graphite.beia.cloud,graphite.beia-telemetrie.ro,graphite.beia-consult.ro'
-      VIRTUAL_PORT: 80
     networks:
      - graphite
-     - proxy_net
 
   grafana:
     image: grafana/grafana
