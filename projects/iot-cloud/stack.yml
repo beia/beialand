@@ -34,12 +34,12 @@ services:
      - graphite
      - statsd_net
 
-  bigdata:
+  iot-data:
     image: postgres
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     volumes:
-      - bigdata:/var/lib/postgresql/data
+      - iot-data:/var/lib/postgresql/data
     networks:
       - graphite
     secrets:
@@ -91,7 +91,7 @@ volumes:
   grafana:
   mosca:
   redis:
-  bigdata:
+  iot-data:
 networks:
   redis:
   graphite:
