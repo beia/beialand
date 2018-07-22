@@ -38,6 +38,8 @@ services:
     image: postgres
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - bigdata:/var/lib/postgresql/data
     networks:
       - graphite
     secrets:
@@ -89,6 +91,7 @@ volumes:
   grafana:
   mosca:
   redis:
+  bigdata:
 networks:
   redis:
   graphite:
