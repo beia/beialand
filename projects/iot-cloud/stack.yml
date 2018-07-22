@@ -30,8 +30,7 @@ services:
       GRAPHITE_HOST: 'graphite'
     networks:
      - graphite
-    ports:
-      - "8125:8125/udp"
+     - statsd_net
 
   broker:
     image: beia/mqtt-broker
@@ -77,5 +76,7 @@ networks:
   redis:
   graphite:
   broker:
+  statsd_net:
+    external: true
   proxy_net:
     external: true

@@ -4,9 +4,12 @@ include $(THIS_DIR)/common.mak
 
 STACK_FILE ?= stack.yml
 
-deploy: predeploy
+deploy: predeploy create_network
 	@$(DOCKER) stack deploy -c $(STACK_FILE) --prune $(STACK_NAME)
 
 include $(STACK_SOURCE)
-.PHONY: $(STACK_PREDEPLOY)
+.PHONY: $(STACK_PREDEPLOY) create_network
 predeploy: $(STACK_PREDEPLOY)
+
+create_network:
+	@$(THIS_DIR)/../scripts/create_network.sh $(CREATE_NETWORK)
