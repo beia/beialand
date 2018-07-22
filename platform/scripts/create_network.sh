@@ -1,7 +1,11 @@
 #!/bin/bash
 
-NETWORK_NAME=${NETWORK_NAME:-proxy_net}
+NETWORK_NAME=$1
 DOCKER=${DOCKER:-docker}
+
+if [ "$1" == "" ]; then
+	exit 0
+fi
 
 if [ ! "$(${DOCKER} network ls --filter name=${NETWORK_NAME} -q)" ];then
 	echo "Creating network"

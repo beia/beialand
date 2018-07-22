@@ -5,6 +5,7 @@ include $(THIS_DIR)/common.mak
 -include $(THIS_DIR)/setup
 
 server_deploy: $(STACK_FOLDERS)
+
 $(STACK_FOLDERS):
 	@$(MAKE) -C $@ -f $(THIS_DIR)/Makefile.stack
 
