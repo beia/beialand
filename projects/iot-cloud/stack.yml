@@ -6,8 +6,12 @@ services:
     volumes:
       - graphite:/opt/graphite/storage
       - graphite_conf:/opt/graphite/conf
+    environment:
+      VIRTUAL_HOST: 'graphite.beia.cloud,graphite.beia-telemetrie.ro,graphite.beia-consult.ro'
+      VIRTUAL_PORT: 80
     networks:
      - graphite
+     - proxy_net
 
   grafana:
     image: grafana/grafana
