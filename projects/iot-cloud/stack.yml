@@ -16,13 +16,15 @@ services:
   grafana:
     image: grafana/grafana
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: '${GRAFANA_PASSWORD:-secret}'
+      GF_SECURITY_ADMIN_PASSWORD__FILE: '/run/secrets/grafana_password'
       VIRTUAL_HOST: 'grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
     networks:
      - graphite
      - proxy_net
     volumes:
       - grafana:/var/lib/grafana
+    secrets:
+      - grafana_password
 
   statsd:
     image: vladwing/statsd
@@ -31,6 +33,15 @@ services:
     networks:
      - graphite
      - statsd_net
+
+  bigdata:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    networks:
+      - graphite
+    secrets:
+      - postgres_password
 
   broker:
     image: beia/mqtt-broker
@@ -66,6 +77,12 @@ services:
      - broker
      - graphite
 
+  mqtt2postgres:
+    image: vladwing/hang
+    networks:
+      - broker
+      - graphite
+
 volumes:
   graphite:
   graphite_conf:
@@ -79,4 +96,9 @@ networks:
   statsd_net:
     external: true
   proxy_net:
+    external: true
+secrets:
+  postgres_password:
+    external: true
+  grafana_password:
     external: true
