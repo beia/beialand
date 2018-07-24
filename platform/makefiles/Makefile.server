@@ -4,25 +4,20 @@ include $(THIS_DIR)/common.mak
 
 -include $(THIS_DIR)/setup
 
-server_deploy: $(STACK_FOLDERS)
+server_deploy: create_networks create_secrets deploy_stack
 
-$(STACK_FOLDERS):
-	@$(MAKE) -C $@ -f $(THIS_DIR)/Makefile.stack
+deploy_stack: | create_networks create_secrets
 
-container_build: $(DOCKER_FOLDERS)
-	@for i in $< ; do \
-		if [ -f $$i/Makefile ] ; then \
-			$(MAKE) -C $$i build ; \
-		else  \
-			$(MAKE) -C $$i -f $(THIS_DIR)/Makefile.docker build ; \
-		fi ; \
+create_networks create_secrets deploy_stack:
+	@for folder in $(STACK_FOLDERS); do \
+		$(MAKE) -C $$folder -f $(THIS_DIR)/Makefile.stack $@ ; \
 	done
 
-container_push: $(DOCKER_FOLDERS)
+container_build container_push: $(DOCKER_FOLDERS)
 	@for i in $< ; do \
 		if [ -f $$i/Makefile ] ; then \
-			$(MAKE) -C $$i push ; \
+			$(MAKE) -C $$i $@ ; \
 		else  \
-			$(MAKE) -C $$i -f $(THIS_DIR)/Makefile.docker push ; \
+			$(MAKE) -C $$i -f $(THIS_DIR)/Makefile.docker $@ ; \
 		fi ; \
 	done
