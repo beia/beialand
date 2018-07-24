@@ -1,3 +1,4 @@
 STACK_FILE=stack.yml
 STACK_NAME=iotcloud
-CREATE_NETWORK=statsd_net
+CREATE_NETWORKS=statsd_net
+CREATE_SECRETS=grafana_password postgres_password

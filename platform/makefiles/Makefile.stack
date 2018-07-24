@@ -4,12 +4,20 @@ include $(THIS_DIR)/common.mak
 
 STACK_FILE ?= stack.yml
 
-deploy: predeploy create_network
+deploy_stack: predeploy
+	@echo "Deploying stack in $(CURDIR)"
 	@$(DOCKER) stack deploy -c $(STACK_FILE) --prune $(STACK_NAME)
 
 include $(STACK_SOURCE)
 .PHONY: $(STACK_PREDEPLOY) create_network
 predeploy: $(STACK_PREDEPLOY)
 
-create_network:
-	@$(THIS_DIR)/../scripts/create_network.sh $(CREATE_NETWORK)
+create_networks:
+	@for net in $(CREATE_NETWORKS); do \
+		$(THIS_DIR)/../scripts/create_network.sh $$net; \
+	done
+
+create_secrets:
+	@for secret in $(CREATE_SECRETS); do \
+		$(THIS_DIR)/../scripts/create_secret.sh $$secret; \
+	done
