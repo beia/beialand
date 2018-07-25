@@ -40,6 +40,11 @@
 			"name": "smartagro",
 			"virtual_hosts": ["smartagro.beia-consult.ro"],
 			"db_name": "smartagro_db"
+		},
+		{
+			"name": "vlcirrf",
+			"virtual_hosts": ["vlc-ir-rf.beia-consult.ro"],
+			"db_name": "vlcirrf_db"
 		}
 	],
 	"settings": {
