@@ -13,6 +13,34 @@ services:
      - graphite
      - proxy_net
 
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_GRAPHITE_ENABLED=true
+    volumes:
+      - influxdb:/var/lib/influxdb
+    networks:
+      - influxdb
+
+  chronograf:
+    image: chronograf:1.3.8
+    environment:
+      INFLUXDB_URL: http://influxdb:8086
+      KAPACITOR_URL: http://kapacitor:9092
+      VIRTUAL_HOST: 'chronograf.beia.cloud'
+      VIRTUAL_PORT: 8888
+    networks:
+      - influxdb
+      - proxy_net
+
+  kapacitor:
+    image: kapacitor:1.3.3
+    environment:
+      KAPACITOR_HOSTNAME: kapacitor
+      KAPACITOR_INFLUXDB_0_URLS_0: http://influxdb:8086
+    networks:
+      - influxdb
+
   grafana:
     image: grafana/grafana
     environment:
@@ -79,6 +107,19 @@ services:
      - broker
      - graphite
 
+  mqtt2influxdb:
+    image: beia/mqtt-to-graphite
+    environment:
+      - CARBON_SERVER=influxdb
+      # - CARBON_PORT=2003
+      - MQTT_HOST=broker
+      # -MQTT_PORT=1883
+    networks:
+     - broker
+     - influxdb
+
+
+
   mqtt2postgres:
     image: vladwing/hang
     networks:
@@ -92,10 +133,12 @@ volumes:
   mosca:
   redis:
   iot-data:
+  influxdb:
 networks:
   redis:
   graphite:
   broker:
+  influxdb:
   statsd_net:
     external: true
   proxy_net:
