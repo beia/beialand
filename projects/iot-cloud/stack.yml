@@ -50,6 +50,7 @@ services:
       VIRTUAL_HOST: 'grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
     networks:
      - graphite
+     - influxdb
      - proxy_net
     volumes:
       - grafana:/var/lib/grafana
