@@ -90,9 +90,6 @@ services:
     ports:
      - "1883:1883"
     environment:
-      # VIRTUAL_HOST: 'emqtt-dashboard.beia-telemetrie.ro'
-      # VIRTUAL_PORT: 18083
-      # EMQ_LOADED_PLUGINS: 'emq_recon,emq_modules,emq_retainer,emq_dashboard'
       EMQ_LOADED_PLUGINS: 'emq_recon,emq_modules,emq_retainer'
     networks:
      - broker
