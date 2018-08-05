@@ -53,6 +53,7 @@ class Application:
                 'WORDPRESS_DB_HOST': self.db_container_name,
                 'WORDPRESS_DB_PASSWORD': db_password,
                 'WORDPRESS_DB_NAME': db_name,
+                'WORDPRESS_SMTP_ADDRESS': 'no-reply@' + container['virtual_hosts'][0],
                 'VIRTUAL_HOST': virtual_hosts,
                 'LETSENCRYPT_HOST': letsencrypt_hosts,
                 'LETSENCRYPT_EMAIL': container.get('letsencrypt_email', self.ssl_contact),
