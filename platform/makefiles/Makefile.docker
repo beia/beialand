@@ -8,7 +8,7 @@ build: prebuild
 	@$(DOCKER) build -f $(DOCKER_FILE) -t $(IMAGE_NAME):$(IMAGE_VERSION_FIXED) $(DOCKER_FOLDER)
 
 push:
-	@$(DOCKER) push $(IMAGE_NAME)
+	@$(DOCKER) push $(IMAGE_NAME):$(IMAGE_VERSION_FIXED)
 
 include $(DOCKER_SOURCE)
 .PHONY: $(DOCKER_PREBUILD)
