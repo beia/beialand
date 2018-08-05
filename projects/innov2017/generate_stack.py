@@ -45,11 +45,9 @@ class Application:
             container.get('letsencrypt_hosts', container['virtual_hosts'])
         )
 
-        self.stack['services'][name] = {
+        service = {
             'image': image,
-            # 'restart': 'always', # TODO: remove
             'volumes': [volume],
-            # 'depends_on': [depends_on],
             'networks': [self.db_network, self.external_network],
             'environment': {
                 'WORDPRESS_DB_HOST': self.db_container_name,
@@ -60,9 +58,14 @@ class Application:
                 'LETSENCRYPT_EMAIL': container.get('letsencrypt_email', self.ssl_contact),
             }
         }
+        if len(container.get('secrets', [])) > 0:
+            service['secrets'] = container.get('secrets', [])
+        self.stack['services'][name] = service
         self.stack['volumes'][vol_name] = None
 
     def add_network(self, network):
+        if not self.stack.get('networks', None):
+            self.stack['networks'] = {}
         if network['type'] == 'external':
             self.external_network = name = network['name']
             self.stack['networks'][name] = {
@@ -71,6 +74,17 @@ class Application:
         elif network['type'] == 'db':
             self.db_network = name = network['name']
             self.stack['networks'][name] = None
+
+    def add_secret(self, secret):
+        if not self.stack.get('secrets', None):
+            self.stack['secrets'] = {}
+        name = secret['name']
+        if secret['type'] == 'external':
+            self.stack['secrets'][name] = {
+                'external': True
+            }
+        elif secret['type'] == 'value':
+            self.stack['secrets'][name] = secret['content']
 
     def add_db(self, config):
         name = config.get('name', 'db')
@@ -120,11 +134,16 @@ class Application:
             self._git_commit = commit
         return self._git_commit
 
+    def init(self):
+        self.stack = dict(version='3.6', services={}, volumes={})
+
     def run(self):
         self.config = json.load(sys.stdin)
-        self.stack = dict(version='3.6', services={}, volumes={}, networks={})
-        for network in self.config['settings']['networks']:
+        self.init()
+        for network in self.config['settings'].get('networks', []):
             self.add_network(network)
+        for secret in self.config['settings'].get('secrets', []):
+            self.add_secret(secret)
         self.add_db(self.config['settings']['db'])
         for container in self.config['containers']:
             self.add_service(container)
