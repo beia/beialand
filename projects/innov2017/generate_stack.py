@@ -41,6 +41,9 @@ class Application:
         db_password = container.get('db_password', 'example')
         db_name = container.get('db_name', name + '_db')
         virtual_hosts = ','.join(container['virtual_hosts'])
+        letsencrypt_hosts = ','.join(
+            container.get('letsencrypt_hosts', container['virtual_hosts'])
+        )
 
         self.stack['services'][name] = {
             'image': image,
@@ -53,8 +56,8 @@ class Application:
                 'WORDPRESS_DB_PASSWORD': db_password,
                 'WORDPRESS_DB_NAME': db_name,
                 'VIRTUAL_HOST': virtual_hosts,
-                'LETSENCRYPT_HOST': virtual_hosts,
-                'LETSENCRYPT_EMAIL': 'ssl-contact@beia.ro',
+                'LETSENCRYPT_HOST': letsencrypt_hosts,
+                'LETSENCRYPT_EMAIL': container.get('letsencrypt_email', self.ssl_contact),
             }
         }
         self.stack['volumes'][vol_name] = None
@@ -96,6 +99,10 @@ class Application:
             sys.stdout.write('# Git commit: %s\n' % self.git_commit)
         sys.stdout.write('#' * 64 + '\n')
         yaml.dump(self.stack)
+
+    @property
+    def ssl_contact(self):
+        return self.config['settings'].get('ssl-contact', 'ssl-contact@beia.ro')
 
     @property
     def git_commit(self):
