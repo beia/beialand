@@ -9,7 +9,7 @@ deploy_stack: predeploy
 	@$(DOCKER) stack deploy -c $(STACK_FILE) --prune $(STACK_NAME)
 
 include $(STACK_SOURCE)
-.PHONY: $(STACK_PREDEPLOY) create_network
+.PHONY: $(STACK_PREDEPLOY) create_network create_secrets
 predeploy: $(STACK_PREDEPLOY)
 
 create_networks:

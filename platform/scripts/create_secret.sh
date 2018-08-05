@@ -14,7 +14,13 @@ if [ "$(${DOCKER} secret ls --filter name=${SECRET_NAME} -q)" ];then
 fi
 
 if [ "$2" ]; then
-  echo "Creating secret ${SECRET_NAME}"
+  if [ "$2" == "-" ]; then
+    echo "Creating secret from stdin"
+    ${DOCKER} secret create ${SECRET_NAME} -
+    exit 0
+  else
+    echo "Creating secret ${SECRET_NAME}"
+  fi
 else
   echo "Creating secret ${SECRET_NAME}=${SECRET_VALUE}"
 fi
