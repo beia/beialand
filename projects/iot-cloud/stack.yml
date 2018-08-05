@@ -9,6 +9,8 @@ services:
     environment:
       VIRTUAL_HOST: 'graphite.beia.cloud,graphite.beia-telemetrie.ro,graphite.beia-consult.ro'
       VIRTUAL_PORT: 80
+      LETSENCRYPT_HOST: 'graphite.beia-telemetrie.ro,graphite.beia-consult.ro'
+      LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
     networks:
      - graphite
      - proxy_net
@@ -48,6 +50,8 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD__FILE: '/run/secrets/grafana_password'
       VIRTUAL_HOST: 'grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
+      LETSENCRYPT_HOST: 'grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
+      LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
     networks:
      - graphite
      - influxdb
