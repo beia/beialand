@@ -28,7 +28,7 @@
 		},
 		{
 			"name": "telmonair",
-			"virtual_hosts": ["telmonaer.beia-consult.ro", "telmonair.beia-consult.ro"],
+			"virtual_hosts": ["telmonaer.beia-consult.ro"],
 			"db_name": "telmonair_db"
 		},
 		{

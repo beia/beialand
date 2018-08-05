@@ -52,7 +52,9 @@ class Application:
                 'WORDPRESS_DB_HOST': self.db_container_name,
                 'WORDPRESS_DB_PASSWORD': db_password,
                 'WORDPRESS_DB_NAME': db_name,
-                'VIRTUAL_HOST': virtual_hosts
+                'VIRTUAL_HOST': virtual_hosts,
+                'LETSENCRYPT_HOST': virtual_hosts,
+                'LETSENCRYPT_EMAIL': 'ssl-contact@beia.ro',
             }
         }
         self.stack['volumes'][vol_name] = None
