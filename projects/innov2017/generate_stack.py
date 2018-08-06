@@ -136,7 +136,11 @@ class Application:
         return self._git_commit
 
     def init(self):
-        self.stack = dict(version='3.6', services={}, volumes={})
+        self.stack = {
+            version='3.6',
+            services={},
+            volumes={}
+        }
 
     def run(self):
         self.config = json.load(sys.stdin)
