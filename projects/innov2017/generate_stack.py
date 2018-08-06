@@ -137,9 +137,9 @@ class Application:
 
     def init(self):
         self.stack = {
-            version='3.6',
-            services={},
-            volumes={}
+            'version': '3.6',
+            'services': {},
+            'volumes': {}
         }
 
     def run(self):
