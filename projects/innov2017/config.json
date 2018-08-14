@@ -45,6 +45,11 @@
 			"name": "vlcirrf",
 			"virtual_hosts": ["vlc-ir-rf.beia-consult.ro"],
 			"db_name": "vlcirrf_db"
+		},
+		{
+			"name": "sensystar",
+			"virtual_hosts": ["sensystar.beia-consult.ro"],
+			"db_name": "sensystar_db"
 		}
 	],
 	"settings": {
