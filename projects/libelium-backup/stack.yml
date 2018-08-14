@@ -3,6 +3,7 @@ version: '3.1'
 services:
   mariadb:
     image: mariadb
+    command: mysqld --innodb-buffer-pool-size=4G
     environment:
       MYSQL_ROOT_PASSWORD: DgPTGyhM8ukkqTJ9
     volumes:
