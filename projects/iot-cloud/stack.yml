@@ -81,26 +81,19 @@ services:
       - postgres_password
 
   broker:
-    image: beia/mqtt-broker
+    image: beia/emqtt
     volumes:
-     - mosca:/db
+      - emqtt_data:/opt/emqttd/data
+      - emqtt_etc:/opt/emqttd/etc
+      - emqtt_lib:/opt/emqttd/lib
+      - emqtt_log:/opt/emqttd/log
     ports:
      - "1883:1883"
     environment:
-      VIRTUAL_HOST: 'mqtt.beia-consult.ro'
-      VIRTUAL_PORT: 80
-      REDIS_HOST: 'redis'
+      EMQ_LOADED_PLUGINS: 'emq_recon,emq_modules,emq_retainer'
     networks:
-     - redis
      - broker
      - proxy_net
-
-  redis:
-    image: redis:alpine
-    networks:
-     - redis
-    volumes:
-     - redis:/data
 
   # MQTT -- Graphite Midleware
   mqtt2graphite:
@@ -134,15 +127,16 @@ services:
       - graphite
 
 volumes:
+  emqtt_data:
+  emqtt_etc:
+  emqtt_lib:
+  emqtt_log:
   graphite:
   graphite_conf:
   grafana:
-  mosca:
-  redis:
   iot-data:
   influxdb:
 networks:
-  redis:
   graphite:
   broker:
   influxdb:
