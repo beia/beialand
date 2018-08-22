@@ -1,8 +1,7 @@
 THIS_MAKEFILE_PATH:=$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 THIS_DIR:=$(shell cd $(dir $(THIS_MAKEFILE_PATH));pwd)
 include $(THIS_DIR)/common.mak
-
--include $(THIS_DIR)/setup
+include $(ROOT)/dirs
 
 server_deploy: create_networks create_secrets deploy_stack
 

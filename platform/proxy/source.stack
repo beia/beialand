@@ -1,3 +1,4 @@
 STACK_FILE=stack.yml
 STACK_NAME=proxy
 CREATE_NETWORKS=proxy_net
+DEPLOY_ENVS=platform production

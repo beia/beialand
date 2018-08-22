@@ -1,2 +1,3 @@
 STACK_FILE=stack.yml
 STACK_NAME=liback
+DEPLOY_ENVS=production

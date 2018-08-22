@@ -1,0 +1,8 @@
+STACK_FOLDERS = \
+  platform/proxy \
+  projects/innov2017 \
+  projects/iot-cloud \
+# projects/libelium-backup \
+
+DOCKER_FOLDERS = \
+  projects/docker-images/wordpress \
