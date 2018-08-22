@@ -10,4 +10,4 @@ ${GIT} clean -df
 ${GIT} checkout -B ${BRANCH:-master} origin/${BRANCH:-master}
 ${GIT} pull --rebase
 
-${MAKE} -f platform/makefiles/Makefile.server server_deploy
+ENV=${ENV:-production} ${MAKE} -f platform/makefiles/Makefile.server server_deploy
