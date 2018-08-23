@@ -1,15 +1,24 @@
 THIS_MAKEFILE_PATH:=$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 THIS_DIR:=$(shell cd $(dir $(THIS_MAKEFILE_PATH));pwd)
 include $(THIS_DIR)/common.mak
+include $(STACK_SOURCE)
 
-STACK_FILE ?= stack.yml
+ifeq (,$(ENV))
+DEPLOY_STACK=0
+else
+ifeq ($(ENV),$(findstring $(ENV),$(DEPLOY_ENVS)))
+DEPLOY_STACK=1
+else
+DEPLOY_STACK=0
+endif
+endif
 
+ifeq ($(DEPLOY_STACK),1)
 deploy_stack: predeploy
 	@echo "Deploying stack in $(CURDIR)"
 	@$(DOCKER) stack deploy -c $(STACK_FILE) --prune $(STACK_NAME)
 
-include $(STACK_SOURCE)
-.PHONY: $(STACK_PREDEPLOY) create_network create_secrets
+.PHONY: $(STACK_PREDEPLOY) create_networks create_secrets
 predeploy: $(STACK_PREDEPLOY)
 
 create_networks:
@@ -21,3 +30,11 @@ create_secrets:
 	@for secret in $(CREATE_SECRETS); do \
 		$(THIS_DIR)/../scripts/create_secret.sh $$secret; \
 	done
+
+else
+
+deploy_stack:
+create_networks:
+create_secrets:
+
+endif
