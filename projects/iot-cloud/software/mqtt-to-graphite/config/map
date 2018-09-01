@@ -51,4 +51,5 @@ j verbund/ST1
 j citisim/raspberry/IoanaPiZero
 j citisim/pycom/ST1
 j seaforest/raspberrypi/ST1
+j lora/#
 
