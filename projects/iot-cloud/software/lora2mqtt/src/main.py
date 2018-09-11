@@ -15,7 +15,7 @@ from flatten_json import flatten
 from utils.exceptions import RestException
 from utils.functions import resolve_mapping
 
-application = Flask(__name__)
+app = Flask(__name__)
 
 CONFIG_URL = os.environ.get('CONFIG_URL',
                             'https://gist.githubusercontent.com/dorinelfilip/6743182de240959b2a723fcf232b8496/raw/'
@@ -25,12 +25,12 @@ MQTT_HOST = os.environ.get('MQTT_HOST', 'mqtt.beia-telemetrie.ro')
 MQTT_PORT = os.environ.get('MQTT_PORT', 1883)
 
 
-@application.route('/')
+@app.route('/')
 def hello_world():
     return jsonify({'result': 'hello world'})
 
 
-@application.route('/publish', methods=['POST'])
+@app.route('/publish', methods=['POST'])
 def publish_data():
     data = request.get_json(silent=True)
     if not data:
@@ -48,46 +48,46 @@ def publish_data():
     if not authorization:
         raise RestException(401, 'Not authorized', 'token authorization HTTP header is missing.')
 
-    mqtt_topic = resolve_mapping(application.config['mapping']['applications'], app_id, dev_id, authorization)
+    mqtt_topic = resolve_mapping(app.config['mapping']['applications'], app_id, dev_id, authorization)
 
     result = flatten(metrics)
     result['timestamp'] = metic_time
     payload = json.dumps(result)
 
-    application.logger.info('New topic: {}\nPayload: {}'.format(mqtt_topic, payload))
+    app.logger.info('New topic: {}\nPayload: {}'.format(mqtt_topic, payload))
 
     publish.single(mqtt_topic, hostname=MQTT_HOST, port=MQTT_PORT, payload=payload, qos=2)
 
     return jsonify({'status': 'ok'})
 
 
-@application.before_first_request
+@app.before_first_request
 def init_app():
-    application.logger.setLevel(logging.INFO)
-    application.logger.info('Initializing application')
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Initializing application')
     __print_environment_config()
-    application.logger.info('Downloading config')
+    app.logger.info('Downloading config')
     downloaded_config = __get_config(silent=True)
     if downloaded_config:
-        application.config['mapping'] = downloaded_config
+        app.config['mapping'] = downloaded_config
     else:
-        application.logger.error('Failed to download config.')
+        app.logger.error('Failed to download config.')
         sys.exit(-1)
 
-    application.sched = scheduler = BackgroundScheduler(timezone='UTC')
+    app.sched = scheduler = BackgroundScheduler(timezone='UTC')
 
     @scheduler.scheduled_job('interval', seconds=300)
     def refresh_config():
-        application.logger.info('Running periodic config refresh')
+        app.logger.info('Running periodic config refresh')
         mew_config = __get_config(silent=True)
         if not mew_config:
-            application.logger.warning('Failed to pull new config file')
+            app.logger.warning('Failed to pull new config file')
         else:
-            application.logger.info("New config loaded. Content {}".format(application.config['mapping']))
-            application.config['mapping'] = mew_config
+            app.logger.info("New config loaded. Content {}".format(app.config['mapping']))
+            app.config['mapping'] = mew_config
 
     scheduler.start()
-    atexit.register(lambda: clean_app(application))
+    atexit.register(lambda: clean_app(app))
 
 
 def __get_config(silent=False, timeout=5):
@@ -106,20 +106,20 @@ def __get_config(silent=False, timeout=5):
             raise e
 
 
-@application.errorhandler(RestException)
+@app.errorhandler(RestException)
 def rest_exception_handler(e):
-    return __create_json_response_from_dict(e.http_code, e.get_as_dict())
+    return create_json_response_from_dict(e.http_code, e.get_as_dict())
 
 
-@application.errorhandler(500)
+@app.errorhandler(500)
 def internal_error_handler(e):
     # That comes to be strange, but raise RestException won't work.
-    application.logger.exception('Internal Server Error')
-    return __create_json_response_from_dict(500, RestException(500, 'Internal Server Error').get_as_dict())
+    app.logger.exception('Internal Server Error')
+    return create_json_response_from_dict(500, RestException(500, 'Internal Server Error').get_as_dict())
 
 
-def __create_json_response_from_dict(http_status_code, dictionary):
-    return application.response_class(
+def create_json_response_from_dict(http_status_code, dictionary):
+    return app.response_class(
         response=json.dumps(dictionary),
         status=http_status_code,
         mimetype='application/json',
@@ -136,7 +136,7 @@ def __print_environment_config():
                '{separator}'.format(separator=20 * '*', mqtt_host=MQTT_HOST, mqtt_port=MQTT_PORT,
                                     config_url=CONFIG_URL))
 
-    application.logger.info(message)
+    app.logger.info(message)
 
 
 def clean_app(app):
@@ -144,4 +144,4 @@ def clean_app(app):
 
 
 if __name__ == '__main__':
-    application.run(host='0.0.0.0', debug=False, port=80)
+    app.run(host='0.0.0.0', debug=False, port=80)
