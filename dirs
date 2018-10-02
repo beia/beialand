@@ -6,3 +6,4 @@ STACK_FOLDERS = \
 
 DOCKER_FOLDERS = \
   projects/docker-images/wordpress \
+  projects/iot-cloud/software/lora2mqtt \
