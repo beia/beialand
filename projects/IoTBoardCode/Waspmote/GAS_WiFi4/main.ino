@@ -18,7 +18,7 @@ uint8_t status;
 unsigned long previous;
   
 
-// CO Sensor must be connected physically in SOCKET_4
+// CO Sensor must be connected physically in SOCKET_2
 CO2SensorClass CO2Sensor(SOCKET_2);
 
 // VOC Sensor must be connected in SOCKET_5
