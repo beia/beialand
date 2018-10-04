@@ -1,4 +1,3 @@
-// Put your libraries here (#include ...)
 #include <WaspWIFI_PRO.h> 
 #include <WaspFrame.h>
 #include <WaspSensorGas_v30.h>
@@ -24,9 +23,6 @@ CO2SensorClass CO2Sensor(SOCKET_2);
 
 // VOC Sensor must be connected in SOCKET_5
 VOCSensorClass VOCSensor(SOCKET_5);
-
-// O2 Sensor must be connected in SOCKET_1
-//APSensorClass APPSensor(SOCKET_7);
 
 
 
@@ -86,7 +82,7 @@ VOCSensor.setCalibrationPoints(VOCresValues, VOCconcentrations, numPoints);
   VOCSensor.ON();
   //APPSensor.ON();
 }
-// define the Waspmote ID 
+
 void loop()
 {
 
@@ -135,9 +131,6 @@ void loop()
   float vocVol = VOCSensor.readVoltage();
   float vocRes = VOCSensor.readResistance(vocVol);    // Resistance of the senso
   float vocPPM = VOCSensor.readConcentration(vocRes); // PPM value of VOC
- // float APPVol = APPSensor.readVoltage();         // Voltage value of the sensor
- // float APPRes = APPSensor.readResistance();      // Resistance of the sensor
-  //float APP_PPM = APPSensor.readConcentration();  // PPM value of AP1
   
   // Print of the results
   USB.print(F(" Temperature: "));
@@ -160,18 +153,9 @@ void loop()
   USB.print(vocVol);
   USB.println(F(" V |"));
 
-  //USB.print(F("Air Pollutans Sensor Voltage: "));
- // USB.print(APPVol);
- // USB.print(F(" V |"));
-
   USB.print(F(" VOC Sensor Resistance: "));
   USB.print(vocRes);
   USB.println(F(" Ohms |"));
-
-  // Print of the results
- // USB.print(F(" Air Pollutans Sensor Resistance: "));
- // USB.print(APPRes);
- // USB.print(F(" Ohms |"));
 
   USB.print(F(" CO2 concentration estimated: "));
   USB.print(CO2PPM);
@@ -182,16 +166,11 @@ void loop()
   USB.print(vocPPM);
   USB.println(F(" ppm")); 
 
- // USB.print(F(" Air Pollutans concentration Estimated: "));
- // USB.print(APP_PPM);
- // USB.println(F(" ppm"));
-
   USB.println();
 
   ///////////////////////////////////////////
   // 3. Create BINARY frame
   ///////////////////////////////////////////
-  //frame.createFrame(ASCII, node_ID);
   frame.createFrame(BINARY, node_ID); 
 
   frame.addSensor(SENSOR_GASES_TC, Gases.getTemperature());
@@ -203,8 +182,6 @@ void loop()
   frame.addSensor(SENSOR_GASES_CO2, CO2PPM);
  
   frame.addSensor(SENSOR_GASES_VOC, VOCSensor.readConcentration(vocRes));
-
- // frame.addSensor(SENSOR_GASES_AP1, APP_PPM);
   
   frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());
 
