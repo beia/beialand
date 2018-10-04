@@ -223,5 +223,5 @@ void loop()
   //////////////////////////////////////////////////  
   WIFI_PRO.OFF(socket);
   USB.println(F("WiFi switched OFF\n\n")); 
-  delay(30000);
+  delay(900000);
 }
