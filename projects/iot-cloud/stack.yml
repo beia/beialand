@@ -49,6 +49,12 @@ services:
     image: grafana/grafana
     environment:
       GF_SECURITY_ADMIN_PASSWORD__FILE: '/run/secrets/grafana_password'
+      GF_SMTP_ENABLED: "true"
+      GF_SMTP_HOST__FILE: "/run/secrets/smtp_host"
+      GF_SMTP_SKIP_VERIFY: "true"
+      GF_FROM_ADDRESS: "no-reply@beia-consult.ro"
+      GF_SMTP_USER__FILE: '/run/secrets/smtp_user'
+      GF_SMTP_PASSWORD__FILE: '/run/secrets/smtp_password'
       VIRTUAL_HOST: 'grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
       LETSENCRYPT_HOST: 'grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
@@ -60,6 +66,9 @@ services:
       - grafana:/var/lib/grafana
     secrets:
       - grafana_password
+      - smtp_user
+      - smtp_password
+      - smtp_host
 
   statsd:
     image: vladwing/statsd
