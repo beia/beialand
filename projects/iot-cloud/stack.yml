@@ -167,3 +167,9 @@ secrets:
     external: true
   grafana_password:
     external: true
+  smtp_user:
+    external: true
+  smtp_password:
+    external: true
+  smtp_host:
+    external: true
