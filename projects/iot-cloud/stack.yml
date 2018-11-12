@@ -55,6 +55,7 @@ services:
       GF_SMTP_FROM_ADDRESS: "no-reply@beia-consult.ro"
       GF_SMTP_USER__FILE: '/run/secrets/smtp_user'
       GF_SMTP_PASSWORD__FILE: '/run/secrets/smtp_password'
+      GF_SERVER_ROOT_URL: 'https://grafana.beia-telemetrie.ro'
       VIRTUAL_HOST: 'grafana.beia.cloud,grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
       LETSENCRYPT_HOST: 'grafana.beia-telemetrie.ro,grafana.beia-consult.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
