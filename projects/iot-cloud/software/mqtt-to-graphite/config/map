@@ -45,6 +45,8 @@
 #	test.jp.json.temp 89.300000 1363169729
 #	test.jp.json.size 69.000000 1363169729
 
+# example of good topic: project/device/sensors
+
 j meshliumf958/#
 j meshliumfa30/#
 j verbund/ST1
