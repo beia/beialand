@@ -1,0 +1,9 @@
+* @beia/Seniors
+
+/docs/CODEOWNERS @beia/Governance
+
+/platform/* @beia/Platform
+**/dirs @beia/Platform
+**/source.stack @beia/Platform
+
+/practice @beia/Junior-reviewers
