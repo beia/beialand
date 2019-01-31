@@ -53,3 +53,5 @@ j citisim/pycom/ST1
 j seaforest/raspberrypi/ST1
 j lora/#
 j odsi/#
+j training/#
+
