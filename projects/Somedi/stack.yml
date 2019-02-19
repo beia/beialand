@@ -1,0 +1,31 @@
+version: '3.6'
+
+services:
+  sentiment_analysis:
+    image: beia/sentiment_analysis
+    environment:
+      VIRTUAL_HOST: 'somedi-api.beia.cloud,somedi-api.beia-consult.ro'
+      LETSENCRYPT_HOST: 'somedi-api.beia-consult.ro'
+      LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
+      ACCESS_TOKEN__FILE: '/run/secrets/access_token'
+    networks:
+     - proxy_net
+     - redis
+    secrets:
+     - access_token
+
+  redis:
+    image: redis:5.0.3-alpine
+    networks:
+     - redis
+
+networks:
+  redis:
+  proxy_net:
+    external: true
+
+secrets:
+  access_token:
+    external: true
+  google_cloud_auth:
+    external: true

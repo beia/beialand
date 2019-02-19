@@ -1,0 +1,4 @@
+STACK_FILE=stack.yml
+STACK_NAME=somedi
+CREATE_SECRETS=access_token
+DEPLOY_ENVS=production
