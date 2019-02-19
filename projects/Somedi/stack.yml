@@ -8,6 +8,7 @@ services:
       LETSENCRYPT_HOST: 'somedi-api.beia-consult.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
       ACCESS_TOKEN__FILE: '/run/secrets/access_token'
+      GOOGLE_APPLICATION_CREDENTIALS: '/run/secrets/google_cloud_auth'
     networks:
      - proxy_net
      - redis
