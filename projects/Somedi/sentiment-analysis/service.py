@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from functools import wraps
 import logging
 import os
@@ -5,6 +6,7 @@ from time import time
 from threading import Lock
 
 from sanic import Sanic, response
+from sanic.log import logger
 
 from google.cloud import language
 from google.cloud import translate
@@ -18,6 +20,7 @@ class TokenBucket:
     An implementation of the token bucket algorithm.
     """
     def __init__(self, rate, max_tokens):
+        self.max_tokens = max_tokens
         self.tokens = max_tokens
         self.rate = rate
         self.last = time()
@@ -33,7 +36,7 @@ class TokenBucket:
             self.tokens += lapse * self.rate
             self.tokens = min(self.max_tokens, self.tokens)
 
-            if self.tokens >= 0:
+            if self.tokens >= tokens:
                 self.tokens -= tokens
                 return True
             else:
@@ -47,10 +50,15 @@ class TokenManager:
     def add_token(self, token, rate, max_tokens):
         self.tokens[token] = TokenBucket(rate, max_tokens)
 
+    def is_valid(self, token):
+        return token in self.tokens
+
+    def can_consume(self, token):
+        return self.is_valid(token) and self.tokens[token].consume()
+
 class Application:
     def __init__(self):
-        self.logger = logging.getLogger('sentiment-analysis')
-        self.logger.setLevel(logging.DEBUG)
+        self.logger = logger
         self.init_sanic()
         self.init_tokens()
 
@@ -70,6 +78,7 @@ class Application:
         else:
             self.logger.error("Couldn't find a token. Set ACCESS_TOKEN or ACCESS_TOKEN__FILE")
             raise Exception("Couldn't find a token")
+        self.logger.info(f"Loading token ACCESS_TOKEN: {token}")
         self.token_manager.add_token(token, 1, 3)
 
     def healthcheck(request):
@@ -84,12 +93,15 @@ class Application:
         language = request.json["language"]
         if language != DEFAULT_SA_LANG:
             translation = self.translate.translate(content, target_language="en")
-            document = types.Document(content=translation, type=enums.Document.Type.PLAIN_TEXT)
+            self.logger.info("Content(translated): %s", translation)
+            document = types.Document(content=translation["translatedText"], type=enums.Document.Type.PLAIN_TEXT)
         else:
+            self.logger.info("Content: %s", content)
             document = types.Document(content=content, type=enums.Document.Type.PLAIN_TEXT)
         annotations = self.language.analyze_sentiment(document=document)
+        self.logger.info("Annotations: %s", annotations)
         return response.json({
-                "status": status,
+                "status": "success",
                 "job-id": None,
                 "sentiment-score": annotations.document_sentiment.score
             })
@@ -109,11 +121,13 @@ class Application:
                 "status": "invalid-arguments"
                 }, status=400)
         token = request.json.get("token")
-        if token not in self.tokens:
+        if not self.token_manager.is_valid(token):
+            self.logger.error(f"Token {token} is not valid")
             return response.json({
                 "status": "access-denied",
             }, status=401)
-        if not self.tokens[token].consume():
+        if not self.token_manager.can_consume(token):
+            self.logger.error(f"Token {token} doesn't have enough credits")
             return response.json({
                 "status": "rate-limit",
             }, status=403)

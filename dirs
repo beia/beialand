@@ -3,7 +3,9 @@ STACK_FOLDERS = \
   projects/innov2017 \
   projects/iot-cloud \
   projects/libelium-backup \
+  projects/Somedi \
 
 DOCKER_FOLDERS = \
   projects/docker-images/wordpress \
   projects/iot-cloud/software/lora2mqtt \
+  projects/Somedi/sentiment-analisys \
