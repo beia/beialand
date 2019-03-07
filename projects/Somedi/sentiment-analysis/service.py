@@ -83,7 +83,7 @@ class Application:
         self.logger.info(f"Loading token ACCESS_TOKEN: {token}")
         self.token_manager.add_token(token, 1, 3)
 
-    def healthcheck(request):
+    def healthcheck(self, request):
         # TODO: implement
         return response.raw(b'', status=200)
 
