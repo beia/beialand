@@ -5,15 +5,16 @@ services:
     image: beia/sentiment_analysis
     environment:
       VIRTUAL_HOST: 'somedi-api.beia.cloud,somedi-api.beia-consult.ro'
+      VIRTUAL_PORT: 8080
       LETSENCRYPT_HOST: 'somedi-api.beia-consult.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
       ACCESS_TOKEN__FILE: '/run/secrets/access_token'
-      GOOGLE_APPLICATION_CREDENTIALS: '/srv/sentiment-analisys/creds/auth.json'
+      GOOGLE_APPLICATION_CREDENTIALS: '/srv/sentiment-analysis/creds/auth.json'
     networks:
      - proxy_net
      - redis
     volumes:
-     - sa_auth:/srv/sentiment-analisys/creds
+     - sa_auth:/srv/sentiment-analysis/creds
     secrets:
      - access_token
 
