@@ -2,6 +2,7 @@
 from functools import wraps
 import logging
 import os
+import uuid
 from time import time
 from threading import Lock
 
@@ -61,12 +62,13 @@ class Application:
         self.logger = logger
         self.init_sanic()
         self.init_tokens()
+        self.jobs = {}
 
     def init_sanic(self):
         self.app = Sanic(__file__)
         self.app.add_route(lambda request: self.healthcheck(request), '/healthcheck')
         self.app.add_route(lambda request: self.sentimentanalysis(request), '/sentiment-analysis', methods=["POST", "PUT"])
-        self.app.add_route(lambda request: self.jobstatus(request), '/job-status')
+        self.app.add_route(lambda request: self.jobstatus(request), '/job-status', methods=["POST", "PUT"])
 
     def init_tokens(self):
         self.token_manager = TokenManager()
@@ -91,6 +93,16 @@ class Application:
             return result
         content = request.json["content"]
         language = request.json["language"]
+        job_id = str(uuid.uuid4())
+        self.app.add_task(self.long_running(language, content, job_id))
+        return response.json({
+                "status": "pending",
+                "job-id": str(job_id)
+            })
+
+    async def long_running(self, language, content, job_id):
+        self.jobs[job_id] = { "status": "pending" }
+        self.logger.info(self.jobs)
         if language != DEFAULT_SA_LANG:
             translation = self.translate.translate(content, target_language="en")
             self.logger.info("Content(translated): %s", translation)
@@ -100,20 +112,20 @@ class Application:
             document = types.Document(content=content, type=enums.Document.Type.PLAIN_TEXT)
         annotations = self.language.analyze_sentiment(document=document)
         self.logger.info("Annotations: %s", annotations)
-        return response.json({
-                "status": "success",
-                "job-id": None,
-                "sentiment-score": annotations.document_sentiment.score
-            })
+        self.jobs[job_id]["sentiment-score"] = annotations.document_sentiment.score
+        self.jobs[job_id]["status"] = "success"
 
-    def jobstatus(request):
+    def jobstatus(self, request):
         result = self.verify_request(request)
         if result:
             return result
-        # TODO: actually implement async API
-        return response.json({
-            "status": "not-found"
-        }, status=404)
+        job_id = request.json.get("job-id")
+        if not job_id or not self.jobs.get(job_id):
+            return response.json({
+                "status": "not-found"
+            }, status=404)
+        self.logger.info(self.jobs)
+        return response.json(self.jobs[job_id], status=200)
 
     def verify_request(self, request):
         if not request.json:
