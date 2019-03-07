@@ -10,6 +10,8 @@ RUN apk add --update --no-cache \
     && pip install --no-cache-dir -r requirements.txt \
     && apk del .build-deps \
     && rm -rf /var/cache/apk/*
+RUN apk add --update --no-cache \
+	libstdc++
 
 COPY . .
 CMD [ "python", "./service.py" ]
