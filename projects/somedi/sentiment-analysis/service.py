@@ -75,9 +75,9 @@ class KeyValueStore:
         return json.loads(content)
 
     def set(self, job_id, content, expire=None):
-        if not ex:
-            ex=self.redis_expire
-        self.redis.set(job_id, json.dumps(content), ex=ex)
+        if not expire:
+            expire=self.redis_expire
+        self.redis.set(job_id, json.dumps(content), ex=expire)
 
 
 class Application:
@@ -92,8 +92,8 @@ class Application:
         self.app.add_route(lambda request: self.healthcheck(request), '/healthcheck')
         self.app.add_route(lambda request: self.sentimentanalysis(request), '/sentiment-analysis', methods=ALL_METHODS)
         self.app.add_route(lambda request: self.jobstatus(request), '/job-status', methods=ALL_METHODS)
-        self.app.add_route(lambda request: self.catch_all(request, path='/'), '/')
-        self.app.add_route(lambda request, path: self.catch_all(request, path=path), '/<path:path>')
+        self.app.add_route(lambda request: self.catch_all(request, path='/'), '/', methods=ALL_METHODS)
+        self.app.add_route(lambda request, path: self.catch_all(request, path=path), '/<path:path>', methods=ALL_METHODS)
 
     def get_uuid(self):
         return str(uuid.uuid4())
