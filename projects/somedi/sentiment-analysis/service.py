@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 from functools import wraps
-import logging
 import os
 import uuid
+import json
 from time import time
 from threading import Lock
+
+from redis import Redis
 
 from sanic import Sanic, response
 from sanic.log import logger
@@ -62,13 +64,36 @@ class Application:
         self.logger = logger
         self.init_sanic()
         self.init_tokens()
-        self.jobs = {}
+        self.init_redis()
+
+    def init_redis(self):
+        host = os.environ.get('REDIS_HOST', 'localhost')
+        port = int(os.environ.get('REDIS_PORT', 6379))
+        db = int(os.environ.get('REDIS_DB', 0))
+        self.redis_expire = 300 # TODO: set from outside if needed
+        self.redis = Redis(host=host, port=port, db=db)
 
     def init_sanic(self):
         self.app = Sanic(__file__)
         self.app.add_route(lambda request: self.healthcheck(request), '/healthcheck')
         self.app.add_route(lambda request: self.sentimentanalysis(request), '/sentiment-analysis', methods=["POST", "PUT"])
         self.app.add_route(lambda request: self.jobstatus(request), '/job-status', methods=["POST", "PUT"])
+        self.app.add_route(lambda request: self.catch_all(request, path=''), '/')
+        self.app.add_route(lambda request, path: self.catch_all(request, path=path), '/<path:path>')
+
+    def set_job(self, job_id, content, ex=None):
+        if not ex:
+            ex=self.redis_expire
+        self.redis.set(job_id, json.dumps(content), ex=ex)
+
+    def get_job(self, job_id):
+        content = self.redis.get(job_id)
+        if not content:
+            return None
+        return json.loads(content)
+
+    def get_uuid(self):
+        return str(uuid.uuid4())
 
     def init_tokens(self):
         self.token_manager = TokenManager()
@@ -83,16 +108,32 @@ class Application:
         self.logger.info(f"Loading token ACCESS_TOKEN: {token}")
         self.token_manager.add_token(token, 1, 3)
 
+    def catch_all(self, request, path):
+        return response.json({
+            'status': 'invalid-arguments',
+            'message': 'Invalid API request'
+            }, status=404)
+
     def healthcheck(self, request):
-        # TODO: implement
-        return response.raw(b'', status=200)
+        rnd = self.get_uuid()
+        self.set_job(rnd, {"content": rnd }, 5)
+        job = self.get_job(rnd)
+        if not job or job["content"] != rnd:
+            return response.text(None, status=500)
+        # TODO: check Google API?
+        return response.text(None, status=200)
 
     def sentimentanalysis(self, request):
         result = self.verify_request(request)
         if result:
             return result
-        content = request.json["content"]
-        language = request.json["language"]
+        content = request.json.get("content")
+        language = request.json.get("language", "en")
+        if not content:
+            return response.json({
+                "status": "invalid-arguments",
+                "message": "The request is missing the 'content' parameter"
+            }, status=400)
         job_id = str(uuid.uuid4())
         self.app.add_task(self.long_running(language, content, job_id))
         return response.json({
@@ -101,31 +142,52 @@ class Application:
             })
 
     async def long_running(self, language, content, job_id):
-        self.jobs[job_id] = { "status": "pending" }
-        self.logger.info(self.jobs)
-        if language != DEFAULT_SA_LANG:
-            translation = self.translate.translate(content, target_language="en")
-            self.logger.info("Content(translated): %s", translation)
-            document = types.Document(content=translation["translatedText"], type=enums.Document.Type.PLAIN_TEXT)
-        else:
-            self.logger.info("Content: %s", content)
-            document = types.Document(content=content, type=enums.Document.Type.PLAIN_TEXT)
-        annotations = self.language.analyze_sentiment(document=document)
-        self.logger.info("Annotations: %s", annotations)
-        self.jobs[job_id]["sentiment-score"] = annotations.document_sentiment.score
-        self.jobs[job_id]["status"] = "success"
+        self.set_job(job_id, { "status": "pending" })
+        try:
+            self.logger.info("[Job %s]: Starting communication with Google", job_id)
+            text = content
+            if language != DEFAULT_SA_LANG:
+                self.logger.info("[Job %s]: Content requires translation. Calling Translation API", job_id)
+                translation = self.translate.translate(content, target_language="en")
+                self.logger.debug("[Job %s]: Content(translated): %s", job_id, translation)
+                text = translation["translatedText"]
+            self.logger.info("[Job %s]: Calling Sentiment Analysis API", job_id)
+            self.logger.debug("[Job %s]: Content: %s", job_id, text)
+            document = types.Document(content=text, type=enums.Document.Type.PLAIN_TEXT)
+            annotations = self.language.analyze_sentiment(document=document)
+            self.logger.debug("[Job %s]: Annotations: %s", job_id, annotations)
+            self.set_job(job_id, {
+                "status": "success",
+                "sentiment-score": annotations.document_sentiment.score,
+                })
+            self.logger.info("[Job %s]: Finish processing", job_id)
+        except Exception as ex:
+            correlation_id = self.get_uuid()
+            self.logger.exception("[Job %s]: We encountered an error. Correlation id '%s'", job_id, correlation_id)
+            self.set_job(job_id, {
+                "status": "server-error",
+                "message": "Encountered an error while processing request",
+                "correlation-id": correlation_id
+                })
 
     def jobstatus(self, request):
         result = self.verify_request(request)
         if result:
             return result
         job_id = request.json.get("job-id")
-        if not job_id or not self.jobs.get(job_id):
+        if not job_id:
             return response.json({
-                "status": "not-found"
+                "status": "invalid-arguments",
+                "message": "The request is missing the 'job-id' parameter"
+            }, status=400)
+        job = self.get_job(job_id)
+        if not job:
+            return response.json({
+                "status": "not-found",
+                "message": "The specified job was not found"
             }, status=404)
-        self.logger.info(self.jobs)
-        return response.json(self.jobs[job_id], status=200)
+        self.logger.info("Redis returned %s", job)
+        return response.json(job, status=200)
 
     def verify_request(self, request):
         if not request.json:
@@ -133,22 +195,30 @@ class Application:
                 "status": "invalid-arguments"
                 }, status=400)
         token = request.json.get("token")
+        if not token:
+            self.logger.error(f"Token {token} is not valid")
+            return response.json({
+                "status": "access-denied",
+                "message": "The request doesn't contain mandatory 'token' parameter"
+            }, status=401)
         if not self.token_manager.is_valid(token):
             self.logger.error(f"Token {token} is not valid")
             return response.json({
                 "status": "access-denied",
-            }, status=401)
+                "message": "The token was not recognized"
+            }, status=403)
         if not self.token_manager.can_consume(token):
             self.logger.error(f"Token {token} doesn't have enough credits")
             return response.json({
                 "status": "rate-limit",
-            }, status=403)
+                "message": "Your token used up its request quota. Wait a bit..."
+            }, status=429)
         return None
 
     def run(self):
         self.translate = translate.Client()
         self.language = language.LanguageServiceClient()
-        self.app.run(host="0.0.0.0", port=8080)
+        self.app.run(host="0.0.0.0", port=int(os.environ.get('PORT', "8080")))
 
 if __name__ == "__main__":
     app = Application()
