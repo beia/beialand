@@ -17,6 +17,7 @@ from google.cloud.language import enums
 from google.cloud.language import types
 
 DEFAULT_SA_LANG = "en"
+ALL_METHODS = frozenset(["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 
 class TokenBucket:
     """
@@ -59,38 +60,40 @@ class TokenManager:
     def can_consume(self, token):
         return self.is_valid(token) and self.tokens[token].consume()
 
-class Application:
+class KeyValueStore:
     def __init__(self):
-        self.logger = logger
-        self.init_sanic()
-        self.init_tokens()
-        self.init_redis()
-
-    def init_redis(self):
         host = os.environ.get('REDIS_HOST', 'localhost')
         port = int(os.environ.get('REDIS_PORT', 6379))
         db = int(os.environ.get('REDIS_DB', 0))
         self.redis_expire = 300 # TODO: set from outside if needed
         self.redis = Redis(host=host, port=port, db=db)
 
-    def init_sanic(self):
-        self.app = Sanic(__file__)
-        self.app.add_route(lambda request: self.healthcheck(request), '/healthcheck')
-        self.app.add_route(lambda request: self.sentimentanalysis(request), '/sentiment-analysis', methods=["POST", "PUT"])
-        self.app.add_route(lambda request: self.jobstatus(request), '/job-status', methods=["POST", "PUT"])
-        self.app.add_route(lambda request: self.catch_all(request, path=''), '/')
-        self.app.add_route(lambda request, path: self.catch_all(request, path=path), '/<path:path>')
-
-    def set_job(self, job_id, content, ex=None):
-        if not ex:
-            ex=self.redis_expire
-        self.redis.set(job_id, json.dumps(content), ex=ex)
-
-    def get_job(self, job_id):
+    def get(self, job_id):
         content = self.redis.get(job_id)
         if not content:
             return None
         return json.loads(content)
+
+    def set(self, job_id, content, expire=None):
+        if not ex:
+            ex=self.redis_expire
+        self.redis.set(job_id, json.dumps(content), ex=ex)
+
+
+class Application:
+    def __init__(self):
+        self.logger = logger
+        self.init_sanic()
+        self.init_tokens()
+        self.kvstore = KeyValueStore()
+
+    def init_sanic(self):
+        self.app = Sanic(__file__)
+        self.app.add_route(lambda request: self.healthcheck(request), '/healthcheck')
+        self.app.add_route(lambda request: self.sentimentanalysis(request), '/sentiment-analysis', methods=ALL_METHODS)
+        self.app.add_route(lambda request: self.jobstatus(request), '/job-status', methods=ALL_METHODS)
+        self.app.add_route(lambda request: self.catch_all(request, path='/'), '/')
+        self.app.add_route(lambda request, path: self.catch_all(request, path=path), '/<path:path>')
 
     def get_uuid(self):
         return str(uuid.uuid4())
@@ -116,11 +119,11 @@ class Application:
 
     def healthcheck(self, request):
         rnd = self.get_uuid()
-        self.set_job(rnd, {"content": rnd }, 5)
-        job = self.get_job(rnd)
+        self.kvstore.set(rnd, {"content": rnd }, 5)
+        job = self.kvstore.get(rnd)
         if not job or job["content"] != rnd:
             return response.text(None, status=500)
-        # TODO: check Google API?
+        # TODO: check Google API connectivity?
         return response.text(None, status=200)
 
     def sentimentanalysis(self, request):
@@ -142,7 +145,7 @@ class Application:
             })
 
     async def long_running(self, language, content, job_id):
-        self.set_job(job_id, { "status": "pending" })
+        self.kvstore.set(job_id, { "status": "pending" })
         try:
             self.logger.info("[Job %s]: Starting communication with Google", job_id)
             text = content
@@ -156,7 +159,7 @@ class Application:
             document = types.Document(content=text, type=enums.Document.Type.PLAIN_TEXT)
             annotations = self.language.analyze_sentiment(document=document)
             self.logger.debug("[Job %s]: Annotations: %s", job_id, annotations)
-            self.set_job(job_id, {
+            self.kvstore.set(job_id, {
                 "status": "success",
                 "sentiment-score": annotations.document_sentiment.score,
                 })
@@ -164,7 +167,7 @@ class Application:
         except Exception as ex:
             correlation_id = self.get_uuid()
             self.logger.exception("[Job %s]: We encountered an error. Correlation id '%s'", job_id, correlation_id)
-            self.set_job(job_id, {
+            self.kvstore.set(job_id, {
                 "status": "server-error",
                 "message": "Encountered an error while processing request",
                 "correlation-id": correlation_id
@@ -180,19 +183,25 @@ class Application:
                 "status": "invalid-arguments",
                 "message": "The request is missing the 'job-id' parameter"
             }, status=400)
-        job = self.get_job(job_id)
+        job = self.kvstore.get(job_id)
         if not job:
             return response.json({
                 "status": "not-found",
                 "message": "The specified job was not found"
             }, status=404)
-        self.logger.info("Redis returned %s", job)
+        self.logger.info("Key-Value store returned %s", job)
         return response.json(job, status=200)
 
-    def verify_request(self, request):
-        if not request.json:
+    def verify_request(self, request, methods=frozenset(["POST", "PUT"])):
+        if request.method.upper() not in methods:
             return response.json({
-                "status": "invalid-arguments"
+                "status": "invalid-arguments",
+                "message": "Unsupported method %s for this endpoint" % request.method.upper(),
+                }, status=400)
+        if request.json is None:
+            return response.json({
+                "status": "invalid-arguments",
+                "message": "Request body needs to be JSON",
                 }, status=400)
         token = request.json.get("token")
         if not token:
