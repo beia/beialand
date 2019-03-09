@@ -10,6 +10,7 @@ services:
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
       ACCESS_TOKEN__FILE: '/run/secrets/access_token'
       GOOGLE_APPLICATION_CREDENTIALS: '/srv/sentiment-analysis/creds/auth.json'
+      REDIS_HOST: 'redis'
     networks:
      - proxy_net
      - redis
@@ -17,7 +18,6 @@ services:
      - sa_auth:/srv/sentiment-analysis/creds
     secrets:
      - access_token
-
   redis:
     image: redis:5.0.3-alpine
     networks:
