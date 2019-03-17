@@ -1,0 +1,722 @@
+I don't like this job so much.
+I don't like this job so much.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I like this activity very much.
+I like this activity very much.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I like this job.
+I like this job.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+This job is nice, I think that I can learn new.
+This job is nice, I think that I can learn new.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+Definitely, yes! I am keen on working in this domain because I presume that a R&D program is essential for the development of technology.
+Definitely, yes!
+Label: Positive
+
+I am keen on working in this domain because I presume that a R&D program is essential for the development of technology.
+Label: Negative
+
+Batch mean score: 0.5
+
+
+Taking into account the projects in which I was involved during this year of university, I develop a passion for Electronics Production. I guess will be a pleasure to have a position in this field.
+Taking into account the projects in which I was involved during this year of university, I develop a passion for Electronics Production.
+Label: Negative
+
+I guess will be a pleasure to have a position in this field.
+Label: Positive
+
+Batch mean score: 0.5
+
+
+I am sure I am not interested in this domain, because right now I have a lot of thrills and I think I cannot talk with many people and sell the product. So, for this moment I do not want to work here.
+I am sure I am not interested in this domain, because right now I have a lot of thrills and I think I cannot talk with many people and sell the product.
+Label: Negative
+
+So, for this moment I do not want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+Why not? But I am aware of the fact that I don't have the ability to repair something. But, I want to learn and to gain this ability.
+Why not?
+Label: Negative
+
+But I am aware of the fact that I don't have the ability to repair something.
+Label: Negative
+
+But, I want to learn and to gain this ability.
+Label: Positive
+
+Batch mean score: 0.4166666666666667
+
+
+Yes! Because I want to know more about electronics and the perfect step is to search for information. I want to work here!
+Yes!
+Label: Neutral
+
+Because I want to know more about electronics and the perfect step is to search for information.
+Label: Negative
+
+I want to work here!
+Label: Positive
+
+Batch mean score: 0.5
+
+
+Yes! Because I think it is suitable for me! I like your company so, I want to work here.
+Yes!
+Label: Neutral
+
+Because I think it is suitable for me!
+Label: Positive
+
+I like your company so, I want to work here.
+Label: Positive
+
+Batch mean score: 0.6666666666666666
+
+
+Yes! Due to the fact that it`s one of my favorite. It will be a pleasure to work with your company!
+Yes!
+Label: Neutral
+
+Due to the fact that it`s one of my favorite.
+Label: Negative
+
+It will be a pleasure to work with your company!
+Label: Very positive
+
+Batch mean score: 0.5833333333333334
+
+
+Yes! I am quite interested! Because I think my second name is " solution" so, I like to repair everything. Definitely, I want to work within your company.
+Yes!
+Label: Neutral
+
+I am quite interested!
+Label: Positive
+
+Because I think my second name is " solution" so, I like to repair everything.
+Label: Negative
+
+Definitely, I want to work within your company.
+Label: Positive
+
+Batch mean score: 0.5625
+
+
+Yes, I like this domain! Because it is interesting! Yes, I like to work here!
+Yes, I like this domain!
+Label: Negative
+
+Because it is interesting!
+Label: Positive
+
+Yes, I like to work here!
+Label: Positive
+
+Batch mean score: 0.5833333333333334
+
+
+No, I hate this domain! Because I think it is not suitable for me! Yes, I don’t want to work here!
+No, I hate this domain!
+Label: Neutral
+
+Because I think it is not suitable for me!
+Label: Negative
+
+Yes, I don’t want to work here!
+Label: Negative
+
+Batch mean score: 0.3333333333333333
+
+
+Yes, I like! Because it`s an amazing domain. Yes, I want!
+Yes, I like!
+Label: Positive
+
+Because it`s an amazing domain.
+Label: Positive
+
+Yes, I want!
+Label: Positive
+
+Batch mean score: 0.75
+
+
+No! Because I hate it! No, I don't want!
+No!
+Label: Neutral
+
+Because I hate it!
+Label: Negative
+
+No, I don't want!
+Label: Neutral
+
+Batch mean score: 0.4166666666666667
+
+
+Yes! I enjoy work here! I want to be a part of this company! I will be happy to work here!
+Yes!
+Label: Neutral
+
+I enjoy work here!
+Label: Very positive
+
+I want to be a part of this company!
+Label: Positive
+
+I will be happy to work here!
+Label: Very positive
+
+Batch mean score: 0.8125
+
+
+I like to be here.
+I like to be here.
+Label: Neutral
+
+Batch mean score: 0.5
+
+
+No, I think this job is not for me.
+No, I think this job is not for me.
+Label: Neutral
+
+Batch mean score: 0.5
+
+
+No, I hate to repair. 
+No, I hate to repair.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I love this domain.
+I love this domain.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+I want to know more about this domain.
+I want to know more about this domain.
+Label: Neutral
+
+Batch mean score: 0.5
+
+
+I worked on this domain and I would like to continue it.
+I worked on this domain and I would like to continue it.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I don't know if I want to work here.
+I don't know if I want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+Yes. I like this domain very much. Because I find it very interesting and also, I think it is my dream job! I would enjoy quite much to work here!
+Yes.
+Label: Neutral
+
+I like this domain very much.
+Label: Negative
+
+Because I find it very interesting and also, I think it is my dream job!
+Label: Positive
+
+I would enjoy quite much to work here!
+Label: Positive
+
+Batch mean score: 0.5625
+
+
+No! Because it is not my dream job! It is not quite interesting! I will not enjoy this company!
+No!
+Label: Neutral
+
+Because it is not my dream job!
+Label: Negative
+
+It is not quite interesting!
+Label: Negative
+
+I will not enjoy this company!
+Label: Positive
+
+Batch mean score: 0.4375
+
+
+Yes! I wish to work here, because it is my dream job! I would like to be a part of this company because i think it is amazing and also, I am quite interesting!
+Yes!
+Label: Neutral
+
+I wish to work here, because it is my dream job!
+Label: Positive
+
+I would like to be a part of this company because i think it is amazing and also, I am quite interesting!
+Label: Very positive
+
+Batch mean score: 0.75
+
+
+Yes! It will be a dream which will come true! Because it's my passion for more than 10 years! I really want to work here!
+Yes!
+Label: Neutral
+
+It will be a dream which will come true!
+Label: Positive
+
+Because it's my passion for more than 10 years!
+Label: Positive
+
+I really want to work here!
+Label: Positive
+
+Batch mean score: 0.6875
+
+
+Yes! Because it is my job and nice, amazing! Yes, I want to work here! I think it is the perfect job for me! I want to be a part of!
+Yes!
+Label: Neutral
+
+Because it is my job and nice, amazing!
+Label: Very positive
+
+Yes, I want to work here!
+Label: Positive
+
+I think it is the perfect job for me!
+Label: Very positive
+
+I want to be a part of!
+Label: Positive
+
+Batch mean score: 0.8
+
+
+I do not know! I enjoy this field and I wish to work in this domain, but I don't know where.
+I do not know!
+Label: Neutral
+
+I enjoy this field and I wish to work in this domain, but I don't know where.
+Label: Positive
+
+Batch mean score: 0.625
+
+
+Yes! A dream will come true! A perfect job! I want to work here! I wish to be a part of your team and I think I will enjoy! Because it is sound as an amazing thing!
+Yes!
+Label: Neutral
+
+A dream will come true!
+Label: Positive
+
+A perfect job!
+Label: Very positive
+
+I want to work here!
+Label: Positive
+
+I wish to be a part of your team and I think I will enjoy!
+Label: Positive
+
+Because it is sound as an amazing thing!
+Label: Positive
+
+Batch mean score: 0.75
+
+
+Yes! It is my job! I want to work here! I wish to be a part of! It will be a pleasure.
+Yes!
+Label: Neutral
+
+It is my job!
+Label: Positive
+
+I want to work here!
+Label: Positive
+
+I wish to be a part of!
+Label: Neutral
+
+It will be a pleasure.
+Label: Positive
+
+Batch mean score: 0.65
+
+
+Yes, because it is my job. It will be nice and amazing! Yes, I want to work here! I think it is the perfect job for me! I wish this dream would come true and I think I will enjoy it!
+Yes, because it is my job.
+Label: Positive
+
+It will be nice and amazing!
+Label: Very positive
+
+Yes, I want to work here!
+Label: Positive
+
+I think it is the perfect job for me!
+Label: Very positive
+
+I wish this dream would come true and I think I will enjoy it!
+Label: Very positive
+
+Batch mean score: 0.9
+
+
+I do not know! I enjoy this field and I wish to work in this domain, but I don't know where. Also, I do not know if it is a perfect job or a wish! But I want to try!
+I do not know!
+Label: Neutral
+
+I enjoy this field and I wish to work in this domain, but I don't know where.
+Label: Positive
+
+Also, I do not know if it is a perfect job or a wish!
+Label: Negative
+
+But I want to try!
+Label: Positive
+
+Batch mean score: 0.5625
+
+
+Yes, because I think it will be awesome! I want to work here, and I can say that I will enjoy this opportunity.
+Yes, because I think it will be awesome!
+Label: Positive
+
+I want to work here, and I can say that I will enjoy this opportunity.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+Yes, I love this domain! Because I think it will be a good job for me.
+Yes, I love this domain!
+Label: Positive
+
+Because I think it will be a good job for me.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+Yes, I like this domain! I wish to work here, because it is my dream job! I would like to be a part of this company because I think it is amazing and also, I am quite interesting! I really want!
+Yes, I like this domain!
+Label: Negative
+
+I wish to work here, because it is my dream job!
+Label: Positive
+
+I would like to be a part of this company because I think it is amazing and also, I am quite interesting!
+Label: Very positive
+
+I really want!
+Label: Positive
+
+Batch mean score: 0.6875
+
+
+Yes, but I think I am not good and also, I think it is not my dream job! But, maybe I will want to work here, because it is an amazing company!
+Yes, but I think I am not good and also, I think it is not my dream job!
+Label: Very negative
+
+But, maybe I will want to work here, because it is an amazing company!
+Label: Very positive
+
+Batch mean score: 0.5
+
+
+No! It`s hard to work here! I think it is not for me!
+No!
+Label: Neutral
+
+It`s hard to work here!
+Label: Negative
+
+I think it is not for me!
+Label: Neutral
+
+Batch mean score: 0.4166666666666667
+
+
+Yes! It's my dream job! I wish, I will enjoy, it will be perfect! I really want!
+Yes!
+Label: Neutral
+
+It's my dream job!
+Label: Positive
+
+I wish, I will enjoy, it will be perfect!
+Label: Very positive
+
+I really want!
+Label: Positive
+
+Batch mean score: 0.75
+
+
+Yes, I like this domain because I find it very challenging. I'd like to work here.
+Yes, I like this domain because I find it very challenging.
+Label: Negative
+
+I'd like to work here.
+Label: Neutral
+
+Batch mean score: 0.375
+
+
+Yes, I like this domain because I find it very interesting and I also study electronics at my University.
+Yes, I like this domain because I find it very interesting and I also study electronics at my University.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+No, I don't like this domain because I don't find it very interesting. I wouldn't want work here.
+No, I don't like this domain because I don't find it very interesting.
+Label: Neutral
+
+I wouldn't want work here.
+Label: Negative
+
+Batch mean score: 0.375
+
+
+I don't really like this domain because I don't like making troubleshooting. I wouldn't necessarily like to work here.
+I don't really like this domain because I don't like making troubleshooting.
+Label: Negative
+
+I wouldn't necessarily like to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I don't like this domain because I don't feel like I'm very prepared for it. I wouldn't like to work here.
+I don't like this domain because I don't feel like I'm very prepared for it.
+Label: Negative
+
+I wouldn't like to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I don't like this domain because I don't find it very challenging. I wouldn't like to work here.
+I don't like this domain because I don't find it very challenging.
+Label: Negative
+
+I wouldn't like to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I like this domain because I like talking to people. I want to work here.
+I like this domain because I like talking to people.
+Label: Negative
+
+I want to work here.
+Label: Neutral
+
+Batch mean score: 0.375
+
+
+I like this domain because I think it's very interesting to see how electronics products work. I want to work here.
+I like this domain because I think it's very interesting to see how electronics products work.
+Label: Positive
+
+I want to work here.
+Label: Neutral
+
+Batch mean score: 0.625
+
+
+I love this domain because I find it very interesting. I want to work here.
+I love this domain because I find it very interesting.
+Label: Positive
+
+I want to work here.
+Label: Neutral
+
+Batch mean score: 0.625
+
+
+I like this domain and I want to work here.
+I like this domain and I want to work here.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+I don't like this domain.
+I don't like this domain.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I hate this domain.
+I hate this domain.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I like this domain because I think it's interesting to see how electronics work and to think about new products and ways to make life easier. I want to work here.
+I like this domain because I think it's interesting to see how electronics work and to think about new products and ways to make life easier.
+Label: Negative
+
+I want to work here.
+Label: Neutral
+
+Batch mean score: 0.375
+
+
+I love this domain because I think it's interesting to think about new ways to make life easier. I want to work here.
+I love this domain because I think it's interesting to think about new ways to make life easier.
+Label: Positive
+
+I want to work here.
+Label: Neutral
+
+Batch mean score: 0.625
+
+
+I don't like this domain because I don't think it's interesting to sale products. I like more practical jobs. I don't want to work here.
+I don't like this domain because I don't think it's interesting to sale products.
+Label: Negative
+
+I like more practical jobs.
+Label: Neutral
+
+I don't want to work here.
+Label: Negative
+
+Batch mean score: 0.3333333333333333
+
+
+I don't like this domain very much because I don't find it very interesting, but I don't hate it. I would like to work here.
+I don't like this domain very much because I don't find it very interesting, but I don't hate it.
+Label: Negative
+
+I would like to work here.
+Label: Neutral
+
+Batch mean score: 0.375
+
+
+I don't like this domain because I find it very hard. I don't want to work here.
+I don't like this domain because I find it very hard.
+Label: Negative
+
+I don't want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I don't find this domain very interesting, but I would like to work here.
+I don't find this domain very interesting, but I would like to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I like this domain, but I don't think I would be good at it because I'm very shy, I don't want to work here.
+I like this domain, but I don't think I would be good at it because I'm very shy, I don't want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I don't like this domain because I don't know anything about it.
+I don't like this domain because I don't know anything about it.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I love this domain, this would be my dream job.
+I love this domain, this would be my dream job.
+Label: Positive
+
+Batch mean score: 0.75
+
+
+I like this domain also.
+I like this domain also.
+Label: Neutral
+
+Batch mean score: 0.5
+
+
+I don't like this domain and I don't want to work here.
+I don't like this domain and I don't want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I hate this domain and I don't want to work here.
+I hate this domain and I don't want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I want to work here.
+I want to work here.
+Label: Neutral
+
+Batch mean score: 0.5
+
+
+I don't want to work here.
+I don't want to work here.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I don’t want this domain.
+I don’t want this domain.
+Label: Negative
+
+Batch mean score: 0.25
+
+
+I love this domain.
+I love this domain.
+Label: Positive
+
+Batch mean score: 0.75
+
+
