@@ -42,13 +42,15 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp">
         <LinearLayout
             android:id="@+id/CustomAutenthificationLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="50dp">
+            android:focusable="true"
+            android:focusableInTouchMode="true">
         </LinearLayout>
     </ScrollView>
 

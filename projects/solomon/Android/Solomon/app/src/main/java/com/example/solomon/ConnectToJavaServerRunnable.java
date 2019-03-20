@@ -14,8 +14,6 @@ public class ConnectToJavaServerRunnable implements Runnable
             LoginActivity.socket = new Socket("172.20.10.13", 8000);
             LoginActivity.objectOutputStream = new ObjectOutputStream(LoginActivity.socket.getOutputStream());
             LoginActivity.objectInputStream = new ObjectInputStream(LoginActivity.socket.getInputStream());
-            LoginActivity.manageClientConnectionThread = new Thread(new ManageClientConnectionRunnable(LoginActivity.objectOutputStream, LoginActivity.objectInputStream));
-            LoginActivity.manageClientConnectionThread.start();
         }
         catch(IOException ex)
         {

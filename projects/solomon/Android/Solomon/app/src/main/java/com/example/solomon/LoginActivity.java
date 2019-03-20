@@ -12,10 +12,16 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+
+import com.example.solomon.networkPackets.SignInData;
+import com.example.solomon.networkPackets.SignUpData;
+import com.example.solomon.runnables.SendAuthenticationDataRunnable;
+
 import java.net.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -41,6 +47,19 @@ public class LoginActivity extends AppCompatActivity {
     public static RadioButton loginRadioButton;
     public static RadioButton signupRadioButton;
     public static TextView titleTextView;
+    public static int hintTextColor = Color.argb(50, 0, 0, 0);
+    //sign in UI variables
+    public static EditText usernameSignInEditText;
+    public static EditText passwordSignInEditText;
+    public static Button signInButton;
+    //sign up UI variables
+    public static EditText lastNameSignUpEditText;
+    public static EditText firstNameSignUpEditText;
+    public static EditText ageSignUpEditText;
+    public static EditText usernameSignUpEditText;
+    public static EditText passwordSignUpEditText;
+    public static EditText passwordConfirmationSignUpEditText;
+    public static Button signUpButton;
 
 
     @Override
@@ -86,6 +105,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
 
@@ -98,6 +118,35 @@ public class LoginActivity extends AppCompatActivity {
         connectClientThread.start();
     }
 
+    //CLIENT COMMUNICATION METHODS
+    public void sendSignInData()
+    {
+        String username = usernameSignInEditText.getText().toString();
+        String password = passwordSignInEditText.getText().toString();
+        usernameSignInEditText.setText("");
+        passwordSignInEditText.setText("");
+        SignInData signInData = new SignInData(username, password);
+        Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
+        sendSignInDataThread.start();
+    }
+    public void sendSignUpData()
+    {
+        String lastName = lastNameSignUpEditText.getText().toString();
+        String firstName = firstNameSignUpEditText.getText().toString();
+        int age = Integer.parseInt(ageSignUpEditText.getText().toString());
+        String username = usernameSignUpEditText.getText().toString();
+        String password = passwordSignUpEditText.getText().toString();
+        String passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString();
+        lastNameSignUpEditText.setText("");
+        firstNameSignUpEditText.setText("");
+        ageSignUpEditText.setText("");
+        usernameSignUpEditText.setText("");
+        passwordSignUpEditText.setText("");
+        passwordConfirmationSignUpEditText.setText("");
+        SignUpData signUpData = new SignUpData(lastName, firstName, age, username, password, passwordConfirmation);
+        Thread sendSignUpDataThread = new Thread(new SendAuthenticationDataRunnable("sign up", signUpData, objectOutputStream));
+        sendSignUpDataThread.start();
+    }
 
 
 
@@ -125,18 +174,7 @@ public class LoginActivity extends AppCompatActivity {
         //remove all the views from the linear layout
         loginLinearLayout.removeAllViews();
 
-        //add login UI in the linear Layout
-
-        TextView usernameTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsUsernameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsUsernameTextView.setMargins(0, 10, 0, 0);
-        usernameTextView.setLayoutParams(layoutParamsUsernameTextView);
-        usernameTextView.setTextSize(15);
-        usernameTextView.setTextColor(Color.BLACK);
-        usernameTextView.setPadding(14, 200, 14, 14);
-        usernameTextView.setText("Username: ");
-
-
+        // UI dimensions
         float dip = 50f;
 
         float px = TypedValue.applyDimension(
@@ -148,11 +186,28 @@ public class LoginActivity extends AppCompatActivity {
         int width = (int)(3 * px);
         int height = (int) px;
 
-        EditText usernameEditText = new EditText(LoginActivity.context);
+        int loginButtonWidth = (int) (2 * px);
+        int loginButtonHeight = (int) (px);
+
+        //add login UI in the linear Layout
+
+        TextView usernameTextView = new TextView(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsUsernameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
+        layoutParamsUsernameTextView.setMargins(0, 100, 0, 0);
+        usernameTextView.setLayoutParams(layoutParamsUsernameTextView);
+        usernameTextView.setTextSize(15);
+        usernameTextView.setTextColor(Color.BLACK);
+        usernameTextView.setPadding(14, 14, 14, 14);
+        usernameTextView.setText("Username: ");
+
+
+        LoginActivity.usernameSignInEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsUsernameEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsUsernameEditText.setMargins(0, 10, 0, 0);
         layoutParamsUsernameEditText.gravity = Gravity.CENTER;
-        usernameEditText.setLayoutParams(layoutParamsUsernameEditText);
+        usernameSignInEditText.setLayoutParams(layoutParamsUsernameEditText);
+        usernameSignInEditText.setHint("enter username");
+        usernameSignInEditText.setHintTextColor(hintTextColor);
 
 
         TextView passwordTextView = new TextView(LoginActivity.context);
@@ -165,17 +220,36 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextView.setText("Password: ");
 
 
-        EditText passwordEditText = new EditText(LoginActivity.context);
+        LoginActivity.passwordSignInEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsPasswordEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsPasswordEditText.setMargins(0, 10, 0, 0);
         layoutParamsPasswordEditText.gravity = Gravity.CENTER;
-        passwordEditText.setLayoutParams(layoutParamsPasswordEditText);
+        passwordSignInEditText.setLayoutParams(layoutParamsPasswordEditText);
+        passwordSignInEditText.setHint("enter password");
+        passwordSignInEditText.setHintTextColor(hintTextColor);
+
+
+        LoginActivity.signInButton = new Button(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsLoginButton = new LinearLayout.LayoutParams(loginButtonWidth, loginButtonHeight);
+        layoutParamsLoginButton.gravity = Gravity.CENTER;
+        layoutParamsLoginButton.setMargins(0, 100, 0, 0);
+        signInButton.setLayoutParams(layoutParamsLoginButton);
+        signInButton.setText("Login");
+
+        //sign in button listener
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendSignInData();
+            }
+        });
 
 
         loginLinearLayout.addView(usernameTextView);
-        loginLinearLayout.addView(usernameEditText);
+        loginLinearLayout.addView(LoginActivity.usernameSignInEditText);
         loginLinearLayout.addView(passwordTextView);
-        loginLinearLayout.addView(passwordEditText);
+        loginLinearLayout.addView(LoginActivity.passwordSignInEditText);
+        loginLinearLayout.addView(LoginActivity.signInButton);
     }
     public void setSignUpLayout()
     {
@@ -187,18 +261,7 @@ public class LoginActivity extends AppCompatActivity {
         loginLinearLayout.removeAllViews();
 
 
-        //add login UI in the linear Layout
-
-        TextView usernameTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsUsernameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsUsernameTextView.setMargins(0, 10, 0, 0);
-        usernameTextView.setLayoutParams(layoutParamsUsernameTextView);
-        usernameTextView.setTextSize(15);
-        usernameTextView.setTextColor(Color.BLACK);
-        usernameTextView.setPadding(14, 100, 14, 14);
-        usernameTextView.setText("Username: ");
-
-
+        //UI dimensions
         float dip = 50f;
 
         float px = TypedValue.applyDimension(
@@ -210,11 +273,87 @@ public class LoginActivity extends AppCompatActivity {
         int width = (int)(3 * px);
         int height = (int) px;
 
-        EditText usernameEditText = new EditText(LoginActivity.context);
+        int signUpButtonWidth = (int) (2 * px);
+        int signUpButtonHeight = (int) (px);
+
+
+        //add login UI in the linear Layout
+
+
+        TextView lastNameTextView = new TextView(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsLastNameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
+        layoutParamsLastNameTextView.setMargins(0, 100, 0, 0);
+        lastNameTextView.setLayoutParams(layoutParamsLastNameTextView);
+        lastNameTextView.setTextSize(15);
+        lastNameTextView.setTextColor(Color.BLACK);
+        lastNameTextView.setPadding(14, 10, 14, 14);
+        lastNameTextView.setText("Last name: ");
+
+
+        LoginActivity.lastNameSignUpEditText = new EditText(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsLastNameEditText = new LinearLayout.LayoutParams(width , height);
+        layoutParamsLastNameEditText.setMargins(0, 10, 0, 0);
+        layoutParamsLastNameEditText.gravity = Gravity.CENTER;
+        lastNameSignUpEditText.setLayoutParams(layoutParamsLastNameEditText);
+        lastNameSignUpEditText.setHint("enter last name");
+        lastNameSignUpEditText.setHintTextColor(hintTextColor);
+
+
+        TextView firstNameTextView = new TextView(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsFirstNameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
+        layoutParamsFirstNameTextView.setMargins(0, 10, 0, 0);
+        firstNameTextView.setLayoutParams(layoutParamsFirstNameTextView);
+        firstNameTextView.setTextSize(15);
+        firstNameTextView.setTextColor(Color.BLACK);
+        firstNameTextView.setPadding(14, 100, 14, 14);
+        firstNameTextView.setText("First name: ");
+
+
+        LoginActivity.firstNameSignUpEditText = new EditText(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsFirstNameEditText = new LinearLayout.LayoutParams(width , height);
+        layoutParamsFirstNameEditText.setMargins(0, 10, 0, 0);
+        layoutParamsFirstNameEditText.gravity = Gravity.CENTER;
+        firstNameSignUpEditText.setLayoutParams(layoutParamsFirstNameEditText);
+        firstNameSignUpEditText.setHint("enter first name");
+        firstNameSignUpEditText.setHintTextColor(hintTextColor);
+
+
+        TextView ageTextView = new TextView(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsAgeTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
+        layoutParamsAgeTextView.setMargins(0, 10, 0, 0);
+        ageTextView.setLayoutParams(layoutParamsAgeTextView);
+        ageTextView.setTextSize(15);
+        ageTextView.setTextColor(Color.BLACK);
+        ageTextView.setPadding(14, 100, 14, 14);
+        ageTextView.setText("Age: ");
+
+
+        LoginActivity.ageSignUpEditText = new EditText(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsAgeEditText = new LinearLayout.LayoutParams(width , height);
+        layoutParamsAgeEditText.setMargins(0, 10, 0, 0);
+        layoutParamsAgeEditText.gravity = Gravity.CENTER;
+        ageSignUpEditText.setLayoutParams(layoutParamsAgeEditText);
+        ageSignUpEditText.setHint("enter age");
+        ageSignUpEditText.setHintTextColor(hintTextColor);
+
+
+        TextView usernameTextView = new TextView(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsUsernameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
+        layoutParamsUsernameTextView.setMargins(0, 10, 0, 0);
+        usernameTextView.setLayoutParams(layoutParamsUsernameTextView);
+        usernameTextView.setTextSize(15);
+        usernameTextView.setTextColor(Color.BLACK);
+        usernameTextView.setPadding(14, 100, 14, 14);
+        usernameTextView.setText("Username: ");
+
+
+        LoginActivity.usernameSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsUsernameEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsUsernameEditText.setMargins(0, 10, 0, 0);
         layoutParamsUsernameEditText.gravity = Gravity.CENTER;
-        usernameEditText.setLayoutParams(layoutParamsUsernameEditText);
+        usernameSignUpEditText.setLayoutParams(layoutParamsUsernameEditText);
+        usernameSignUpEditText.setHint("enter username");
+        usernameSignUpEditText.setHintTextColor(hintTextColor);
 
 
         TextView passwordTextView = new TextView(LoginActivity.context);
@@ -227,11 +366,13 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextView.setText("Password: ");
 
 
-        EditText passwordEditText = new EditText(LoginActivity.context);
+        LoginActivity.passwordSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsPasswordEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsPasswordEditText.setMargins(0, 10, 0, 0);
         layoutParamsPasswordEditText.gravity = Gravity.CENTER;
-        passwordEditText.setLayoutParams(layoutParamsPasswordEditText);
+        passwordSignUpEditText.setLayoutParams(layoutParamsPasswordEditText);
+        passwordSignUpEditText.setHint("enter password");
+        passwordSignUpEditText.setHintTextColor(hintTextColor);
 
 
 
@@ -245,18 +386,43 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirationTextView.setText("Confirm password: ");
 
 
-        EditText passwordConfirmationEditText = new EditText(LoginActivity.context);
+        LoginActivity.passwordConfirmationSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsPasswordConfirmationEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsPasswordConfirmationEditText.setMargins(0, 10, 0, 0);
         layoutParamsPasswordConfirmationEditText.gravity = Gravity.CENTER;
-        passwordConfirmationEditText.setLayoutParams(layoutParamsPasswordConfirmationEditText);
+        passwordConfirmationSignUpEditText.setLayoutParams(layoutParamsPasswordConfirmationEditText);
+        passwordConfirmationSignUpEditText.setHint("enter password");
+        passwordConfirationTextView.setHintTextColor(hintTextColor);
 
 
+        LoginActivity.signUpButton = new Button(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsSignUpButton = new LinearLayout.LayoutParams(signUpButtonWidth, signUpButtonHeight);
+        layoutParamsSignUpButton.gravity = Gravity.CENTER;
+        layoutParamsSignUpButton.setMargins(0, 100, 0, 0);
+        signUpButton.setLayoutParams(layoutParamsSignUpButton);
+        signUpButton.setText("Sign up");
+
+        //sign up button listener
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendSignUpData();
+            }
+        });
+
+
+        loginLinearLayout.addView(lastNameTextView);
+        loginLinearLayout.addView(lastNameSignUpEditText);
+        loginLinearLayout.addView(firstNameTextView);
+        loginLinearLayout.addView(firstNameSignUpEditText);
+        loginLinearLayout.addView(ageTextView);
+        loginLinearLayout.addView(ageSignUpEditText);
         loginLinearLayout.addView(usernameTextView);
-        loginLinearLayout.addView(usernameEditText);
+        loginLinearLayout.addView(usernameSignUpEditText);
         loginLinearLayout.addView(passwordTextView);
-        loginLinearLayout.addView(passwordEditText);
+        loginLinearLayout.addView(passwordSignUpEditText);
         loginLinearLayout.addView(passwordConfirationTextView);
-        loginLinearLayout.addView(passwordConfirmationEditText);
+        loginLinearLayout.addView(passwordConfirmationSignUpEditText);
+        loginLinearLayout.addView(signUpButton);
     }
 }
