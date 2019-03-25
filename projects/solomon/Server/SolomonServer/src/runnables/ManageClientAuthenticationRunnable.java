@@ -5,13 +5,16 @@
  */
 package runnables;
 
+import com.example.solomon.networkPackets.ServerFeedback;
 import com.example.solomon.networkPackets.SignInData;
 import com.example.solomon.networkPackets.SignUpData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import solomonserver.SolomonServer;
 
 /**
  *
@@ -43,9 +46,24 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                 {
                     //check the instance of the object and convert the object to a SignUpData object
                     signUpData = (SignUpData)networkPacket;
-                    //check if the username is taken and if yes send a message to the Client that the username is taken
-                    //if the username is valid add the user's data to the database
                     System.out.println(signUpData.toString());
+                    //get the user data from the database
+                    ResultSet resultSet = SolomonServer.getUserDataFromDatabase("users", signUpData.getUsername());
+                    //check if the username exists in the database
+                    if (!resultSet.isBeforeFirst() ) 
+                    {
+                        //the users isnt't in the database so we insert the user into the database
+                        SolomonServer.addUser(signUpData.getUsername(), signUpData.getPassword());
+                        //send the user a feedback text that he was registered
+                        this.objectOutputStream.writeObject(new ServerFeedback("registered successfully"));
+                        System.out.println("User registered successfully");
+                    }
+                    else
+                    {
+                        //send the user a message that the username is taken
+                        this.objectOutputStream.writeObject(new ServerFeedback("username is taken"));
+                        System.out.println("Username is taken, can't register user");
+                    }
                 }
                 if(networkPacket instanceof SignInData)
                 {
@@ -59,6 +77,8 @@ public class ManageClientAuthenticationRunnable  implements Runnable
         }
         catch (IOException | ClassNotFoundException ex)
         {
+            Logger.getLogger(ManageClientAuthenticationRunnable.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(ManageClientAuthenticationRunnable.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

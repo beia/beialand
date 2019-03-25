@@ -2,6 +2,9 @@ package com.example.solomon;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.v4.view.ViewCompat;
 import android.text.InputType;
@@ -25,6 +28,7 @@ import android.widget.TextView;
 
 import com.example.solomon.networkPackets.SignInData;
 import com.example.solomon.networkPackets.SignUpData;
+import com.example.solomon.runnables.AuthenticationRunnable;
 import com.example.solomon.runnables.SendAuthenticationDataRunnable;
 
 import java.lang.reflect.Field;
@@ -40,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
 
     //Threads
     public static Thread connectClientThread;
-    public static Thread manageClientConnectionThread;
+    public static Thread authenticateClient;
 
     //networking variables
     public static Socket socket;
@@ -48,11 +52,12 @@ public class LoginActivity extends AppCompatActivity {
     public static ObjectInputStream objectInputStream;
 
     //UI variables
-    public static LinearLayout mainLinearLayout;
+    public static LinearLayout mainLinearLayout;    //the linear layout that contains the title and the other linear layout
     public static LinearLayout loginLinearLayout;   //the linear layout that is common for both login and signup instances
     public static RadioButton loginRadioButton;
     public static RadioButton signupRadioButton;
     public static TextView titleTextView;
+    public static TextView feedbackTextView;
     public static int hintTextColor = Color.argb(50, 0, 0, 0);
     public static int orangeAccentColor = Color.argb(200,255, 161, 114);
     //sign in UI variables
@@ -69,7 +74,34 @@ public class LoginActivity extends AppCompatActivity {
     public static Button signUpButton;
 
 
-    @Override
+    public static Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+
+                case 1: //change the feedback text
+                    String feedbackText = (String) msg.obj;
+                    feedbackTextView.setText(feedbackText);
+                    switch (feedbackText)
+                    {
+                        case "username is taken":
+                            feedbackTextView.setTextColor(Color.RED);
+                            break;
+                        case "registered succesfully":
+                            feedbackTextView.setTextColor(Color.GREEN);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+            }
+        }
+    };
+
+
+                    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -93,6 +125,10 @@ public class LoginActivity extends AppCompatActivity {
 
         //set login layout
         setLoginLayout();
+
+        //start the login thread
+        authenticateClient = new Thread(new AuthenticationRunnable(objectInputStream));
+        authenticateClient.start();
 
         //login radio button listener
         loginRadioButton.setOnClickListener(new View.OnClickListener() {
@@ -171,6 +207,18 @@ public class LoginActivity extends AppCompatActivity {
         Drawable backround = ContextCompat.getDrawable(context, R.drawable.backround1);
         backround.setAlpha(180);
         mainLinearLayout.setBackground(backround);
+
+        //add feedback text
+        feedbackTextView = new TextView(LoginActivity.context);
+        LinearLayout.LayoutParams layoutParamsFeedbackTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
+        layoutParamsFeedbackTextView.setMargins(0, 0 , 0, 0);
+        feedbackTextView.setLayoutParams(layoutParamsFeedbackTextView);
+        feedbackTextView.setTextSize(20);
+        feedbackTextView.setGravity(Gravity.CENTER);
+        feedbackTextView.setTypeface(null, Typeface.BOLD);
+        feedbackTextView.setPadding(14, 14, 14, 14);
+        feedbackTextView.setText("");
+
     }
     public void setLoginLayout()
     {
@@ -243,6 +291,7 @@ public class LoginActivity extends AppCompatActivity {
         loginLinearLayout.addView(LoginActivity.usernameSignInEditText);
         loginLinearLayout.addView(LoginActivity.passwordSignInEditText);
         loginLinearLayout.addView(LoginActivity.signInButton);
+        loginLinearLayout.addView(feedbackTextView);
     }
     public void setSignUpLayout()
     {
@@ -420,6 +469,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
+
         loginLinearLayout.addView(lastNameTextView);
         loginLinearLayout.addView(lastNameSignUpEditText);
         loginLinearLayout.addView(firstNameTextView);
@@ -433,6 +483,7 @@ public class LoginActivity extends AppCompatActivity {
         loginLinearLayout.addView(passwordConfirationTextView);
         loginLinearLayout.addView(passwordConfirmationSignUpEditText);
         loginLinearLayout.addView(signUpButton);
+        loginLinearLayout.addView(feedbackTextView);
     }
 
 
