@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //get current time
-        final Date currentTime = Calendar.getInstance().getTime();
+        currentTime = Calendar.getInstance().getTime();
 
         //getUserData
         UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         //initialized cloud credentials
         EstimoteCloudCredentials cloudCredentials = new EstimoteCloudCredentials("solomon-app-ge4", "97f78b20306bb6a15ed1ddcd24b9ca21");
+
         //instantiated the proximity observer
         this.proximityObserver = new ProximityObserverBuilder(getApplicationContext(), cloudCredentials)
                         .onError(new Function1<Throwable, Unit>() {
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .withBalancedPowerMode()
                         .build();
+
         //instantiated a proximity zone
         final ProximityZone zone = new ProximityZoneBuilder()
                 .forTag("conf room")
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public Unit invoke(ProximityZoneContext context) {
                         feedBackTextView.setText("Entered the: " + context.getTag());
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, currentTime, true, objectOutputStream));
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Sala de conferinte", true, currentTime, objectOutputStream));
                         sendLocationDataThread.start();
                         return null;
                     }
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public Unit invoke(ProximityZoneContext context) {
                         feedBackTextView.setText("Left the: " + context.getTag());
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, currentTime, false, objectOutputStream));
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Sala de conferinte", false, currentTime, objectOutputStream));
                         sendLocationDataThread.start();
                         return null;
                     }

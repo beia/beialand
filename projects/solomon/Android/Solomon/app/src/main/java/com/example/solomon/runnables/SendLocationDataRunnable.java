@@ -11,22 +11,26 @@ import java.util.Date;
 public class SendLocationDataRunnable implements Runnable
 {
     public int userId;
-    public Date time;
+    public int storeId;
+    public String zoneName;
     public boolean zoneEntered;
+    public Date time;
     public ObjectOutputStream objectOutputStream;
-    public SendLocationDataRunnable(int userId, Date time, boolean zoneEntered, ObjectOutputStream objectOutputStream)
+    public SendLocationDataRunnable(int userId, int storeId, String zoneName, boolean zoneEntered, Date time, ObjectOutputStream objectOutputStream)
     {
         this.userId = userId;
-        this.time = time;
+        this.storeId = storeId;
+        this.zoneName = zoneName;
         this.zoneEntered = zoneEntered;
+        this.time = time;
         this.objectOutputStream = objectOutputStream;
     }
     @Override
     public void run() {
         try
         {
-            objectOutputStream.writeObject(new LocationData(userId, 1, "Sala de conferinte", zoneEntered, "26.03.2019", time.toString()));
-            Log.d("LOCATION SENT", "run: ");
+            //send the location data
+            objectOutputStream.writeObject(new LocationData(userId, storeId, zoneName, zoneEntered, time.toString()));
         }
         catch (IOException e)
         {

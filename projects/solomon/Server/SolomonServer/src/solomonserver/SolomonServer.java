@@ -96,27 +96,26 @@ public class SolomonServer {
     }
     
     
-    public static void addLocationData(int idUser, int idStore, String zoneName, boolean zoneEntered, String date, String time) throws SQLException, Exception
+    public static void addLocationData(int idUser, int idStore, String zoneName, boolean zoneEntered, String time) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String userLocationInsertionStatement = "insert into userlocations(idUser, idStore, zoneName, zoneEntered, date, time) values(?,?,?,?,?,?)";
+                String userLocationInsertionStatement = "insert into userlocations(idUser, idStore, zoneName, zoneEntered, time) values(?,?,?,?,?)";
                 PreparedStatement updateUserLocation = con.prepareStatement(userLocationInsertionStatement);
                 updateUserLocation.setInt(1, idUser);
                 updateUserLocation.setInt(2, idStore);
                 updateUserLocation.setString(3, zoneName);
                 updateUserLocation.setBoolean(4, zoneEntered);
-                updateUserLocation.setString(5, date);
-                updateUserLocation.setString(6, time);
+                updateUserLocation.setString(5, time);
                 updateUserLocation.executeUpdate();
-                System.out.println("Inserted userLocation into the database\nuser id: " + idUser + "\nstore id: " + idStore + "\nzone name: " + zoneName + "\nzone entered: " + zoneEntered + "\ndate: " + date + "\ntime: " + time + "\n\n");
+                System.out.println("Inserted userLocation into the database\nuser id: " + idUser + "\nstore id: " + idStore + "\nzone name: " + zoneName + "\nzone entered: " + zoneEntered + "\ntime: " + time + "\n\n");
             }
             catch (SQLException sqle)
             {
-                error = "SqlException: Update failed; duplicates may exist.";
+                error = "SqlException: Update failed; duplicates may exist or the query string has a mistake in it.";
                 throw new SQLException(error);
             }
         } 

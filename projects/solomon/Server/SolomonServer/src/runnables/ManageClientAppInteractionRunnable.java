@@ -39,7 +39,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                 if(networkPacket instanceof LocationData)
                 {
                     LocationData userLocationData = (LocationData)networkPacket;
-                    SolomonServer.addLocationData(userLocationData.getUserId(), userLocationData.getStoreId(), userLocationData.getZoneName(), userLocationData.getZoneEntered(), userLocationData.getDate(), userLocationData.getTime());
+                    SolomonServer.addLocationData(userLocationData.getUserId(), userLocationData.getStoreId(), userLocationData.getZoneName(), userLocationData.getZoneEntered(), userLocationData.getTime());
                 }
             }
         } catch (IOException ex) {
