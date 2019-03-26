@@ -83,13 +83,19 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                     {
                         //the user is in the database
                         resultSet.next();
+                        int userId = resultSet.getInt("idusers");
                         String password = resultSet.getString("password");
                         if(signInData.getPassword().equals(password))
                         {
                             //username and password are correct login successful
-                            this.objectOutputStream.writeObject(new ServerFeedback("login successful"));
+                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId));
                             System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
                             this.connected = true;
+                            
+                            //start a new thread that is monitoring user interaction with the app
+                            Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
+                            manageClientAppInteractionsThread.start();
+                            System.out.println("Started location thread");
                         }
                         else
                         {

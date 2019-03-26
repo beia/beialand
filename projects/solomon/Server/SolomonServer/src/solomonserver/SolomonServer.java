@@ -45,7 +45,7 @@ public class SolomonServer {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondatabase?autoReconnect=true&useSSL=false", "root", "Puihoward_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useSSL=false", "root", "Puihoward_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
             System.out.println("Successfully connected to the database!");
         }
         catch (ClassNotFoundException cnfe)
@@ -81,6 +81,38 @@ public class SolomonServer {
                 updateUsers.setInt(5, age);
                 updateUsers.executeUpdate();
                 System.out.println("Inserted user '" + username + "'\n password: " + password + "\nlast name: " + lastName + "\nfirst name: " + firstName + "\nage: " + age + " into the database\n\n");
+            }
+            catch (SQLException sqle)
+            {
+                error = "SqlException: Update failed; duplicates may exist.";
+                throw new SQLException(error);
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    
+    public static void addLocationData(int idUser, int idStore, String zoneName, boolean zoneEntered, String date, String time) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                String userLocationInsertionStatement = "insert into userlocations(idUser, idStore, zoneName, zoneEntered, date, time) values(?,?,?,?,?,?)";
+                PreparedStatement updateUserLocation = con.prepareStatement(userLocationInsertionStatement);
+                updateUserLocation.setInt(1, idUser);
+                updateUserLocation.setInt(2, idStore);
+                updateUserLocation.setString(3, zoneName);
+                updateUserLocation.setBoolean(4, zoneEntered);
+                updateUserLocation.setString(5, date);
+                updateUserLocation.setString(6, time);
+                updateUserLocation.executeUpdate();
+                System.out.println("Inserted userLocation into the database\nuser id: " + idUser + "\nstore id: " + idStore + "\nzone name: " + zoneName + "\nzone entered: " + zoneEntered + "\ndate: " + date + "\ntime: " + time + "\n\n");
             }
             catch (SQLException sqle)
             {

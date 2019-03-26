@@ -29,9 +29,11 @@ import android.widget.TextView;
 
 import com.example.solomon.networkPackets.SignInData;
 import com.example.solomon.networkPackets.SignUpData;
+import com.example.solomon.networkPackets.UserData;
 import com.example.solomon.runnables.AuthenticationRunnable;
 import com.example.solomon.runnables.SendAuthenticationDataRunnable;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.net.*;
 import java.io.IOException;
@@ -97,13 +99,23 @@ public class LoginActivity extends AppCompatActivity {
                             break;
                         case "username or password are wrong":
                             feedbackTextView.setTextColor(Color.RED);
-                        case "login successful":
-                            //change activity
-                            Intent intent = new Intent(LoginActivity.context, MainActivity.class);
-                            LoginActivity.context.startActivity(intent);
+                            break;
                         default:
                             break;
                     }
+                    break;
+
+                case 2://login successful
+                    feedbackTextView.setText("login successful");
+                    feedbackTextView.setTextColor(Color.GREEN);
+                    UserData userData = (UserData) msg.obj;
+                    //change activity
+                    Intent intent = new Intent(LoginActivity.context, MainActivity.class);
+                    intent.putExtra("UserData", userData);
+                    LoginActivity.context.startActivity(intent);
+                    break;
+
+                default:
                     break;
             }
         }
@@ -136,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
         setLoginLayout();
 
         //start the login thread
-        authenticateClient = new Thread(new AuthenticationRunnable(objectInputStream));
+        authenticateClient = new Thread(new AuthenticationRunnable(objectOutputStream, objectInputStream));
         authenticateClient.start();
 
         //login radio button listener

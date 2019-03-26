@@ -15,7 +15,15 @@ import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
 import com.estimote.proximity_sdk.api.ProximityZone;
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
+import com.example.solomon.networkPackets.LocationData;
+import com.example.solomon.networkPackets.UserData;
+import com.example.solomon.runnables.SendLocationDataRunnable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import kotlin.Unit;
@@ -24,12 +32,25 @@ import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
+    public Date currentTime;
     private ProximityObserver proximityObserver;
     public static TextView feedBackTextView;
+    public int userId;
+    public ObjectOutputStream objectOutputStream;
+    public ObjectInputStream objectInputStream;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //get current time
+        final Date currentTime = Calendar.getInstance().getTime();
+
+        //getUserData
+        UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
+        userId = userData.getUserId();
+        objectOutputStream = LoginActivity.objectOutputStream;
+        objectInputStream = LoginActivity.objectInputStream;
 
         //init UI
         feedBackTextView = findViewById(R.id.feedBackTextView);
@@ -37,12 +58,12 @@ public class MainActivity extends AppCompatActivity {
         //initialized cloud credentials
         EstimoteCloudCredentials cloudCredentials = new EstimoteCloudCredentials("solomon-app-ge4", "97f78b20306bb6a15ed1ddcd24b9ca21");
         //instantiated the proximity observer
-        this.proximityObserver = this.proximityObserver =
-                new ProximityObserverBuilder(getApplicationContext(), cloudCredentials)
+        this.proximityObserver = new ProximityObserverBuilder(getApplicationContext(), cloudCredentials)
                         .onError(new Function1<Throwable, Unit>() {
                             @Override
                             public Unit invoke(Throwable throwable) {
                                 Log.e("app", "proximity observer error: " + throwable);
+                                feedBackTextView.setText("proximity error");
                                 return null;
                             }
                         })
@@ -51,11 +72,13 @@ public class MainActivity extends AppCompatActivity {
         //instantiated a proximity zone
         final ProximityZone zone = new ProximityZoneBuilder()
                 .forTag("conf room")
-                .inCustomRange(3.0)
+                .inCustomRange(2.0)
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
                     public Unit invoke(ProximityZoneContext context) {
                         feedBackTextView.setText("Entered the: " + context.getTag());
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, currentTime, true, objectOutputStream));
+                        sendLocationDataThread.start();
                         return null;
                     }
                 })
@@ -63,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public Unit invoke(ProximityZoneContext context) {
                         feedBackTextView.setText("Left the: " + context.getTag());
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, currentTime, false, objectOutputStream));
+                        sendLocationDataThread.start();
                         return null;
                     }
                 })
@@ -77,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override public Unit invoke() {
                                 Log.d("app", "requirements fulfilled");
                                 proximityObserver.startObserving(zone);
+                                feedBackTextView.setText("requirements fulfiled");
                                 return null;
                             }
                         },
@@ -84,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                         new Function1<List<? extends Requirement>, Unit>() {
                             @Override public Unit invoke(List<? extends Requirement> requirements) {
                                 Log.e("app", "requirements missing: " + requirements);
+                                feedBackTextView.setText("requirements missing");
                                 return null;
                             }
                         },
@@ -91,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                         new Function1<Throwable, Unit>() {
                             @Override public Unit invoke(Throwable throwable) {
                                 Log.e("app", "requirements error: " + throwable);
+                                feedBackTextView.setText("requirements error");
                                 return null;
                             }
                         });

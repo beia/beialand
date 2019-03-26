@@ -4,6 +4,7 @@ import android.os.Message;
 
 import com.example.solomon.LoginActivity;
 import com.example.solomon.networkPackets.ServerFeedback;
+import com.example.solomon.networkPackets.UserData;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,10 +12,12 @@ import java.io.ObjectOutputStream;
 
 public class AuthenticationRunnable implements Runnable
 {
+    public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
     private boolean connected;
-    public AuthenticationRunnable(ObjectInputStream objectInputStream)
+    public AuthenticationRunnable(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream)
     {
+        this.objectOutputStream = objectOutputStream;
         this.objectInputStream = objectInputStream;
         this.connected = false;
     }
@@ -49,8 +52,8 @@ public class AuthenticationRunnable implements Runnable
                             message.sendToTarget();
                             break;
                         case "login successful":
-                            message = LoginActivity.handler.obtainMessage(1);
-                            message.obj = "login successful";
+                            message = LoginActivity.handler.obtainMessage(2);
+                            message.obj = new UserData(serverFeedback.getUserId());
                             this.connected = true;
                             message.sendToTarget();
                             break;
