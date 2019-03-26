@@ -43,6 +43,17 @@ public class AuthenticationRunnable implements Runnable
                             message.obj = "registered succesfully";
                             message.sendToTarget();
                             break;
+                        case "can't login user":
+                            message = LoginActivity.handler.obtainMessage(1);
+                            message.obj = "username or password are wrong";
+                            message.sendToTarget();
+                            break;
+                        case "login successful":
+                            message = LoginActivity.handler.obtainMessage(1);
+                            message.obj = "login successful";
+                            this.connected = true;
+                            message.sendToTarget();
+                            break;
                         default:
                             break;
                     }

@@ -53,7 +53,7 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                     if (!resultSet.isBeforeFirst() ) 
                     {
                         //the users isnt't in the database so we insert the user into the database
-                        SolomonServer.addUser(signUpData.getUsername(), signUpData.getPassword());
+                        SolomonServer.addUser(signUpData.getUsername(), signUpData.getPassword(), signUpData.getLastName(), signUpData.getFirstName(), signUpData.getAge());
                         //send the user a feedback text that he was registered
                         this.objectOutputStream.writeObject(new ServerFeedback("registered successfully"));
                         System.out.println("User registered successfully");
@@ -70,6 +70,34 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                     //check the instance of the object and convert the object to a SignInData object
                     signInData = (SignInData)networkPacket;
                     //check if the username and password match in the database and if not send a message to the user that the username or password are wrong
+                    //get the user data from the database
+                    ResultSet resultSet = SolomonServer.getUserDataFromDatabase("users", signInData.getUsername());
+                    //check if the username exists in the database
+                    if (!resultSet.isBeforeFirst() ) 
+                    {
+                        //the users isnt't in the database we send a message to the user that the username and password are wrong
+                        this.objectOutputStream.writeObject(new ServerFeedback("can't login user"));
+                        System.out.println("Can't login user, user doesn't exist");
+                    }
+                    else
+                    {
+                        //the user is in the database
+                        resultSet.next();
+                        String password = resultSet.getString("password");
+                        if(signInData.getPassword().equals(password))
+                        {
+                            //username and password are correct login successful
+                            this.objectOutputStream.writeObject(new ServerFeedback("login successful"));
+                            System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
+                            this.connected = true;
+                        }
+                        else
+                        {
+                            //password is wrong
+                            this.objectOutputStream.writeObject(new ServerFeedback("can't login user"));
+                            System.out.println("Can't login user, password is wrong");
+                        }
+                    }
                     //if the username and password match in the database log in the client and start a new thread
                     System.out.println(signInData.toString());
                 }

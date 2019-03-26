@@ -1,5 +1,6 @@
 package com.example.solomon;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -36,6 +37,8 @@ import java.net.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
+
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -92,6 +95,12 @@ public class LoginActivity extends AppCompatActivity {
                         case "registered succesfully":
                             feedbackTextView.setTextColor(Color.GREEN);
                             break;
+                        case "username or password are wrong":
+                            feedbackTextView.setTextColor(Color.RED);
+                        case "login successful":
+                            //change activity
+                            Intent intent = new Intent(LoginActivity.context, MainActivity.class);
+                            LoginActivity.context.startActivity(intent);
                         default:
                             break;
                     }
@@ -147,7 +156,6 @@ public class LoginActivity extends AppCompatActivity {
                 setSignUpLayout();
             }
         });
-
 
     }
 
@@ -286,6 +294,8 @@ public class LoginActivity extends AppCompatActivity {
                 sendSignInData();
             }
         });
+
+        feedbackTextView.setText("");
 
 
         loginLinearLayout.addView(LoginActivity.usernameSignInEditText);
@@ -468,6 +478,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        feedbackTextView.setText("");
+
 
 
         loginLinearLayout.addView(lastNameTextView);
@@ -513,4 +525,5 @@ public class LoginActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
     }
+
 }

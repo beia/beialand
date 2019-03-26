@@ -65,19 +65,22 @@ public class SolomonServer {
         }
     }
     
-    public static void addUser(String username, String password) throws SQLException, Exception
+    public static void addUser(String username, String password, String lastName, String firstName, int age) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String userInsertionStatement = "insert into users(username, password) values(?,?)";
+                String userInsertionStatement = "insert into users(username, password, lastName, firstName, age) values(?,?,?,?,?)";
                 PreparedStatement updateUsers = con.prepareStatement(userInsertionStatement);
                 updateUsers.setString(1, username);
                 updateUsers.setString(2, password);
+                updateUsers.setString(3, lastName);
+                updateUsers.setString(4, firstName);
+                updateUsers.setInt(5, age);
                 updateUsers.executeUpdate();
-                System.out.println("Inserted user '" + username + " password: " + password + "' into the database");
+                System.out.println("Inserted user '" + username + "'\n password: " + password + "\nlast name: " + lastName + "\nfirst name: " + firstName + "\nage: " + age + " into the database\n\n");
             }
             catch (SQLException sqle)
             {
