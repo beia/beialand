@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import runnables.ConnectClientsRunnable;
+import runnables.ProcessDatabaseDataRunnable;
 
 /**
  *
@@ -24,9 +25,12 @@ public class SolomonServer {
     //solomon server variables 
     public static ServerSocket serverSocket;
     public static Thread connectClients;
+    public static Thread processDatabaseData;
     //sql server variables
     public static String error;
     public static Connection con;
+    //data processing variables
+    public static volatile int lastLocationEntryId = 1;
     
     
     public static void main(String[] args) throws IOException, SQLException, Exception
@@ -38,6 +42,10 @@ public class SolomonServer {
         serverSocket = new ServerSocket(8000);
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
+        
+        //extract user location data from the database and process it at a fixed amount of time
+        processDatabaseData = new Thread(new ProcessDatabaseDataRunnable());
+        processDatabaseData.start();
     }
     
     public static void connectToDatabase() throws ClassNotFoundException, SQLException, Exception 
@@ -134,6 +142,56 @@ public class SolomonServer {
         {
             // Execute query
             String queryString = ("select * from " + tabelName + " where username = '" + username + "';");
+            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmt.executeQuery(queryString); //sql exception
+        } 
+        catch (SQLException sqle)
+        {
+            error = "SQLException: Query was not possible.";
+            sqle.printStackTrace();
+            throw new SQLException(error);
+        }
+        catch (Exception e)
+        {
+            error = "Exception occured when we extracted the data.";
+            throw new Exception(error);
+        }
+        return rs;
+    }
+    
+    
+    public static ResultSet getTableData(String tabelName) throws SQLException, Exception
+    {
+        ResultSet rs = null;
+        try
+        {
+            // Execute query
+            String queryString = ("select * from " + tabelName + ";");
+            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmt.executeQuery(queryString); //sql exception
+        } 
+        catch (SQLException sqle)
+        {
+            error = "SQLException: Query was not possible.";
+            sqle.printStackTrace();
+            throw new SQLException(error);
+        }
+        catch (Exception e)
+        {
+            error = "Exception occured when we extracted the data.";
+            throw new Exception(error);
+        }
+        return rs;
+    }
+    
+    
+    public static ResultSet getNewTableData(String tabelName, String idName, int lastId) throws SQLException, Exception
+    {
+        ResultSet rs = null;
+        try
+        {
+            // Execute query
+            String queryString = ("select * from "+ tabelName + " where " + idName + " > " + lastId);
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 
