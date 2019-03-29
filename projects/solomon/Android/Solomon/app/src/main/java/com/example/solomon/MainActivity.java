@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         //instantiated a proximity zone
         final ProximityZone zone = new ProximityZoneBuilder()
                 .forTag("conf room")
-                .inCustomRange(2.0)
+                .inCustomRange(3.0)
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
                     public Unit invoke(ProximityZoneContext context) {
