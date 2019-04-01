@@ -89,14 +89,100 @@ public class ProcessDatabaseDataRunnable implements Runnable
                         {
                             for(int j = i + 1; j < userLocationArray.size(); j++)
                             {
-                                //if the user etry is in the same store as the previos entry, the zone is the same and the user left the zone compute the time difference for the zone and add it into the database
+                                //if the user entry is in the same store as the previos entry, the zone is the same and the user left the zone compute the time difference for the zone and add it into the database
                                 if(userLocationArray.get(j).getStoreId() == userLocationArray.get(i).getStoreId() && userLocationArray.get(j).getZoneName().equals(userLocationArray.get(i).getZoneName()) && userLocationArray.get(j).getZoneEntered() == false)
                                 {
-                                    System.out.println("pair");;
+                                    System.out.println("\n\npair");;
                                     System.out.println("User with id: " + userLocationArray.get(i).getUserId() + " entered =  " + userLocationArray.get(i).getZoneEntered() + " zone: " + userLocationArray.get(i).getZoneName() + " at " + userLocationArray.get(i).getTime());
                                     System.out.println("User with id: " + userLocationArray.get(j).getUserId() + " entered = " + userLocationArray.get(j).getZoneEntered() + " zone: " + userLocationArray.get(j).getZoneName() + " at " + userLocationArray.get(j).getTime());
                                     
-                                    //compute the time diference and insert it int the database
+                                    //increment the first counter because we used the entry value
+                                    i++;
+                                    
+                                    //get the usefull data from the pair
+                                    int idUser = userLocationArray.get(i).getUserId();
+                                    int idStore = userLocationArray.get(i).getStoreId();
+                                    String zoneName = userLocationArray.get(i).getZoneName();
+                                    
+                                    //compute the time diference and insert it into the database
+                                    //extract the hour from the time - time format example: Fri Mar 29 14:00:40 GMT+02:00 2019
+                                    String timeEnteredHour = userLocationArray.get(i).getTime().split(" ")[3];
+                                    String timeLeftHour = userLocationArray.get(j).getTime().split(" ")[3];
+                                    
+                                    String []date = timeEnteredHour.split(":");
+                                    int hourEntered = Integer.parseInt(date[0].trim());
+                                    int minuteEntered = Integer.parseInt(date[1].trim());
+                                    int secondsEntered = Integer.parseInt(date[2].trim());
+                                    
+                                    date = timeLeftHour.split(":");
+                                    int hourLeft = Integer.parseInt(date[0].trim());
+                                    int minuteLeft = Integer.parseInt(date[1].trim());
+                                    int secondsLeft = Integer.parseInt(date[2].trim());
+                                    
+                                    //get data from the database
+                                    ResultSet roomTimeResultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", userLocationArray.get(i).getUserId(), userLocationArray.get(i).getStoreId());
+                                    
+                                    if(!roomTimeResultSet.isBeforeFirst())
+                                    {
+                                        //the user never entered the store
+                                        //insert the room time data for the user coresponding the store into the database
+                                        switch(zoneName)
+                                        {
+                                            //add in the future new tags
+                                            case "Sala de conferinte":
+                                                //compute time difference
+                                                int minutesEnteredSum = hourEntered * 60 + minuteEntered;
+                                                int minutesLeftSum = hourLeft * 60 + minuteLeft;
+                                                int minuteDifference = minutesLeftSum - minutesEnteredSum;
+                                                int hours = minuteDifference / 60;
+                                                int minutes = minuteDifference % 60;
+                                                String room1Time = hours + " hours " + minutes + " minutes";
+                                                String room2Time = "0 hours 0 minutes";
+                                                String room3Time = "0 hours 0 minutes";
+                                                String room4Time = "0 hours 0 minutes";
+                                                String[] zonesTime = new String[]{room1Time, room2Time, room3Time, room4Time};
+                                                SolomonServer.addZoneTimeData(idUser, idStore, zonesTime);
+                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Sala de conferinte from store with id: " + idStore + "\nCurrent time spent in room: " + room1Time);
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //user entered the store at least once
+                                        roomTimeResultSet.next();
+                                        switch(zoneName)
+                                        {
+                                            //add in the future new tags
+                                            case "Sala de conferinte":
+                                                //compute time difference
+                                                String room1PreviousTime = roomTimeResultSet.getString("room1Time");
+                                                int minutesEnteredSum = hourEntered * 60 + minuteEntered;
+                                                int minutesLeftSum = hourLeft * 60 + minuteLeft;
+                                                int minuteDifference = minutesLeftSum - minutesEnteredSum;
+                                                int currentHours = minuteDifference / 60;
+                                                int currentMinutes = minuteDifference % 60;
+                                                String currentTimeString = currentHours + " hours " + currentMinutes + " minutes";
+                                                
+                                                String[] data = room1PreviousTime.split(" ");
+                                                int previousHours = Integer.parseInt(data[0]);
+                                                int previousMinutes = Integer.parseInt(data[2]);
+                                                
+                                                int hours = previousHours + currentHours + ((previousMinutes + currentMinutes) / 60);
+                                                int minutes = (previousMinutes + currentMinutes) % 60;
+                                                
+                                                String room1Time = hours + " hours " + minutes + " minutes";
+                                                
+                                                SolomonServer.updateZoneTimeData(idUser, idStore, "room1Time", room1Time);
+                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Sala de conferinte from store with id: " + idStore + "\nCurrent time spent in room: " + currentTimeString);
+                                                System.out.println("Total time spent in room: " + room1Time);
+                                                break;
+                                            default:
+                                                break;
+                                        } 
+                                        
+                                    }
                                     
                                     userLocationArray.remove(j);
                                 }
@@ -121,7 +207,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
         }
         catch(Exception ex)
         {
-            
+           ex.printStackTrace();
         }
     }
     

@@ -123,8 +123,69 @@ public class SolomonServer {
             }
             catch (SQLException sqle)
             {
-                error = "SqlException: Update failed; duplicates may exist or the query string has a mistake in it.";
-                throw new SQLException(error);
+                sqle.printStackTrace();
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    
+    
+    public static void addZoneTimeData(int idUser, int idStore, String[] zonesTime) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                String userRoomTimeInsertionStatementFirstPart = "insert into userroomtime(idUser, idStore";
+                String userRoomTimeInsertionStatementLastPart = "values(" + idUser + ", " + idStore;
+                String outputFeedBackString;
+                Statement updateRoomTimeData = con.createStatement();
+                outputFeedBackString = "Inserted user room time data ";
+                for(int i = 0; i < zonesTime.length; i++)
+                {
+                    userRoomTimeInsertionStatementFirstPart += ", room" + (i + 1) + "Time";
+                    userRoomTimeInsertionStatementLastPart += ", '" + zonesTime[i] + "'";
+                    outputFeedBackString += "room" + (i + 1) + " time = " + zonesTime[i];
+                }
+                userRoomTimeInsertionStatementFirstPart += ") ";
+                userRoomTimeInsertionStatementLastPart += ")";
+                
+                String statementString = userRoomTimeInsertionStatementFirstPart + userRoomTimeInsertionStatementLastPart;
+                updateRoomTimeData.executeUpdate(statementString);
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    
+    public static void updateZoneTimeData(int idUser, int idStore, String zoneName, String zoneTime) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                Statement updateStatement = con.createStatement();
+                String userRoomTimeUpdateStatement = "update userroomtime set " + zoneName + "='" + zoneTime + "' where idUser=" + idUser + " and idStore=" + idStore;
+                updateStatement.executeUpdate(userRoomTimeUpdateStatement);
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
             }
         } 
         else
@@ -142,6 +203,31 @@ public class SolomonServer {
         {
             // Execute query
             String queryString = ("select * from " + tabelName + " where username = '" + username + "';");
+            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmt.executeQuery(queryString); //sql exception
+        } 
+        catch (SQLException sqle)
+        {
+            error = "SQLException: Query was not possible.";
+            sqle.printStackTrace();
+            throw new SQLException(error);
+        }
+        catch (Exception e)
+        {
+            error = "Exception occured when we extracted the data.";
+            throw new Exception(error);
+        }
+        return rs;
+    }
+    
+    
+    public static ResultSet getRoomTimeDataFromDatabase(String tableName, int idUser, int idStore) throws SQLException, Exception
+    {
+        ResultSet rs = null;
+        try
+        {
+            // Execute query
+            String queryString = ("select * from " + tableName + " where idUser = '" + idUser + "' and idStore = '" + idStore + "';");
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 
