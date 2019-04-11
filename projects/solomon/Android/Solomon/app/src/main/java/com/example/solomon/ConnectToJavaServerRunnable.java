@@ -11,7 +11,7 @@ public class ConnectToJavaServerRunnable implements Runnable
     public void run() {
         try
         {
-            LoginActivity.socket = new Socket("192.168.43.212", 8000);
+            LoginActivity.socket = new Socket("192.168.43.194", 8000);
             LoginActivity.objectOutputStream = new ObjectOutputStream(LoginActivity.socket.getOutputStream());
             LoginActivity.objectInputStream = new ObjectInputStream(LoginActivity.socket.getInputStream());
         }

@@ -37,6 +37,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
             {
                 //get the new location data from the database
                 ResultSet userLocationData = SolomonServer.getNewTableData("userlocations", "iduserLocations", this.lastLocationId);
+                this.usersLocations = new ArrayList<>();
                 while(userLocationData.next())
                 {
                     int idUser = userLocationData.getInt("idUser");
@@ -50,11 +51,20 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     //check if it's the end of the table and if it is save the last entry id so we would no longer process old data 
                     if(userLocationData.isLast())
                     {
-                        this.lastLocationId = userLocationData.getInt("idUserLocations");
-                        SolomonServer.lastLocationEntryId = this.lastLocationId;
+                        if(zoneEntered == false)
+                        {
+                            //we want to collect future data from the database from the next zone entered so we won't lose user room time
+                            this.lastLocationId = userLocationData.getInt("idUserLocations");
+                            SolomonServer.lastLocationEntryId = this.lastLocationId;
+                        }
+                        else
+                        {
+                            this.lastLocationId = userLocationData.getInt("idUserLocations") - 1;
+                            SolomonServer.lastLocationEntryId = this.lastLocationId;
+                        }
                     }
-                       
                 }
+                //we now created the new arraylist that contains the new location data from the database from all users
                 
                 
                 //link every location data of a user to the userId using a hashmap
@@ -63,7 +73,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     //add all the user location entry data into an array linked by user id using a hashmap
                     if(userLocationEntryMap.containsKey(location.getUserId()))
                     {
-                        //add the user data into the userLocationArayList into the hashmap
+                        //add the user location data into the userLocationArrayList into the hashmap if the user already is into the hashmap
                         ArrayList<LocationData> userLocationArray = userLocationEntryMap.get(location.getUserId());
                         userLocationArray.add(location);
                         userLocationEntryMap.put(location.getUserId(), userLocationArray);
@@ -92,12 +102,11 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                 //if the user entry is in the same store as the previos entry, the zone is the same and the user left the zone compute the time difference for the zone and add it into the database
                                 if(userLocationArray.get(j).getStoreId() == userLocationArray.get(i).getStoreId() && userLocationArray.get(j).getZoneName().equals(userLocationArray.get(i).getZoneName()) && userLocationArray.get(j).getZoneEntered() == false)
                                 {
-                                    System.out.println("\n\npair");;
+                                    System.out.println("\n\npair");
                                     System.out.println("User with id: " + userLocationArray.get(i).getUserId() + " entered =  " + userLocationArray.get(i).getZoneEntered() + " zone: " + userLocationArray.get(i).getZoneName() + " at " + userLocationArray.get(i).getTime());
                                     System.out.println("User with id: " + userLocationArray.get(j).getUserId() + " entered = " + userLocationArray.get(j).getZoneEntered() + " zone: " + userLocationArray.get(j).getZoneName() + " at " + userLocationArray.get(j).getTime());
                                     
-                                    //increment the first counter because we used the entry value
-                                    i++;
+                                    
                                     
                                     //get the usefull data from the pair
                                     int idUser = userLocationArray.get(i).getUserId();
@@ -119,8 +128,8 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                     int minuteLeft = Integer.parseInt(date[1].trim());
                                     int secondsLeft = Integer.parseInt(date[2].trim());
                                     
-                                    //get data from the database
-                                    ResultSet roomTimeResultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", userLocationArray.get(i).getUserId(), userLocationArray.get(i).getStoreId());
+                                    //get room data from the database
+                                    ResultSet roomTimeResultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", idUser, idStore);
                                     
                                     if(!roomTimeResultSet.isBeforeFirst())
                                     {
@@ -131,15 +140,16 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                             //add in the future new tags
                                             case "Sala de conferinte":
                                                 //compute time difference
-                                                int minutesEnteredSum = hourEntered * 60 + minuteEntered;
-                                                int minutesLeftSum = hourLeft * 60 + minuteLeft;
-                                                int minuteDifference = minutesLeftSum - minutesEnteredSum;
-                                                int hours = minuteDifference / 60;
-                                                int minutes = minuteDifference % 60;
-                                                String room1Time = hours + " hours " + minutes + " minutes";
-                                                String room2Time = "0 hours 0 minutes";
-                                                String room3Time = "0 hours 0 minutes";
-                                                String room4Time = "0 hours 0 minutes";
+                                                int secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
+                                                int secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
+                                                int secondsDifference = secondsLeftSum - secondsEnteredSum;
+                                                int hours = secondsDifference / 3600;
+                                                int minutes = (secondsDifference % 3600) / 60;
+                                                int seconds = ((secondsDifference % 3600) % 60);
+                                                String room1Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
+                                                String room2Time = "0 hours 0 minutes 0 seconds";
+                                                String room3Time = "0 hours 0 minutes 0 seconds";
+                                                String room4Time = "0 hours 0 minutes 0 seconds";
                                                 String[] zonesTime = new String[]{room1Time, room2Time, room3Time, room4Time};
                                                 SolomonServer.addZoneTimeData(idUser, idStore, zonesTime);
                                                 System.out.println("\nUser with id: " + idUser + "\nRoom: Sala de conferinte from store with id: " + idStore + "\nCurrent time spent in room: " + room1Time);
@@ -158,21 +168,24 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                             case "Sala de conferinte":
                                                 //compute time difference
                                                 String room1PreviousTime = roomTimeResultSet.getString("room1Time");
-                                                int minutesEnteredSum = hourEntered * 60 + minuteEntered;
-                                                int minutesLeftSum = hourLeft * 60 + minuteLeft;
-                                                int minuteDifference = minutesLeftSum - minutesEnteredSum;
-                                                int currentHours = minuteDifference / 60;
-                                                int currentMinutes = minuteDifference % 60;
-                                                String currentTimeString = currentHours + " hours " + currentMinutes + " minutes";
+                                                int secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
+                                                int secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
+                                                int secondsDifference = secondsLeftSum - secondsEnteredSum;
+                                                int currentHours = secondsDifference / 3600;
+                                                int currentMinutes = (secondsDifference % 3600) / 60;
+                                                int currentSeconds = ((secondsDifference % 3600) % 60);
+                                                String currentTimeString = currentHours + " hours " + currentMinutes + " minutes " + currentSeconds + " seconds";
                                                 
                                                 String[] data = room1PreviousTime.split(" ");
                                                 int previousHours = Integer.parseInt(data[0]);
                                                 int previousMinutes = Integer.parseInt(data[2]);
+                                                int previousSeconds = Integer.parseInt(data[4]);
                                                 
                                                 int hours = previousHours + currentHours + ((previousMinutes + currentMinutes) / 60);
-                                                int minutes = (previousMinutes + currentMinutes) % 60;
+                                                int minutes = ((previousMinutes + currentMinutes) % 60) + ((previousSeconds + currentSeconds) / 60);
+                                                int seconds = (previousSeconds + currentSeconds) % 60;
                                                 
-                                                String room1Time = hours + " hours " + minutes + " minutes";
+                                                String room1Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
                                                 
                                                 SolomonServer.updateZoneTimeData(idUser, idStore, "room1Time", room1Time);
                                                 System.out.println("\nUser with id: " + idUser + "\nRoom: Sala de conferinte from store with id: " + idStore + "\nCurrent time spent in room: " + currentTimeString);
@@ -185,6 +198,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                     }
                                     
                                     userLocationArray.remove(j);
+                                    i++;
                                 }
                             }
                         }
