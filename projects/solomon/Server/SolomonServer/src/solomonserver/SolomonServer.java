@@ -7,6 +7,7 @@ package solomonserver;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import runnables.ConnectClientsRunnable;
+import runnables.ConnectToUnityDemoRunnable;
 import runnables.ProcessDatabaseDataRunnable;
 
 /**
@@ -26,6 +28,10 @@ public class SolomonServer {
     public static ServerSocket serverSocket;
     public static Thread connectClients;
     public static Thread processDatabaseData;
+    //unity demo server variables
+    public static ServerSocket unityDemoServerSocket;
+    public static Socket unityDemoSocket;
+    public static Thread connectToUnityDemoThread;
     //sql server variables
     public static String error;
     public static Connection con;
@@ -43,6 +49,10 @@ public class SolomonServer {
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
         
+        unityDemoServerSocket = new ServerSocket(7000);
+        connectToUnityDemoThread = new Thread(new ConnectToUnityDemoRunnable(unityDemoServerSocket));
+        connectToUnityDemoThread.start();
+        
         //extract user location data from the database and process it at a fixed amount of time
         processDatabaseData = new Thread(new ProcessDatabaseDataRunnable());
         processDatabaseData.start();
@@ -53,7 +63,7 @@ public class SolomonServer {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useSSL=false", "root", "Puihoward_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "Puihoward_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
             System.out.println("Successfully connected to the database!");
         }
         catch (ClassNotFoundException cnfe)
@@ -63,6 +73,7 @@ public class SolomonServer {
         }
         catch (SQLException cnfe)
         {
+            cnfe.printStackTrace();
             error = "SQLException: Can't connect to the database.";
             throw new SQLException(error);
         }

@@ -31,7 +31,7 @@ public class ConnectClientsRunnable  implements Runnable
         
         while(true)
         {
-            System.out.println("Waiting for connection");
+            System.out.println("Waiting for android client connection");
             try 
             {
                 Socket socket = serverSocket.accept();
