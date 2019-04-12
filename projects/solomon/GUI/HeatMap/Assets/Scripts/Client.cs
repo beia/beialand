@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [Serializable]
@@ -52,11 +53,14 @@ public class Client : MonoBehaviour
     #region private members 	
     private TcpClient socketConnection;
     private Thread clientReceiveThread;
+    public static volatile bool loadHeatMap; 
     #endregion
     // Use this for initialization 	
     void Start()
     {
         ConnectToTcpServer();
+        //very dumb aproach to the situation - I will rewrite the code for the UI updating
+        StartCoroutine(updateUI());
     }
     // Update is called once per frame
     void Update()
@@ -164,7 +168,20 @@ public class Client : MonoBehaviour
                 // Convert byte array to string message. 						
                 string serverMessage = Encoding.ASCII.GetString(incommingData);
                 //get the server message
-                Debug.Log("server message received as: " + serverMessage);
+                UserDataUnityPacket userData = JsonUtility.FromJson<UserDataUnityPacket>(serverMessage);
+                if (userData.error != "user not found" && userData.error != "user never entered the store")
+                {
+                    StaticData.userHeatMapLastName = userData.lastName;
+                    StaticData.userHeatMapFirstName = userData.firstName;
+                    StaticData.userHeatMapAge = userData.age;
+                    StaticData.userHeatMapRoom1Time = userData.room1Time;
+                    StaticData.userHeatMapRoom2Time = userData.room2Time;
+                    StaticData.userHeatMapRoom3Time = userData.room3Time;
+                    StaticData.userHeatMapRoom4Time = userData.room4Time;
+                    Debug.Log("server message received as: " + serverMessage);
+                    loadHeatMap = true;
+                    break;
+                }
             }
         }
     }
@@ -174,5 +191,20 @@ public class Client : MonoBehaviour
         Thread getUserDataThread = new Thread(new ThreadStart(getUserData));
         getUserDataThread.IsBackground = true;
         getUserDataThread.Start();
+    }
+
+    IEnumerator updateUI()
+    {
+        while (true)
+        {
+
+            //refresh UI every second
+            if (Client.loadHeatMap == true)
+            {
+                SceneManager.LoadScene(1);
+                yield return 0;
+            }
+            yield return new WaitForSeconds(1);
+        }
     }
 }

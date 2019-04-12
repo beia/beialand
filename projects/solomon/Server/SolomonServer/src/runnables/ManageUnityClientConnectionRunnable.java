@@ -94,6 +94,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                                 jsonObject.put("room2Time", room2Time);
                                 jsonObject.put("room2Time", room2Time);
                                 jsonObject.put("room3Time", room3Time);
+                                jsonObject.put("error", "Null");
                                 
                                 outputStream.write(jsonObject.toJSONString().getBytes());
                             }
