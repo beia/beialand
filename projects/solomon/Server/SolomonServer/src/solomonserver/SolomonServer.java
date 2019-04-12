@@ -238,7 +238,7 @@ public class SolomonServer {
         try
         {
             // Execute query
-            String queryString = ("select * from " + tableName + " where idUser = '" + idUser + "' and idStore = '" + idStore + "';");
+            String queryString = ("select * from " + tableName + " where idUser=" + idUser + " and idStore=" + idStore);
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 

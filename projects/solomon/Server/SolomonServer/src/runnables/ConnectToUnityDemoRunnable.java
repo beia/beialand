@@ -42,15 +42,15 @@ public class ConnectToUnityDemoRunnable implements Runnable
                 outputStream = new DataOutputStream(socket.getOutputStream());
                 inputStream = new DataInputStream(socket.getInputStream());
                 
-                String message = new String("Salut de la server");
-                byte[] bytes = message.getBytes();
-                outputStream.write(bytes);
                 
-                /*
-                    manage unity demo connection
-                    -------------------------------
-                    -------------------------------
-                */
+                //String message = new String("Salut de la server");
+                //byte[] bytes = message.getBytes();
+                //outputStream.write(bytes);
+                
+                //manage unity demo connection
+                Thread manageUnityClientConnectionThread = new Thread(new ManageUnityClientConnectionRunnable(outputStream, inputStream));
+                manageUnityClientConnectionThread.start();
+                
             }
             catch (IOException ex)
             {
