@@ -8,6 +8,8 @@ package runnables;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,10 +25,10 @@ import solomonserver.SolomonServer;
  */
 public class ManageUnityClientConnectionRunnable implements Runnable
 {
-    private DataOutputStream outputStream;
-    private DataInputStream inputStream;
+    private OutputStream outputStream;
+    private InputStream inputStream;
     private byte[] bytes;
-    public ManageUnityClientConnectionRunnable(DataOutputStream outputStream, DataInputStream inputStream)
+    public ManageUnityClientConnectionRunnable(OutputStream outputStream, InputStream inputStream)
     {
         this.outputStream = outputStream;
         this.inputStream = inputStream;
@@ -40,9 +42,9 @@ public class ManageUnityClientConnectionRunnable implements Runnable
             {
                 //wait for server unity command
                 inputStream.read(bytes);
-                System.out.println(new String(bytes));
                 String jsonString = new String(bytes);
                 jsonString = jsonString.trim();
+                System.out.println(jsonString);
                 JSONObject jsonObject = (JSONObject)new JSONParser().parse(jsonString);
                 String command = (String) jsonObject.get("command");
                 switch(command)
@@ -94,15 +96,19 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                                 jsonObject.put("room2Time", room2Time);
                                 jsonObject.put("room2Time", room2Time);
                                 jsonObject.put("room3Time", room3Time);
+                                jsonObject.put("room4Time", room4Time);
                                 jsonObject.put("error", "Null");
                                 
                                 outputStream.write(jsonObject.toJSONString().getBytes());
+                                //bytes = new byte[1024];
                             }
                         }
                         break;
                     default:
                         break;
                 }
+                if(command.equals("get heatmap"))
+                    break;
             }
         }
         catch(IOException ex)

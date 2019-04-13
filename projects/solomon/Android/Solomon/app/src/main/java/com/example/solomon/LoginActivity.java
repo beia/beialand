@@ -112,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                     //change activity
                     Intent intent = new Intent(LoginActivity.context, MainActivity.class);
                     intent.putExtra("UserData", userData);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     LoginActivity.context.startActivity(intent);
                     break;
 

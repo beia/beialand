@@ -51,13 +51,14 @@ public class Client : MonoBehaviour
 {
     public InputField usernameInputField;
     #region private members 	
-    private TcpClient socketConnection;
     private Thread clientReceiveThread;
+    public NetworkStream stream;
     public static volatile bool loadHeatMap; 
     #endregion
     // Use this for initialization 	
     void Start()
     {
+        loadHeatMap = false;
         ConnectToTcpServer();
         //very dumb aproach to the situation - I will rewrite the code for the UI updating
         StartCoroutine(updateUI());
@@ -73,7 +74,8 @@ public class Client : MonoBehaviour
     {
         try
         {
-            socketConnection = new TcpClient("localhost", 7000);
+            StaticData.socketConnection = new TcpClient("localhost", 7000);
+            stream = StaticData.socketConnection.GetStream();
             //clientReceiveThread = new Thread(new ThreadStart(ListenForData));
             //clientReceiveThread.IsBackground = true;
             //clientReceiveThread.Start();
@@ -83,52 +85,15 @@ public class Client : MonoBehaviour
             Debug.Log("On client connect exception " + e);
         }
     }
-    /// <summary> 	
-    /// Runs in background clientReceiveThread; Listens for incomming data. 	
-    /// </summary>     
-    private void ListenForData()
-    {
-        try
-        {
-            socketConnection = new TcpClient("localhost", 7000);
-            Byte[] bytes = new Byte[1024];
-            while (true)
-            {
-                // Get a stream object for reading 				
-                using (NetworkStream stream = socketConnection.GetStream())
-                {
-                    int length;
-                    // Read incomming stream into byte arrary. 					
-                    while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
-                    {
-                        var incommingData = new byte[length];
-                        Array.Copy(bytes, 0, incommingData, 0, length);
-                        // Convert byte array to string message. 						
-                        string serverMessage = Encoding.ASCII.GetString(incommingData);
-                        //get the server message
-                        Debug.Log("server message received as: " + serverMessage);
-                    }
-                }
-            }
-        }
-        catch (SocketException socketException)
-        {
-            Debug.Log("Socket exception: " + socketException);
-        }
-    }
-    /// <summary> 	
-    /// Send message to server using socket connection. 	
-    /// </summary> 	
+ 	
     private void SendMessage(String message)
     {
-        if (socketConnection == null)
+        if (StaticData.socketConnection == null)
         {
             return;
         }
         try
         {
-            // Get a stream object for writing. 			
-            NetworkStream stream = socketConnection.GetStream();
             if (stream.CanWrite)
             {
                 // Convert string message to byte array.                 
@@ -157,11 +122,11 @@ public class Client : MonoBehaviour
 
         //get server respnse	
         Byte[] bytes = new Byte[1024];			
-        using (NetworkStream stream = socketConnection.GetStream())
+        using (stream)
         {
             int length;
             // Read incomming stream into byte arrary. 					
-            while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+            if((length = stream.Read(bytes, 0, bytes.Length)) != 0)
             {
                 var incommingData = new byte[length];
                 Array.Copy(bytes, 0, incommingData, 0, length);
@@ -169,6 +134,7 @@ public class Client : MonoBehaviour
                 string serverMessage = Encoding.ASCII.GetString(incommingData);
                 //get the server message
                 UserDataUnityPacket userData = JsonUtility.FromJson<UserDataUnityPacket>(serverMessage);
+                Debug.Log("server message received as: " + serverMessage);
                 if (userData.error != "user not found" && userData.error != "user never entered the store")
                 {
                     StaticData.userHeatMapLastName = userData.lastName;
@@ -178,9 +144,8 @@ public class Client : MonoBehaviour
                     StaticData.userHeatMapRoom2Time = userData.room2Time;
                     StaticData.userHeatMapRoom3Time = userData.room3Time;
                     StaticData.userHeatMapRoom4Time = userData.room4Time;
-                    Debug.Log("server message received as: " + serverMessage);
+                    stream.Close();
                     loadHeatMap = true;
-                    break;
                 }
             }
         }

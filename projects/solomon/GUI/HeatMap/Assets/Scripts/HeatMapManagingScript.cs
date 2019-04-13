@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class HeatMapManagingScript : MonoBehaviour
 {
@@ -28,5 +29,10 @@ public class HeatMapManagingScript : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void onBackButtonClick()
+    {
+        SceneManager.LoadScene(0);
     }
 }

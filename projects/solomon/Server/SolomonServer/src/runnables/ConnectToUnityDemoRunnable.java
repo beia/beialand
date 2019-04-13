@@ -22,8 +22,8 @@ import java.util.logging.Logger;
 public class ConnectToUnityDemoRunnable implements Runnable
 {
     private ServerSocket serverSocket;
-    private DataOutputStream outputStream;
-    private DataInputStream inputStream;
+    private OutputStream outputStream;
+    private InputStream inputStream;
     public ConnectToUnityDemoRunnable(ServerSocket serverSocket)
     {
         this.serverSocket = serverSocket;
