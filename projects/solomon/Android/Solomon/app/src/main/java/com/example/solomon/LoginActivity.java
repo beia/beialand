@@ -355,6 +355,7 @@ public class LoginActivity extends AppCompatActivity {
         lastNameTextView.setText("Last name: ");
 
 
+        //add a horizontal linear layout and add the last name EditText and the feedback text for the coresponding edittext
         LoginActivity.lastNameSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsLastNameEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsLastNameEditText.setMargins(0, 10, 0, 0);
@@ -376,7 +377,7 @@ public class LoginActivity extends AppCompatActivity {
         firstNameTextView.setPadding(14, 100, 14, 14);
         firstNameTextView.setText("First name: ");
 
-
+        //add a horizontal linear layout and add the first name EditText and the feedback text for the coresponding edittext
         LoginActivity.firstNameSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsFirstNameEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsFirstNameEditText.setMargins(0, 10, 0, 0);
@@ -398,6 +399,7 @@ public class LoginActivity extends AppCompatActivity {
         ageTextView.setText("Age: ");
 
 
+        //add a horizontal linear layout and add the age EditText and the feedback text for the coresponding edittext
         LoginActivity.ageSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsAgeEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsAgeEditText.setMargins(0, 10, 0, 0);
@@ -419,6 +421,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameTextView.setText("Username: ");
 
 
+        //add a horizontal linear layout and add the username EditText and the feedback text for the coresponding edittext
         LoginActivity.usernameSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsUsernameEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsUsernameEditText.setMargins(0, 10, 0, 0);
@@ -440,6 +443,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextView.setText("Password: ");
 
 
+        //add a horizontal linear layout and add the password EditText and the feedback text for the coresponding edittext
         LoginActivity.passwordSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsPasswordEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsPasswordEditText.setMargins(0, 10, 0, 0);
@@ -463,6 +467,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirationTextView.setText("Confirm password: ");
 
 
+        //add a horizontal linear layout and add password confirmation EditText and the feedback text for the coresponding edittext
         LoginActivity.passwordConfirmationSignUpEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsPasswordConfirmationEditText = new LinearLayout.LayoutParams(width , height);
         layoutParamsPasswordConfirmationEditText.setMargins(0, 10, 0, 0);

@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
         //instantiated a proximity zone
-        final ProximityZone zone = new ProximityZoneBuilder()
+        final ProximityZone zone1 = new ProximityZoneBuilder()
                 .forTag("conf room")
                 .inCustomRange(3.0)
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
@@ -96,6 +96,87 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .build();
 
+        final ProximityZone zone2 = new ProximityZoneBuilder()
+                .forTag("Room2")
+                .inCustomRange(3.0)
+                .onEnter(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext context) {
+                        feedBackTextView.setText("Entered the: " + context.getTag());
+                        //get current time
+                        currentTime = Calendar.getInstance().getTime();
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room2", true, currentTime, objectOutputStream));
+                        sendLocationDataThread.start();
+                        return null;
+                    }
+                })
+                .onExit(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext context) {
+                        feedBackTextView.setText("Left the: " + context.getTag());
+                        //get current time
+                        currentTime = Calendar.getInstance().getTime();
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room2", false, currentTime, objectOutputStream));
+                        sendLocationDataThread.start();
+                        return null;
+                    }
+                })
+                .build();
+
+        final ProximityZone zone3 = new ProximityZoneBuilder()
+                .forTag("Room3")
+                .inCustomRange(3.0)
+                .onEnter(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext context) {
+                        feedBackTextView.setText("Entered the: " + context.getTag());
+                        //get current time
+                        currentTime = Calendar.getInstance().getTime();
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room3", true, currentTime, objectOutputStream));
+                        sendLocationDataThread.start();
+                        return null;
+                    }
+                })
+                .onExit(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext context) {
+                        feedBackTextView.setText("Left the: " + context.getTag());
+                        //get current time
+                        currentTime = Calendar.getInstance().getTime();
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room3", false, currentTime, objectOutputStream));
+                        sendLocationDataThread.start();
+                        return null;
+                    }
+                })
+                .build();
+
+        final ProximityZone zone4 = new ProximityZoneBuilder()
+                .forTag("Room3")
+                .inCustomRange(3.0)
+                .onEnter(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext context) {
+                        feedBackTextView.setText("Entered the: " + context.getTag());
+                        //get current time
+                        currentTime = Calendar.getInstance().getTime();
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room4", true, currentTime, objectOutputStream));
+                        sendLocationDataThread.start();
+                        return null;
+                    }
+                })
+                .onExit(new Function1<ProximityZoneContext, Unit>() {
+                    @Override
+                    public Unit invoke(ProximityZoneContext context) {
+                        feedBackTextView.setText("Left the: " + context.getTag());
+                        //get current time
+                        currentTime = Calendar.getInstance().getTime();
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room4", false, currentTime, objectOutputStream));
+                        sendLocationDataThread.start();
+                        return null;
+                    }
+                })
+                .build();
+
         //set bluetooth functionality
         RequirementsWizardFactory
                 .createEstimoteRequirementsWizard()
@@ -104,7 +185,10 @@ public class MainActivity extends AppCompatActivity {
                         new Function0<Unit>() {
                             @Override public Unit invoke() {
                                 Log.d("app", "requirements fulfilled");
-                                proximityObserver.startObserving(zone);
+                                proximityObserver.startObserving(zone1);
+                                proximityObserver.startObserving(zone2);
+                                proximityObserver.startObserving(zone3);
+                                proximityObserver.startObserving(zone4);
                                 feedBackTextView.setText("requirements fulfiled");
                                 return null;
                             }
