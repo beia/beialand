@@ -1,10 +1,8 @@
 package com.example.solomon;
 
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.TextureView;
 import android.widget.TextView;
 
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
@@ -15,13 +13,17 @@ import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
 import com.estimote.proximity_sdk.api.ProximityZone;
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
-import com.example.solomon.networkPackets.LocationData;
 import com.example.solomon.networkPackets.UserData;
 import com.example.solomon.runnables.SendLocationDataRunnable;
 
-import java.io.IOException;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -32,25 +34,32 @@ import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
+    //Beacon variables
     public Date currentTime;
     private ProximityObserver proximityObserver;
     public static TextView feedBackTextView;
     public int userId;
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
+
+    //UI variables
+    private TabLayout tabLayout;
+    private AppBarLayout appBarLayout;
+    private ViewPager viewPager;
+    private ViewPagerAdapter viewPagerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        initUI();
 
         //getUserData
         UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
         userId = userData.getUserId();
         objectOutputStream = LoginActivity.objectOutputStream;
         objectInputStream = LoginActivity.objectInputStream;
-
-        //init UI
-        feedBackTextView = findViewById(R.id.feedBackTextView);
 
         //initialized cloud credentials
         EstimoteCloudCredentials cloudCredentials = new EstimoteCloudCredentials("solomon-app-ge4", "97f78b20306bb6a15ed1ddcd24b9ca21");
@@ -209,6 +218,47 @@ public class MainActivity extends AppCompatActivity {
                                 return null;
                             }
                         });
+
+    }
+
+    public void initUI()
+    {
+        //get UI references
+        tabLayout = (TabLayout) findViewById(R.id.tabLayoutId);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appBarId);
+        viewPager = (ViewPager) findViewById(R.id.viewPagerId);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        feedBackTextView = findViewById(R.id.feedBackTextView);
+
+        //set tabbed layout
+
+        StoreAdvertisementFragment storeAdvertisementFragment = new StoreAdvertisementFragment();
+        Bundle bundle1 = new Bundle();
+        ArrayList<String> storeAdvertisementsData = new ArrayList<>();
+        bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
+        storeAdvertisementFragment.setArguments(bundle1, "storeAdvertisementsData");
+
+        UserStatsFragment userStatsFragment = new UserStatsFragment();
+        Bundle bundle2 = new Bundle();
+        ArrayList<String> userStatsData = new ArrayList<>();
+        bundle2.putStringArrayList("userStatsData", userStatsData);
+        userStatsFragment.setArguments(bundle2, "userStatsData");
+
+        SettingsFragment settingsFragment = new SettingsFragment();
+        Bundle bundle3 = new Bundle();
+        ArrayList<String> profileDataAndSettingsData = new ArrayList<>();
+        bundle3.putStringArrayList("profileDataAndSettingsData", profileDataAndSettingsData);
+        settingsFragment.setArguments(bundle3, "profileDataAndSettingsData");
+
+        //add the fragment to the viewPagerAdapter
+        viewPagerAdapter.addFragment(storeAdvertisementFragment, "storeAdvertisementsData");
+        viewPagerAdapter.addFragment(userStatsFragment, "userStatsData");
+        viewPagerAdapter.addFragment(settingsFragment, "profileDataAndSettingsData");
+
+        //set my ViewPagerAdapter to the ViewPager
+        viewPager.setAdapter(viewPagerAdapter);
+        //set the tabLayoutViewPager
+        tabLayout.setupWithViewPager(viewPager);
 
     }
 }

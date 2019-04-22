@@ -7,14 +7,42 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/feedBackTextView"
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/design_default_color_primary"
+        android:gravity="center"
+        app:elevation="0dp"
+        android:id="@+id/appBarId">
+        <TextView
+            android:id="@+id/feedBackTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Hello World!"
+            android:textSize="40dp"
+            android:textStyle="bold" />
+    </android.support.design.widget.AppBarLayout>
+
+
+    <android.support.v4.view.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/viewPagerId">
+    </android.support.v4.view.ViewPager>
+
+
+    <android.support.design.widget.TabLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="100dp"
-        android:text="Hello World!"
-        android:textSize="40dp"
-        android:textStyle="bold" />
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        android:id="@+id/tabLayoutId"
+        app:tabTextColor="@color/orangeAccent"
+        app:tabIndicatorColor="@color/colorPrimary"
+        android:background="@color/design_default_color_primary"/>
+
 
 </LinearLayout>
