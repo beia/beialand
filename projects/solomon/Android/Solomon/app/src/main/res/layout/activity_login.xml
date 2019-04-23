@@ -18,6 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/orangeAccent"
+            android:layout_marginTop="10dp"
             android:checked="true"
             android:text="Login"
             android:textSize="17dp" />
@@ -27,21 +28,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/orangeAccent"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="14dp"
             android:text="SignUp"
             android:textSize="17dp" />
     </LinearLayout>
 
+    <ImageView
+        android:layout_width="325dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/solomon_title_image"
+        android:layout_gravity="center"/>
+
     <TextView
-        android:id="@+id/TitleTextView"
+        android:id="@+id/loginTitleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
-        android:gravity="center"
         android:textStyle="bold"
-        android:paddingTop="50dp"
-        android:textSize="40dp"
-        android:text="Solomon" />
+        android:gravity="center"
+        android:textSize="23dp" />
 
     <ScrollView
         android:layout_width="match_parent"

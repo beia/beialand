@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     public static LinearLayout loginLinearLayout;   //the linear layout that is common for both login and signup instances
     public static RadioButton loginRadioButton;
     public static RadioButton signupRadioButton;
-    public static TextView titleTextView;
+    public static TextView loginTitleTextView;
     public static TextView feedbackTextView;
     public static int hintTextColor = Color.argb(50, 0, 0, 0);
     public static int orangeAccentColor = Color.argb(200,255, 161, 114);
@@ -148,9 +148,15 @@ public class LoginActivity extends AppCompatActivity {
         //set login layout
         setLoginLayout();
 
-        //start the login thread
-        authenticateClient = new Thread(new AuthenticationRunnable(objectOutputStream, objectInputStream));
-        authenticateClient.start();
+        //start the login thread - in the handler this method is bad
+        while(true)
+        {
+            if(objectInputStream != null && objectOutputStream != null) {
+                authenticateClient = new Thread(new AuthenticationRunnable(objectOutputStream, objectInputStream));
+                authenticateClient.start();
+                break;
+            }
+        }
 
         //login radio button listener
         loginRadioButton.setOnClickListener(new View.OnClickListener() {
@@ -224,8 +230,8 @@ public class LoginActivity extends AppCompatActivity {
         loginLinearLayout = findViewById(R.id.CustomAutenthificationLinearLayout);
         loginRadioButton = findViewById(R.id.LoginRadioButton);
         signupRadioButton = findViewById(R.id.SignUpRadioButton);
-        titleTextView = findViewById(R.id.TitleTextView);
-        Drawable backround = ContextCompat.getDrawable(context, R.drawable.backround1);
+        loginTitleTextView = findViewById(R.id.loginTitleTextView);
+        Drawable backround = ContextCompat.getDrawable(context, R.drawable.backround10);
         backround.setAlpha(180);
         mainLinearLayout.setBackground(backround);
 
@@ -243,6 +249,9 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void setLoginLayout()
     {
+        //set the login title
+        loginTitleTextView.setText("Sign in");
+
         //uncheck the SignUpRadioButton if it's checked
         if (signupRadioButton.isChecked())
             signupRadioButton.setChecked(false);
@@ -318,6 +327,9 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void setSignUpLayout()
     {
+        //set the login title
+        loginTitleTextView.setText("Sign up");
+
         //uncheck the LogInRadioButton if it's checked
         if (loginRadioButton.isChecked())
             loginRadioButton.setChecked(false);

@@ -1,5 +1,7 @@
 package com.example.solomon;
 
+import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -160,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         final ProximityZone zone4 = new ProximityZoneBuilder()
-                .forTag("Room3")
+                .forTag("Room4")
                 .inCustomRange(3.0)
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
@@ -221,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @SuppressLint("ResourceAsColor")
     public void initUI()
     {
         //get UI references
@@ -230,8 +233,8 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         feedBackTextView = findViewById(R.id.feedBackTextView);
 
-        //set tabbed layout
 
+        //set tabbed layout
         StoreAdvertisementFragment storeAdvertisementFragment = new StoreAdvertisementFragment();
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
@@ -251,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
         settingsFragment.setArguments(bundle3, "profileDataAndSettingsData");
 
         //add the fragment to the viewPagerAdapter
+        int numberOfTabs = 3;
         viewPagerAdapter.addFragment(storeAdvertisementFragment, "storeAdvertisementsData");
         viewPagerAdapter.addFragment(userStatsFragment, "userStatsData");
         viewPagerAdapter.addFragment(settingsFragment, "profileDataAndSettingsData");
@@ -260,5 +264,9 @@ public class MainActivity extends AppCompatActivity {
         //set the tabLayoutViewPager
         tabLayout.setupWithViewPager(viewPager);
 
+        //set images instead of title text for each tab
+        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon);
+        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon);
+        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon);
     }
 }
