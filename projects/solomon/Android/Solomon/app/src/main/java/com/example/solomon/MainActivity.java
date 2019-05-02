@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         //instantiated a proximity zone
         final ProximityZone zone1 = new ProximityZoneBuilder()
-                .forTag("conf room")
+                .forTag("Room1")
                 .inCustomRange(3.0)
                 .onEnter(new Function1<ProximityZoneContext, Unit>() {
                     @Override
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                         feedBackTextView.setText("Entered the: " + context.getTag());
                         //get current time
                         currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Sala de conferinte", true, currentTime, objectOutputStream));
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room1", true, currentTime, objectOutputStream));
                         sendLocationDataThread.start();
                         return null;
                     }
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                         feedBackTextView.setText("Left the: " + context.getTag());
                         //get current time
                         currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Sala de conferinte", false, currentTime, objectOutputStream));
+                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room1", false, currentTime, objectOutputStream));
                         sendLocationDataThread.start();
                         return null;
                     }
