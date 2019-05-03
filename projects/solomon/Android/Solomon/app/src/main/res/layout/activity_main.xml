@@ -10,8 +10,8 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@drawable/backround10"
+        android:layout_height="30dp"
+        android:background="@color/greyAccent"
         android:gravity="center"
         app:elevation="0dp"
         android:id="@+id/appBarId">
@@ -21,8 +21,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Hello World!"
-            android:textSize="40dp"
-            android:textStyle="bold" />
+            android:textSize="20dp" />
     </android.support.design.widget.AppBarLayout>
 
 
@@ -31,7 +30,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:id="@+id/viewPagerId"
-        android:background="@drawable/backround10">
+        android:background="@color/greyAccent">
     </android.support.v4.view.ViewPager>
 
 
@@ -43,7 +42,7 @@
         android:id="@+id/tabLayoutId"
         app:tabTextColor="@color/orangeAccent"
         app:tabIndicatorColor="@color/colorPrimary"
-        android:background="@drawable/backround10"/>
+        android:background="@color/greyAccent"/>
 
 
 </LinearLayout>

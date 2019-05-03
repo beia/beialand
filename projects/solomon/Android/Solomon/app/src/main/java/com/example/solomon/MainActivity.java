@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     //UI variables
     private TabLayout tabLayout;
-    private AppBarLayout appBarLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
 
@@ -228,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
     {
         //get UI references
         tabLayout = (TabLayout) findViewById(R.id.tabLayoutId);
-        appBarLayout = (AppBarLayout) findViewById(R.id.appBarId);
         viewPager = (ViewPager) findViewById(R.id.viewPagerId);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         feedBackTextView = findViewById(R.id.feedBackTextView);
