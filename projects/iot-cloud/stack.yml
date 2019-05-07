@@ -81,6 +81,8 @@ services:
 
   iot-data:
     image: postgres
+    deploy:
+      replicas: 0
     environment:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
     volumes:
