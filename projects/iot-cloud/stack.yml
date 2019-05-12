@@ -79,17 +79,6 @@ services:
      - graphite
      - statsd_net
 
-  iot-data:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-    volumes:
-      - iot-data:/var/lib/postgresql/data
-    networks:
-      - graphite
-    secrets:
-      - postgres_password
-
   broker:
     image: beia/emqtt
     volumes:
@@ -139,12 +128,6 @@ services:
     networks:
      - proxy_net
 
-  mqtt2postgres:
-    image: vladwing/hang
-    networks:
-      - broker
-      - graphite
-
 volumes:
   emqtt_data:
   emqtt_etc:
@@ -153,7 +136,6 @@ volumes:
   graphite:
   graphite_conf:
   grafana:
-  iot-data:
   influxdb:
 networks:
   graphite:
@@ -164,8 +146,6 @@ networks:
   proxy_net:
     external: true
 secrets:
-  postgres_password:
-    external: true
   grafana_password:
     external: true
   smtp_user:
