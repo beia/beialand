@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/MainMenuLinearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".LoginActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="170dp">
+
+        <RadioButton
+            android:id="@+id/LoginRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/orangeAccent"
+            android:layout_marginTop="10dp"
+            android:checked="true"
+            android:text="Login"
+            android:textSize="17dp" />
+
+        <RadioButton
+            android:id="@+id/SignUpRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/orangeAccent"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="14dp"
+            android:text="SignUp"
+            android:textSize="17dp" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="325dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/solomon_title_image"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/loginTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="23dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp">
+        <LinearLayout
+            android:id="@+id/CustomAutenthificationLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

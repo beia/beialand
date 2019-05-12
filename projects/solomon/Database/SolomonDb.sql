@@ -1,0 +1,1 @@
+delete from userroomtime where iduserRoomTime > 0
