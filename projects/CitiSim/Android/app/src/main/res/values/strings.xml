@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CitiSim</string>
+    <string name="google_maps_API_key">AIzaSyCjNrSR-6cPUrGPx7hKcuHDLVKKILaYGTE</string>
+    <string name="api_server">http://citisim.taiger.com:8080</string>
+</resources>
