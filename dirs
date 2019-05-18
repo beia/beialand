@@ -3,7 +3,7 @@ STACK_FOLDERS = \
   projects/innov2017 \
   projects/iot-cloud \
   projects/libelium-backup \
-  projects/Somedi \
+  projects/somedi \
 
 DOCKER_FOLDERS = \
   projects/docker-images/wordpress \
