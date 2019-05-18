@@ -8,7 +8,7 @@ services:
       VIRTUAL_PORT: 8080
       LETSENCRYPT_HOST: 'somedi-api.beia-consult.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
-      ACCESS_TOKEN__FILE: '/run/secrets/access_token'
+      ACCESS_TOKEN__FILE: '/run/secrets/somedi_access_token'
       GOOGLE_APPLICATION_CREDENTIALS: '/srv/sentiment-analysis/creds/auth.json'
       REDIS_HOST: 'redis'
     networks:
@@ -17,7 +17,7 @@ services:
     volumes:
      - sa_auth:/srv/sentiment-analysis/creds
     secrets:
-     - access_token
+     - somedi_access_token
   redis:
     image: redis:5.0.3-alpine
     networks:
@@ -29,7 +29,7 @@ networks:
     external: true
 
 secrets:
-  access_token:
+  somedi_access_token:
     external: true
 
 volumes:
