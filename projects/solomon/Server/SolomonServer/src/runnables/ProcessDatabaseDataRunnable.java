@@ -6,11 +6,21 @@
 package runnables;
 
 import com.example.solomon.networkPackets.LocationData;
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.w3c.dom.Document;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import solomonserver.Beacon;
 import solomonserver.SolomonServer;
 
 /**
@@ -32,6 +42,27 @@ public class ProcessDatabaseDataRunnable implements Runnable
     public void run() {
         try
         {
+            //get the beacons data from the XML configuration file and add it int the database
+            getBeaconsData(SolomonServer.beacons);
+            ResultSet roomData = SolomonServer.getTableData("rooms");
+            if(!roomData.isBeforeFirst())
+            {
+                //the beacons were never configured so we add the beacons into the database as rooms
+                for(Beacon beacon : SolomonServer.beacons.values())
+                {
+                    SolomonServer.addRoom(beacon.getLabel(), beacon.getName());
+                }
+            }
+            else
+            {    
+                SolomonServer.deleteTableData("rooms", "idrooms");
+                for(Beacon beacon : SolomonServer.beacons.values())
+                {
+                    SolomonServer.addRoom(beacon.getLabel(), beacon.getName());
+                }
+            }
+            
+            //get the new enter left room pairs from the database and compute the time difeence and update the time in the database
             System.out.println("\n\nGetting new location data from the database...");
             while(true)
             {
@@ -100,7 +131,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                             for(int j = i + 1; j < userLocationArray.size(); j++)
                             {
                                 //if the user entry is in the same store as the previos entry, the zone is the same and the user left the zone compute the time difference for the zone and add it into the database
-                                if(userLocationArray.get(j).getStoreId() == userLocationArray.get(i).getStoreId() && userLocationArray.get(j).getZoneName().equals(userLocationArray.get(i).getZoneName()) && userLocationArray.get(j).getZoneEntered() == false)
+                                if(userLocationArray.get(i).getUserId() == userLocationArray.get(j).getUserId() && userLocationArray.get(j).getStoreId() == userLocationArray.get(i).getStoreId() && userLocationArray.get(j).getZoneName().equals(userLocationArray.get(i).getZoneName()) && userLocationArray.get(j).getZoneEntered() == false)
                                 {
                                     System.out.println("\n\npair");
                                     System.out.println("User with id: " + userLocationArray.get(i).getUserId() + " entered =  " + userLocationArray.get(i).getZoneEntered() + " zone: " + userLocationArray.get(i).getZoneName() + " at " + userLocationArray.get(i).getTime());
@@ -128,218 +159,34 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                     int minuteLeft = Integer.parseInt(date[1].trim());
                                     int secondsLeft = Integer.parseInt(date[2].trim());
                                     
-                                    //get room data from the database
-                                    ResultSet roomTimeResultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", idUser, idStore);
                                     
+                                    
+                                    //get room data from the database
+                                    ResultSet roomTimeResultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", idUser, idStore, zoneName);
+                                    
+                                    ////compute time difference and insert the room time data for every room coresponding to each user
                                     if(!roomTimeResultSet.isBeforeFirst())
                                     {
-                                        //the user never entered the store
-                                        //insert the room time data for the user coresponding the store into the database
-                                        int secondsEnteredSum, secondsLeftSum, secondsDifference, hours, minutes, seconds;
-                                        String room1Time, room2Time, room3Time, room4Time; 
-                                        String[] zonesTime;
-                                        switch(zoneName)
-                                        {
-                                            //add in the future new tags
-                                            case "Room1":
-                                                //compute time difference
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                hours = secondsDifference / 3600;
-                                                minutes = (secondsDifference % 3600) / 60;
-                                                seconds = ((secondsDifference % 3600) % 60);
-                                                room1Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                room2Time = "0 hours 0 minutes 0 seconds";
-                                                room3Time = "0 hours 0 minutes 0 seconds";
-                                                room4Time = "0 hours 0 minutes 0 seconds";
-                                                zonesTime = new String[]{room1Time, room2Time, room3Time, room4Time};
-                                                SolomonServer.addZoneTimeData(idUser, idStore, zonesTime);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room1 from store with id: " + idStore + "\nCurrent time spent in room: " + room1Time);
-                                                break;
-                                                
-                                            case "Room2":
-                                                //compute time difference
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                hours = secondsDifference / 3600;
-                                                minutes = (secondsDifference % 3600) / 60;
-                                                seconds = ((secondsDifference % 3600) % 60);
-                                                room1Time = "0 hours 0 minutes 0 seconds";
-                                                room2Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                room3Time = "0 hours 0 minutes 0 seconds";
-                                                room4Time = "0 hours 0 minutes 0 seconds";
-                                                zonesTime = new String[]{room1Time, room2Time, room3Time, room4Time};
-                                                SolomonServer.addZoneTimeData(idUser, idStore, zonesTime);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room2 from store with id: " + idStore + "\nCurrent time spent in room: " + room2Time);
-                                                break;
-                                                
-                                            case "Room3":
-                                                //compute time difference
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                hours = secondsDifference / 3600;
-                                                minutes = (secondsDifference % 3600) / 60;
-                                                seconds = ((secondsDifference % 3600) % 60);
-                                                room1Time = "0 hours 0 minutes 0 seconds";
-                                                room2Time = "0 hours 0 minutes 0 seconds";
-                                                room3Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                room4Time = "0 hours 0 minutes 0 seconds";
-                                                zonesTime = new String[]{room1Time, room2Time, room3Time, room4Time};
-                                                SolomonServer.addZoneTimeData(idUser, idStore, zonesTime);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room3 from store with id: " + idStore + "\nCurrent time spent in room: " + room3Time);
-                                                break;    
-                                                
-                                            case "Room4":
-                                                //compute time difference
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                hours = secondsDifference / 3600;
-                                                minutes = (secondsDifference % 3600) / 60;
-                                                seconds = ((secondsDifference % 3600) % 60);
-                                                room1Time = "0 hours 0 minutes 0 seconds";
-                                                room2Time = "0 hours 0 minutes 0 seconds";
-                                                room3Time = "0 hours 0 minutes 0 seconds";
-                                                room4Time = hours + " hours " + minutes +" minutes " + seconds + " seconds";
-                                                zonesTime = new String[]{room1Time, room2Time, room3Time, room4Time};
-                                                SolomonServer.addZoneTimeData(idUser, idStore, zonesTime);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room4 from store with id: " + idStore + "\nCurrent time spent in room: " + room4Time);
-                                                break;        
-                                                
-                                                
-                                            default:
-                                                break;
-                                        }
+                                        //the user never entered the room
+                                        long secondsEnteredSum, secondsLeftSum, secondsDifference;
+                                        secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
+                                        secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
+                                        secondsDifference = secondsLeftSum - secondsEnteredSum;
+                                        SolomonServer.addZoneTimeData(idUser, idStore, zoneName, secondsDifference);
+                                        System.out.println("\nUser with id: " + idUser + "\nRoom: " + zoneName + " from store with id: " + idStore + "\nCurrent time spent in room: " + secondsDifference + " seconds");
                                     }
                                     else
                                     {
-                                        //user entered the store at least once
+                                        //user entered the room at least once
+                                        long secondsEnteredSum, secondsLeftSum, currentSecondsDifference, previousSecondsDifference;
+                                        secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
+                                        secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
+                                        currentSecondsDifference = secondsLeftSum - secondsEnteredSum;
                                         roomTimeResultSet.next();
-                                        int secondsEnteredSum, secondsLeftSum, secondsDifference;
-                                        int currentHours, currentMinutes, currentSeconds;
-                                        int previousHours, previousMinutes, previousSeconds;
-                                        int hours, minutes, seconds;
-                                        String[] data;
-                                        String currentTimeString;
-                                        switch(zoneName)
-                                        {
-                                            //add in the future new tags
-                                            case "Room1":
-                                                //compute time difference
-                                                String room1PreviousTime = roomTimeResultSet.getString("room1Time");
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                currentHours = secondsDifference / 3600;
-                                                currentMinutes = (secondsDifference % 3600) / 60;
-                                                currentSeconds = ((secondsDifference % 3600) % 60);
-                                                currentTimeString = currentHours + " hours " + currentMinutes + " minutes " + currentSeconds + " seconds";
-                                                
-                                                data = room1PreviousTime.split(" ");
-                                                previousHours = Integer.parseInt(data[0]);
-                                                previousMinutes = Integer.parseInt(data[2]);
-                                                previousSeconds = Integer.parseInt(data[4]);
-                                                
-                                                hours = previousHours + currentHours + ((previousMinutes + currentMinutes) / 60);
-                                                minutes = ((previousMinutes + currentMinutes) % 60) + ((previousSeconds + currentSeconds) / 60);
-                                                seconds = (previousSeconds + currentSeconds) % 60;
-                                                
-                                                String room1Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                
-                                                SolomonServer.updateZoneTimeData(idUser, idStore, "room1Time", room1Time);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room1 from store with id: " + idStore + "\nCurrent time spent in room: " + currentTimeString);
-                                                System.out.println("Total time spent in room: " + room1Time);
-                                                break;
-                                                
-                                                case "Room2":
-                                                //compute time difference
-                                                String room2PreviousTime = roomTimeResultSet.getString("room2Time");
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                currentHours = secondsDifference / 3600;
-                                                currentMinutes = (secondsDifference % 3600) / 60;
-                                                currentSeconds = ((secondsDifference % 3600) % 60);
-                                                currentTimeString = currentHours + " hours " + currentMinutes + " minutes " + currentSeconds + " seconds";
-                                                
-                                                data = room2PreviousTime.split(" ");
-                                                previousHours = Integer.parseInt(data[0]);
-                                                previousMinutes = Integer.parseInt(data[2]);
-                                                previousSeconds = Integer.parseInt(data[4]);
-                                                
-                                                hours = previousHours + currentHours + ((previousMinutes + currentMinutes) / 60);
-                                                minutes = ((previousMinutes + currentMinutes) % 60) + ((previousSeconds + currentSeconds) / 60);
-                                                seconds = (previousSeconds + currentSeconds) % 60;
-                                                
-                                                String room2Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                
-                                                SolomonServer.updateZoneTimeData(idUser, idStore, "room2Time", room2Time);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room2 from store with id: " + idStore + "\nCurrent time spent in room: " + currentTimeString);
-                                                System.out.println("Total time spent in room: " + room2Time);
-                                                break;
-                                                    
-                                                case "Room3":
-                                                //compute time difference
-                                                String room3PreviousTime = roomTimeResultSet.getString("room3Time");
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                currentHours = secondsDifference / 3600;
-                                                currentMinutes = (secondsDifference % 3600) / 60;
-                                                currentSeconds = ((secondsDifference % 3600) % 60);
-                                                currentTimeString = currentHours + " hours " + currentMinutes + " minutes " + currentSeconds + " seconds";
-                                                
-                                                data = room3PreviousTime.split(" ");
-                                                previousHours = Integer.parseInt(data[0]);
-                                                previousMinutes = Integer.parseInt(data[2]);
-                                                previousSeconds = Integer.parseInt(data[4]);
-                                                
-                                                hours = previousHours + currentHours + ((previousMinutes + currentMinutes) / 60);
-                                                minutes = ((previousMinutes + currentMinutes) % 60) + ((previousSeconds + currentSeconds) / 60);
-                                                seconds = (previousSeconds + currentSeconds) % 60;
-                                                
-                                                String room3Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                
-                                                SolomonServer.updateZoneTimeData(idUser, idStore, "room3Time", room3Time);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room3 from store with id: " + idStore + "\nCurrent time spent in room: " + currentTimeString);
-                                                System.out.println("Total time spent in room: " + room3Time);
-                                                break;    
-                                                    
-                                                case "Room4":
-                                                //compute time difference
-                                                String room4PreviousTime = roomTimeResultSet.getString("room4Time");
-                                                secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
-                                                secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
-                                                secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                                currentHours = secondsDifference / 3600;
-                                                currentMinutes = (secondsDifference % 3600) / 60;
-                                                currentSeconds = ((secondsDifference % 3600) % 60);
-                                                currentTimeString = currentHours + " hours " + currentMinutes + " minutes " + currentSeconds + " seconds";
-                                                
-                                                data = room4PreviousTime.split(" ");
-                                                previousHours = Integer.parseInt(data[0]);
-                                                previousMinutes = Integer.parseInt(data[2]);
-                                                previousSeconds = Integer.parseInt(data[4]);
-                                                
-                                                hours = previousHours + currentHours + ((previousMinutes + currentMinutes) / 60);
-                                                minutes = ((previousMinutes + currentMinutes) % 60) + ((previousSeconds + currentSeconds) / 60);
-                                                seconds = (previousSeconds + currentSeconds) % 60;
-                                                
-                                                String room4Time = hours + " hours " + minutes + " minutes " + seconds + " seconds";
-                                                
-                                                SolomonServer.updateZoneTimeData(idUser, idStore, "room4Time", room4Time);
-                                                System.out.println("\nUser with id: " + idUser + "\nRoom: Room4 from store with id: " + idStore + "\nCurrent time spent in room: " + currentTimeString);
-                                                System.out.println("Total time spent in room: " + room4Time);
-                                                break;        
-                                                
-                                                
-                                            default:
-                                                break;
-                                        } 
-                                        
+                                        previousSecondsDifference = roomTimeResultSet.getLong("timeSeconds");
+                                        long totalSeconds = currentSecondsDifference + previousSecondsDifference;
+                                        SolomonServer.updateZoneTimeData(idUser, idStore, zoneName, totalSeconds);
+                                        System.out.println("\nUser with id: " + idUser + "\nRoom: " + zoneName + " from store with id: " + idStore + "\nCurrent time spent in room: " + totalSeconds + " seconds");
                                     }
                                     
                                     userLocationArray.remove(j);
@@ -370,4 +217,36 @@ public class ProcessDatabaseDataRunnable implements Runnable
         }
     }
     
+    public void getBeaconsData(HashMap<String, Beacon> beacons) throws SAXException, ParserConfigurationException, IOException
+    {
+        //get the beacons data from a XML configuration file
+        File inputFile = new File("C:\\Users\\beia\\Desktop\\beialand\\projects\\solomon\\Server\\SolomonServer\\src\\configFiles\\beacons.xml");
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = (Document) dBuilder.parse(inputFile);
+        doc.getDocumentElement().normalize();
+        System.out.println("\n\nGetting beacon data from config file: \n");
+        System.out.println("Root element : " + doc.getDocumentElement().getNodeName());
+        NodeList nList = doc.getElementsByTagName("beacon");
+        System.out.println("----------------------------");
+        
+        for (int i = 0; i < nList.getLength(); i++)
+        {
+            Node nNode = nList.item(i);
+            System.out.println("\nCurrent Element : " + nNode.getNodeName());
+            if(nNode.getNodeType() == Node.ELEMENT_NODE)
+            {
+                Element eElement = (Element) nNode;
+                String id = eElement.getAttribute("id");
+                String label = eElement.getElementsByTagName("label").item(0).getTextContent();
+                String name = eElement.getElementsByTagName("name").item(0).getTextContent();
+                System.out.println("Beacon id : " + eElement.getAttribute("id"));
+                System.out.println("Label : " + eElement.getElementsByTagName("label").item(0).getTextContent());
+                System.out.println("Name : " + eElement.getElementsByTagName("name").item(0).getTextContent());
+                
+                //add the beacon into the hashmap
+                beacons.put(label, new Beacon(id, label, name));
+            }
+        }
+    }
 }

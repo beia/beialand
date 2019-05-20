@@ -1,0 +1,33 @@
+<?xml version = "1.0"?>
+<beaconsList>
+   <beacon id = "01d1b1ded3ea74f01f464d076f2f8138">
+   <label>Room1</label>
+   <name>sala de conferinte</name>
+   </beacon>
+   
+   <beacon id = "716cb1ae9008d60e5e40499ec67a772f">
+   <label>Room2</label>
+   <name>Room2</name>
+   </beacon>
+   
+   <beacon id = "ee4d538a36c2bbac622980b351ba9a0a">
+   <label>Room3</label>
+   <name>Room3</name>
+   </beacon>
+   
+   <beacon id = "44cf736f23ac5add5e8d15b021600d03">
+   <label>Room4</label>
+   <name>Room4</name>
+   </beacon>
+   
+   <beacon id = "2c49b20fa9a9a4c9ee5d64b884811b34">
+   <label>Room5</label>
+   <name>Room5</name>
+   </beacon>
+   
+   <beacon id = "580a946d72a0aea856aa9e0dd4beda37">
+   <label>Room6</label>
+   <name>Room6</name>
+   </beacon>
+   
+</beaconsList>

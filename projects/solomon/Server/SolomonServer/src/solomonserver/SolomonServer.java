@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import runnables.ConnectClientsRunnable;
 import runnables.ConnectToUnityDemoRunnable;
 import runnables.ProcessDatabaseDataRunnable;
@@ -28,6 +29,7 @@ public class SolomonServer {
     public static ServerSocket serverSocket;
     public static Thread connectClients;
     public static Thread processDatabaseData;
+    public static HashMap<String, Beacon> beacons;
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
     public static Socket unityDemoSocket;
@@ -41,6 +43,9 @@ public class SolomonServer {
     
     public static void main(String[] args) throws IOException, SQLException, Exception
     {
+        //init variables
+        beacons = new HashMap<>();
+        
         //connect to a mySql database
         connectToDatabase();
         
@@ -114,6 +119,33 @@ public class SolomonServer {
         }
     }
     
+    public static void addRoom(String label, String name) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                String roomInsertionStatement = "insert into rooms(label, name) values(?,?)";
+                PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
+                updateRooms.setString(1, label);
+                updateRooms.setString(2, name);
+                updateRooms.executeUpdate();
+                System.out.println("Inserted room into the database:\nlabel:" + label + "\n name: " + name + "\n\n");
+            }
+            catch (SQLException sqle)
+            {
+                error = "SqlException: Update failed; duplicates may exist.";
+                throw new SQLException(error);
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
     
     public static void addLocationData(int idUser, int idStore, String zoneName, boolean zoneEntered, String time) throws SQLException, Exception
     {
@@ -146,29 +178,21 @@ public class SolomonServer {
     
     
     
-    public static void addZoneTimeData(int idUser, int idStore, String[] zonesTime) throws SQLException, Exception
+    public static void addZoneTimeData(int idUser, int idStore, String roomName, long timeSeconds) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String userRoomTimeInsertionStatementFirstPart = "insert into userroomtime(idUser, idStore";
-                String userRoomTimeInsertionStatementLastPart = "values(" + idUser + ", " + idStore;
-                String outputFeedBackString;
-                Statement updateRoomTimeData = con.createStatement();
-                outputFeedBackString = "Inserted user room time data ";
-                for(int i = 0; i < zonesTime.length; i++)
-                {
-                    userRoomTimeInsertionStatementFirstPart += ", room" + (i + 1) + "Time";
-                    userRoomTimeInsertionStatementLastPart += ", '" + zonesTime[i] + "'";
-                    outputFeedBackString += "room" + (i + 1) + " time = " + zonesTime[i];
-                }
-                userRoomTimeInsertionStatementFirstPart += ") ";
-                userRoomTimeInsertionStatementLastPart += ")";
-                
-                String statementString = userRoomTimeInsertionStatementFirstPart + userRoomTimeInsertionStatementLastPart;
-                updateRoomTimeData.executeUpdate(statementString);
+                String statementString = "insert into userroomtime(idUser, idStore, roomName, timeSeconds) values(?, ?, ?, ?)";
+                PreparedStatement addZoneTimeStatement = con.prepareStatement(statementString);
+                addZoneTimeStatement.setInt(1, idUser);
+                addZoneTimeStatement.setInt(2, idStore);
+                addZoneTimeStatement.setString(3, roomName);
+                addZoneTimeStatement.setLong(4, timeSeconds);
+                addZoneTimeStatement.executeUpdate();
+                System.out.println("Inserted user room time into the database\n idUser: " + idUser + "\nidStore: " + idStore + "\nroomName: " + roomName + "\ntimeSeconds: " + timeSeconds + "\n\n");
             }
             catch (SQLException sqle)
             {
@@ -183,7 +207,7 @@ public class SolomonServer {
     }
     
     
-    public static void updateZoneTimeData(int idUser, int idStore, String zoneName, String zoneTime) throws SQLException, Exception
+    public static void updateZoneTimeData(int idUser, int idStore, String roomName, long timeSeconds) throws SQLException, Exception
     {
         if (con != null)
         {
@@ -191,7 +215,7 @@ public class SolomonServer {
             {
                 // create a prepared SQL statement
                 Statement updateStatement = con.createStatement();
-                String userRoomTimeUpdateStatement = "update userroomtime set " + zoneName + "='" + zoneTime + "' where idUser=" + idUser + " and idStore=" + idStore;
+                String userRoomTimeUpdateStatement = "update userroomtime set timeSeconds = '" + timeSeconds + "' where idUser = '" + idUser + "' and idStore = '" + idStore + "' and roomName = '" + roomName + "';";
                 updateStatement.executeUpdate(userRoomTimeUpdateStatement);
             }
             catch (SQLException sqle)
@@ -232,13 +256,13 @@ public class SolomonServer {
     }
     
     
-    public static ResultSet getRoomTimeDataFromDatabase(String tableName, int idUser, int idStore) throws SQLException, Exception
+    public static ResultSet getRoomTimeDataFromDatabase(String tableName, int idUser, int idStore, String roomName) throws SQLException, Exception
     {
         ResultSet rs = null;
         try
         {
             // Execute query
-            String queryString = ("select * from " + tableName + " where idUser=" + idUser + " and idStore=" + idStore);
+            String queryString = ("select * from " + tableName + " where idUser = '" + idUser + "' and idStore = '" + idStore + "' and roomName = '" + roomName + "';");
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 
@@ -304,6 +328,29 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return rs;
+    }
+    
+    public static void deleteTableData(String tableName, String idName) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                Statement deleteStatement = con.createStatement();
+                String statementString = "delete from " + tableName + " where " + idName + ">= 0";
+                deleteStatement.executeUpdate(statementString);
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
     }
 
 }

@@ -70,7 +70,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                             String firstName = resultSet.getString("firstName");
                             int age = resultSet.getInt("age");
                             System.out.println(userId + " " + lastName + " " + firstName);
-                            resultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", userId, 1);
+                            resultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", userId, 1, "Room1");
                             if(!resultSet.isBeforeFirst())
                             {
                                 //the user never entered the store send the employee a message the user never entered the store
