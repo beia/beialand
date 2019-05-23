@@ -17,6 +17,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject; 
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import solomonserver.Beacon;
+import solomonserver.Room;
 import solomonserver.SolomonServer;
 
 /**
@@ -44,7 +46,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                 inputStream.read(bytes);
                 String jsonString = new String(bytes);
                 jsonString = jsonString.trim();
-                System.out.println(jsonString);
+                System.out.println("\nCommand received from Unity: " + jsonString);
                 JSONObject jsonObject = (JSONObject)new JSONParser().parse(jsonString);
                 String command = (String) jsonObject.get("command");
                 switch(command)
@@ -54,7 +56,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                         
                         //get room time data and user data from database
                         ResultSet resultSet = SolomonServer.getUserDataFromDatabase("users", username);
-                        if (!resultSet.isBeforeFirst() ) 
+                        if (!resultSet.isBeforeFirst()) 
                         {
                             //the user isn't into the database send the employee a message that the username isn't into the database
                             jsonObject = new JSONObject();
@@ -69,8 +71,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                             String lastName = resultSet.getString("lastName");
                             String firstName = resultSet.getString("firstName");
                             int age = resultSet.getInt("age");
-                            System.out.println(userId + " " + lastName + " " + firstName);
-                            resultSet = SolomonServer.getRoomTimeDataFromDatabase("userroomtime", userId, 1, "Room1");
+                            resultSet = SolomonServer.getRoomsDataByUserId("userroomtime", userId, 1);
                             if(!resultSet.isBeforeFirst())
                             {
                                 //the user never entered the store send the employee a message the user never entered the store
@@ -81,25 +82,32 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                             else
                             {
                                 //the user entered the store at least once and now we extract the room data from the database and send all the data to the employee
-                                resultSet.next();
-                                String room1Time = resultSet.getString("Room1Time");
-                                String room2Time = resultSet.getString("Room2Time");
-                                String room3Time = resultSet.getString("Room3Time");
-                                String room4Time = resultSet.getString("Room4Time");
-                                
+                                Room[] rooms = new Room[SolomonServer.beacons.size()];
+                                int roomNr = 0;
+                                while(resultSet.next())
+                                {
+                                    String roomName = resultSet.getString("roomName");
+                                    long timeSeconds = resultSet.getLong("timeSeconds");
+                                    rooms[roomNr++] = new Room(roomName, timeSeconds);
+                                }
                                 //put all the data into a JSON object and send it to the employee
-                                jsonObject = new JSONObject();
-                                jsonObject.put("lastName", lastName);
-                                jsonObject.put("firstName", firstName);
-                                jsonObject.put("age", age);
-                                jsonObject.put("room1Time", room1Time);
-                                jsonObject.put("room2Time", room2Time);
-                                jsonObject.put("room2Time", room2Time);
-                                jsonObject.put("room3Time", room3Time);
-                                jsonObject.put("room4Time", room4Time);
+                                JSONObject userDataJson = new JSONObject();
+                                userDataJson.put("lastName", lastName);
+                                userDataJson.put("firstName", firstName);
+                                userDataJson.put("age", age);
+                                JSONArray roomsJson = new JSONArray();
+                                for(Room room : rooms)
+                                {
+                                    JSONObject roomJson = new JSONObject();
+                                    roomJson.put("name", room.getName());
+                                    roomJson.put("timeSeconds", room.getTimeSeconds());
+                                    roomsJson.add(roomJson);
+                                }
+                                userDataJson.put("rooms", roomsJson);
                                 jsonObject.put("error", "Null");
                                 
-                                outputStream.write(jsonObject.toJSONString().getBytes());
+                                outputStream.write(userDataJson.toJSONString().getBytes());
+                                System.out.println("Json object that was sent to Unity: " + userDataJson.toJSONString() + "\n\n");
                                 //bytes = new byte[1024];
                             }
                         }

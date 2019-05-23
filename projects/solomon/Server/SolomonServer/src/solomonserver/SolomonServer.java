@@ -256,7 +256,32 @@ public class SolomonServer {
     }
     
     
-    public static ResultSet getRoomTimeDataFromDatabase(String tableName, int idUser, int idStore, String roomName) throws SQLException, Exception
+    public static ResultSet getRoomsDataByUserId(String tableName, int idUser, int idStore) throws SQLException, Exception
+    {
+        ResultSet rs = null;
+        try
+        {
+            // Execute query
+            String queryString = ("select * from " + tableName + " where idUser = '" + idUser + "' and idStore = '" + idStore + "';");
+            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmt.executeQuery(queryString); //sql exception
+        } 
+        catch (SQLException sqle)
+        {
+            error = "SQLException: Query was not possible.";
+            sqle.printStackTrace();
+            throw new SQLException(error);
+        }
+        catch (Exception e)
+        {
+            error = "Exception occured when we extracted the data.";
+            throw new Exception(error);
+        }
+        return rs;
+    }
+    
+    
+    public static ResultSet getRoomDataByUserId(String tableName, int idUser, int idStore, String roomName) throws SQLException, Exception
     {
         ResultSet rs = null;
         try
