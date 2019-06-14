@@ -17,18 +17,40 @@ import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
 import com.example.solomon.networkPackets.UserData;
 import com.example.solomon.runnables.SendLocationDataRunnable;
+import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
+import com.kontakt.sdk.android.ble.configuration.ForceScanConfiguration;
+import com.kontakt.sdk.android.ble.configuration.ScanMode;
+import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
+import com.kontakt.sdk.android.ble.connection.OnServiceReadyListener;
+import com.kontakt.sdk.android.ble.device.BeaconRegion;
+import com.kontakt.sdk.android.ble.manager.ProximityManager;
+import com.kontakt.sdk.android.ble.manager.ProximityManagerFactory;
+import com.kontakt.sdk.android.ble.manager.listeners.IBeaconListener;
+import com.kontakt.sdk.android.ble.manager.listeners.SpaceListener;
+import com.kontakt.sdk.android.ble.manager.listeners.simple.SimpleIBeaconListener;
+import com.kontakt.sdk.android.ble.rssi.RssiCalculators;
+import com.kontakt.sdk.android.ble.spec.EddystoneFrameType;
+import com.kontakt.sdk.android.common.KontaktSDK;
+import com.kontakt.sdk.android.common.profile.IBeaconDevice;
+import com.kontakt.sdk.android.common.profile.IBeaconRegion;
+import com.kontakt.sdk.android.common.profile.IEddystoneNamespace;
 
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.widget.Toast;
 
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -36,11 +58,12 @@ import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
-    //Beacon variables
-    public Date currentTime;
+    //Estimote variables
     private ProximityObserver proximityObserver;
-    public static TextView feedBackTextView;
-    public int userId;
+    //Kontakt variables
+    private ProximityManager proximityManager;
+
+    //Communication variables
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
 
@@ -48,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
+    public static TextView feedBackTextView;
+
+    //Other variables
+    public Date currentTime;
+    public int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         initUI();
 
+        //ESTIMOTE
         //getUserData
         UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
         userId = userData.getUserId();
@@ -71,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public Unit invoke(Throwable throwable) {
                                 Log.e("app", "proximity observer error: " + throwable);
-                                feedBackTextView.setText("proximity error");
+                                //feedBackTextView.setText("proximity error");
                                 return null;
                             }
                         })
@@ -199,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                                 proximityObserver.startObserving(zone2);
                                 proximityObserver.startObserving(zone3);
                                 proximityObserver.startObserving(zone4);
-                                feedBackTextView.setText("requirements fulfiled");
+                                //feedBackTextView.setText("requirements fulfiled");
                                 return null;
                             }
                         },
@@ -207,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                         new Function1<List<? extends Requirement>, Unit>() {
                             @Override public Unit invoke(List<? extends Requirement> requirements) {
                                 Log.e("app", "requirements missing: " + requirements);
-                                feedBackTextView.setText("requirements missing");
+                                //feedBackTextView.setText("requirements missing");
                                 return null;
                             }
                         },
@@ -215,12 +244,102 @@ public class MainActivity extends AppCompatActivity {
                         new Function1<Throwable, Unit>() {
                             @Override public Unit invoke(Throwable throwable) {
                                 Log.e("app", "requirements error: " + throwable);
-                                feedBackTextView.setText("requirements error");
+                                //feedBackTextView.setText("requirements error");
                                 return null;
                             }
                         });
+        //ESTIMOTE/
 
+
+        //KONTAKT
+        KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
+        proximityManager = ProximityManagerFactory.create(this);
+        //configure the proximity manager
+        proximityManager.configuration()
+                .scanMode(ScanMode.BALANCED)
+                .scanPeriod(ScanPeriod.RANGING)
+                .activityCheckConfiguration(ActivityCheckConfiguration.DEFAULT)
+                .eddystoneFrameTypes(Arrays.asList(EddystoneFrameType.UID, EddystoneFrameType.URL));
+
+        //configure the regions
+        Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
+        IBeaconRegion region1 = new BeaconRegion.Builder()
+                .identifier("My Region")
+                .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
+                .major(41302)
+                .minor(22282)
+                .build();
+
+        IBeaconRegion region2 = new BeaconRegion.Builder()
+                .identifier("My second Region")
+                .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
+                .major(39824)
+                .minor(22135)
+                .build();
+
+        beaconRegions.add(region1);
+        beaconRegions.add(region2);
+        proximityManager.spaces().iBeaconRegions(beaconRegions);
+
+        proximityManager.setSpaceListener(new SpaceListener() {
+            @Override
+            public void onRegionEntered(IBeaconRegion region) {
+                //IBeacon region has been entered
+                Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_LONG);
+                toast.show();
+                feedBackTextView.setText("Entered region: " + region.getIdentifier());
+            }
+
+            @Override
+            public void onRegionAbandoned(IBeaconRegion region) {
+                //IBeacon region has been abandoned
+                Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_LONG);
+                toast.show();
+                feedBackTextView.setText("Left region: " + region.getIdentifier());
+            }
+
+            @Override
+            public void onNamespaceEntered(IEddystoneNamespace namespace) {
+                //Eddystone namespace has been entered
+            }
+
+            @Override
+            public void onNamespaceAbandoned(IEddystoneNamespace namespace) {
+                //Eddystone namespace has been abandoned
+            }
+        });
+        //KONTAKT/
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startScanning();
+    }
+
+    @Override
+    protected void onStop() {
+        proximityManager.stopScanning();
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        proximityManager.disconnect();
+        proximityManager = null;
+        super.onDestroy();
+    }
+
+    private void startScanning() {
+        proximityManager.connect(new OnServiceReadyListener() {
+            @Override
+            public void onServiceReady() {
+                proximityManager.startScanning();
+            }
+        });
+    }
+
+
 
     @SuppressLint("ResourceAsColor")
     public void initUI()
