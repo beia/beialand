@@ -1,1 +1,1 @@
-delete from userroomtime where iduserRoomTime > 0
+select * from beacons

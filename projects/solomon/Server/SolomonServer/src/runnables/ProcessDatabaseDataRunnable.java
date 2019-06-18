@@ -21,6 +21,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import solomonserver.Beacon;
+import solomonserver.EstimoteBeacon;
+import solomonserver.KontaktBeacon;
 import solomonserver.SolomonServer;
 
 /**
@@ -44,22 +46,85 @@ public class ProcessDatabaseDataRunnable implements Runnable
         {
             //get the beacons data from the XML configuration file and add it int the database
             getBeaconsData(SolomonServer.beacons);
-            ResultSet roomData = SolomonServer.getTableData("rooms");
-            if(!roomData.isBeforeFirst())
+            
+            //get the beacons from the database
+            System.out.println("\n\nAdding beacons into the database:");
+            System.out.println("-------------------------------------");
+            ResultSet beaconData = SolomonServer.getTableData("beacons");
+            if(!beaconData.isBeforeFirst())
             {
-                //the beacons were never configured so we add the beacons into the database as rooms
+                //the beacons were never configured so we add the beacons into the database
                 for(Beacon beacon : SolomonServer.beacons.values())
-                {
-                    SolomonServer.addRoom(beacon.getLabel(), beacon.getName());
+                { 
+                    if(beacon instanceof EstimoteBeacon)
+                    {
+                        EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
+                        SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), EstimoteBeacon.COMPANY);
+                    }
+                    if(beacon instanceof KontaktBeacon)
+                    {
+                        KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
+                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
+                    }
                 }
             }
             else
-            {    
-                SolomonServer.deleteTableData("rooms", "idrooms");
+            {
+                //the beacons where already configured so we want to configure them again
+                //check if the beacons frm the database are in the configuration file - if not then we must delete them from the database
+                HashMap<String, Beacon> databaseBeaconMap = new HashMap<>();
+                while(beaconData.next())
+                {
+                    String id = beaconData.getString("id");
+                    String label = beaconData.getString("label");
+                    String company = beaconData.getString("company");
+                    switch(company)
+                    {
+                        case "Estimote":
+                            databaseBeaconMap.put(label, new EstimoteBeacon(id, label));
+                            break;
+                        case "Kontakt":
+                            String major = beaconData.getString("major");
+                            String minor = beaconData.getString("minor");
+                            databaseBeaconMap.put(label, new KontaktBeacon(id, label, major, minor));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                
+                for(String beaconLabel : databaseBeaconMap.keySet())
+                {
+                    if(SolomonServer.beacons.containsKey(beaconLabel) == false)
+                    {
+                        //the SolomonServer.beacons hashmap contains the beacons from the configuration file
+                        //this means that we don't want the beacon anymore
+                        //remove the beacon from the database - the deletion from the database is CASCADE(foreign key - 'label')
+                        //this action will remove also the time spent near the beacon and all the moments that where saved regarding that beacon
+                        SolomonServer.deleteBeacon(beaconLabel);
+                    }
+                }
+                
+                //add the new beacons into the database
                 for(Beacon beacon : SolomonServer.beacons.values())
                 {
-                    SolomonServer.addRoom(beacon.getLabel(), beacon.getName());
+                    //check if the beacons from the configuration file are into the database
+                    //if not we add them into the database
+                    if(databaseBeaconMap.containsKey(beacon.getLabel()) == false)
+                    {
+                        if(beacon instanceof EstimoteBeacon)
+                        {
+                            EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
+                            SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), EstimoteBeacon.COMPANY);
+                        }
+                        if(beacon instanceof KontaktBeacon)
+                        {
+                            KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
+                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
+                        }
+                    }
                 }
+                //end of configuration
             }
             
             //get the new enter left room pairs from the database and compute the time difeence and update the time in the database
@@ -174,12 +239,12 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                         secondsDifference = secondsLeftSum - secondsEnteredSum;
                                         SolomonServer.addZoneTimeData(idUser, idStore, roomName, secondsDifference);
                                         System.out.println("\nUser with id: " + idUser + "\nRoom: " + roomName + " from store with id: " + idStore + "\nCurrent time spent in room: " + secondsDifference + " seconds");
-                                        //add all the othr rooms into the database but with the time spent 0
+                                        //add all the other rooms into the database but with the time spent 0
                                         for (Beacon beacon : SolomonServer.beacons.values())
                                         {
-                                            if(!beacon.getName().equals(roomName))
+                                            if(!beacon.getLabel().equals(roomName))
                                             {
-                                                SolomonServer.addZoneTimeData(idUser, idStore, beacon.getName(), 0);
+                                                SolomonServer.addZoneTimeData(idUser, idStore, beacon.getLabel(), 0);
                                             }
                                         }
                                     }
@@ -247,13 +312,25 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 Element eElement = (Element) nNode;
                 String id = eElement.getAttribute("id");
                 String label = eElement.getElementsByTagName("label").item(0).getTextContent();
-                String name = eElement.getElementsByTagName("name").item(0).getTextContent();
+                String company = eElement.getElementsByTagName("company").item(0).getTextContent();
                 System.out.println("Beacon id : " + eElement.getAttribute("id"));
-                System.out.println("Label : " + eElement.getElementsByTagName("label").item(0).getTextContent());
-                System.out.println("Name : " + eElement.getElementsByTagName("name").item(0).getTextContent());
+                System.out.println("Label : " + label);
+                System.out.println("Company : " + company);
                 
                 //add the beacon into the hashmap
-                beacons.put(label, new Beacon(id, label, name));
+                switch(company)
+                {
+                    case "Estimote":
+                        beacons.put(label , new EstimoteBeacon(id, label));
+                        break;
+                    case "Kontakt":
+                        String major = eElement.getElementsByTagName("major").item(0).getTextContent();
+                        String minor = eElement.getElementsByTagName("minor").item(0).getTextContent();
+                        beacons.put(label, new KontaktBeacon(id, label, major, minor));
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

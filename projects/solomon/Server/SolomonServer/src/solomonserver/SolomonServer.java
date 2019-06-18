@@ -119,19 +119,50 @@ public class SolomonServer {
         }
     }
     
-    public static void addRoom(String label, String name) throws SQLException, Exception
+    public static void addEstimoteBeacon(String id, String label, String company) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String roomInsertionStatement = "insert into rooms(label, name) values(?,?)";
+                String roomInsertionStatement = "insert into beacons(id, label, company) values(?,?,?)";
                 PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
-                updateRooms.setString(1, label);
-                updateRooms.setString(2, name);
+                updateRooms.setString(1, id);
+                updateRooms.setString(2, label);
+                updateRooms.setString(3, company);
                 updateRooms.executeUpdate();
-                System.out.println("Inserted room into the database:\nlabel:" + label + "\n name: " + name + "\n\n");
+                System.out.println("Inserted Estimote beacon into the database:\nid: " + id + "\nlabel: " + label + "\ncompany: " + company + "\n\n");
+            }
+            catch (SQLException sqle)
+            {
+                error = "SqlException: Update failed; duplicates may exist.";
+                throw new SQLException(error);
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    public static void addKontaktBeacon(String id, String label, String company, String major, String minor) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                String roomInsertionStatement = "insert into beacons(id, label, company, major, minor) values(?,?,?,?,?)";
+                PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
+                updateRooms.setString(1, id);
+                updateRooms.setString(2, label);
+                updateRooms.setString(3, company);
+                updateRooms.setString(4, major);
+                updateRooms.setString(5, minor);
+                updateRooms.executeUpdate();
+                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor +"\n\n");
             }
             catch (SQLException sqle)
             {
@@ -355,7 +386,7 @@ public class SolomonServer {
         return rs;
     }
     
-    public static void deleteTableData(String tableName, String idName) throws SQLException, Exception
+    public static void deleteTableData(String tableName) throws SQLException, Exception
     {
         if (con != null)
         {
@@ -363,7 +394,7 @@ public class SolomonServer {
             {
                 // create a prepared SQL statement
                 Statement deleteStatement = con.createStatement();
-                String statementString = "delete from " + tableName + " where " + idName + ">= 0";
+                String statementString = "delete from " + tableName;
                 deleteStatement.executeUpdate(statementString);
             }
             catch (SQLException sqle)
@@ -377,5 +408,29 @@ public class SolomonServer {
             throw new Exception(error);
         }
     }
+    
+    public static void deleteBeacon(String label) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                Statement deleteStatement = con.createStatement();
+                String statementString = "delete from beacons where label=" + label;
+                deleteStatement.executeUpdate(statementString);
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
 
 }

@@ -99,7 +99,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                                 for(Room room : rooms)
                                 {
                                     JSONObject roomJson = new JSONObject();
-                                    roomJson.put("name", room.getName());
+                                    roomJson.put("name", room.getLabel());
                                     roomJson.put("timeSeconds", room.getTimeSeconds());
                                     roomsJson.add(roomJson);
                                 }

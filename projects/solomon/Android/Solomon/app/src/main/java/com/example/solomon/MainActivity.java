@@ -264,14 +264,14 @@ public class MainActivity extends AppCompatActivity {
         //configure the regions
         Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
         IBeaconRegion region1 = new BeaconRegion.Builder()
-                .identifier("My Region")
+                .identifier("Kontakt Beacon 1")
                 .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
                 .major(41302)
                 .minor(22282)
                 .build();
 
         IBeaconRegion region2 = new BeaconRegion.Builder()
-                .identifier("My second Region")
+                .identifier("Kontakt Beacon 2")
                 .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
                 .major(39824)
                 .minor(22135)
@@ -288,6 +288,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_LONG);
                 toast.show();
                 feedBackTextView.setText("Entered region: " + region.getIdentifier());
+                //send the location data to the server
+                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), true, currentTime, objectOutputStream));
+                sendLocationDataThread.start();
             }
 
             @Override
@@ -296,6 +299,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_LONG);
                 toast.show();
                 feedBackTextView.setText("Left region: " + region.getIdentifier());
+                //send the location data to the server
+                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), false, currentTime, objectOutputStream));
+                sendLocationDataThread.start();
             }
 
             @Override

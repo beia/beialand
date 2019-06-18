@@ -9,21 +9,18 @@ package solomonserver;
  *
  * @author beia
  */
-public class Room extends Beacon
+public class EstimoteBeacon extends Beacon
 {
-    private long timeSeconds;
-    public Room(String id, String label, long timeSeconds) {
+    public static String COMPANY = "Estimote";
+    
+    public EstimoteBeacon(String id, String label)
+    {
         this.id = id;
         this.label = label;
-        this.timeSeconds = timeSeconds;
     }
-    public Room(String label, long timeSeconds) {
-        this.label = label;
-        this.timeSeconds = timeSeconds;
-    }
-
     @Override
-    public String getId() {
+    public String getId()
+    {
         return this.id;
     }
 
@@ -32,8 +29,4 @@ public class Room extends Beacon
         return this.label;
     }
     
-     public long getTimeSeconds()
-    {
-        return this.timeSeconds;
-    }
 }
