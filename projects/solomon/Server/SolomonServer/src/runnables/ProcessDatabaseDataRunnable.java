@@ -20,9 +20,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import solomonserver.Beacon;
-import solomonserver.EstimoteBeacon;
-import solomonserver.KontaktBeacon;
+import com.example.solomon.networkPackets.Beacon;
+import com.example.solomon.networkPackets.EstimoteBeacon;
+import com.example.solomon.networkPackets.KontaktBeacon;
 import solomonserver.SolomonServer;
 
 /**

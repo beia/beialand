@@ -1,7 +1,10 @@
 package com.example.solomon;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +18,13 @@ import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
 import com.estimote.proximity_sdk.api.ProximityZone;
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
+import com.example.solomon.Handlers.MainActivityHandler;
+import com.example.solomon.networkPackets.Beacon;
+import com.example.solomon.networkPackets.BeaconsData;
+import com.example.solomon.networkPackets.EstimoteBeacon;
+import com.example.solomon.networkPackets.KontaktBeacon;
 import com.example.solomon.networkPackets.UserData;
+import com.example.solomon.runnables.ReceiveBeaconsDataRunnable;
 import com.example.solomon.runnables.SendLocationDataRunnable;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ForceScanConfiguration;
@@ -41,6 +50,7 @@ import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -48,6 +58,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -58,165 +69,121 @@ import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
+    //beacon variables
+    public static HashMap<String, Beacon> beacons;//change tu public not static
     //Estimote variables
-    private ProximityObserver proximityObserver;
+    public EstimoteCloudCredentials cloudCredentials;
+    public ProximityObserver proximityObserver;
+    public ArrayList<ProximityZone> estimoteProximityZones;
     //Kontakt variables
-    private ProximityManager proximityManager;
+    public ProximityManager proximityManager;
 
     //Communication variables
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
 
+    //Handlers
+    public static MainActivityHandler mainActivityHandler;
+
     //UI variables
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private ViewPagerAdapter viewPagerAdapter;
-    public static TextView feedBackTextView;
+    public TabLayout tabLayout;
+    public ViewPager viewPager;
+    public ViewPagerAdapter viewPagerAdapter;
+    public TextView feedBackTextView;
 
     //Other variables
     public Date currentTime;
     public int userId;
+    public static Context context;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = getApplicationContext();
 
         initUI();
 
-        //ESTIMOTE
         //getUserData
         UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
         userId = userData.getUserId();
         objectOutputStream = LoginActivity.objectOutputStream;
         objectInputStream = LoginActivity.objectInputStream;
 
+        //create handler
+        mainActivityHandler = new MainActivityHandler(this);
+
+        //get the beacons data and initialize the beacons
+        beacons = new HashMap<>();
+        Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(beacons, objectInputStream));
+        getBeaconsDataThread.start();
+    }
+
+
+
+
+    //ESTIMOTE
+    public void initEstimoteBeacons()
+    {
         //initialized cloud credentials
-        EstimoteCloudCredentials cloudCredentials = new EstimoteCloudCredentials("solomon-app-ge4", "97f78b20306bb6a15ed1ddcd24b9ca21");
+        cloudCredentials = new EstimoteCloudCredentials("solomon-app-ge4", "97f78b20306bb6a15ed1ddcd24b9ca21");
 
         //instantiated the proximity observer
-        this.proximityObserver = new ProximityObserverBuilder(getApplicationContext(), cloudCredentials)
-                        .onError(new Function1<Throwable, Unit>() {
+        proximityObserver = new ProximityObserverBuilder(getApplicationContext(), cloudCredentials)
+                .onError(new Function1<Throwable, Unit>() {
+                    @Override
+                    public Unit invoke(Throwable throwable) {
+                        Log.e("app", "proximity observer error: " + throwable);
+                        //feedBackTextView.setText("proximity error");
+                        return null;
+                    }
+                })
+                .withBalancedPowerMode()
+                .build();
+
+        //create the proximity zones based on the beacons
+        estimoteProximityZones = new ArrayList<>();
+        for(Beacon beacon : beacons.values())
+        {
+            if(beacon instanceof EstimoteBeacon)
+            {
+                //create a proximity zone based on a beacon
+                final EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
+                final ProximityZone estimoteProximityZone = new ProximityZoneBuilder()
+                        .forTag(estimoteBeacon.getLabel())
+                        .inCustomRange(3.0)
+                        .onEnter(new Function1<ProximityZoneContext, Unit>() {
                             @Override
-                            public Unit invoke(Throwable throwable) {
-                                Log.e("app", "proximity observer error: " + throwable);
-                                //feedBackTextView.setText("proximity error");
+                            public Unit invoke(ProximityZoneContext context) {
+                                feedBackTextView.setText("Entered the: " + context.getTag());
+                                //get current time
+                                currentTime = Calendar.getInstance().getTime();
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, estimoteBeacon.getLabel(), true, currentTime, objectOutputStream));
+                                sendLocationDataThread.start();
                                 return null;
                             }
                         })
-                        .withBalancedPowerMode()
+                        .onExit(new Function1<ProximityZoneContext, Unit>() {
+                            @Override
+                            public Unit invoke(ProximityZoneContext context) {
+                                feedBackTextView.setText("Left the: " + context.getTag());
+                                //get current time
+                                currentTime = Calendar.getInstance().getTime();
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, estimoteBeacon.getLabel(), false, currentTime, objectOutputStream));
+                                sendLocationDataThread.start();
+                                return null;
+                            }
+                        })
                         .build();
 
-        //instantiated a proximity zone
-        final ProximityZone zone1 = new ProximityZoneBuilder()
-                .forTag("Room1")
-                .inCustomRange(3.0)
-                .onEnter(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Entered the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room1", true, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .onExit(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Left the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room1", false, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .build();
+                //add the proximity zone to the proximity zones array
+                estimoteProximityZones.add(estimoteProximityZone);
+            }
+        }
 
-        final ProximityZone zone2 = new ProximityZoneBuilder()
-                .forTag("Room2")
-                .inCustomRange(3.0)
-                .onEnter(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Entered the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room2", true, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .onExit(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Left the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room2", false, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .build();
-
-        final ProximityZone zone3 = new ProximityZoneBuilder()
-                .forTag("Room3")
-                .inCustomRange(3.0)
-                .onEnter(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Entered the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room3", true, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .onExit(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Left the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room3", false, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .build();
-
-        final ProximityZone zone4 = new ProximityZoneBuilder()
-                .forTag("Room4")
-                .inCustomRange(3.0)
-                .onEnter(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Entered the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room4", true, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .onExit(new Function1<ProximityZoneContext, Unit>() {
-                    @Override
-                    public Unit invoke(ProximityZoneContext context) {
-                        feedBackTextView.setText("Left the: " + context.getTag());
-                        //get current time
-                        currentTime = Calendar.getInstance().getTime();
-                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, "Room4", false, currentTime, objectOutputStream));
-                        sendLocationDataThread.start();
-                        return null;
-                    }
-                })
-                .build();
-
-        //set bluetooth functionality
+        //set bluetooth functionality for Estimote
         RequirementsWizardFactory
                 .createEstimoteRequirementsWizard()
                 .fulfillRequirements(this,
@@ -224,10 +191,10 @@ public class MainActivity extends AppCompatActivity {
                         new Function0<Unit>() {
                             @Override public Unit invoke() {
                                 Log.d("app", "requirements fulfilled");
-                                proximityObserver.startObserving(zone1);
-                                proximityObserver.startObserving(zone2);
-                                proximityObserver.startObserving(zone3);
-                                proximityObserver.startObserving(zone4);
+                                for(ProximityZone proximityZone : estimoteProximityZones)
+                                {
+                                    proximityObserver.startObserving(proximityZone);
+                                }
                                 //feedBackTextView.setText("requirements fulfiled");
                                 return null;
                             }
@@ -248,12 +215,30 @@ public class MainActivity extends AppCompatActivity {
                                 return null;
                             }
                         });
-        //ESTIMOTE/
+    }
 
 
-        //KONTAKT
+
+    //KONTAKT
+    public void initKontaktBeacons()
+    {
+        //check if we have Kontakt beacons
+        if(beacons.isEmpty() == false)
+        {
+            Log.d("BEACONS", "We have beacons...checking for Kontakt beacons");
+            for(Beacon beacon : beacons.values())
+            {
+                if(beacon instanceof KontaktBeacon)
+                Log.d("Kontakt beacons", beacon.getLabel());
+            }
+        }
+
+
+        //initialize theKontakt SDK
         KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
         proximityManager = ProximityManagerFactory.create(this);
+
+
         //configure the proximity manager
         proximityManager.configuration()
                 .scanMode(ScanMode.BALANCED)
@@ -261,26 +246,30 @@ public class MainActivity extends AppCompatActivity {
                 .activityCheckConfiguration(ActivityCheckConfiguration.DEFAULT)
                 .eddystoneFrameTypes(Arrays.asList(EddystoneFrameType.UID, EddystoneFrameType.URL));
 
+
         //configure the regions
         Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
-        IBeaconRegion region1 = new BeaconRegion.Builder()
-                .identifier("Kontakt Beacon 1")
-                .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
-                .major(41302)
-                .minor(22282)
-                .build();
+        for(Beacon beacon: beacons.values())
+        {
+            if(beacon instanceof KontaktBeacon)
+            {
+                KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
+                IBeaconRegion kontaktRegion = new BeaconRegion.Builder()
+                        .identifier(kontaktBeacon.getLabel())
+                        .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
+                        .major(Integer.parseInt(kontaktBeacon.getMajor()))
+                        .minor(Integer.parseInt(kontaktBeacon.getMinor()))
+                        .build();
+                beaconRegions.add(kontaktRegion);
+            }
+        }
 
-        IBeaconRegion region2 = new BeaconRegion.Builder()
-                .identifier("Kontakt Beacon 2")
-                .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
-                .major(39824)
-                .minor(22135)
-                .build();
 
-        beaconRegions.add(region1);
-        beaconRegions.add(region2);
+        //manage the regions
         proximityManager.spaces().iBeaconRegions(beaconRegions);
 
+
+        //region listener
         proximityManager.setSpaceListener(new SpaceListener() {
             @Override
             public void onRegionEntered(IBeaconRegion region) {
@@ -314,13 +303,19 @@ public class MainActivity extends AppCompatActivity {
                 //Eddystone namespace has been abandoned
             }
         });
-        //KONTAKT/
+
+
+        //start scanning for the Kontakt beacons
+        startScanning();
     }
+
+
+
+
 
     @Override
     protected void onStart() {
         super.onStart();
-        startScanning();
     }
 
     @Override

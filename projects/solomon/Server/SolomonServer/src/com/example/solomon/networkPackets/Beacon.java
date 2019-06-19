@@ -1,6 +1,8 @@
-package solomonserver;
+package com.example.solomon.networkPackets;
 
-public abstract class Beacon
+import java.io.Serializable;
+
+public abstract class Beacon implements Serializable
 {
     protected String id;
     protected String label;

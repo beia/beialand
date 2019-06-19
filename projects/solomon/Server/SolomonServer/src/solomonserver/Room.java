@@ -5,6 +5,8 @@
  */
 package solomonserver;
 
+import com.example.solomon.networkPackets.Beacon;
+
 /**
  *
  * @author beia

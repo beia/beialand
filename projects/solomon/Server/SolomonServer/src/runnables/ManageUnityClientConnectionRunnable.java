@@ -17,7 +17,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject; 
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import solomonserver.Beacon;
+import com.example.solomon.networkPackets.Beacon;
 import solomonserver.Room;
 import solomonserver.SolomonServer;
 

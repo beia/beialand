@@ -5,6 +5,7 @@
  */
 package runnables;
 
+import com.example.solomon.networkPackets.BeaconsData;
 import com.example.solomon.networkPackets.ServerFeedback;
 import com.example.solomon.networkPackets.SignInData;
 import com.example.solomon.networkPackets.SignUpData;
@@ -91,6 +92,17 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                             this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId));
                             System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
                             this.connected = true;
+                            
+                            //send the beacons data to the users
+                            if(SolomonServer.beacons != null)
+                            {
+                                System.out.println("Sent the beacons data to the users");
+                                this.objectOutputStream.writeObject(new BeaconsData(SolomonServer.beacons));
+                            }
+                            else
+                            {
+                                System.out.println("No beacons available to send");
+                            }
                             
                             //start a new thread that is monitoring user interaction with the app
                             Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));

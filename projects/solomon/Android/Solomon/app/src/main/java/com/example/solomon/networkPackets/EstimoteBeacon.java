@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package solomonserver;
+package com.example.solomon.networkPackets;
 
 /**
  *
@@ -12,7 +7,7 @@ package solomonserver;
 public class EstimoteBeacon extends Beacon
 {
     public static String COMPANY = "Estimote";
-    
+
     public EstimoteBeacon(String id, String label)
     {
         this.id = id;
@@ -28,5 +23,5 @@ public class EstimoteBeacon extends Beacon
     public String getLabel() {
         return this.label;
     }
-    
+
 }

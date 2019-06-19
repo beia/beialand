@@ -5,6 +5,7 @@
  */
 package solomonserver;
 
+import com.example.solomon.networkPackets.Beacon;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -417,8 +418,9 @@ public class SolomonServer {
             {
                 // create a prepared SQL statement
                 Statement deleteStatement = con.createStatement();
-                String statementString = "delete from beacons where label=" + label;
+                String statementString = "delete from beacons where label = '" + label + "'";
                 deleteStatement.executeUpdate(statementString);
+                System.out.println("Removed beacon '" + label + "' from the database");
             }
             catch (SQLException sqle)
             {
@@ -432,5 +434,5 @@ public class SolomonServer {
         }
     }
     
-
+    
 }
