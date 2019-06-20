@@ -70,20 +70,20 @@ import kotlin.jvm.functions.Function1;
 public class MainActivity extends AppCompatActivity {
 
     //beacon variables
-    public static HashMap<String, Beacon> beacons;//change tu public not static
+    public static volatile HashMap<String, Beacon> beacons;//change tu public not static
     //Estimote variables
-    public EstimoteCloudCredentials cloudCredentials;
-    public ProximityObserver proximityObserver;
-    public ArrayList<ProximityZone> estimoteProximityZones;
+    public volatile EstimoteCloudCredentials cloudCredentials;
+    public volatile ProximityObserver proximityObserver;
+    public volatile ArrayList<ProximityZone> estimoteProximityZones;
     //Kontakt variables
     public ProximityManager proximityManager;
 
     //Communication variables
-    public ObjectOutputStream objectOutputStream;
-    public ObjectInputStream objectInputStream;
+    public volatile ObjectOutputStream objectOutputStream;
+    public volatile ObjectInputStream objectInputStream;
 
     //Handlers
-    public static MainActivityHandler mainActivityHandler;
+    public static volatile MainActivityHandler mainActivityHandler;
 
     //UI variables
     public TabLayout tabLayout;
@@ -92,9 +92,9 @@ public class MainActivity extends AppCompatActivity {
     public TextView feedBackTextView;
 
     //Other variables
-    public Date currentTime;
-    public int userId;
-    public static Context context;
+    public static Date currentTime;
+    public volatile int userId;
+    public static volatile Context context;
 
 
 
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
+        currentTime = Calendar.getInstance().getTime();
 
         initUI();
 
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
         //get the beacons data and initialize the beacons
         beacons = new HashMap<>();
-        Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(beacons, objectInputStream));
+        Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(beacons, objectInputStream, objectOutputStream));
         getBeaconsDataThread.start();
     }
 
@@ -234,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //initialize theKontakt SDK
+        //initialize the Kontakt SDK
         KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
         proximityManager = ProximityManagerFactory.create(this);
 
@@ -277,7 +278,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_LONG);
                 toast.show();
                 feedBackTextView.setText("Entered region: " + region.getIdentifier());
+
                 //send the location data to the server
+                currentTime = Calendar.getInstance().getTime();
                 Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), true, currentTime, objectOutputStream));
                 sendLocationDataThread.start();
             }
@@ -288,7 +291,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_LONG);
                 toast.show();
                 feedBackTextView.setText("Left region: " + region.getIdentifier());
+
                 //send the location data to the server
+                currentTime = Calendar.getInstance().getTime();
                 Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), false, currentTime, objectOutputStream));
                 sendLocationDataThread.start();
             }

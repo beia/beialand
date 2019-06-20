@@ -47,6 +47,8 @@ public class ProcessDatabaseDataRunnable implements Runnable
             //get the beacons data from the XML configuration file and add it int the database
             getBeaconsData(SolomonServer.beacons);
             
+            
+            //BEACON CONFIGURATION
             //get the beacons from the database
             System.out.println("\n\nAdding beacons into the database:");
             System.out.println("-------------------------------------");
@@ -127,6 +129,10 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 //end of configuration
             }
             
+            
+            
+            
+            //TIME PROCESSING
             //get the new enter left room pairs from the database and compute the time difeence and update the time in the database
             System.out.println("\n\nGetting new location data from the database...");
             while(true)

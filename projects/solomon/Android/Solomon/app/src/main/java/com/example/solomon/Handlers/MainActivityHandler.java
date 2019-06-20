@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.example.solomon.MainActivity;
 
+import java.io.ObjectInputStream;
+
 public class MainActivityHandler extends Handler
 {
     private MainActivity mainActivity;
@@ -25,7 +27,7 @@ public class MainActivityHandler extends Handler
                     Log.d("Handler", "no beacons");
                 }
                 //set Estimote beacons
-                mainActivity.initEstimoteBeacons();
+                //mainActivity.initEstimoteBeacons();
                 //set Kontakt beacons
                 mainActivity.initKontaktBeacons();
                 break;

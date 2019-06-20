@@ -104,10 +104,22 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                                 System.out.println("No beacons available to send");
                             }
                             
-                            //start a new thread that is monitoring user interaction with the app
-                            Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
-                            manageClientAppInteractionsThread.start();
-                            System.out.println("Started location thread");
+                            //check if the beacons were received by the user
+                            String clientFeedback = (String)this.objectInputStream.readObject();
+                            
+                            //if the client received the beacons then we start listening for location data
+                            if(clientFeedback.equals("Client received beacons"))
+                            {
+                                System.out.println("Client received the beacons");
+                                //start a new thread that is monitoring user interaction with the app
+                                Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
+                                manageClientAppInteractionsThread.start();
+                                System.out.println("Started location thread");
+                                
+                                //send a message to the user that we started listening to the location data
+                                this.objectOutputStream.writeObject("Started listening to the location data");
+                            }
+                            
                         }
                         else
                         {
