@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
@@ -72,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
     //beacon variables
     public static volatile HashMap<String, Beacon> beacons;//change tu public not static
     //Estimote variables
-    public volatile EstimoteCloudCredentials cloudCredentials;
-    public volatile ProximityObserver proximityObserver;
-    public volatile ArrayList<ProximityZone> estimoteProximityZones;
+    public EstimoteCloudCredentials cloudCredentials;
+    public ProximityObserver proximityObserver;
+    public  ArrayList<ProximityZone> estimoteProximityZones;
     //Kontakt variables
     public ProximityManager proximityManager;
 
@@ -83,13 +84,21 @@ public class MainActivity extends AppCompatActivity {
     public volatile ObjectInputStream objectInputStream;
 
     //Handlers
-    public static volatile MainActivityHandler mainActivityHandler;
+    public volatile MainActivityHandler mainActivityHandler;
 
     //UI variables
+    //Main activity UI variables
     public TabLayout tabLayout;
     public ViewPager viewPager;
     public ViewPagerAdapter viewPagerAdapter;
     public TextView feedBackTextView;
+    //user profile UI variables
+    public TextView usernameTextView;
+    public TextView passwordTextView;
+    public TextView ageTextView;
+    public EditText usernameEditText;
+    public EditText passswordEditText;
+    public EditText ageEditText;
 
     //Other variables
     public static Date currentTime;
@@ -391,5 +400,12 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon);
         tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon);
         tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon);
+
+
+
+        //set the user profile UI variables
+        usernameTextView = findViewById(R.id.usernameTextView);
+        passwordTextView = findViewById(R.id.passwordTexView);
+        ageTextView = findViewById(R.id.ageTextView);
     }
 }
