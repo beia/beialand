@@ -1,5 +1,11 @@
 package com.example.solomon;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +20,7 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 
 public class ProfileSettingsActivity extends AppCompatActivity {
 
+    //UI variables
     private ImageView backButton;
     private CircularImageView profilePicture;
     private TextView nameTextView;
@@ -31,6 +38,8 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     private EditText ageEditText;
     private Button saveChangesButton;
 
+    //intent variables
+    public int GALLERY_REQUEST_CODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +51,14 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+
+        profilePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickFromGallery();
             }
         });
 
@@ -203,5 +220,31 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         nameTextView.setText(MainActivity.lastName + " " + MainActivity.firstName);
         usernameTextView.setText(MainActivity.username);
         ageTextView.setText(Integer.toString(MainActivity.age));
+    }
+
+
+    private void pickFromGallery(){
+        //Create an Intent with action as ACTION_PICK
+        Intent intent=new Intent(Intent.ACTION_PICK);
+        // Sets the type as image/*. This ensures only components of type image are selected
+        intent.setType("image/*");
+        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
+        String[] mimeTypes = {"image/jpeg", "image/png"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
+        // Launching the Intent
+        startActivityForResult(intent,GALLERY_REQUEST_CODE);
+    }
+
+    public void onActivityResult(int requestCode,int resultCode,Intent data){
+        // Result code is RESULT_OK only if the user selects an Image
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+
+                case 0://GALLERY_REQUEST_CODE
+                    //data.getData returns the content URI for the selected Image
+                    Uri selectedImage = data.getData();
+                    profilePicture.setImageURI(selectedImage);
+            }
+        }
     }
 }
