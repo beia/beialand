@@ -103,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
     //Other variables
     public static Date currentTime;
     public static int userId;
+    public static String username;
+    public static String lastName;
+    public static String firstName;
+    public static int age;
     public static Context context;
 
 
@@ -119,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
         //getUserData
         UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
         userId = userData.getUserId();
+        username = userData.getUsername();
+        lastName = userData.getLastName();
+        firstName = userData.getFirstName();
+        age = userData.getAge();
+
+        //set communication streams
         objectOutputStream = LoginActivity.objectOutputStream;
         objectInputStream = LoginActivity.objectInputStream;
 

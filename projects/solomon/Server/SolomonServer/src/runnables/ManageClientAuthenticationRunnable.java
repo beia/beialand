@@ -86,10 +86,14 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                         resultSet.next();
                         int userId = resultSet.getInt("idusers");
                         String password = resultSet.getString("password");
+                        String username = resultSet.getString("username");
+                        String lastName = resultSet.getString("lastName");
+                        String firstName = resultSet.getString("firstName");
+                        int age = resultSet.getInt("age");
                         if(signInData.getPassword().equals(password))
                         {
                             //username and password are correct login successful
-                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId));
+                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, lastName, firstName, age));
                             System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
                             this.connected = true;
                             

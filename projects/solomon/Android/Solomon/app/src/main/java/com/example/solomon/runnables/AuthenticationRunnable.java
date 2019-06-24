@@ -53,7 +53,7 @@ public class AuthenticationRunnable implements Runnable
                             break;
                         case "login successful":
                             message = LoginActivity.handler.obtainMessage(2);
-                            message.obj = new UserData(serverFeedback.getUserId());
+                            message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge());
                             this.connected = true;
                             message.sendToTarget();
                             break;

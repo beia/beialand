@@ -16,6 +16,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
     private ImageView backButton;
     private CircularImageView profilePicture;
+    private TextView nameTextView;
     private TextView usernameTextView;
     private TextView passwordTextView;
     private TextView ageTextView;
@@ -146,6 +147,18 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     updateUserDataThread.start();
                 }
 
+                //change the user data
+                if(username != null) {
+                    usernameTextView.setText(MainActivity.username);
+                    MainActivity.username = username;
+                    usernameTextView.setText(username);
+                }
+                if(age != 0) {
+                    ageTextView.setText(Integer.toString(MainActivity.age));
+                    MainActivity.age = age;
+                    ageTextView.setText(Integer.toString(age));
+                }
+
                 //set the UI as it was before updating
                 cancelUsernameChangesButton.setVisibility(View.GONE);
                 cancelPasswordChangesButton.setVisibility(View.GONE);
@@ -153,6 +166,9 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 usernameEditText.setVisibility(View.GONE);
                 passwordEditText.setVisibility(View.GONE);
                 ageEditText.setVisibility(View.GONE);
+                usernameEditText.setText("");
+                passwordEditText.setText("");
+                ageEditText.setText("");
                 usernameEditButton.setVisibility(View.VISIBLE);
                 passwordEditButton.setVisibility(View.VISIBLE);
                 ageEditButton.setVisibility(View.VISIBLE);
@@ -167,6 +183,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     {
         backButton = findViewById(R.id.profileSettingsBackButton);
         profilePicture = findViewById(R.id.profilePicture);
+        nameTextView = findViewById(R.id.nameTextView);
         usernameTextView = findViewById(R.id.usernameTextView);
         passwordTextView = findViewById(R.id.passwordTexView);
         ageTextView = findViewById(R.id.ageTextView);
@@ -180,5 +197,11 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         cancelPasswordChangesButton = findViewById(R.id.cancelPasswordChangeButton);
         cancelAgeChangesButton = findViewById(R.id.cancelAgeChangeButton);
         saveChangesButton = findViewById(R.id.saveChangesButton);
+
+
+        //set the UI based on user data
+        nameTextView.setText(MainActivity.lastName + " " + MainActivity.firstName);
+        usernameTextView.setText(MainActivity.username);
+        ageTextView.setText(Integer.toString(MainActivity.age));
     }
 }
