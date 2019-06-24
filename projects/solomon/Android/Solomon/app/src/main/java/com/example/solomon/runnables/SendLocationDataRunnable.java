@@ -30,7 +30,9 @@ public class SendLocationDataRunnable implements Runnable
         try
         {
             //send the location data
-            objectOutputStream.writeObject(new LocationData(userId, storeId, zoneName, zoneEntered, time.toString()));
+            synchronized (objectOutputStream) {
+                objectOutputStream.writeObject(new LocationData(userId, storeId, zoneName, zoneEntered, time.toString()));
+            }
         }
         catch (IOException e)
         {

@@ -80,11 +80,11 @@ public class MainActivity extends AppCompatActivity {
     public ProximityManager proximityManager;
 
     //Communication variables
-    public volatile ObjectOutputStream objectOutputStream;
-    public volatile ObjectInputStream objectInputStream;
+    public static volatile ObjectOutputStream objectOutputStream;
+    public static volatile ObjectInputStream objectInputStream;
 
     //Handlers
-    public volatile MainActivityHandler mainActivityHandler;
+    public static MainActivityHandler mainActivityHandler;
 
     //UI variables
     //Main activity UI variables
@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
     //Other variables
     public static Date currentTime;
-    public volatile int userId;
-    public static volatile Context context;
+    public static int userId;
+    public static Context context;
 
 
 

@@ -393,7 +393,6 @@ public class SolomonServer {
         {
             try
             {
-                // create a prepared SQL statement
                 Statement deleteStatement = con.createStatement();
                 String statementString = "delete from " + tableName;
                 deleteStatement.executeUpdate(statementString);
@@ -416,7 +415,6 @@ public class SolomonServer {
         {
             try
             {
-                // create a prepared SQL statement
                 Statement deleteStatement = con.createStatement();
                 String statementString = "delete from beacons where label = '" + label + "'";
                 deleteStatement.executeUpdate(statementString);
@@ -434,5 +432,75 @@ public class SolomonServer {
         }
     }
     
+    public static void updateUsername(int id, String username) throws SQLException, Exception
+    {
+        if(con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                Statement usernameUpdateStatement = con.createStatement();
+                String updateStatementString = "update users set username = '" + username + "' where idusers = '" + id +"';";
+                usernameUpdateStatement.executeUpdate(updateStatementString);
+                System.out.println("------------------------------\nUpdated username:\n userId: " + id + "\nusername: " + username + "\n------------------------------");
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
     
+    public static void updatePassword(int id, String password) throws SQLException, Exception
+    {
+        if(con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                Statement usernameUpdateStatement = con.createStatement();
+                String updateStatementString = "update users set password = '" + password + "' where idusers = '" + id +"';";
+                usernameUpdateStatement.executeUpdate(updateStatementString);
+                System.out.println("------------------------------\nUpdated password:\n userId: " + id + "\npassword: " + password + "\n------------------------------");
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    public static void updateAge(int id, int age) throws SQLException, Exception
+    {
+        if(con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                Statement usernameUpdateStatement = con.createStatement();
+                String updateStatementString = "update users set age = '" + age + "' where idusers = '" + id +"';";
+                usernameUpdateStatement.executeUpdate(updateStatementString);
+                System.out.println("------------------------------\nUpdated age:\n userId: " + id + "\nage: " + age + "\n------------------------------");
+            }
+            catch (SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
 }
