@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     public static String firstName;
     public static int age;
     public static Context context;
+    public static MainActivity mainActivity;
 
 
 
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
+        mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
 
         initUI();
@@ -327,8 +329,6 @@ public class MainActivity extends AppCompatActivity {
                 //Eddystone namespace has been abandoned
             }
         });
-
-
         //start scanning for the Kontakt beacons
         startScanning();
     }
@@ -340,11 +340,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if(proximityManager != null) {
+            //restart scanning for the Kontakt beacons
+            proximityManager.startScanning();
+            Toast.makeText(this, "onStart: Started scanning again", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(proximityManager != null) {
+            //restart scanning for the Kontakt beacons
+            proximityManager.startScanning();
+            Toast.makeText(this, "onResume: Started scanning again", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     protected void onStop() {
-        proximityManager.stopScanning();
+        if(proximityManager != null) {
+            proximityManager.stopScanning();
+            Toast.makeText(this, "onStop: Stopped scanning", Toast.LENGTH_LONG).show();
+        }
         super.onStop();
     }
 

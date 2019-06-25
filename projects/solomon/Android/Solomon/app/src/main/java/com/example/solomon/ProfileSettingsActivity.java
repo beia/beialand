@@ -1,6 +1,7 @@
 package com.example.solomon;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.solomon.networkPackets.UpdateUserData;
 import com.example.solomon.runnables.SendUserUpdateData;
@@ -41,10 +43,16 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     //intent variables
     public int GALLERY_REQUEST_CODE = 0;
 
+    //other variables
+    public static Context profileSettingsContext;
+    public static ProfileSettingsActivity profileSettingsActivity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
+        profileSettingsContext = getApplicationContext();
+        profileSettingsActivity = this;
         initUI();
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -162,6 +170,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     UpdateUserData updateUserData = new UpdateUserData(MainActivity.userId, username, password, age);
                     Thread updateUserDataThread = new Thread(new SendUserUpdateData(MainActivity.objectOutputStream, updateUserData));
                     updateUserDataThread.start();
+                    Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
                 }
 
                 //change the user data
