@@ -486,7 +486,7 @@ public class SolomonServer {
         {
             try
             {
-                // create a prepared SQL statement
+                // create a  SQL statement
                 Statement usernameUpdateStatement = con.createStatement();
                 String updateStatementString = "update users set age = '" + age + "' where idusers = '" + id +"';";
                 usernameUpdateStatement.executeUpdate(updateStatementString);
@@ -502,5 +502,68 @@ public class SolomonServer {
             error = "Exception : Database connection was lost.";
             throw new Exception(error);
         }
+    }
+    
+    public static void saveImage(String picturePath, int userId) throws SQLException, Exception
+    {
+        if(con != null)
+        {
+            try
+            {
+                //create a update SQl statement
+                Statement savePictureStatement = con.createStatement();
+                //replace the slashes with double slashes in the update statement because the mysql interprets only \\ as \
+                picturePath = picturePath.replace("\\", "\\\\");
+                System.out.println(picturePath);
+                String statementString = "update users set picture = '" + picturePath + "' where idusers = '" + userId + "';";
+                savePictureStatement.executeUpdate(statementString);
+            }
+            catch(SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+            
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    public static String getUserProfilePicturePath(int userId) throws Exception
+    {
+        ResultSet resultSet = null;
+        if(con != null)
+        {
+            try
+            {
+                //create a sql query statement
+                Statement getPicturePathStatement = con.createStatement();
+                String queryString = "select picture from users where idusers = '" + userId + "';";
+                resultSet = getPicturePathStatement.executeQuery(queryString);
+                if (!resultSet.isBeforeFirst())
+                {    
+                    //no profile picture
+                    return "No profile picture";
+                }
+                else
+                {
+                    resultSet.next();
+                    return resultSet.getString("picture");
+                }
+                
+            }
+            catch(SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+        return null;
     }
 }

@@ -301,9 +301,12 @@ public class MainActivity extends AppCompatActivity {
                 feedBackTextView.setText("Entered region: " + region.getIdentifier());
 
                 //send the location data to the server
-                currentTime = Calendar.getInstance().getTime();
-                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), true, currentTime, objectOutputStream));
-                sendLocationDataThread.start();
+                synchronized (objectOutputStream)
+                {
+                    currentTime = Calendar.getInstance().getTime();
+                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), true, currentTime, objectOutputStream));
+                    sendLocationDataThread.start();
+                }
             }
 
             @Override
@@ -314,9 +317,12 @@ public class MainActivity extends AppCompatActivity {
                 feedBackTextView.setText("Left region: " + region.getIdentifier());
 
                 //send the location data to the server
-                currentTime = Calendar.getInstance().getTime();
-                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), false, currentTime, objectOutputStream));
-                sendLocationDataThread.start();
+                synchronized (objectOutputStream)
+                {
+                    currentTime = Calendar.getInstance().getTime();
+                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), false, currentTime, objectOutputStream));
+                    sendLocationDataThread.start();
+                }
             }
 
             @Override
