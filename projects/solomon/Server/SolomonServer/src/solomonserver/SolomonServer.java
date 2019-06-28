@@ -51,7 +51,7 @@ public class SolomonServer {
         connectToDatabase();
         
         //create a tcp serverSocket and wait for client connections
-        serverSocket = new ServerSocket(8000);
+        serverSocket = new ServerSocket(48000);
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
         

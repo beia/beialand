@@ -1,10 +1,12 @@
 package com.example.solomon;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -119,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
         mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
+
+        //request permissions
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
         initUI();
 
@@ -336,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //start scanning for the Kontakt beacons
-        startScanning();
+        start();
     }
 
 
@@ -348,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
-            proximityManager.startScanning();
+            start();
             Toast.makeText(this, "onStart: Started scanning again", Toast.LENGTH_LONG).show();
         }
     }
@@ -359,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
-            proximityManager.startScanning();
+            start();
             Toast.makeText(this, "onResume: Started scanning again", Toast.LENGTH_LONG).show();
         }
     }
@@ -380,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void startScanning() {
+    protected void start() {
         proximityManager.connect(new OnServiceReadyListener() {
             @Override
             public void onServiceReady() {

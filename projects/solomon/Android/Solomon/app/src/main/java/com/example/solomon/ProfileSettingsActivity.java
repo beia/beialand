@@ -78,7 +78,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
         profileSettingsContext = getApplicationContext();
@@ -103,6 +103,8 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         usernameEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(saveChangesButton.getVisibility() != View.VISIBLE)
+                    saveChangesButton.setVisibility(View.VISIBLE);
                 usernameTextView.setVisibility(View.GONE);
                 usernameEditText.setVisibility(View.VISIBLE);
                 usernameEditButton.setVisibility(View.GONE);
@@ -113,6 +115,8 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         passwordEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(saveChangesButton.getVisibility() != View.VISIBLE)
+                    saveChangesButton.setVisibility(View.VISIBLE);
                 passwordTextView.setVisibility(View.GONE);
                 passwordEditText.setVisibility(View.VISIBLE);
                 passwordEditButton.setVisibility(View.GONE);
@@ -123,6 +127,8 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         ageEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(saveChangesButton.getVisibility() != View.VISIBLE)
+                    saveChangesButton.setVisibility(View.VISIBLE);
                 ageTextView.setVisibility(View.GONE);
                 ageEditText.setVisibility(View.VISIBLE);
                 ageEditButton.setVisibility(View.GONE);
@@ -133,6 +139,10 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         cancelUsernameChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(passwordEditButton.getVisibility() == View.VISIBLE && ageEditButton.getVisibility() == View.VISIBLE)
+                {
+                    saveChangesButton.setVisibility(View.GONE);
+                }
                 usernameEditText.setVisibility(View.GONE);
                 usernameTextView.setVisibility(View.VISIBLE);
                 cancelUsernameChangesButton.setVisibility(View.GONE);
@@ -143,6 +153,10 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         cancelPasswordChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(usernameEditButton.getVisibility() == View.VISIBLE && ageEditButton.getVisibility() == View.VISIBLE)
+                {
+                    saveChangesButton.setVisibility(View.GONE);
+                }
                 passwordEditText.setVisibility(View.GONE);
                 passwordTextView.setVisibility(View.VISIBLE);
                 cancelPasswordChangesButton.setVisibility(View.GONE);
@@ -153,6 +167,10 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         cancelAgeChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(usernameEditButton.getVisibility() == View.VISIBLE && passwordEditButton.getVisibility() == View.VISIBLE)
+                {
+                    saveChangesButton.setVisibility(View.GONE);
+                }
                 ageEditText.setVisibility(View.GONE);
                 ageTextView.setVisibility(View.VISIBLE);
                 cancelAgeChangesButton.setVisibility(View.GONE);
@@ -231,6 +249,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 usernameTextView.setVisibility(View.VISIBLE);
                 passwordTextView.setVisibility(View.VISIBLE);
                 ageTextView.setVisibility(View.VISIBLE);
+                saveChangesButton.setVisibility(View.GONE);
             }
         });
 

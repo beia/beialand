@@ -69,7 +69,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                     //received the picture bytes from the user
                     ImageData imageData = (ImageData)networkPacket;
                     //create a file with a path name that coresponds to the user so we can identify him
-                    String path = "C:\\Users\\beia\\Desktop\\UsersProfilePictures\\" + imageData.getUserId();
+                    String path = "C:\\Users\\beia\\Desktop\\UsersProfilePictures\\" + imageData.getUserId() + ".jpg";
                     File file = new File(path);
                     //save the image into the memory
                     Files.write(file.toPath(), imageData.getImageBytes());
@@ -110,6 +110,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                         //create the ImageData object ad send it to the user
                                         ImageData imageData = new ImageData(imageBytes, userId);
                                         objectOutputStream.writeObject(imageData);
+                                        fileInputStream.close();
                                     }
                                     catch (IOException ex)
                                     {
