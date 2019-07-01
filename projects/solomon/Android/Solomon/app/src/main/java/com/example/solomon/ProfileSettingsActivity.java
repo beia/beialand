@@ -3,6 +3,7 @@ package com.example.solomon;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,8 @@ import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,6 +61,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     //other variables
     public static Context profileSettingsContext;
     public static ProfileSettingsActivity profileSettingsActivity;
+    public static SharedPreferences myPrefs;
 
     //handlers
     public static Handler handler = new Handler(){
@@ -83,6 +87,10 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_settings);
         profileSettingsContext = getApplicationContext();
         profileSettingsActivity = this;
+
+        //get preferences
+        myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
+
         initUI();
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -278,38 +286,52 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         nameTextView.setText(MainActivity.lastName + " " + MainActivity.firstName);
         usernameTextView.setText(MainActivity.username);
         ageTextView.setText(Integer.toString(MainActivity.age));
-        //get the image from the server
-        Thread requestProfilePictureThread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    synchronized (MainActivity.objectOutputStream) {
-                        //send the photo request
-                        MainActivity.objectOutputStream.writeObject("Photo request");
-                    }
-                    synchronized (MainActivity.objectInputStream) {
-                        //receive the image data
-                        ImageData imageData = (ImageData) MainActivity.objectInputStream.readObject();
-                        //Send a message to the ProfileSettings activity handler with the imagedata so we can change the profile picture
-                        Message message = Message.obtain(ProfileSettingsActivity.handler);
-                        message.what = 1;
-                        message.obj = imageData;
-                        message.sendToTarget();
-                    }
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        requestProfilePictureThread.start();
 
+        //if we can't find the profile picture in the cache we check in the users prefs or we get it from the server
+        if(MainActivity.picturesCache == null || MainActivity.picturesCache.get("profilePicture") == null) {
+            if (myPrefs.contains("profilePicture"))
+            {
+                String imageString = "";
+                myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
+                imageString = myPrefs.getString("profilePicture", "noImage");
+                if(!imageString.equals("noImage"))
+                    ProfileSettingsActivity.profilePicture.setImageBitmap(decodeBase64(imageString));
+            }
+            else {
+                //get the image from the server
+                Thread requestProfilePictureThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            synchronized (MainActivity.objectOutputStream) {
+                                //send the photo request
+                                MainActivity.objectOutputStream.writeObject("Photo request");
+                            }
+                            synchronized (MainActivity.objectInputStream) {
+                                //receive the image data
+                                ImageData imageData = (ImageData) MainActivity.objectInputStream.readObject();
+                                //Send a message to the ProfileSettings activity handler with the imagedata so we can change the profile picture
+                                Message message = Message.obtain(ProfileSettingsActivity.handler);
+                                message.what = 1;
+                                message.obj = imageData;
+                                message.sendToTarget();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                requestProfilePictureThread.start();
+            }
+        }
+        else
+        {
+            Bitmap bitmap = MainActivity.picturesCache.get("profilePicture");
+            ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
+            Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "updated the profile picture from cache", Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -356,14 +378,37 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                             Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
                             sendImageThread.start();
                         }
+                        MainActivity.picturesCache.put("profilePicture", bitmap);
+                        Log.d("Bitmap before encoding", bitmap.toString());
+                        //get preferences
+                        myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor userPrefs = myPrefs.edit();
+                        userPrefs.putString("profilePicture", ProfileSettingsActivity.encodeTobase64(bitmap));
+                        userPrefs.commit();
+                        Toast.makeText(this, "Saved the bitmap in the cache memory", Toast.LENGTH_SHORT).show();
                     }
                     catch (IOException e)
                     {
                         Toast.makeText(this, "Image format error", Toast.LENGTH_LONG).show();
                         e.printStackTrace();
                     }
-
             }
         }
+    }
+
+    // method for bitmap to base64
+    public static String encodeTobase64(Bitmap image) throws IOException {
+        Bitmap bitmap = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] b = baos.toByteArray();
+        String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
+        baos.close();
+        return imageEncoded;
+    }
+    // method for base64 to bitmap
+    public static Bitmap decodeBase64(String input) {
+        byte[] decodedByte = Base64.decode(input, 0);
+        return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 }

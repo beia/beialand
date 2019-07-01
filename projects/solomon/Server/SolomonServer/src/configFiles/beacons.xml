@@ -32,17 +32,104 @@
    </beacon>
    
    <beacon id = "LKhV">
-   <label>Kontakt Beacon 1</label>
+   <label>POC</label>
    <company>Kontakt</company>
    <major>41302</major>
    <minor>22282</minor>
    </beacon>
    
    <beacon id = "rrZd">
-   <label>Kontakt Beacon 2</label>
+   <label>SERE</label>
    <company>Kontakt</company>
    <major>39824</major>
    <minor>22135</minor>
+   </beacon>
+   
+   <beacon id = "0Qq2">
+   <label>Sales</label>
+   <company>Kontakt</company>
+   <major>33233</major>
+   <minor>43572</minor>
+   </beacon>
+   
+   <beacon id = "ZBCE">
+   <label>Secretariat</label>
+   <company>Kontakt</company>
+   <major>60181</major>
+   <minor>7706</minor>
+   </beacon>
+   
+   <beacon id = "R4JH">
+   <label>Proiecte</label>
+   <company>Kontakt</company>
+   <major>24334</major>
+   <minor>57021</minor>
+   </beacon>
+   
+   <beacon id = "g0Mk">
+   <label>Management room</label>
+   <company>Kontakt</company>
+   <major>10428</major>
+   <minor>42734</minor>
+   </beacon>
+   
+   <beacon id = "lZyt">
+   <label>CEO room</label>
+   <company>Kontakt</company>
+   <major>51925</major>
+   <minor>21455</minor>
+   </beacon>
+   
+   <beacon id = "MTFa">
+   <label>Conerence room</label>
+   <company>Kontakt</company>
+   <major>59730</major>
+   <minor>3532</minor>
+   </beacon>
+   
+   <beacon id = "aaai">
+   <label>Oficiu 1</label>
+   <company>Kontakt</company>
+   <major>48319</major>
+   <minor>1456</minor>
+   </beacon>
+   
+   <beacon id = "v7mz">
+   <label>Scara2</label>
+   <company>Kontakt</company>
+   <major>25098</major>
+   <minor>4628</minor>
+   </beacon>
+   
+   
+   
+   <beacon id = "tZF7">
+   <label>Scara 1</label>
+   <company>Kontakt</company>
+   <major>3204</major>
+   <minor>63655</minor>
+   </beacon>
+   
+   
+   <beacon id = "PcNy">
+   <label>POC 2</label>
+   <company>Kontakt</company>
+   <major>58450</major>
+   <minor>19566</minor>
+   </beacon>
+   
+   <beacon id = "y0PY">
+   <label>Garaj</label>
+   <company>Kontakt</company>
+   <major>9597</major>
+   <minor>46982</minor>
+   </beacon>
+   
+   <beacon id = "yqmN">
+   <label>Intrare</label>
+   <company>Kontakt</company>
+   <major>55561</major>
+   <minor>26706</minor>
    </beacon>
    
 </beaconsList>

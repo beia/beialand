@@ -3,6 +3,7 @@ package com.example.solomon;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -10,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.LruCache;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -73,7 +75,7 @@ import kotlin.jvm.functions.Function1;
 public class MainActivity extends AppCompatActivity {
 
     //beacon variables
-    public static volatile HashMap<String, Beacon> beacons;//change tu public not static
+    public static volatile HashMap<String, Beacon> beacons;//change to public not static
     //Estimote variables
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
@@ -84,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
     //Communication variables
     public static volatile ObjectOutputStream objectOutputStream;
     public static volatile ObjectInputStream objectInputStream;
+
+    //cache variables
+    public static LruCache<String, Bitmap> picturesCache;
+
+
 
     //Handlers
     public static MainActivityHandler mainActivityHandler;
@@ -122,8 +129,19 @@ public class MainActivity extends AppCompatActivity {
         mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
 
-        //request permissions
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+        //create a local cache
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 16;
+        MainActivity.picturesCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+
 
         initUI();
 
@@ -268,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
         //configure the proximity manager
         proximityManager.configuration()
-                .scanMode(ScanMode.BALANCED)
+                .scanMode(ScanMode.LOW_LATENCY)
                 .scanPeriod(ScanPeriod.RANGING)
                 .activityCheckConfiguration(ActivityCheckConfiguration.DEFAULT)
                 .eddystoneFrameTypes(Arrays.asList(EddystoneFrameType.UID, EddystoneFrameType.URL));
@@ -301,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRegionEntered(IBeaconRegion region) {
                 //IBeacon region has been entered
-                Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                 toast.show();
                 feedBackTextView.setText("Entered region: " + region.getIdentifier());
 
@@ -317,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRegionAbandoned(IBeaconRegion region) {
                 //IBeacon region has been abandoned
-                Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                 toast.show();
                 feedBackTextView.setText("Left region: " + region.getIdentifier());
 
