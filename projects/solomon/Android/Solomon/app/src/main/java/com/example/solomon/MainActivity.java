@@ -3,6 +3,7 @@ package com.example.solomon;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
@@ -167,6 +168,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Intent startLoginActivityIntent = new Intent(this, LoginActivity.class);
+        startActivity(startLoginActivityIntent);
+    }
 
 
     //ESTIMOTE
@@ -372,7 +380,6 @@ public class MainActivity extends AppCompatActivity {
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
             start();
-            Toast.makeText(this, "onStart: Started scanning again", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -383,7 +390,6 @@ public class MainActivity extends AppCompatActivity {
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
             start();
-            Toast.makeText(this, "onResume: Started scanning again", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -391,7 +397,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         if(proximityManager != null) {
             proximityManager.stopScanning();
-            Toast.makeText(this, "onStop: Stopped scanning", Toast.LENGTH_LONG).show();
         }
         super.onStop();
     }

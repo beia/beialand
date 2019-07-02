@@ -75,7 +75,22 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     ImageData imageData = (ImageData) msg.obj;
                     Bitmap bitmap = BitmapFactory.decodeByteArray(imageData.getImageBytes(), 0, imageData.getImageBytes().length);
                     ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
-                    Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "updated the profile picture", Toast.LENGTH_LONG).show();
+                    //get preferences
+                    SharedPreferences.Editor userPrefs = myPrefs.edit();
+                    //save the profile picture into the memory
+                    try
+                    {
+                        //save the profile picture into the memory
+                        String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
+                        String userImageString = imageString + " " + MainActivity.userId;
+                        userPrefs.putString("profilePicture", userImageString);
+                        userPrefs.commit();
+                        Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "Downloaded the profile picture", Toast.LENGTH_LONG).show();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
@@ -288,17 +303,35 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         ageTextView.setText(Integer.toString(MainActivity.age));
 
         //if we can't find the profile picture in the cache we check in the users prefs or we get it from the server
-        if(MainActivity.picturesCache == null || MainActivity.picturesCache.get("profilePicture") == null) {
+        if(MainActivity.picturesCache == null || MainActivity.picturesCache.get("profilePicture") == null)
+        {
+            //we check for the profile picture in the memory and if we find it we check if the same user is logged in as the one who's picture is saved
+            //if that's the case we get it from the memory(the picture is saved as a String and then it's concatenated with the user id with a space in between)
+            //if it's not the case then we download it from the server
             if (myPrefs.contains("profilePicture"))
             {
-                String imageString = "";
+                String userImageString = "";
                 myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
-                imageString = myPrefs.getString("profilePicture", "noImage");
-                if(!imageString.equals("noImage"))
-                    ProfileSettingsActivity.profilePicture.setImageBitmap(decodeBase64(imageString));
+                //get the image string from the disk
+                userImageString = myPrefs.getString("profilePicture", "noImage");
+                if(!userImageString.equals("noImage"))
+                {
+                    String[] data = userImageString.split(" ");
+                    String imageString = data[0];
+                    int userId = Integer.parseInt(data[1]);
+                    if(userId == MainActivity.userId) {
+                        Bitmap imageBitmap = decodeBase64(imageString);
+                        ProfileSettingsActivity.profilePicture.setImageBitmap(imageBitmap);
+                        //save the picture into cache memory
+                        MainActivity.picturesCache.put("profilePicture", imageBitmap);
+                        Toast.makeText(this, "Extracted profile picture from the disk", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
             }
-            else {
-                //get the image from the server
+
+
+            //get the image from the server
                 Thread requestProfilePictureThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -324,13 +357,13 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     }
                 });
                 requestProfilePictureThread.start();
-            }
         }
         else
         {
+            //get the picture from cache
             Bitmap bitmap = MainActivity.picturesCache.get("profilePicture");
             ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
-            Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "updated the profile picture from cache", Toast.LENGTH_LONG).show();
+            Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "Got profile picture from cache", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -378,14 +411,16 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                             Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
                             sendImageThread.start();
                         }
+                        //save the picture into cache memory
                         MainActivity.picturesCache.put("profilePicture", bitmap);
-                        Log.d("Bitmap before encoding", bitmap.toString());
                         //get preferences
                         myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
                         SharedPreferences.Editor userPrefs = myPrefs.edit();
-                        userPrefs.putString("profilePicture", ProfileSettingsActivity.encodeTobase64(bitmap));
+                        //save the profile picture into the memory
+                        String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
+                        String userImageString = imageString + " " + MainActivity.userId;
+                        userPrefs.putString("profilePicture", userImageString);
                         userPrefs.commit();
-                        Toast.makeText(this, "Saved the bitmap in the cache memory", Toast.LENGTH_SHORT).show();
                     }
                     catch (IOException e)
                     {
