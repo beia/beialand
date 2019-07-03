@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -389,10 +391,12 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 case 0://GALLERY_REQUEST_CODE
                     //data.getData returns the content URI for the selected Image
                     Uri selectedImageUri = data.getData();
+                    String path = getRealPathFromURI(selectedImageUri);
                     try
                     {
                         //extract bytes from the imageUri and create an object that contains the profile picture and the user id
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                        bitmap = getCorrectBitmap(path, bitmap);
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         //compress the bitmap data and save it into a byte array
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -429,6 +433,55 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     }
             }
         }
+    }
+
+
+
+    public Bitmap getCorrectBitmap(String photoPath, Bitmap bitmap) throws IOException
+    {
+        ExifInterface ei = new ExifInterface(photoPath);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        Bitmap rotatedBitmap = null;
+        switch (orientation)
+        {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotatedBitmap = rotateImage(bitmap, 90);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotatedBitmap = rotateImage(bitmap, 180);
+                break;
+
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotatedBitmap = rotateImage(bitmap, 270);
+                break;
+
+            case ExifInterface.ORIENTATION_NORMAL:
+            default:
+                rotatedBitmap = bitmap;
+        }
+        return rotatedBitmap;
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     // method for bitmap to base64
