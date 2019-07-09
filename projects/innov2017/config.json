@@ -47,6 +47,11 @@
 			"db_name": "vlcirrf_db"
 		},
 		{
+			"name": "sarws",
+			"virtual_hosts": ["sarws.beia-consult.ro"],
+			"db_name": "sarws_db"
+		},
+		{
 			"name": "sensystar",
 			"virtual_hosts": ["sensystar.beia-consult.ro"],
 			"db_name": "sensystar_db"
