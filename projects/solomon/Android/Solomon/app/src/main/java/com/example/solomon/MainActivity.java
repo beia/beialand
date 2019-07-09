@@ -1,14 +1,9 @@
 package com.example.solomon;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,37 +21,29 @@ import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
 import com.example.solomon.Handlers.MainActivityHandler;
 import com.example.solomon.networkPackets.Beacon;
-import com.example.solomon.networkPackets.BeaconsData;
 import com.example.solomon.networkPackets.EstimoteBeacon;
 import com.example.solomon.networkPackets.KontaktBeacon;
 import com.example.solomon.networkPackets.UserData;
 import com.example.solomon.runnables.ReceiveBeaconsDataRunnable;
 import com.example.solomon.runnables.SendLocationDataRunnable;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
-import com.kontakt.sdk.android.ble.configuration.ForceScanConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
 import com.kontakt.sdk.android.ble.connection.OnServiceReadyListener;
 import com.kontakt.sdk.android.ble.device.BeaconRegion;
 import com.kontakt.sdk.android.ble.manager.ProximityManager;
 import com.kontakt.sdk.android.ble.manager.ProximityManagerFactory;
-import com.kontakt.sdk.android.ble.manager.listeners.IBeaconListener;
 import com.kontakt.sdk.android.ble.manager.listeners.SpaceListener;
-import com.kontakt.sdk.android.ble.manager.listeners.simple.SimpleIBeaconListener;
-import com.kontakt.sdk.android.ble.rssi.RssiCalculators;
 import com.kontakt.sdk.android.ble.spec.EddystoneFrameType;
 import com.kontakt.sdk.android.common.KontaktSDK;
-import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.kontakt.sdk.android.common.profile.IEddystoneNamespace;
 
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -67,7 +54,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -436,11 +422,11 @@ public class MainActivity extends AppCompatActivity {
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
         storeAdvertisementFragment.setArguments(bundle1, "storeAdvertisementsData");
 
-        UserStatsFragment userStatsFragment = new UserStatsFragment();
+        MapFragment mapFragment = new MapFragment();
         Bundle bundle2 = new Bundle();
         ArrayList<String> userStatsData = new ArrayList<>();
         bundle2.putStringArrayList("userStatsData", userStatsData);
-        userStatsFragment.setArguments(bundle2, "userStatsData");
+        mapFragment.setArguments(bundle2, "userStatsData");
 
         SettingsFragment settingsFragment = new SettingsFragment();
         Bundle bundle3 = new Bundle();
@@ -451,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
         //add the fragment to the viewPagerAdapter
         int numberOfTabs = 3;
         viewPagerAdapter.addFragment(storeAdvertisementFragment, "storeAdvertisementsData");
-        viewPagerAdapter.addFragment(userStatsFragment, "userStatsData");
+        viewPagerAdapter.addFragment(mapFragment, "userStatsData");
         viewPagerAdapter.addFragment(settingsFragment, "profileDataAndSettingsData");
 
         //set my ViewPagerAdapter to the ViewPager

@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="orangeAccent">#FFFFA172</color>
     <color name="greyAccent">#FFF1F1E9</color>
+    <color name="mapRoadAcent">#FF9447</color>
 </resources>
