@@ -6,6 +6,8 @@
 package solomonserver;
 
 import com.example.solomon.networkPackets.Beacon;
+import com.example.solomon.networkPackets.Store;
+import frames.ImageProcessingFrame;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import runnables.ConnectClientsRunnable;
 import runnables.ConnectToUnityDemoRunnable;
@@ -31,6 +34,9 @@ public class SolomonServer {
     public static Thread connectClients;
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
+    public static ArrayList<Store> stores;
+    //Frame variables
+    public static ImageProcessingFrame imageFrame;
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
     public static Socket unityDemoSocket;
@@ -46,6 +52,12 @@ public class SolomonServer {
     {
         //init variables
         beacons = new HashMap<>();
+        stores = new ArrayList<>();
+        
+        //create the JFrame
+        imageFrame = new ImageProcessingFrame();
+        imageFrame.setVisible(true);
+        imageFrame.setSize(810, 810);
         
         //connect to a mySql database
         connectToDatabase();
@@ -62,6 +74,7 @@ public class SolomonServer {
         //extract user location data from the database and process it at a fixed amount of time
         processDatabaseData = new Thread(new ProcessDatabaseDataRunnable());
         processDatabaseData.start();
+        
     }
     
     public static void connectToDatabase() throws ClassNotFoundException, SQLException, Exception 
@@ -565,5 +578,29 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return null;
+    }
+    
+    public static ResultSet getStoreMap(String idStore) throws Exception
+    {
+        ResultSet resultSet = null;
+        if(con != null)
+        {
+            try
+            {
+                Statement getMapStatement = con.createStatement();
+                String queryString = "select from stores where idstores = '" + idStore + "'";
+                resultSet = getMapStatement.executeQuery(queryString);
+            }
+            catch(SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+        return resultSet;
     }
 }

@@ -23,6 +23,12 @@ import org.xml.sax.SAXException;
 import com.example.solomon.networkPackets.Beacon;
 import com.example.solomon.networkPackets.EstimoteBeacon;
 import com.example.solomon.networkPackets.KontaktBeacon;
+import com.example.solomon.networkPackets.Store;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import javax.imageio.ImageIO;
 import solomonserver.SolomonServer;
 
 /**
@@ -126,9 +132,106 @@ public class ProcessDatabaseDataRunnable implements Runnable
                         }
                     }
                 }
-                //end of configuration
+                
             }
+            //end of beacon configuration
             
+            //STORE MAPS CONFIG
+            System.out.println("------------------------------------------------------------");
+            System.out.println("          Getting store data from the database");
+            System.out.println("------------------------------------------------------------");
+            ResultSet storesResultSet = SolomonServer.getTableData("stores");
+            if(!storesResultSet.isBeforeFirst())
+            {
+                //no store available in the database
+                System.out.println("- No store available in the database -");
+            }
+            else
+            {
+                //get store data from the database
+                while(storesResultSet.next())
+                {
+                    String storeId = storesResultSet.getString("idstores");
+                    String storeName = storesResultSet.getString("name");
+                    String storeMapPath = storesResultSet.getString("picture");
+                    File file = new File(storeMapPath);
+                    BufferedImage image = ImageIO.read(file);
+                    int width = image.getWidth();
+                    int height = image.getHeight();
+                    
+                    //test for only one map
+                    System.out.println("Store id: " + storeId + "\nStore name: " + storeName);
+                    
+                    //IMAGE PROCESSING
+                    
+                    //TRANSFORM TO GRAYSCALE
+                    for(int y = 0; y < height; y++)
+                    {
+                        for(int x = 0; x < width; x++)
+                        {
+                            //get the pixel
+                            int p = image.getRGB(x,y);
+                            int a = (p>>24)&0xff;
+                            int r = (p>>16)&0xff;
+                            int g = (p>>8)&0xff;
+                            int b = p&0xff;
+                            //change it to grayscale
+                            int avg = (r+g+b)/3;
+                            //set the pixel
+                            p = (a<<24) | (avg<<16) | (avg<<8) | avg;
+                            image.setRGB(x, y, p);
+                        }
+                    }
+                    //end of grayscale transform
+                    
+                    //APPLY GAUSSIAN BLUR
+                    int gaussianBlurChunkSize = 3;
+                    for(int y = 0; y < height; y++)
+                    {
+                        for(int x = 0; x < width; x++)
+                        {
+                            int p = image.getRGB(x,y);
+                            
+                            //compute the sum of all neighbours of a pixel and compute the average and then change all the pixels into the average value
+                            int avg = 0;
+                            for(int i = y - gaussianBlurChunkSize; i < y + gaussianBlurChunkSize; i++)
+                            {
+                                for(int j = x - gaussianBlurChunkSize; j < x + gaussianBlurChunkSize; j++)
+                                {
+                                    if(i >= 0 && j >= 0 && i < height && j < width)
+                                    {
+                                        int pixel = image.getRGB(j, i);
+                                        int greyPixelValue = pixel&0xff;
+                                        avg += greyPixelValue;
+                                    }
+                                }
+                            }
+                            avg /= gaussianBlurChunkSize;
+                            
+                            //set all the pixels equal to the avg in the chunk
+                            for(int i = y - gaussianBlurChunkSize; i < y + gaussianBlurChunkSize; i++)
+                            {
+                                for(int j = x - gaussianBlurChunkSize; j < x + gaussianBlurChunkSize; j++)
+                                {
+                                    if(i >= 0 && j >= 0 && i < height && j < width)
+                                    {
+                                        int a = (p>>24)&0xff;
+                                        int avgPixel = (a<<24) | (avg<<16) | (avg<<8) | avg;
+                                        image.setRGB(x, y, avgPixel);
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                    //end of gaussian blur
+                    
+                    //end of map processing
+                    
+                    //show 
+                    SolomonServer.imageFrame.setImage(image);
+                }
+            }
             
             
             
