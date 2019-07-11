@@ -24,6 +24,8 @@ import com.example.solomon.networkPackets.Beacon;
 import com.example.solomon.networkPackets.EstimoteBeacon;
 import com.example.solomon.networkPackets.KontaktBeacon;
 import com.example.solomon.networkPackets.Store;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -56,8 +58,8 @@ public class ProcessDatabaseDataRunnable implements Runnable
             
             //BEACON CONFIGURATION
             //get the beacons from the database
-            System.out.println("\n\nAdding beacons into the database:");
-            System.out.println("-------------------------------------");
+            System.out.println("Added beacons into the database");
+            System.out.println("------------------------------------------------------------");
             ResultSet beaconData = SolomonServer.getTableData("beacons");
             if(!beaconData.isBeforeFirst())
             {
@@ -136,6 +138,11 @@ public class ProcessDatabaseDataRunnable implements Runnable
             }
             //end of beacon configuration
             
+            
+            
+            
+            
+            
             //STORE MAPS CONFIG
             System.out.println("------------------------------------------------------------");
             System.out.println("          Getting store data from the database");
@@ -144,7 +151,8 @@ public class ProcessDatabaseDataRunnable implements Runnable
             if(!storesResultSet.isBeforeFirst())
             {
                 //no store available in the database
-                System.out.println("- No store available in the database -");
+                System.out.println("No store available in the database");
+                System.out.println("------------------------------------------------------------\n\n");
             }
             else
             {
@@ -155,12 +163,30 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     String storeName = storesResultSet.getString("name");
                     String storeMapPath = storesResultSet.getString("picture");
                     File file = new File(storeMapPath);
-                    BufferedImage image = ImageIO.read(file);
-                    int width = image.getWidth();
-                    int height = image.getHeight();
+                    BufferedImage fullResImage = ImageIO.read(file);
                     
-                    //test for only one map
-                    System.out.println("Store id: " + storeId + "\nStore name: " + storeName);
+                    
+                    //RESIZE IMAGE
+                    int cmmdc = cmmdc(fullResImage.getWidth(), fullResImage.getHeight());
+                    int widthScaleFactor = fullResImage.getWidth() / cmmdc;
+                    int heightScaleFactor = fullResImage.getHeight() / cmmdc;
+                    int imageScale = 600;
+                    int width, height;
+                    if(widthScaleFactor > heightScaleFactor)
+                    {
+                        width = imageScale;
+                        height = imageScale * heightScaleFactor / widthScaleFactor;
+                    }
+                    else
+                    {
+                        width = imageScale * widthScaleFactor / heightScaleFactor ;
+                        height = imageScale;
+                    }
+                    System.out.println("Aspect ratio = " + (double)fullResImage.getWidth() / fullResImage.getHeight());
+                    System.out.println("Fraction aspect ratio = " + widthScaleFactor + "/" + heightScaleFactor);
+                    System.out.println("Image scale = " + imageScale);
+                    BufferedImage image = resize(fullResImage, width, height);
+                    //end of resize image
                     
                     //IMAGE PROCESSING
                     
@@ -185,62 +211,28 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     //end of grayscale transform
                     
                     //APPLY GAUSSIAN BLUR
-                    int gaussianBlurChunkSize = 3;
-                    for(int y = 0; y < height; y++)
-                    {
-                        for(int x = 0; x < width; x++)
-                        {
-                            int p = image.getRGB(x,y);
-                            
-                            //compute the sum of all neighbours of a pixel and compute the average and then change all the pixels into the average value
-                            int avg = 0;
-                            for(int i = y - gaussianBlurChunkSize; i < y + gaussianBlurChunkSize; i++)
-                            {
-                                for(int j = x - gaussianBlurChunkSize; j < x + gaussianBlurChunkSize; j++)
-                                {
-                                    if(i >= 0 && j >= 0 && i < height && j < width)
-                                    {
-                                        int pixel = image.getRGB(j, i);
-                                        int greyPixelValue = pixel&0xff;
-                                        avg += greyPixelValue;
-                                    }
-                                }
-                            }
-                            avg /= gaussianBlurChunkSize;
-                            
-                            //set all the pixels equal to the avg in the chunk
-                            for(int i = y - gaussianBlurChunkSize; i < y + gaussianBlurChunkSize; i++)
-                            {
-                                for(int j = x - gaussianBlurChunkSize; j < x + gaussianBlurChunkSize; j++)
-                                {
-                                    if(i >= 0 && j >= 0 && i < height && j < width)
-                                    {
-                                        int a = (p>>24)&0xff;
-                                        int avgPixel = (a<<24) | (avg<<16) | (avg<<8) | avg;
-                                        image.setRGB(x, y, avgPixel);
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
+                    //meanBlur(5, 5, image);
+                    gaussianBlur(image);
                     //end of gaussian blur
-                    
                     //end of map processing
                     
-                    //show 
+                    //show the result image 
                     SolomonServer.imageFrame.setImage(image);
                 }
             }
             
             
             
+            
+            
             //TIME PROCESSING
             //get the new enter left room pairs from the database and compute the time difeence and update the time in the database
-            System.out.println("\n\nGetting new location data from the database...");
             while(true)
             {
                 //get the new location data from the database
+                System.out.println("------------------------------------------------------------");
+                System.out.println("          Getting new location data from the database");
+                System.out.println("------------------------------------------------------------");
                 ResultSet userLocationData = SolomonServer.getNewTableData("userlocations", "iduserLocations", this.lastLocationId);
                 this.usersLocations = new ArrayList<>();
                 while(userLocationData.next())
@@ -385,11 +377,13 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 
                 //check if there is no more new data available
                 if(this.usersLocations.isEmpty())
+                {
                     System.out.println("No new data available");
+                    System.out.println("------------------------------------------------------------\n\n");
+                }
                 this.usersLocations.clear();
                 
                 //wait 30 sec until the next data aquisition
-                System.out.println("\n\nGetting new location data from the database...");
                 Thread.sleep(30000);
             }
         }
@@ -407,10 +401,11 @@ public class ProcessDatabaseDataRunnable implements Runnable
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = (Document) dBuilder.parse(inputFile);
         doc.getDocumentElement().normalize();
-        System.out.println("\n\nGetting beacon data from config file: \n");
+        System.out.println("------------------------------------------------------------");
+        System.out.println("          Getting beacon data from the config file");
+        System.out.println("------------------------------------------------------------");
         System.out.println("Root element : " + doc.getDocumentElement().getNodeName());
         NodeList nList = doc.getElementsByTagName("beacon");
-        System.out.println("----------------------------");
         
         for (int i = 0; i < nList.getLength(); i++)
         {
@@ -442,5 +437,120 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 }
             }
         }
+        System.out.println("------------------------------------------------------------\n\n");
+    }
+    
+    
+    
+    private static BufferedImage resize(BufferedImage img, int width, int height)
+    {
+        Image tmp = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = resized.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+        return resized;
+    }
+    
+    
+    private static void meanBlur(int kernelWidth, int kernelHeight, BufferedImage image)
+    {
+        System.out.println("Mean blur kernel size: " + kernelWidth + " * " + kernelHeight);
+        System.out.println("------------------------------------------------------------\n\n");
+        int meanBlurKernelSum = kernelWidth * kernelHeight;
+        for(int y = 0; y < image.getHeight(); y++)
+        {
+            for(int x = 0; x < image.getWidth(); x++)
+            {
+                int p = image.getRGB(x,y);
+                int a = (p>>24)&0xff;
+                //compute the image convolution with the mean kernel (a kernel with all the elements one) - equivalent to a mean
+                int avg = 0;
+                for(int i = y - kernelHeight / 2; i < y + kernelHeight / 2 + 1; i++)
+                {
+                    for(int j = x - kernelWidth / 2; j < x + kernelWidth / 2 + 1; j++)
+                    {
+                        if(i >= 0 && j >= 0 && i < image.getHeight() && j < image.getWidth())
+                        {
+                            int pixel = image.getRGB(j, i);
+                            int greyPixelValue = pixel&0xff;
+                            avg += greyPixelValue;
+                        }
+                    }
+                }
+                avg /= meanBlurKernelSum;
+                            
+                //set the pixel
+                p = (a<<24) | (avg<<16) | (avg<<8) | avg;
+                image.setRGB(x, y, p);
+            }
+        }
+    }
+    
+    private static void gaussianBlur(BufferedImage image)
+    {
+        //create the gaussian kernel
+        //only with 5 * 5 kernel
+        double[][] gaussianKernel = new double[5][];
+        gaussianKernel[0] = new double[]{0.003765,0.015019,0.023792,0.015019,0.003765};
+        gaussianKernel[1] = new double[]{0.015019,0.059912,0.094907,0.059912,0.015019};
+        gaussianKernel[2] = new double[]{0.023792,0.094907,0.150342,0.094907,0.023792};
+        gaussianKernel[3] = new double[]{0.015019,0.059912,0.094907,0.059912,0.015019};
+        gaussianKernel[4] = new double[]{0.003765,0.015019,0.023792,0.015019,0.003765};
+        
+        
+        //make the convolution
+        System.out.println("Gaussian blur kernel size: " + 5 + " * " + 5);
+        System.out.println("------------------------------------------------------------\n\n");
+        for(int y = 0; y < image.getHeight(); y++)
+        {
+            for(int x = 0; x < image.getWidth(); x++)
+            {
+                int p = image.getRGB(x,y);
+                int a = (p>>24)&0xff;
+                //compute the sum of all neighbours of a pixel and compute the average and then change all the pixels into the average value
+                double convSum = 0;
+                int kernelIndexHeight = 0;
+                int kernelIndexWidth = 0;
+                double gaussianKernelSum = 0;
+                for(int i = y - 2; i < y + 3; i++)
+                {
+                    for(int j = x - 2; j < x + 3; j++)
+                    {
+                        kernelIndexWidth = 0;
+                        if(i >= 0 && j >= 0 && i < image.getHeight() && j < image.getWidth())
+                        {
+                            int pixel = image.getRGB(j, i);
+                            int greyPixelValue = pixel&0xff;
+                            convSum += (double)greyPixelValue * gaussianKernel[kernelIndexHeight][kernelIndexWidth];
+                            gaussianKernelSum += gaussianKernel[kernelIndexHeight][kernelIndexWidth];
+                        }
+                        kernelIndexWidth++;
+                    }
+                    kernelIndexHeight++;
+                }
+                convSum /= gaussianKernelSum;
+                int filteredPixel = (int)convSum;
+                
+                //set the pixel
+                p = (a<<24) | (filteredPixel<<16) | (filteredPixel<<8) | filteredPixel;
+                image.setRGB(x, y, p);
+            }
+        }
+    }
+    
+    
+    
+    
+    private static int cmmdc(int a, int b)
+    {
+        while(a != b)
+        {
+            if(a > b)
+                a -= b;
+            else
+                b -= a;
+        }
+        return a;
     }
 }

@@ -57,7 +57,7 @@ public class SolomonServer {
         //create the JFrame
         imageFrame = new ImageProcessingFrame();
         imageFrame.setVisible(true);
-        imageFrame.setSize(810, 810);
+        imageFrame.setSize(615,615);
         
         //connect to a mySql database
         connectToDatabase();
