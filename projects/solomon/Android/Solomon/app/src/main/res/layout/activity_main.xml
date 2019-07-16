@@ -5,23 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/cool_sky"
     tools:context=".MainActivity">
 
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:background="@drawable/backround10"
         android:gravity="center"
         app:elevation="0dp"
-        android:id="@+id/appBarId">
+        android:id="@+id/appBarId"
+        android:background="@color/transparentColor">
         <TextView
             android:id="@+id/feedBackTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="No beacon detected"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="@color/saturatedOrange"/>
     </android.support.design.widget.AppBarLayout>
 
 
@@ -29,8 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:id="@+id/viewPagerId"
-        android:background="@drawable/backround10">
+        android:background="@color/transparentColor"
+        android:id="@+id/viewPagerId">
     </android.support.v4.view.ViewPager>
 
 
@@ -42,7 +44,5 @@
         android:id="@+id/tabLayoutId"
         app:tabTextColor="@color/orangeAccent"
         app:tabIndicatorColor="@color/colorPrimary"
-        android:background="@drawable/backround10"/>
-
-
+        android:background="@color/transparentColor"/>
 </LinearLayout>

@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ProfileSettingsActivity"
-    android:background="@drawable/backround10">
+    android:background="@drawable/cool_sky"
+    tools:context=".ProfileSettingsActivity">
 
     <ImageView
         android:id="@+id/profileSettingsBackButton"

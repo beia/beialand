@@ -2,7 +2,11 @@
 <resources>
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
-    <color name="orangeAccent">#FFFFA172</color>
+    <color name="orangeAccent">#90FF6a00</color>
+    <color name="redAccent">#33EEEEEE</color>
+    <color name="saturatedOrange">#fc6f17</color>
+    <color name="blueAccent">#880091ff</color>
     <color name="greyAccent">#FFF1F1E9</color>
     <color name="mapRoadAcent">#FF9447</color>
+    <color name="transparentColor">#00FFFFFF</color>
 </resources>

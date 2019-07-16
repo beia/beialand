@@ -4,11 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/transparentColor"
     tools:context=".MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/transparentColor"
         android:paddingTop="20dp">
 
         <LinearLayout
@@ -18,6 +20,7 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:gravity="center"
+            android:background="@color/transparentColor"
             android:orientation="vertical">
 
             <TextView
@@ -25,26 +28,32 @@
                 android:layout_height="wrap_content"
                 android:text="Settings"
                 android:textSize="45dp"
-                android:layout_marginBottom="40dp"/>
+                android:background="@color/transparentColor"
+                android:layout_marginBottom="40dp"
+                android:textColor="@android:color/background_dark"/>
 
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/profileSettingsCardView"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="100dp"
                 android:layout_gravity="center"
-                card_view:cardCornerRadius="22dp">
+                card_view:cardCornerRadius="22dp"
+                card_view:cardElevation="0dp"
+                card_view:cardBackgroundColor="@color/redAccent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:background="@color/transparentColor">
 
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:src="@drawable/user_icon"
                         android:layout_gravity="center"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp"/>
 
                     <LinearLayout
@@ -52,6 +61,7 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:gravity="center_vertical"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp">
 
                         <TextView
@@ -59,13 +69,17 @@
                             android:layout_height="wrap_content"
                             android:text="Profile"
                             android:textSize="20dp"
-                            android:textStyle="bold" />
+                            android:background="@color/transparentColor"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/background_dark"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Picture, Adress, Email, Password"
-                            android:textSize="10dp" />
+                            android:background="@color/transparentColor"
+                            android:textSize="10dp"
+                            android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -74,21 +88,25 @@
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/preferencesCardView"
                 android:layout_width="match_parent"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="30dp"
                 android:layout_height="65dp"
                 android:layout_gravity="center"
+                card_view:cardBackgroundColor="@color/redAccent"
+                card_view:cardElevation="0dp"
                 card_view:cardCornerRadius="22dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@color/transparentColor"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:src="@drawable/prefereces_icon"
+                        android:src="@drawable/preferences"
                         android:layout_gravity="center"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp"/>
 
                     <LinearLayout
@@ -96,6 +114,7 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:gravity="center_vertical"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp">
 
                         <TextView
@@ -103,13 +122,15 @@
                             android:layout_height="wrap_content"
                             android:text="Preferences"
                             android:textSize="20dp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:textColor="@android:color/background_dark"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Product discounts, Personal interests"
-                            android:textSize="10dp" />
+                            android:textSize="10dp"
+                            android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -118,14 +139,17 @@
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/notificationsCardView"
                 android:layout_width="match_parent"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="30dp"
                 android:layout_height="65dp"
                 android:layout_gravity="center"
+                card_view:cardBackgroundColor="@color/redAccent"
+                card_view:cardElevation="0dp"
                 card_view:cardCornerRadius="22dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@color/transparentColor"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -133,6 +157,7 @@
                         android:layout_height="40dp"
                         android:src="@drawable/notifications_icon"
                         android:layout_gravity="center"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp"/>
 
                     <LinearLayout
@@ -140,6 +165,7 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:gravity="center_vertical"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp">
 
                         <TextView
@@ -147,13 +173,15 @@
                             android:layout_height="wrap_content"
                             android:text="Notifications"
                             android:textSize="20dp"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:textColor="@android:color/background_dark"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Prefered notifications, Block products notifications"
-                            android:textSize="10dp" />
+                            android:textSize="10dp"
+                            android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -162,14 +190,17 @@
             <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/statsCardView"
                 android:layout_width="match_parent"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="30dp"
                 android:layout_height="65dp"
                 android:layout_gravity="center"
+                card_view:cardBackgroundColor="@color/redAccent"
+                card_view:cardElevation="0dp"
                 card_view:cardCornerRadius="22dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@color/transparentColor"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -177,6 +208,7 @@
                         android:layout_height="40dp"
                         android:src="@drawable/stats_icon"
                         android:layout_gravity="center"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp"/>
 
                     <LinearLayout
@@ -184,6 +216,7 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:gravity="center_vertical"
+                        android:background="@color/transparentColor"
                         android:layout_marginLeft="20dp">
 
                         <TextView
@@ -191,13 +224,15 @@
                             android:layout_height="wrap_content"
                             android:text="Stats"
                             android:textSize="20dp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textColor="@android:color/background_dark"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Receipts, Time chart, Discounts"
-                            android:textSize="10dp" />
+                            android:textSize="10dp"
+                            android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
             </android.support.v7.widget.CardView>

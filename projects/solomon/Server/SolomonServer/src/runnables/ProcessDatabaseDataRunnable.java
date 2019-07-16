@@ -211,8 +211,8 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     //end of grayscale transform
                     
                     //APPLY GAUSSIAN BLUR
-                    //meanBlur(5, 5, image);
-                    gaussianBlur(image);
+                    meanBlur(5, 5, image);
+                    //gaussianBlur(image);
                     //end of gaussian blur
                     //end of map processing
                     
