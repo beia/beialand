@@ -5,9 +5,9 @@
  */
 package runnables;
 
-import com.example.solomon.networkPackets.ImageData;
-import com.example.solomon.networkPackets.LocationData;
-import com.example.solomon.networkPackets.UpdateUserData;
+import com.beia.solomon.networkPackets.ImageData;
+import com.beia.solomon.networkPackets.LocationData;
+import com.beia.solomon.networkPackets.UpdateUserData;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

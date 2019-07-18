@@ -5,7 +5,7 @@
  */
 package runnables;
 
-import com.example.solomon.networkPackets.LocationData;
+import com.beia.solomon.networkPackets.LocationData;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -20,15 +20,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import com.example.solomon.networkPackets.Beacon;
-import com.example.solomon.networkPackets.EstimoteBeacon;
-import com.example.solomon.networkPackets.KontaktBeacon;
-import com.example.solomon.networkPackets.Store;
+import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.EstimoteBeacon;
+import com.beia.solomon.networkPackets.KontaktBeacon;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
 import solomonserver.SolomonServer;
@@ -137,90 +134,6 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 
             }
             //end of beacon configuration
-            
-            
-            
-            
-            
-            
-            //STORE MAPS CONFIG
-            System.out.println("------------------------------------------------------------");
-            System.out.println("          Getting store data from the database");
-            System.out.println("------------------------------------------------------------");
-            ResultSet storesResultSet = SolomonServer.getTableData("stores");
-            if(!storesResultSet.isBeforeFirst())
-            {
-                //no store available in the database
-                System.out.println("No store available in the database");
-                System.out.println("------------------------------------------------------------\n\n");
-            }
-            else
-            {
-                //get store data from the database
-                while(storesResultSet.next())
-                {
-                    String storeId = storesResultSet.getString("idstores");
-                    String storeName = storesResultSet.getString("name");
-                    String storeMapPath = storesResultSet.getString("picture");
-                    File file = new File(storeMapPath);
-                    BufferedImage fullResImage = ImageIO.read(file);
-                    
-                    
-                    //RESIZE IMAGE
-                    int cmmdc = cmmdc(fullResImage.getWidth(), fullResImage.getHeight());
-                    int widthScaleFactor = fullResImage.getWidth() / cmmdc;
-                    int heightScaleFactor = fullResImage.getHeight() / cmmdc;
-                    int imageScale = 600;
-                    int width, height;
-                    if(widthScaleFactor > heightScaleFactor)
-                    {
-                        width = imageScale;
-                        height = imageScale * heightScaleFactor / widthScaleFactor;
-                    }
-                    else
-                    {
-                        width = imageScale * widthScaleFactor / heightScaleFactor ;
-                        height = imageScale;
-                    }
-                    System.out.println("Aspect ratio = " + (double)fullResImage.getWidth() / fullResImage.getHeight());
-                    System.out.println("Fraction aspect ratio = " + widthScaleFactor + "/" + heightScaleFactor);
-                    System.out.println("Image scale = " + imageScale);
-                    BufferedImage image = resize(fullResImage, width, height);
-                    //end of resize image
-                    
-                    //IMAGE PROCESSING
-                    
-                    //TRANSFORM TO GRAYSCALE
-                    for(int y = 0; y < height; y++)
-                    {
-                        for(int x = 0; x < width; x++)
-                        {
-                            //get the pixel
-                            int p = image.getRGB(x,y);
-                            int a = (p>>24)&0xff;
-                            int r = (p>>16)&0xff;
-                            int g = (p>>8)&0xff;
-                            int b = p&0xff;
-                            //change it to grayscale
-                            int avg = (r+g+b)/3;
-                            //set the pixel
-                            p = (a<<24) | (avg<<16) | (avg<<8) | avg;
-                            image.setRGB(x, y, p);
-                        }
-                    }
-                    //end of grayscale transform
-                    
-                    //APPLY GAUSSIAN BLUR
-                    meanBlur(5, 5, image);
-                    //gaussianBlur(image);
-                    //end of gaussian blur
-                    //end of map processing
-                    
-                    //show the result image 
-                    SolomonServer.imageFrame.setImage(image);
-                }
-            }
-            
             
             
             

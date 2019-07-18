@@ -5,7 +5,7 @@
  */
 package solomonserver;
 
-import com.example.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.Beacon;
 
 /**
  *

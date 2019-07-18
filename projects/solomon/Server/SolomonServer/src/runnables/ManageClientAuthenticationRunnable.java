@@ -5,10 +5,10 @@
  */
 package runnables;
 
-import com.example.solomon.networkPackets.BeaconsData;
-import com.example.solomon.networkPackets.ServerFeedback;
-import com.example.solomon.networkPackets.SignInData;
-import com.example.solomon.networkPackets.SignUpData;
+import com.beia.solomon.networkPackets.BeaconsData;
+import com.beia.solomon.networkPackets.ServerFeedback;
+import com.beia.solomon.networkPackets.SignInData;
+import com.beia.solomon.networkPackets.SignUpData;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

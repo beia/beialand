@@ -5,9 +5,8 @@
  */
 package solomonserver;
 
-import com.example.solomon.networkPackets.Beacon;
-import com.example.solomon.networkPackets.Store;
-import frames.ImageProcessingFrame;
+import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.Store;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -35,8 +34,6 @@ public class SolomonServer {
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
     public static ArrayList<Store> stores;
-    //Frame variables
-    public static ImageProcessingFrame imageFrame;
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
     public static Socket unityDemoSocket;
@@ -53,11 +50,6 @@ public class SolomonServer {
         //init variables
         beacons = new HashMap<>();
         stores = new ArrayList<>();
-        
-        //create the JFrame
-        imageFrame = new ImageProcessingFrame();
-        imageFrame.setVisible(true);
-        imageFrame.setSize(615,615);
         
         //connect to a mySql database
         connectToDatabase();
