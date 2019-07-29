@@ -74,7 +74,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                     //save the image into the memory
                     Files.write(file.toPath(), imageData.getImageBytes());
                     //save the image path into the database
-                    SolomonServer.saveImage(path, imageData.getUserId());
+                    SolomonServer.saveImagePath(path, imageData.getUserId());
                 }
                 //basic requests
                 if(networkPacket instanceof String)

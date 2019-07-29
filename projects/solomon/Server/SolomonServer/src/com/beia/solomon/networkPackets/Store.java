@@ -1,26 +1,24 @@
 package com.beia.solomon.networkPackets;
 
+import data.ColorRGB;
+
 public class Store
 {
-    private String id;
+    private int id;
     private String name;
-    private byte[] mapImageBytes;
-    public Store(String id, String name, byte[] mapImageBytes)
+    private ColorRGB contourColor;
+    public Store(int id, String name, ColorRGB contourColor)
     {
         this.id = id;
         this.name = name;
-        this.mapImageBytes = mapImageBytes;
+        this.contourColor = contourColor;
     }
-    public String getId()
+    public int getId()
     {
         return this.id;
     }
     public String getName()
     {
         return this.name;
-    }
-    public byte[] getMapImageBytes()
-    {
-        return this.getMapImageBytes();
     }
 }

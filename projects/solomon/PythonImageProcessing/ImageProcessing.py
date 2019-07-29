@@ -13,13 +13,6 @@ try:
 except IOError:
     pass
 
-#remove the black pixel from the image and replace them with the backround
-'''
-for i in range(grayScaleImage.shape[0]):
-    for j in range(grayScaleImage.shape[1]):
-        if originalImage[i][j] == 0:
-'''
-
 
 #mean blur - for testing purposes
 meanBluredImage = cv2.blur(grayScaleImage, (3, 3))
@@ -39,26 +32,48 @@ contours, hierarchy = cv2.findContours(edges,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE
 
 #get the bounding rectangles areas of the contours and insert it into an array of tuples tha contain the contour and the rectangle bounding area
 boundingRectanglesAreas = []
-for contour in contours:
-    rect = cv2.minAreaRect(contour)
+for i in range(len(contours)):
+    rect = cv2.minAreaRect(contours[i])
     points = cv2.boxPoints(rect)
     points = np.int0(points)
     area = np.sqrt((points[0][0] - points[1][0]) ** 2 + (points[0][1] - points[1][1]) ** 2) * np.sqrt((points[1][0] - points[2][0]) ** 2 + (points[1][1] - points[2][1]) ** 2)
-    boundingRectanglesAreas.append((contour, area))
+    boundingRectanglesAreas.append((contours[i], area, hierarchy[0][i]))
 
 #find the maximum rectangle bounding area of the contours and create a threshold
 boundingAreaExclusionThreshold = np.max(np.array([boundingRectanglesArea[1] for boundingRectanglesArea in boundingRectanglesAreas])) / 2000
 
-#get only the contours which bounding rectangles have a area smaller than a certain threshold so that we can eliminate the text from the image
-#check if the solidity of the contour is big enough(checking the convexity of the contour by computing the ratio of the contour area to the bounding region area)
 contoursWithoutText = []
+print(len(boundingRectanglesAreas))
 for boundingRectangleArea in boundingRectanglesAreas:
-    if ~cv2.isContourConvex(boundingRectangleArea[0]) and boundingRectangleArea[1] > boundingAreaExclusionThreshold:
+    if boundingRectangleArea[1] > boundingAreaExclusionThreshold:
         contoursWithoutText.append(boundingRectangleArea[0])
+
+print(len(contoursWithoutText))
+
+#save all the store contours into a map with key contour index and value store name
+storesMap = {}
+f = open(r"C:\Users\beia\Desktop\VerandaStoresContours.txt", "r")
+verandaMapColorsFile = open(r"C:\Users\beia\Desktop\VerandaStoresColors.txt", "a")
+
+colorSet = set()
+for line in f:
+    data = line.strip().split("-")
+    storeContourIndex = data[0]
+    color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    while color in colorSet:
+        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    colorSet.add(color)
+    storeData = (data[1], color)
+    verandaMapColorsFile.write(data[1] + ":" + str(color[0]) + " " + str(color[1]) + " " + str(color[2]) + "\n")
+    storesMap[storeContourIndex] = storeData
+print(storesMap)
+
 
 #draw contours
 for contourNr in range(len(contoursWithoutText)):
-    cv2.drawContours(resultImage, contoursWithoutText, contourNr, (random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)), 2)
+    if str(contourNr) in storesMap.keys():
+        cv2.drawContours(resultImage, contoursWithoutText, contourNr, storesMap[str(contourNr)][1], 3)
+
 
 #show processed photo near the original grayscale photo
 plt.figure(1)
@@ -66,6 +81,11 @@ plt.subplot(1, 2, 1)
 plt.title("Edges")
 plt.imshow(edges, cmap="gray", vmin=0, vmax=255)
 plt.subplot(1, 2, 2)
-plt.title("Contours")
+plt.title("Contour")
 plt.imshow(resultImage, cmap="gray", vmin=0, vmax=255)
 plt.show()
+
+cv2.imwrite(r"C:\Users\beia\Desktop\StoreMaps\map6Result.jpg", resultImage)
+
+f.close()
+verandaMapColorsFile.close()

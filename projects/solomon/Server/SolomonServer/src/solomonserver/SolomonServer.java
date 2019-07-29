@@ -509,7 +509,7 @@ public class SolomonServer {
         }
     }
     
-    public static void saveImage(String picturePath, int userId) throws SQLException, Exception
+    public static void saveImagePath(String picturePath, int userId) throws SQLException, Exception
     {
         if(con != null)
         {
@@ -570,29 +570,5 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return null;
-    }
-    
-    public static ResultSet getStoreMap(String idStore) throws Exception
-    {
-        ResultSet resultSet = null;
-        if(con != null)
-        {
-            try
-            {
-                Statement getMapStatement = con.createStatement();
-                String queryString = "select from stores where idstores = '" + idStore + "'";
-                resultSet = getMapStatement.executeQuery(queryString);
-            }
-            catch(SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        else
-        {
-            error = "Exception : Database connection was lost.";
-            throw new Exception(error);
-        }
-        return resultSet;
     }
 }

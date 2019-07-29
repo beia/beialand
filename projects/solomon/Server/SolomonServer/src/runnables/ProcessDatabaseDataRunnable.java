@@ -22,11 +22,19 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.EstimoteBeacon;
+import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.KontaktBeacon;
+import com.beia.solomon.networkPackets.MallData;
+import com.beia.solomon.networkPackets.Store;
+import data.ColorRGB;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import solomonserver.SolomonServer;
 
@@ -38,11 +46,13 @@ public class ProcessDatabaseDataRunnable implements Runnable
 {
     private int lastLocationId;
     private ArrayList<LocationData> usersLocations;
+    private HashMap<Integer, MallData> malls;
     private HashMap<Integer, ArrayList<LocationData>> userLocationEntryMap;
     public ProcessDatabaseDataRunnable()
     {
         this.lastLocationId = SolomonServer.lastLocationEntryId;
         this.usersLocations = new ArrayList<>();
+        this.malls = new HashMap<>();
         this.userLocationEntryMap = new HashMap<>();
     }
     @Override
@@ -51,6 +61,44 @@ public class ProcessDatabaseDataRunnable implements Runnable
         {
             //get the beacons data from the XML configuration file and add it int the database
             getBeaconsData(SolomonServer.beacons);
+            
+            //get the malls data from the database
+            ResultSet resultSet = SolomonServer.getTableData("stores");
+            while(resultSet.next())
+            {
+                int mallId = resultSet.getInt("idstores");
+                String name = resultSet.getString("name");
+                String mapImagePath = resultSet.getString("picture");
+                if(mapImagePath == null)
+                {
+                    System.out.println("Server error");
+                }
+                else
+                {
+                    if(mapImagePath.equals("No store map"))
+                    {
+                        System.out.println("------------------------------\nNo store map found\n------------------------------");
+                    }
+                    else
+                    {
+                        try
+                        {
+                            //get the map image from path
+                            File file = new File(mapImagePath);
+                            byte[] imageBytes;
+                            BufferedImage mapImage = ImageIO.read(new File(mapImagePath));
+                            ColorRGB[][] rgbImage = convertTo2DWithoutUsingGetRGB(mapImage);
+                            //get the stores data from mall configuration file
+                            
+                        }
+                        catch (IOException ex)
+                        {
+                            Logger.getLogger(ManageClientAppInteractionRunnable.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }    
+            }
+            
             
             
             //BEACON CONFIGURATION
@@ -136,6 +184,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
             //end of beacon configuration
             
             
+            //STORES PROCESSING
             
             
             //TIME PROCESSING
@@ -355,6 +404,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
     
     
     
+    //IMAGE PROCESSING
     private static BufferedImage resize(BufferedImage img, int width, int height)
     {
         Image tmp = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
@@ -364,106 +414,44 @@ public class ProcessDatabaseDataRunnable implements Runnable
         g2d.dispose();
         return resized;
     }
-    
-    
-    private static void meanBlur(int kernelWidth, int kernelHeight, BufferedImage image)
-    {
-        System.out.println("Mean blur kernel size: " + kernelWidth + " * " + kernelHeight);
-        System.out.println("------------------------------------------------------------\n\n");
-        int meanBlurKernelSum = kernelWidth * kernelHeight;
-        for(int y = 0; y < image.getHeight(); y++)
-        {
-            for(int x = 0; x < image.getWidth(); x++)
-            {
-                int p = image.getRGB(x,y);
-                int a = (p>>24)&0xff;
-                //compute the image convolution with the mean kernel (a kernel with all the elements one) - equivalent to a mean
-                int avg = 0;
-                for(int i = y - kernelHeight / 2; i < y + kernelHeight / 2 + 1; i++)
-                {
-                    for(int j = x - kernelWidth / 2; j < x + kernelWidth / 2 + 1; j++)
-                    {
-                        if(i >= 0 && j >= 0 && i < image.getHeight() && j < image.getWidth())
-                        {
-                            int pixel = image.getRGB(j, i);
-                            int greyPixelValue = pixel&0xff;
-                            avg += greyPixelValue;
-                        }
-                    }
-                }
-                avg /= meanBlurKernelSum;
-                            
-                //set the pixel
-                p = (a<<24) | (avg<<16) | (avg<<8) | avg;
-                image.setRGB(x, y, p);
+    private static ColorRGB[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
+
+      final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+      final int width = image.getWidth();
+      final int height = image.getHeight();
+      final boolean hasAlphaChannel = image.getAlphaRaster() != null;
+
+      ColorRGB[][] result = new ColorRGB[height][width];
+      if (hasAlphaChannel) {
+         final int pixelLength = 4;
+         for (int pixel = 0, row = 0, col = 0; pixel + 3 < pixels.length; pixel += pixelLength) 
+         {
+            int alpha = (((int) pixels[pixel] & 0xff) << 24); // alpha
+            int blue = ((int) pixels[pixel + 1] & 0xff); // blue
+            int green = (((int) pixels[pixel + 2] & 0xff) << 8); // green
+            int red = (((int) pixels[pixel + 3] & 0xff) << 16); // red
+            result[row][col] = new ColorRGB(red, green, blue);
+            col++;
+            if (col == width) {
+               col = 0;
+               row++;
             }
-        }
-    }
-    
-    private static void gaussianBlur(BufferedImage image)
-    {
-        //create the gaussian kernel
-        //only with 5 * 5 kernel
-        double[][] gaussianKernel = new double[5][];
-        gaussianKernel[0] = new double[]{0.003765,0.015019,0.023792,0.015019,0.003765};
-        gaussianKernel[1] = new double[]{0.015019,0.059912,0.094907,0.059912,0.015019};
-        gaussianKernel[2] = new double[]{0.023792,0.094907,0.150342,0.094907,0.023792};
-        gaussianKernel[3] = new double[]{0.015019,0.059912,0.094907,0.059912,0.015019};
-        gaussianKernel[4] = new double[]{0.003765,0.015019,0.023792,0.015019,0.003765};
-        
-        
-        //make the convolution
-        System.out.println("Gaussian blur kernel size: " + 5 + " * " + 5);
-        System.out.println("------------------------------------------------------------\n\n");
-        for(int y = 0; y < image.getHeight(); y++)
-        {
-            for(int x = 0; x < image.getWidth(); x++)
-            {
-                int p = image.getRGB(x,y);
-                int a = (p>>24)&0xff;
-                //compute the sum of all neighbours of a pixel and compute the average and then change all the pixels into the average value
-                double convSum = 0;
-                int kernelIndexHeight = 0;
-                int kernelIndexWidth = 0;
-                double gaussianKernelSum = 0;
-                for(int i = y - 2; i < y + 3; i++)
-                {
-                    for(int j = x - 2; j < x + 3; j++)
-                    {
-                        kernelIndexWidth = 0;
-                        if(i >= 0 && j >= 0 && i < image.getHeight() && j < image.getWidth())
-                        {
-                            int pixel = image.getRGB(j, i);
-                            int greyPixelValue = pixel&0xff;
-                            convSum += (double)greyPixelValue * gaussianKernel[kernelIndexHeight][kernelIndexWidth];
-                            gaussianKernelSum += gaussianKernel[kernelIndexHeight][kernelIndexWidth];
-                        }
-                        kernelIndexWidth++;
-                    }
-                    kernelIndexHeight++;
-                }
-                convSum /= gaussianKernelSum;
-                int filteredPixel = (int)convSum;
-                
-                //set the pixel
-                p = (a<<24) | (filteredPixel<<16) | (filteredPixel<<8) | filteredPixel;
-                image.setRGB(x, y, p);
+         }
+      } else {
+         final int pixelLength = 3;
+         for (int pixel = 0, row = 0, col = 0; pixel + 2 < pixels.length; pixel += pixelLength) {
+            int blue = ((int) pixels[pixel] & 0xff); // blue
+            int green = (((int) pixels[pixel + 1] & 0xff) << 8); // green
+            int red = (((int) pixels[pixel + 2] & 0xff) << 16); // red
+            col++;
+            if (col == width) {
+               col = 0;
+               row++;
             }
-        }
-    }
-    
-    
-    
-    
-    private static int cmmdc(int a, int b)
-    {
-        while(a != b)
-        {
-            if(a > b)
-                a -= b;
-            else
-                b -= a;
-        }
-        return a;
-    }
+         }
+      }
+
+      return result;
+   }
+
 }
