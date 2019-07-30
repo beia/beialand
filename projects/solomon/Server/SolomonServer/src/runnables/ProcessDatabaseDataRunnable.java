@@ -31,8 +31,10 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -59,10 +61,11 @@ public class ProcessDatabaseDataRunnable implements Runnable
     public void run() {
         try
         {
-            //get the beacons data from the XML configuration file and add it int the database
+            //get the beacons data from the XML configuration file and add it into the database
             getBeaconsData(SolomonServer.beacons);
             
             //get the malls data from the database
+            //MALL IMAGES PROCESSING
             ResultSet resultSet = SolomonServer.getTableData("stores");
             while(resultSet.next())
             {
@@ -83,13 +86,33 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     {
                         try
                         {
-                            //get the map image from path
+                            //get the map image from path and convert it into the RGB format
+                            System.out.println(mapImagePath);
                             File file = new File(mapImagePath);
                             byte[] imageBytes;
                             BufferedImage mapImage = ImageIO.read(new File(mapImagePath));
-                            ColorRGB[][] rgbImage = convertTo2DWithoutUsingGetRGB(mapImage);
-                            //get the stores data from mall configuration file
+                            System.out.println(mapImage);
+                            ColorRGB[][] rgbImage = convertToRGB(mapImage);
+                            int s = 0;
+                            for(int i = 0; i < rgbImage.length; i++)
+                                for(int j = 0; j < rgbImage[i].length; j++)
+                                    for(int k = 0; k < rgbImage.length; k++)
+                                        for(int l = 0; l < rgbImage[k].length; l++)
+                                            s++;
+                            System.out.println(s);
                             
+                            /*
+                            //rescale the image and save it into the memory
+                            mapImage = resize(mapImage, 500, 500);
+                            String path = "C:\\Users\\beia\\Desktop\\StoreMaps\\map6Rescaled.jpg";
+                            file = new File(path);
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ImageIO.write(mapImage, "jpg", baos);
+                            baos.flush();
+                            byte[] imageInByte = baos.toByteArray();
+                            baos.close();
+                            Files.write(file.toPath(), imageInByte);
+                            */
                         }
                         catch (IOException ex)
                         {
@@ -408,50 +431,31 @@ public class ProcessDatabaseDataRunnable implements Runnable
     private static BufferedImage resize(BufferedImage img, int width, int height)
     {
         Image tmp = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = resized.createGraphics();
         g2d.drawImage(tmp, 0, 0, null);
         g2d.dispose();
         return resized;
     }
-    private static ColorRGB[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
-
-      final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-      final int width = image.getWidth();
-      final int height = image.getHeight();
-      final boolean hasAlphaChannel = image.getAlphaRaster() != null;
-
-      ColorRGB[][] result = new ColorRGB[height][width];
-      if (hasAlphaChannel) {
-         final int pixelLength = 4;
-         for (int pixel = 0, row = 0, col = 0; pixel + 3 < pixels.length; pixel += pixelLength) 
-         {
-            int alpha = (((int) pixels[pixel] & 0xff) << 24); // alpha
-            int blue = ((int) pixels[pixel + 1] & 0xff); // blue
-            int green = (((int) pixels[pixel + 2] & 0xff) << 8); // green
-            int red = (((int) pixels[pixel + 3] & 0xff) << 16); // red
-            result[row][col] = new ColorRGB(red, green, blue);
-            col++;
-            if (col == width) {
-               col = 0;
-               row++;
+    private static ColorRGB[][] convertToRGB(BufferedImage image)
+    {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        ColorRGB[][] result = new ColorRGB[width][height];
+        for(int i = 0; i < width; i++)
+        {
+            for(int j = 0; j < height; j++)
+            {
+                int pixel = image.getRGB(i, j);
+                //int a = (pixel >> 24) & 0xff;
+                int r = (pixel >> 16) & 0xff;
+                int g = (pixel >> 8) & 0xff;
+                int b = pixel & 0xff;
+                result[i][j] = new ColorRGB(r, g, b);
             }
-         }
-      } else {
-         final int pixelLength = 3;
-         for (int pixel = 0, row = 0, col = 0; pixel + 2 < pixels.length; pixel += pixelLength) {
-            int blue = ((int) pixels[pixel] & 0xff); // blue
-            int green = (((int) pixels[pixel + 1] & 0xff) << 8); // green
-            int red = (((int) pixels[pixel + 2] & 0xff) << 16); // red
-            col++;
-            if (col == width) {
-               col = 0;
-               row++;
-            }
-         }
-      }
-
-      return result;
-   }
-
+        }
+        System.out.println("Finished the image conversion");
+        return result;
+    }
+    
 }
