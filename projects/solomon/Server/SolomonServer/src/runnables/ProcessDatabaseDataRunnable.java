@@ -256,7 +256,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     //add all the user location entry data into an array linked by user id using a hashmap
                     if(userLocationEntryMap.containsKey(location.getUserId()))
                     {
-                        //add the user location data into the userLocationArrayList into the hashmap if the user already is into the hashmap
+                        //add the user location data into the userLocationArrayList if the user already is into the hashmap
                         ArrayList<LocationData> userLocationArray = userLocationEntryMap.get(location.getUserId());
                         userLocationArray.add(location);
                         userLocationEntryMap.put(location.getUserId(), userLocationArray);
@@ -332,7 +332,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                         {
                                             if(!beacon.getLabel().equals(beaconLabel))
                                             {
-                                                SolomonServer.addBeaconTimeData(idUser, beaconId, beaconLabel, mallId, 0);
+                                                SolomonServer.addBeaconTimeData(idUser, beacon.getLabel(), beacon.getLabel(), beacon.getMallId(), 0);
                                             }
                                         }
                                     }

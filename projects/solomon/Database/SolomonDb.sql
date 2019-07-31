@@ -1,1 +1,1 @@
-select * from beacons
+delete from userbeacontime

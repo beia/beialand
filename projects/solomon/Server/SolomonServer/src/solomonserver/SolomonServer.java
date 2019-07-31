@@ -257,7 +257,7 @@ public class SolomonServer {
             {
                 // create a prepared SQL statement
                 Statement updateStatement = con.createStatement();
-                String userRoomTimeUpdateStatement = "update userbeacontime set timeSeconds = '" + timeSeconds + "' where idUser = '" + idUser + "' and beaconLabel = '" + beaconLabel + "' and mallId = '" + mallId + "';";
+                String userRoomTimeUpdateStatement = "update userbeacontime set timeSeconds = '" + timeSeconds + "' where idUser = '" + idUser + "' and beaconLabel = '" + beaconLabel + "' and idMall = '" + mallId + "';";
                 updateStatement.executeUpdate(userRoomTimeUpdateStatement);
             }
             catch (SQLException sqle)
