@@ -125,20 +125,22 @@ public class SolomonServer {
         }
     }
     
-    public static void addEstimoteBeacon(String id, String label, String company) throws SQLException, Exception
+    public static void addEstimoteBeacon(String id, String label, int mallId, String company) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
+                System.out.println(mallId);
                 // create a prepared SQL statement
-                String roomInsertionStatement = "insert into beacons(id, label, company) values(?,?,?)";
+                String roomInsertionStatement = "insert into beacons(id, label, idMall, company) values(?,?,?,?)";
                 PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
                 updateRooms.setString(1, id);
                 updateRooms.setString(2, label);
-                updateRooms.setString(3, company);
+                updateRooms.setInt(3, mallId);
+                updateRooms.setString(4, company);
                 updateRooms.executeUpdate();
-                System.out.println("Inserted Estimote beacon into the database:\nid: " + id + "\nlabel: " + label + "\ncompany: " + company + "\n\n");
+                System.out.println("Inserted Estimote beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId + "\ncompany: " + company + "\n\n");
             }
             catch (SQLException sqle)
             {
@@ -153,22 +155,23 @@ public class SolomonServer {
         }
     }
     
-    public static void addKontaktBeacon(String id, String label, String company, String major, String minor) throws SQLException, Exception
+    public static void addKontaktBeacon(String id, String label, int mallId, String company, String major, String minor) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String roomInsertionStatement = "insert into beacons(id, label, company, major, minor) values(?,?,?,?,?)";
-                PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
-                updateRooms.setString(1, id);
-                updateRooms.setString(2, label);
-                updateRooms.setString(3, company);
-                updateRooms.setString(4, major);
-                updateRooms.setString(5, minor);
-                updateRooms.executeUpdate();
-                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor +"\n\n");
+                String beaconInsertionStatement = "insert into beacons(id, label, idMall, company, major, minor) values(?,?,?,?,?,?)";
+                PreparedStatement updateBeacons = con.prepareStatement(beaconInsertionStatement);
+                updateBeacons.setString(1, id);
+                updateBeacons.setString(2, label);
+                updateBeacons.setInt(3, mallId);
+                updateBeacons.setString(4, company);
+                updateBeacons.setString(5, major);
+                updateBeacons.setString(6, minor);
+                updateBeacons.executeUpdate();
+                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId +"\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor +"\n\n");
             }
             catch (SQLException sqle)
             {
@@ -184,22 +187,23 @@ public class SolomonServer {
     }
     
     
-    public static void addLocationData(int idUser, int idStore, String zoneName, boolean zoneEntered, String time) throws SQLException, Exception
+    public static void addLocationData(int idUser,String beaconId, String beaconLabel, int idMall, boolean zoneEntered, String time) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String userLocationInsertionStatement = "insert into userlocations(idUser, idStore, zoneName, zoneEntered, time) values(?,?,?,?,?)";
+                String userLocationInsertionStatement = "insert into userlocations(idUser, idBeacon, beaconLabel, idMall, zoneEntered, time) values(?,?,?,?,?,?)";
                 PreparedStatement updateUserLocation = con.prepareStatement(userLocationInsertionStatement);
                 updateUserLocation.setInt(1, idUser);
-                updateUserLocation.setInt(2, idStore);
-                updateUserLocation.setString(3, zoneName);
-                updateUserLocation.setBoolean(4, zoneEntered);
-                updateUserLocation.setString(5, time);
+                updateUserLocation.setString(2, beaconId);
+                updateUserLocation.setString(3, beaconLabel);
+                updateUserLocation.setInt(4, idMall);
+                updateUserLocation.setBoolean(5, zoneEntered);
+                updateUserLocation.setString(6, time);
                 updateUserLocation.executeUpdate();
-                System.out.println("Inserted userLocation into the database\nuser id: " + idUser + "\nstore id: " + idStore + "\nzone name: " + zoneName + "\nzone entered: " + zoneEntered + "\ntime: " + time + "\n\n");
+                System.out.println("Inserted user location into the database\nuser id: " + idUser + "\nbeacon id: " + beaconId +  "\nbeacon label: " + beaconLabel + "\nmall id: " + idMall + "\nzone entered: " + zoneEntered + "\ntime: " + time + "\n\n");
             }
             catch (SQLException sqle)
             {
@@ -215,21 +219,22 @@ public class SolomonServer {
     
     
     
-    public static void addZoneTimeData(int idUser, int idStore, String roomName, long timeSeconds) throws SQLException, Exception
+    public static void addBeaconTimeData(int idUser, String beaconId, String beaconLabel, int idMall, long timeSeconds) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String statementString = "insert into userroomtime(idUser, idStore, roomName, timeSeconds) values(?, ?, ?, ?)";
+                String statementString = "insert into userbeacontime(idUser, idBeacon, beaconLabel, idMall, timeSeconds) values(?, ?, ?, ?, ?)";
                 PreparedStatement addZoneTimeStatement = con.prepareStatement(statementString);
                 addZoneTimeStatement.setInt(1, idUser);
-                addZoneTimeStatement.setInt(2, idStore);
-                addZoneTimeStatement.setString(3, roomName);
-                addZoneTimeStatement.setLong(4, timeSeconds);
+                addZoneTimeStatement.setString(2, beaconId);
+                addZoneTimeStatement.setString(3, beaconLabel);
+                addZoneTimeStatement.setInt(4, idMall);
+                addZoneTimeStatement.setLong(5, timeSeconds);
                 addZoneTimeStatement.executeUpdate();
-                System.out.println("Inserted user room time into the database\n idUser: " + idUser + "\nidStore: " + idStore + "\nroomName: " + roomName + "\ntimeSeconds: " + timeSeconds + "\n\n");
+                System.out.println("Inserted user room time into the database\n idUser: " + idUser + "\nbeacon id: " + beaconId + "\nbeaconLabel: " + beaconLabel + "\nidMall: " + idMall + "\ntimeSeconds: " + timeSeconds + "\n\n");
             }
             catch (SQLException sqle)
             {
@@ -244,7 +249,7 @@ public class SolomonServer {
     }
     
     
-    public static void updateZoneTimeData(int idUser, int idStore, String roomName, long timeSeconds) throws SQLException, Exception
+    public static void updateBeaconTimeData(int idUser, String beaconLabel, int mallId, long timeSeconds) throws SQLException, Exception
     {
         if (con != null)
         {
@@ -252,7 +257,7 @@ public class SolomonServer {
             {
                 // create a prepared SQL statement
                 Statement updateStatement = con.createStatement();
-                String userRoomTimeUpdateStatement = "update userroomtime set timeSeconds = '" + timeSeconds + "' where idUser = '" + idUser + "' and idStore = '" + idStore + "' and roomName = '" + roomName + "';";
+                String userRoomTimeUpdateStatement = "update userbeacontime set timeSeconds = '" + timeSeconds + "' where idUser = '" + idUser + "' and beaconLabel = '" + beaconLabel + "' and mallId = '" + mallId + "';";
                 updateStatement.executeUpdate(userRoomTimeUpdateStatement);
             }
             catch (SQLException sqle)
@@ -293,13 +298,13 @@ public class SolomonServer {
     }
     
     
-    public static ResultSet getRoomsDataByUserId(String tableName, int idUser, int idStore) throws SQLException, Exception
+    public static ResultSet getBeaconTimeByUserId(int idUser, String beaconLabel, int idMall) throws SQLException, Exception
     {
         ResultSet rs = null;
         try
         {
             // Execute query
-            String queryString = ("select * from " + tableName + " where idUser = '" + idUser + "' and idStore = '" + idStore + "';");
+            String queryString = ("select * from userbeacontime where idUser = '" + idUser + "' and beaconLabel = '" + beaconLabel + "' and  idMall = '" + idMall + "';");
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 
@@ -317,14 +322,13 @@ public class SolomonServer {
         return rs;
     }
     
-    
-    public static ResultSet getRoomDataByUserId(String tableName, int idUser, int idStore, String roomName) throws SQLException, Exception
+    public static ResultSet getBeaconsTimeByUserId(int idUser, int idMall) throws SQLException, Exception
     {
         ResultSet rs = null;
         try
         {
             // Execute query
-            String queryString = ("select * from " + tableName + " where idUser = '" + idUser + "' and idStore = '" + idStore + "' and roomName = '" + roomName + "';");
+            String queryString = ("select * from userbeacontime where idUser = '" + idUser + "' and  idMall = '" + idMall + "';");
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 
@@ -368,7 +372,7 @@ public class SolomonServer {
     }
     
     
-    public static ResultSet getNewTableData(String tabelName, String idName, int lastId) throws SQLException, Exception
+    public static ResultSet getNewLocationData(String tabelName, String idName, int lastId) throws SQLException, Exception
     {
         ResultSet rs = null;
         try

@@ -18,7 +18,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import com.beia.solomon.networkPackets.Beacon;
-import solomonserver.Room;
+import data.Room;
 import solomonserver.SolomonServer;
 
 /**
@@ -71,7 +71,7 @@ public class ManageUnityClientConnectionRunnable implements Runnable
                             String lastName = resultSet.getString("lastName");
                             String firstName = resultSet.getString("firstName");
                             int age = resultSet.getInt("age");
-                            resultSet = SolomonServer.getRoomsDataByUserId("userroomtime", userId, 1);
+                            resultSet = SolomonServer.getBeaconsTimeByUserId(userId, 1);
                             if(!resultSet.isBeforeFirst())
                             {
                                 //the user never entered the store send the employee a message the user never entered the store

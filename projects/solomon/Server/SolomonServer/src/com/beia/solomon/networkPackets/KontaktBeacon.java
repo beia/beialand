@@ -10,10 +10,11 @@ public class KontaktBeacon extends Beacon
     private String major;
     private String minor;
     
-    public KontaktBeacon(String id, String label, String major, String minor)
+    public KontaktBeacon(String id, String label, int mallId, String major, String minor)
     {
         this.id = id;
         this.label = label;
+        this.mallId = mallId;
         this.major = major;
         this.minor = minor;
     }
@@ -27,6 +28,12 @@ public class KontaktBeacon extends Beacon
     public String getLabel()
     {
         return this.label;
+    }
+    
+    @Override
+    public int getMallId()
+    {
+        return this.mallId;
     }
     
     public String getMajor()

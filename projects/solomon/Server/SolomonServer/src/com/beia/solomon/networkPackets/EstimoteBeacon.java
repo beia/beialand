@@ -8,10 +8,11 @@ public class EstimoteBeacon extends Beacon
 {
     public static String COMPANY = "Estimote";
     
-    public EstimoteBeacon(String id, String label)
+    public EstimoteBeacon(String id, String label, int mallId)
     {
         this.id = id;
         this.label = label;
+        this.mallId = mallId;
     }
     @Override
     public String getId()
@@ -24,4 +25,9 @@ public class EstimoteBeacon extends Beacon
         return this.label;
     }
     
+    @Override
+    public int getMallId()
+    {
+        return this.mallId;
+    }   
 }

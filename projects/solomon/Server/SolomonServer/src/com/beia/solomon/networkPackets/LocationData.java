@@ -5,15 +5,17 @@ import java.io.Serializable;
 public class LocationData implements Serializable
 {
     private int userId;
-    private int storeId;
-    private String zoneName;
+    private String beaconId;
+    private String beaconLabel;
+    private int mallId;
     private boolean zoneEntered;
     private String time;
-    public LocationData(int userId, int storeId, String zoneName, boolean zoneEntered, String time)
+    public LocationData(int userId,String beaconId, String beaconLabel, int mallId, boolean zoneEntered, String time)
     {
         this.userId = userId;
-        this.storeId = storeId;
-        this.zoneName = zoneName;
+        this.beaconId = beaconId;
+        this.beaconLabel = beaconLabel;
+        this.mallId = mallId;
         this.zoneEntered = zoneEntered;
         this.time = time;
     }
@@ -21,13 +23,17 @@ public class LocationData implements Serializable
     {
         return this.userId;
     }
-    public int getStoreId()
+    public String getBeaconId()
     {
-        return this.storeId;
+        return this.beaconId;
     }
-    public String getZoneName()
+    public String getBeaconLabel()
     {
-        return this.zoneName;
+        return this.beaconLabel;
+    }
+    public int getMallId()
+    {
+        return this.mallId;
     }
     public boolean getZoneEntered()
     {

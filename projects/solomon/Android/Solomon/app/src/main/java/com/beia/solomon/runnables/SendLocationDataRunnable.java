@@ -9,16 +9,18 @@ import java.util.Date;
 public class SendLocationDataRunnable implements Runnable
 {
     public int userId;
-    public int storeId;
-    public String zoneName;
+    public String beaconId;
+    public String beaconLabel;
+    public int mallId;
     public boolean zoneEntered;
     public Date time;
     public ObjectOutputStream objectOutputStream;
-    public SendLocationDataRunnable(int userId, int storeId, String zoneName, boolean zoneEntered, Date time, ObjectOutputStream objectOutputStream)
+    public SendLocationDataRunnable(int userId, String beaconId, String beaconLabel, int mallId, boolean zoneEntered, Date time, ObjectOutputStream objectOutputStream)
     {
         this.userId = userId;
-        this.storeId = storeId;
-        this.zoneName = zoneName;
+        this.beaconId = beaconId;
+        this.beaconLabel = beaconLabel;
+        this.mallId = mallId;
         this.zoneEntered = zoneEntered;
         this.time = time;
         this.objectOutputStream = objectOutputStream;
@@ -29,7 +31,7 @@ public class SendLocationDataRunnable implements Runnable
         {
             //send the location data
             synchronized (objectOutputStream) {
-                objectOutputStream.writeObject(new LocationData(userId, storeId, zoneName, zoneEntered, time.toString()));
+                objectOutputStream.writeObject(new LocationData(userId, beaconId, beaconLabel, mallId, zoneEntered, time.toString()));
             }
         }
         catch (IOException e)

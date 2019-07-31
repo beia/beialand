@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                                 feedBackTextView.setText("Entered the: " + context.getTag());
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, estimoteBeacon.getLabel(), true, currentTime, objectOutputStream));
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0, true, currentTime, objectOutputStream));
                                 sendLocationDataThread.start();
                                 return null;
                             }
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                                 feedBackTextView.setText("Left the: " + context.getTag());
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, estimoteBeacon.getLabel(), false, currentTime, objectOutputStream));
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0,  false, currentTime, objectOutputStream));
                                 sendLocationDataThread.start();
                                 return null;
                             }
@@ -265,18 +265,6 @@ public class MainActivity extends AppCompatActivity {
     //KONTAKT
     public void initKontaktBeacons()
     {
-        //check if we have Kontakt beacons
-        if(beacons.isEmpty() == false)
-        {
-            Log.d("BEACONS", "We have beacons...checking for Kontakt beacons");
-            for(Beacon beacon : beacons.values())
-            {
-                if(beacon instanceof KontaktBeacon)
-                Log.d("Kontakt beacons", beacon.getLabel());
-            }
-        }
-
-
         //initialize the Kontakt SDK
         KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
         proximityManager = ProximityManagerFactory.create(this);
@@ -325,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (objectOutputStream)
                 {
                     currentTime = Calendar.getInstance().getTime();
-                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), true, currentTime, objectOutputStream));
+                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 1, true, currentTime, objectOutputStream));
                     sendLocationDataThread.start();
                 }
             }
@@ -341,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (objectOutputStream)
                 {
                     currentTime = Calendar.getInstance().getTime();
-                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, 1, region.getIdentifier(), false, currentTime, objectOutputStream));
+                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 1, false, currentTime, objectOutputStream));
                     sendLocationDataThread.start();
                 }
             }

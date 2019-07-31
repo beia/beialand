@@ -60,18 +60,15 @@ public class ProcessDatabaseDataRunnable implements Runnable
     @Override
     public void run() {
         try
-        {
-            //get the beacons data from the XML configuration file and add it into the database
-            getBeaconsData(SolomonServer.beacons);
-            
+        {   
             //get the malls data from the database
             //MALL IMAGES PROCESSING
-            ResultSet resultSet = SolomonServer.getTableData("stores");
+            ResultSet resultSet = SolomonServer.getTableData("malls");
             while(resultSet.next())
             {
-                int mallId = resultSet.getInt("idstores");
+                int mallId = resultSet.getInt("idMalls");
                 String name = resultSet.getString("name");
-                String mapImagePath = resultSet.getString("picture");
+                String mapImagePath = resultSet.getString("mapPicture");
                 if(mapImagePath == null)
                 {
                     System.out.println("Server error");
@@ -125,9 +122,9 @@ public class ProcessDatabaseDataRunnable implements Runnable
             
             
             //BEACON CONFIGURATION
-            //get the beacons from the database
-            System.out.println("Added beacons into the database");
-            System.out.println("------------------------------------------------------------");
+            //get the beacons data from the XML configuration file
+            getBeaconsData(SolomonServer.beacons);
+            //update the beacon database table accordingly to the xml configuration file
             ResultSet beaconData = SolomonServer.getTableData("beacons");
             if(!beaconData.isBeforeFirst())
             {
@@ -137,34 +134,35 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     if(beacon instanceof EstimoteBeacon)
                     {
                         EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
-                        SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), EstimoteBeacon.COMPANY);
+                        SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), estimoteBeacon.getMallId(), EstimoteBeacon.COMPANY);
                     }
                     if(beacon instanceof KontaktBeacon)
                     {
                         KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
+                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
                     }
                 }
             }
             else
             {
                 //the beacons where already configured so we want to configure them again
-                //check if the beacons frm the database are in the configuration file - if not then we must delete them from the database
+                //check if the beacons from the database are in the configuration file - if not then we must delete them from the database
                 HashMap<String, Beacon> databaseBeaconMap = new HashMap<>();
                 while(beaconData.next())
                 {
                     String id = beaconData.getString("id");
                     String label = beaconData.getString("label");
+                    int mallId = beaconData.getInt("idMall");
                     String company = beaconData.getString("company");
                     switch(company)
                     {
                         case "Estimote":
-                            databaseBeaconMap.put(label, new EstimoteBeacon(id, label));
+                            databaseBeaconMap.put(label, new EstimoteBeacon(id, label, mallId));
                             break;
                         case "Kontakt":
                             String major = beaconData.getString("major");
                             String minor = beaconData.getString("minor");
-                            databaseBeaconMap.put(label, new KontaktBeacon(id, label, major, minor));
+                            databaseBeaconMap.put(label, new KontaktBeacon(id, label, mallId, major, minor));
                             break;
                         default:
                             break;
@@ -193,17 +191,19 @@ public class ProcessDatabaseDataRunnable implements Runnable
                         if(beacon instanceof EstimoteBeacon)
                         {
                             EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
-                            SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), EstimoteBeacon.COMPANY);
+                            SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), estimoteBeacon.getMallId(), EstimoteBeacon.COMPANY);
                         }
                         if(beacon instanceof KontaktBeacon)
                         {
                             KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
+                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
                         }
                     }
                 }
                 
             }
+            System.out.println("Added beacons into the database");
+            System.out.println("------------------------------------------------------------");
             //end of beacon configuration
             
             
@@ -218,16 +218,17 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 System.out.println("------------------------------------------------------------");
                 System.out.println("          Getting new location data from the database");
                 System.out.println("------------------------------------------------------------");
-                ResultSet userLocationData = SolomonServer.getNewTableData("userlocations", "iduserLocations", this.lastLocationId);
+                ResultSet userLocationData = SolomonServer.getNewLocationData("userlocations", "iduserLocations", this.lastLocationId);
                 this.usersLocations = new ArrayList<>();
                 while(userLocationData.next())
                 {
                     int idUser = userLocationData.getInt("idUser");
-                    int idStore = userLocationData.getInt("idStore");
-                    String zoneName = userLocationData.getString("zoneName");
+                    String beaconId = userLocationData.getString("idBeacon");
+                    String beaconLabel = userLocationData.getString("beaconLabel");
+                    int mallId = userLocationData.getInt("idMall");
                     boolean zoneEntered = userLocationData.getBoolean("zoneEntered");
                     String time = userLocationData.getString("time");
-                    LocationData locationData = new LocationData(idUser, idStore, zoneName, zoneEntered, time);
+                    LocationData locationData = new LocationData(idUser, beaconId, beaconLabel, mallId, zoneEntered, time);
                     this.usersLocations.add(locationData);
                     
                     //check if it's the end of the table and if it is save the last entry id so we would no longer process old data 
@@ -282,18 +283,19 @@ public class ProcessDatabaseDataRunnable implements Runnable
                             for(int j = i + 1; j < userLocationArray.size(); j++)
                             {
                                 //if the user entry is in the same store as the previos entry, the zone is the same and the user left the zone compute the time difference for the zone and add it into the database
-                                if(userLocationArray.get(i).getUserId() == userLocationArray.get(j).getUserId() && userLocationArray.get(j).getStoreId() == userLocationArray.get(i).getStoreId() && userLocationArray.get(j).getZoneName().equals(userLocationArray.get(i).getZoneName()) && userLocationArray.get(j).getZoneEntered() == false)
+                                if(userLocationArray.get(i).getUserId() == userLocationArray.get(j).getUserId() && userLocationArray.get(j).getBeaconLabel().equals(userLocationArray.get(i).getBeaconLabel()) && userLocationArray.get(i).getBeaconId().equals(userLocationArray.get(j).getBeaconId()) && userLocationArray.get(i).getMallId() == userLocationArray.get(j).getMallId() && userLocationArray.get(j).getZoneEntered() == false)
                                 {
                                     System.out.println("\n\npair");
-                                    System.out.println("User with id: " + userLocationArray.get(i).getUserId() + " entered =  " + userLocationArray.get(i).getZoneEntered() + " zone: " + userLocationArray.get(i).getZoneName() + " at " + userLocationArray.get(i).getTime());
-                                    System.out.println("User with id: " + userLocationArray.get(j).getUserId() + " entered = " + userLocationArray.get(j).getZoneEntered() + " zone: " + userLocationArray.get(j).getZoneName() + " at " + userLocationArray.get(j).getTime());
+                                    System.out.println("User with id: " + userLocationArray.get(i).getUserId() + " entered =  " + userLocationArray.get(i).getZoneEntered() + " zone: " + userLocationArray.get(i).getBeaconLabel() + " with beaconId = " + userLocationArray.get(i).getBeaconId() + " at " + userLocationArray.get(i).getTime());
+                                    System.out.println("User with id: " + userLocationArray.get(j).getUserId() + " entered = " + userLocationArray.get(j).getZoneEntered() + " zone: " + userLocationArray.get(j).getBeaconLabel() + " with beaconId = " + userLocationArray.get(i).getBeaconId() + " at " + userLocationArray.get(j).getTime());
                                     
                                     
                                     
                                     //get the usefull data from the pair
                                     int idUser = userLocationArray.get(i).getUserId();
-                                    int idStore = userLocationArray.get(i).getStoreId();
-                                    String roomName = userLocationArray.get(i).getZoneName();
+                                    String beaconId = userLocationArray.get(i).getBeaconId();
+                                    String beaconLabel = userLocationArray.get(i).getBeaconLabel();
+                                    int mallId = userLocationArray.get(i).getMallId();
                                     
                                     //compute the time diference and insert it into the database
                                     //extract the hour from the time - time format example: Fri Mar 29 14:00:40 GMT+02:00 2019
@@ -312,25 +314,25 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                     
                                     
                                     
-                                    //get room data from the database
-                                    ResultSet roomTimeResultSet = SolomonServer.getRoomDataByUserId("userroomtime", idUser, idStore, roomName);
+                                    //get beacon time data from the database(time spent by users in the proximity of a beacon)
+                                    ResultSet beaconTimeResultSet = SolomonServer.getBeaconTimeByUserId(idUser, beaconLabel, mallId);
                                     
-                                    ////compute time difference and insert the room time data for every room coresponding to each user
-                                    if(!roomTimeResultSet.isBeforeFirst())
+                                    ////compute time difference and insert the beacon time data for each user
+                                    if(!beaconTimeResultSet.isBeforeFirst())
                                     {
-                                        //the never entered the room and neither the store(because I will add all the other rooms in the database with the time spent of 0 seconds)
+                                        //the never entered the room and neither the store(because I will add all the other beacon time data in the database with the time spent of 0 seconds)
                                         long secondsEnteredSum, secondsLeftSum, secondsDifference;
                                         secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
                                         secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
                                         secondsDifference = secondsLeftSum - secondsEnteredSum;
-                                        SolomonServer.addZoneTimeData(idUser, idStore, roomName, secondsDifference);
-                                        System.out.println("\nUser with id: " + idUser + "\nRoom: " + roomName + " from store with id: " + idStore + "\nCurrent time spent in room: " + secondsDifference + " seconds");
-                                        //add all the other rooms into the database but with the time spent 0
+                                        SolomonServer.addBeaconTimeData(idUser, beaconId, beaconLabel, mallId, secondsDifference);
+                                        System.out.println("\nUser with id: " + idUser + "\nBeacon: " + beaconLabel + " from mall with id: " + mallId + "\nCurrent time spent near beacon: " + secondsDifference + " seconds");
+                                        //add all the other beacon time data into the database but with the time spent 0
                                         for (Beacon beacon : SolomonServer.beacons.values())
                                         {
-                                            if(!beacon.getLabel().equals(roomName))
+                                            if(!beacon.getLabel().equals(beaconLabel))
                                             {
-                                                SolomonServer.addZoneTimeData(idUser, idStore, beacon.getLabel(), 0);
+                                                SolomonServer.addBeaconTimeData(idUser, beaconId, beaconLabel, mallId, 0);
                                             }
                                         }
                                     }
@@ -341,11 +343,11 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                         secondsEnteredSum = hourEntered * 3600 + minuteEntered * 60 + secondsEntered;
                                         secondsLeftSum = hourLeft * 3600 + minuteLeft * 60 + secondsLeft;
                                         currentSecondsDifference = secondsLeftSum - secondsEnteredSum;
-                                        roomTimeResultSet.next();
-                                        previousSecondsDifference = roomTimeResultSet.getLong("timeSeconds");
+                                        beaconTimeResultSet.next();
+                                        previousSecondsDifference = beaconTimeResultSet.getLong("timeSeconds");
                                         long totalSeconds = currentSecondsDifference + previousSecondsDifference;
-                                        SolomonServer.updateZoneTimeData(idUser, idStore, roomName, totalSeconds);
-                                        System.out.println("\nUser with id: " + idUser + "\nRoom: " + roomName + " from store with id: " + idStore + "\nCurrent time spent in room: " + totalSeconds + " seconds");
+                                        SolomonServer.updateBeaconTimeData(idUser, beaconLabel, mallId, totalSeconds);
+                                        System.out.println("\nUser with id: " + idUser + "\nBeacon: " + beaconLabel + " from mall with id: " + mallId + "\nCurrent time spent near the beacon: " + totalSeconds + " seconds");
                                     }
                                     
                                     userLocationArray.remove(j);
@@ -401,21 +403,23 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 Element eElement = (Element) nNode;
                 String id = eElement.getAttribute("id");
                 String label = eElement.getElementsByTagName("label").item(0).getTextContent();
+                int mallId = Integer.parseInt(eElement.getElementsByTagName("idMall").item(0).getTextContent());
                 String company = eElement.getElementsByTagName("company").item(0).getTextContent();
                 System.out.println("Beacon id : " + eElement.getAttribute("id"));
                 System.out.println("Label : " + label);
+                System.out.println("Mall id: " + mallId);
                 System.out.println("Company : " + company);
                 
                 //add the beacon into the hashmap
                 switch(company)
                 {
                     case "Estimote":
-                        beacons.put(label , new EstimoteBeacon(id, label));
+                        beacons.put(label , new EstimoteBeacon(id, label, mallId));
                         break;
                     case "Kontakt":
                         String major = eElement.getElementsByTagName("major").item(0).getTextContent();
                         String minor = eElement.getElementsByTagName("minor").item(0).getTextContent();
-                        beacons.put(label, new KontaktBeacon(id, label, major, minor));
+                        beacons.put(label, new KontaktBeacon(id, label, mallId, major, minor));
                         break;
                     default:
                         break;
