@@ -5,6 +5,9 @@
  */
 package solomonserver;
 
+import SolomonPartnersNetworkObjects.Mall;
+import SolomonPartnersNetworkObjects.User;
+import SolomonPartnersNetworkObjects.UserStoreTime;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.Store;
 import java.io.IOException;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import runnables.ConnectClientsRunnable;
 import runnables.ConnectToUnityDemoRunnable;
+import runnables.ManageDataTransferedToSolomonPartnersRunnable;
 import runnables.ProcessDatabaseDataRunnable;
 
 /**
@@ -34,8 +38,12 @@ public class SolomonServer {
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
     public static ArrayList<Store> stores;
-    //Solomon partners data variables
-    public static HashMap<String, ArrayList<Object>> solomonPartnersData;
+    //Solomon partners variables
+    public static volatile ArrayList<User> partnersDataUsers;
+    public static volatile ArrayList<UserStoreTime> partnersDataUsersStoreTime;
+    public static volatile ArrayList<Mall> partnersDataMalls;    
+    public static Thread manageDataTransferedToSolomonPartners;
+    
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
     public static Socket unityDemoSocket;
@@ -52,7 +60,9 @@ public class SolomonServer {
         //init variables
         beacons = new HashMap<>();
         stores = new ArrayList<>();
-        solomonPartnersData = new HashMap<>();
+        partnersDataUsers = new ArrayList<>();
+        partnersDataUsersStoreTime = new ArrayList<>();
+        partnersDataMalls = new ArrayList<>();
         
         //connect to a mySql database
         connectToDatabase();
@@ -70,6 +80,9 @@ public class SolomonServer {
         processDatabaseData = new Thread(new ProcessDatabaseDataRunnable());
         processDatabaseData.start();
         
+        //get the data to be shared with the Solomon partners from the database
+        manageDataTransferedToSolomonPartners = new Thread(new ManageDataTransferedToSolomonPartnersRunnable(partnersDataUsers, partnersDataUsersStoreTime, partnersDataMalls));
+        manageDataTransferedToSolomonPartners.start();
     }
     
     public static void connectToDatabase() throws ClassNotFoundException, SQLException, Exception 
@@ -372,6 +385,25 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return rs;
+    }
+    
+    public static ResultSet getTableDataById(String tableName, String idColumnName, int id)
+    {
+        ResultSet resultSet = null;
+        if(con != null)
+        {
+            try
+            {
+                String queryString = "select * from " + tableName + " where " + idColumnName + " = '" + id + "';";
+                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = stmt.executeQuery(queryString);
+            }
+            catch(SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        return resultSet;
     }
     
     

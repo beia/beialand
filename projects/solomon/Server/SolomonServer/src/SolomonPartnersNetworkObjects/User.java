@@ -6,6 +6,7 @@
 package SolomonPartnersNetworkObjects;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  *
@@ -18,32 +19,47 @@ public class User implements Serializable
     private String lastName;
     private String firstName;
     private int age;
-    public User(int idUser, String username, String lastName, String firstName, int age)
+    private ArrayList<String> preferences;
+    public User(int idUser, String username, String lastName, String firstName, int age, ArrayList<String> preferences)
     {
         this.idUser = idUser;
         this.username = username;
         this.lastName = lastName;
         this.firstName = firstName;
         this.age = age;
+        this.preferences = preferences;
     }
-    private int getId()
+    public int getId()
     {
         return this.idUser;
     }
-    private String getUsername()
+    public String getUsername()
     {
         return this.username;
     }
-    private String getLastName()
+    public String getLastName()
     {
         return this.lastName;
     }
-    private String getFirstName()
+    public String getFirstName()
     {
         return this.firstName;
     }
-    private int getAge()
+    public int getAge()
     {
         return this.age;
+    }
+    public ArrayList<String> getPreferences()
+    {
+        return this.preferences;
+    }
+    @Override
+    public String toString()
+    {
+        String userInfo = "userId: " + this.idUser + "\nusername: " + this.username + "\nlast name: " + this.lastName + "\nfirst name: " + this.firstName + "\nage: " + this.age + "\n";
+        userInfo += "preferinte: \n";
+        for(String preference : this.preferences)
+            userInfo += preference + "\n";
+        return userInfo;
     }
 }

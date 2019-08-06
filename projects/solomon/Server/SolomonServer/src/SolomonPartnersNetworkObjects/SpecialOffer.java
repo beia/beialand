@@ -7,36 +7,29 @@ package SolomonPartnersNetworkObjects;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
 /**
  *
  * @author beia
  */
-public class Store implements Serializable
+public class SpecialOffer implements Serializable
 {
     private int idStore;
-    private int idMall;
-    private String name;
+    private String description;
     private ArrayList<String> categories;
-    private ArrayList<SpecialOffer> specialOffers;
-    public Store(int idStore, int idMall, String name, ArrayList<String> categories, ArrayList<SpecialOffer> specialOffers)
+    public SpecialOffer(int idStore, String description, ArrayList<String> categories)
     {
         this.idStore = idStore;
-        this.idMall = idMall;
-        this.name = name;
+        this.description = description;
         this.categories = categories;
-        this.specialOffers = specialOffers;
     }
     public int getIdStore()
     {
         return this.idStore;
     }
-    public int getIdMall()
+    public String getDescription()
     {
-        return this.idMall;
-    }
-    public String getName()
-    {
-        return this.name;
+        return this.description;
     }
     public ArrayList<String> getCategories()
     {
