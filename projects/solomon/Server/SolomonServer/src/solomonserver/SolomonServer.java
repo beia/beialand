@@ -34,6 +34,8 @@ public class SolomonServer {
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
     public static ArrayList<Store> stores;
+    //Solomon partners data variables
+    public static HashMap<String, ArrayList<Object>> solomonPartnersData;
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
     public static Socket unityDemoSocket;
@@ -50,6 +52,7 @@ public class SolomonServer {
         //init variables
         beacons = new HashMap<>();
         stores = new ArrayList<>();
+        solomonPartnersData = new HashMap<>();
         
         //connect to a mySql database
         connectToDatabase();
@@ -298,13 +301,13 @@ public class SolomonServer {
     }
     
     
-    public static ResultSet getBeaconTimeByUserId(int idUser, String beaconLabel, int idMall) throws SQLException, Exception
+    public static ResultSet getBeaconTimeByUserId(int idUser, String idBeacon, int idMall) throws SQLException, Exception
     {
         ResultSet rs = null;
         try
         {
             // Execute query
-            String queryString = ("select * from userbeacontime where idUser = '" + idUser + "' and beaconLabel = '" + beaconLabel + "' and  idMall = '" + idMall + "';");
+            String queryString = ("select * from userbeacontime where idUser = '" + idUser + "' and idBeacon = '" + idBeacon + "' and  idMall = '" + idMall + "';");
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             rs = stmt.executeQuery(queryString); //sql exception
         } 

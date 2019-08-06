@@ -283,7 +283,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                             for(int j = i + 1; j < userLocationArray.size(); j++)
                             {
                                 //if the user entry is in the same store as the previos entry, the zone is the same and the user left the zone compute the time difference for the zone and add it into the database
-                                if(userLocationArray.get(i).getUserId() == userLocationArray.get(j).getUserId() && userLocationArray.get(j).getBeaconLabel().equals(userLocationArray.get(i).getBeaconLabel()) && userLocationArray.get(i).getBeaconId().equals(userLocationArray.get(j).getBeaconId()) && userLocationArray.get(i).getMallId() == userLocationArray.get(j).getMallId() && userLocationArray.get(j).getZoneEntered() == false)
+                                if(userLocationArray.get(i).getBeaconId().equals(userLocationArray.get(j).getBeaconId()) && userLocationArray.get(i).getMallId() == userLocationArray.get(j).getMallId() && userLocationArray.get(j).getZoneEntered() == false)
                                 {
                                     System.out.println("\n\npair");
                                     System.out.println("User with id: " + userLocationArray.get(i).getUserId() + " entered =  " + userLocationArray.get(i).getZoneEntered() + " zone: " + userLocationArray.get(i).getBeaconLabel() + " with beaconId = " + userLocationArray.get(i).getBeaconId() + " at " + userLocationArray.get(i).getTime());
@@ -315,9 +315,9 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                     
                                     
                                     //get beacon time data from the database(time spent by users in the proximity of a beacon)
-                                    ResultSet beaconTimeResultSet = SolomonServer.getBeaconTimeByUserId(idUser, beaconLabel, mallId);
+                                    ResultSet beaconTimeResultSet = SolomonServer.getBeaconTimeByUserId(idUser, beaconId, mallId);
                                     
-                                    ////compute time difference and insert the beacon time data for each user
+                                    ////compute time difference and insert the beacon time data
                                     if(!beaconTimeResultSet.isBeforeFirst())
                                     {
                                         //the never entered the room and neither the store(because I will add all the other beacon time data in the database with the time spent of 0 seconds)
@@ -330,9 +330,9 @@ public class ProcessDatabaseDataRunnable implements Runnable
                                         //add all the other beacon time data into the database but with the time spent 0
                                         for (Beacon beacon : SolomonServer.beacons.values())
                                         {
-                                            if(!beacon.getLabel().equals(beaconLabel))
+                                            if(!beacon.getId().equals(beaconId))
                                             {
-                                                SolomonServer.addBeaconTimeData(idUser, beacon.getLabel(), beacon.getLabel(), beacon.getMallId(), 0);
+                                                SolomonServer.addBeaconTimeData(idUser, beacon.getId(), beacon.getLabel(), beacon.getMallId(), 0);
                                             }
                                         }
                                     }
