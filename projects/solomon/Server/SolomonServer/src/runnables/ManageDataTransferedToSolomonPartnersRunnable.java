@@ -6,6 +6,8 @@
 package runnables;
 
 import SolomonPartnersNetworkObjects.Mall;
+import SolomonPartnersNetworkObjects.SpecialOffer;
+import SolomonPartnersNetworkObjects.Store;
 import SolomonPartnersNetworkObjects.User;
 import SolomonPartnersNetworkObjects.UserStoreTime;
 import static java.lang.Thread.sleep;
@@ -41,6 +43,7 @@ public class ManageDataTransferedToSolomonPartnersRunnable implements Runnable
             while(true)
             {
                 //get the users data from the database
+                this.partnersDataUsers = new ArrayList<>();
                 ResultSet userResultSet = SolomonServer.getTableData("users");
                 int idUser, age;
                 String username, lastName, firstName;
@@ -62,9 +65,60 @@ public class ManageDataTransferedToSolomonPartnersRunnable implements Runnable
                     User user = new User(idUser, username, lastName, firstName, age, preferences);
                     this.partnersDataUsers.add(user);
                 }
+                SolomonServer.partnersDataUsers = this.partnersDataUsers;
                 //finished getting the users data from the database
                 
                 //get the malls data from the database
+                this.partnersDataMalls = new ArrayList<>();
+                ResultSet mallResultSet = SolomonServer.getTableData("malls");
+                int idMall;
+                String mallName;
+                while(mallResultSet.next())
+                {
+                    idMall = mallResultSet.getInt("idMalls");
+                    mallName = mallResultSet.getString("name");
+                    ResultSet storesResultSet = SolomonServer.getTableData("stores");
+                    ArrayList<Store> stores = new ArrayList<>();
+                    int idStore;
+                    String storeName;
+                    while(storesResultSet.next())
+                    {
+                        idStore = storesResultSet.getInt("idStores");
+                        storeName = storesResultSet.getString("name");
+                        ResultSet storeCategoriesResultSet = SolomonServer.getTableDataById("storecategories", "idStore", idStore);
+                        ArrayList<String> categories = new ArrayList<>();
+                        while(storeCategoriesResultSet.next())
+                        {
+                            categories.add(storeCategoriesResultSet.getString("category"));
+                        }
+                        ResultSet specialOffersResultSet = SolomonServer.getTableDataById("storespecialoffers", "idStore", idStore);
+                        ArrayList<SpecialOffer> specialOffers = new ArrayList<>();
+                        while(specialOffersResultSet.next())
+                        {
+                            int idSpecialOffer = specialOffersResultSet.getInt("idstoreSpecialOffers");
+                            String description = specialOffersResultSet.getString("description");
+                            ArrayList<String> specialOffersCategories = new ArrayList<>();
+                            String[] idsColumnName = new String[2];
+                            idsColumnName[0] = "idStore";
+                            idsColumnName[1] = "idSpecialOffer";
+                            int[] ids = new int[2];
+                            ids[0] = idStore;
+                            ids[1] = idSpecialOffer;
+                            ResultSet specialOffersCategoriesResultSet = SolomonServer.getTableDataByIds("specialofferscategories", idsColumnName, ids);
+                            while(specialOffersCategoriesResultSet.next())
+                            {
+                                specialOffersCategories.add(specialOffersCategoriesResultSet.getString("category"));
+                            }
+                            SpecialOffer specialoffer = new SpecialOffer(idStore, description, specialOffersCategories);
+                            specialOffers.add(specialoffer);
+                        }
+                        Store store = new Store(idStore, idMall, storeName, categories, specialOffers);
+                        stores.add(store);
+                    }
+                    Mall mall = new Mall(idMall, mallName, stores);
+                    this.partnersDataMalls.add(mall);
+                }
+                SolomonServer.partnersDataMalls = this.partnersDataMalls;
                 //finished getting the malls data from the database
                 Thread.sleep(300000);
             }

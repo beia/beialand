@@ -414,6 +414,29 @@ public class SolomonServer {
         }
         return resultSet;
     }
+    public static ResultSet getTableDataByIds(String tableName, String[] idsColumnName, int[] ids)
+    {
+        ResultSet resultSet = null;
+        if(con != null)
+        {
+            try
+            {
+                String queryString = "select * from " + tableName + " where ";
+                for(int i = 0; i < idsColumnName.length - 1; i++)
+                {
+                    queryString += idsColumnName[i] + " = '" + ids[i] + "' AND ";
+                }
+                queryString += idsColumnName[idsColumnName.length - 1] + " = '" + ids[ids.length - 1] + "';";
+                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = stmt.executeQuery(queryString);
+            }
+            catch(SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        return resultSet;
+    }
     
     
     public static ResultSet getNewLocationData(String tabelName, String idName, int lastId) throws SQLException, Exception
