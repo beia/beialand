@@ -42,4 +42,8 @@ public class Store implements Serializable
     {
         return this.categories;
     }
+    public ArrayList<SpecialOffer> getSpecialOffers()
+    {
+        return this.specialOffers;
+    }
 }

@@ -62,10 +62,10 @@ public class ManageDataTransferedToSolomonPartnersRunnable implements Runnable
                     User user = new User(idUser, username, lastName, firstName, age, preferences);
                     this.partnersDataUsers.add(user);
                 }
+                //finished getting the users data from the database
                 
-                //show the collected data
-                for(User user : partnersDataUsers)
-                    System.out.println(user.toString());
+                //get the malls data from the database
+                //finished getting the malls data from the database
                 Thread.sleep(300000);
             }
         }

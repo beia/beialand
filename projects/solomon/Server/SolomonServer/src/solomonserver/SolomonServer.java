@@ -25,6 +25,7 @@ import runnables.ConnectClientsRunnable;
 import runnables.ConnectToUnityDemoRunnable;
 import runnables.ManageDataTransferedToSolomonPartnersRunnable;
 import runnables.ProcessDatabaseDataRunnable;
+import runnables.WaitForPartnersConnectionRunnable;
 
 /**
  *
@@ -39,10 +40,12 @@ public class SolomonServer {
     public static HashMap<String, Beacon> beacons;
     public static ArrayList<Store> stores;
     //Solomon partners variables
+    public static ServerSocket partnersServerSocket;
     public static volatile ArrayList<User> partnersDataUsers;
     public static volatile ArrayList<UserStoreTime> partnersDataUsersStoreTime;
     public static volatile ArrayList<Mall> partnersDataMalls;    
     public static Thread manageDataTransferedToSolomonPartners;
+    public static Thread waitForPartnersHttpRequests;
     
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
@@ -67,11 +70,17 @@ public class SolomonServer {
         //connect to a mySql database
         connectToDatabase();
         
-        //create a tcp serverSocket and wait for client connections
+        //create a tcp server socket and wait for client connections
         serverSocket = new ServerSocket(48000);
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
         
+        //create a tcp server socket and wait for Solomon partners connection
+        partnersServerSocket = new ServerSocket(9000);
+        waitForPartnersHttpRequests = new Thread(new WaitForPartnersConnectionRunnable(partnersServerSocket));
+        waitForPartnersHttpRequests.start();
+        
+        //create the Unity tcp server socket and wait for client connections
         unityDemoServerSocket = new ServerSocket(7000);
         connectToUnityDemoThread = new Thread(new ConnectToUnityDemoRunnable(unityDemoServerSocket));
         connectToUnityDemoThread.start();
