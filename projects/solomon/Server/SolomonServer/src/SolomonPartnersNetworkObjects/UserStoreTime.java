@@ -13,20 +13,16 @@ import java.io.Serializable;
  */
 public class UserStoreTime implements Serializable
 {
-    private int idUser;
-    private int idStore;
     private int idMall;
+    private int idStore;
+    private String storeName;
     private long seconds;
-    public UserStoreTime(int idUser, int idStore, int idMall, long seconds)
+    public UserStoreTime(int idMall, int idStore, String storeName, long seconds)
     {
-        this.idUser = idUser;
         this.idStore = idStore;
         this.idMall = idMall;
         this.seconds = seconds;
-    }
-    public int getIdUser()
-    {
-        return this.idUser;
+        this.storeName = storeName;
     }
     public int getIdStore()
     {
@@ -35,6 +31,10 @@ public class UserStoreTime implements Serializable
     public int getIdMall()
     {
         return this.idMall;
+    }
+    public String getStoreName()
+    {
+        return this.storeName;
     }
     public long getSeconds()
     {

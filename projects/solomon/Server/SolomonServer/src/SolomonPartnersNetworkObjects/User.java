@@ -20,7 +20,8 @@ public class User implements Serializable
     private String firstName;
     private int age;
     private ArrayList<String> preferences;
-    public User(int idUser, String username, String lastName, String firstName, int age, ArrayList<String> preferences)
+    private ArrayList<UserStoreTime> storesTime;
+    public User(int idUser, String username, String lastName, String firstName, int age, ArrayList<String> preferences, ArrayList<UserStoreTime> storesTime)
     {
         this.idUser = idUser;
         this.username = username;
@@ -28,6 +29,7 @@ public class User implements Serializable
         this.firstName = firstName;
         this.age = age;
         this.preferences = preferences;
+        this.storesTime = storesTime;
     }
     public int getId()
     {
@@ -52,6 +54,10 @@ public class User implements Serializable
     public ArrayList<String> getPreferences()
     {
         return this.preferences;
+    }
+    public ArrayList<UserStoreTime> getStoresTime()
+    {
+        return this.storesTime;
     }
     @Override
     public String toString()

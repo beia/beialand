@@ -463,6 +463,25 @@ public class SolomonServer {
         return rs;
     }
     
+    public static ResultSet getStoreTimeByUserId(int idUser)
+    {
+        ResultSet resultSet= null;
+        if(con != null)
+        {
+            try
+            {
+                String queryString = "SELECT a.idMall idMall, a.idStores idStore, a.name storeName, b.timeseconds timeseconds FROM stores a, userbeacontime b WHERE b.idUser = '" + idUser + "' AND a.idBeacon = b.idBeacon;";
+                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = stmt.executeQuery(queryString); //sql exception
+            }
+            catch(SQLException sqle)
+            {
+                sqle.printStackTrace();
+            }
+        }
+        return resultSet;
+    }
+    
     public static void deleteTableData(String tableName) throws SQLException, Exception
     {
         if (con != null)

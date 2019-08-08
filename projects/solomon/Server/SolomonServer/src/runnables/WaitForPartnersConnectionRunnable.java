@@ -9,6 +9,7 @@ import SolomonPartnersNetworkObjects.Mall;
 import SolomonPartnersNetworkObjects.SpecialOffer;
 import SolomonPartnersNetworkObjects.Store;
 import SolomonPartnersNetworkObjects.User;
+import SolomonPartnersNetworkObjects.UserStoreTime;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -86,6 +87,18 @@ public class WaitForPartnersConnectionRunnable implements Runnable
                             }
                             preferencesStringBuilder.append(preferences.get(preferences.size() - 1));
                             jsonObject.put("preferences", preferencesStringBuilder.toString());
+                            JSONArray storesTimeJsonArray = new JSONArray();
+                            ArrayList<UserStoreTime> userStoresTime = user.getStoresTime();
+                            for(UserStoreTime userStoreTime : userStoresTime)
+                            {
+                                JSONObject userStoreTimeJsonObject = new JSONObject();
+                                userStoreTimeJsonObject.put("idMall", userStoreTime.getIdMall());
+                                userStoreTimeJsonObject.put("idStore", userStoreTime.getIdStore());
+                                userStoreTimeJsonObject.put("storeName", userStoreTime.getStoreName());
+                                userStoreTimeJsonObject.put("timeSeconds", userStoreTime.getSeconds());
+                                storesTimeJsonArray.add(userStoreTimeJsonObject);
+                            }
+                            jsonObject.put("stores time", storesTimeJsonArray);
                             //add the json object into the json array
                             usersJsonArray.add(jsonObject);
                         }
@@ -110,12 +123,15 @@ public class WaitForPartnersConnectionRunnable implements Runnable
                                 storeJsonObject.put("name", store.getName());
                                 StringBuilder categoriesStringBuilder = new StringBuilder();
                                 ArrayList<String> categories = store.getCategories();
-                                for(int i = 0; i < categories.size() - 1; i++)
+                                if(!categories.isEmpty())
                                 {
-                                    categoriesStringBuilder.append(categories.get(i));
-                                    categoriesStringBuilder.append(", ");
+                                    for(int i = 0; i < categories.size() - 1; i++)
+                                    {
+                                        categoriesStringBuilder.append(categories.get(i));
+                                        categoriesStringBuilder.append(", ");
+                                    }
+                                    categoriesStringBuilder.append(categories.get(categories.size() - 1));
                                 }
-                                categoriesStringBuilder.append(categories.get(categories.size() - 1));
                                 storeJsonObject.put("categories", categoriesStringBuilder.toString());
                                 JSONArray specialOffersJsonArray = new JSONArray();
                                 ArrayList<SpecialOffer> specialOffers = store.getSpecialOffers();
@@ -126,12 +142,15 @@ public class WaitForPartnersConnectionRunnable implements Runnable
                                     specialOfferJsonObject.put("description", specialOffer.getDescription());
                                     StringBuilder specialOffersCategoriesStringBuilder = new StringBuilder();
                                     ArrayList<String> specialOffersCategories = specialOffer.getCategories();
-                                    for(int j = 0; j < specialOffersCategories.size() - 1; j++)
+                                    if(!specialOffersCategories.isEmpty())
                                     {
-                                        specialOffersCategoriesStringBuilder.append(specialOffersCategories.get(j));
-                                        specialOffersCategoriesStringBuilder.append(", ");
+                                        for(int j = 0; j < specialOffersCategories.size() - 1; j++)
+                                        {
+                                            specialOffersCategoriesStringBuilder.append(specialOffersCategories.get(j));
+                                            specialOffersCategoriesStringBuilder.append(", ");
+                                        }
+                                        specialOffersCategoriesStringBuilder.append(specialOffersCategories.get(specialOffersCategories.size() - 1));
                                     }
-                                    specialOffersCategoriesStringBuilder.append(specialOffersCategories.get(specialOffersCategories.size() - 1));
                                     specialOfferJsonObject.put("categories", specialOffersCategoriesStringBuilder.toString());
                                     specialOffersJsonArray.add(specialOfferJsonObject);
                                 }
@@ -141,6 +160,8 @@ public class WaitForPartnersConnectionRunnable implements Runnable
                             mallJsonObject.put("stores", storesJsonArray);
                             mallsJsonArray.add(mallJsonObject);
                         }
+                        out.print(mallsJsonArray.toJSONString());
+                        System.out.print(mallsJsonArray.toJSONString());
                         break;
                     default:
                         break;

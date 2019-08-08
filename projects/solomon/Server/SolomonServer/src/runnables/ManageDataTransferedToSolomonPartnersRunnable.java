@@ -55,14 +55,27 @@ public class ManageDataTransferedToSolomonPartnersRunnable implements Runnable
                     firstName = userResultSet.getString("firstName");
                     age = userResultSet.getInt("age");
                     
-                    //get user prefeences from the daabase
+                    //get user preferences from the database
                     ArrayList<String> preferences = new ArrayList<>();
                     ResultSet userPreferencesResultSet = SolomonServer.getTableDataById("userpreferences", "idUser", idUser);
                     while(userPreferencesResultSet.next())
                     {
                         preferences.add(userPreferencesResultSet.getString("category"));
                     }
-                    User user = new User(idUser, username, lastName, firstName, age, preferences);
+                    //get the user store times from the database
+                    ArrayList<UserStoreTime> storesTime = new ArrayList<>();
+                    ResultSet storesTimeResultSet = SolomonServer.getStoreTimeByUserId(idUser);
+                    System.out.println(username);
+                    while(storesTimeResultSet.next())
+                    {
+                        int idMall = storesTimeResultSet.getInt("idMall");
+                        int idStore = storesTimeResultSet.getInt("idStore");
+                        String storeName = storesTimeResultSet.getString("storeName");
+                        long timeSeconds = storesTimeResultSet.getLong("timeseconds");
+                        storesTime.add(new UserStoreTime(idMall, idStore, storeName, timeSeconds));
+                        System.out.println(storeName + " " + timeSeconds);
+                    }
+                    User user = new User(idUser, username, lastName, firstName, age, preferences, storesTime);
                     this.partnersDataUsers.add(user);
                 }
                 SolomonServer.partnersDataUsers = this.partnersDataUsers;
