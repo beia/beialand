@@ -1,1 +1,1 @@
-delete from userbeacontime
+select * from userbeacontime
