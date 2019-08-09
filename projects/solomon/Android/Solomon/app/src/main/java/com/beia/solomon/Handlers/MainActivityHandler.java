@@ -3,8 +3,13 @@ package com.beia.solomon.Handlers;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.beia.solomon.MainActivity;
+import com.beia.solomon.networkPackets.Beacon;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivityHandler extends Handler
 {
@@ -28,6 +33,17 @@ public class MainActivityHandler extends Handler
                 //mainActivity.initEstimoteBeacons();
                 //set Kontakt beacons
                 mainActivity.initKontaktBeacons();
+
+                //set the beacons textviews data section
+                for (Map.Entry entry : MainActivity.beacons.entrySet())
+                {
+                    Beacon beacon = (Beacon) entry.getValue();
+                    TextView textView = new TextView(MainActivity.context);
+                    textView.setText(beacon.getLabel() + ": ");
+                    MainActivity.storeAdvertisementFragment.linearLayout.addView(textView);
+                    MainActivity.beaconsTextViews.put(beacon.getId(), textView);
+                    Log.d("BEACON", beacon.getId());
+                }
                 break;
             default:
                 break;

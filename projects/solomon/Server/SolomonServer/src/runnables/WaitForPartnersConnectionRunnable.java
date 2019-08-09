@@ -80,12 +80,15 @@ public class WaitForPartnersConnectionRunnable implements Runnable
                             jsonObject.put("age", user.getAge());
                             StringBuilder preferencesStringBuilder = new StringBuilder();
                             ArrayList<String> preferences = user.getPreferences();
-                            for(int i = 0; i < preferences.size() - 1; i++)
+                            if(!preferences.isEmpty())
                             {
-                                preferencesStringBuilder.append(preferences.get(i));
-                                preferencesStringBuilder.append(", ");
+                                for(int i = 0; i < preferences.size() - 1; i++)
+                                {
+                                    preferencesStringBuilder.append(preferences.get(i));
+                                    preferencesStringBuilder.append(", ");
+                                }
+                                preferencesStringBuilder.append(preferences.get(preferences.size() - 1));
                             }
-                            preferencesStringBuilder.append(preferences.get(preferences.size() - 1));
                             jsonObject.put("preferences", preferencesStringBuilder.toString());
                             JSONArray storesTimeJsonArray = new JSONArray();
                             ArrayList<UserStoreTime> userStoresTime = user.getStoresTime();

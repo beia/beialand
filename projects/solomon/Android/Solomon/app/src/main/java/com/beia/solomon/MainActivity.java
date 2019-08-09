@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,9 +37,11 @@ import com.kontakt.sdk.android.ble.connection.OnServiceReadyListener;
 import com.kontakt.sdk.android.ble.device.BeaconRegion;
 import com.kontakt.sdk.android.ble.manager.ProximityManager;
 import com.kontakt.sdk.android.ble.manager.ProximityManagerFactory;
+import com.kontakt.sdk.android.ble.manager.listeners.IBeaconListener;
 import com.kontakt.sdk.android.ble.manager.listeners.SpaceListener;
 import com.kontakt.sdk.android.ble.spec.EddystoneFrameType;
 import com.kontakt.sdk.android.common.KontaktSDK;
+import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.kontakt.sdk.android.common.profile.IEddystoneNamespace;
 
@@ -56,6 +59,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import kotlin.Unit;
@@ -99,6 +103,14 @@ public class MainActivity extends AppCompatActivity {
     public EditText usernameEditText;
     public EditText passswordEditText;
     public EditText ageEditText;
+
+
+    //fragments
+    public static StoreAdvertisementFragment storeAdvertisementFragment;
+    public static MapFragment mapFragment;
+    public static SettingsFragment settingsFragment;
+
+    public static HashMap<String, TextView> beaconsTextViews;
 
     //Other variables
     public static Date currentTime;
@@ -150,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
 
         //create handler
         mainActivityHandler = new MainActivityHandler(this);
+
+        MainActivity.beaconsTextViews = new HashMap<>();
 
         //get the beacons data and initialize the beacons
         beacons = new HashMap<>();
@@ -279,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //configure the regions
-        Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
+        final Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
         for(Beacon beacon: beacons.values())
         {
             if(beacon instanceof KontaktBeacon)
@@ -299,6 +313,31 @@ public class MainActivity extends AppCompatActivity {
         //manage the regions
         proximityManager.spaces().iBeaconRegions(beaconRegions);
 
+        proximityManager.setIBeaconListener(new IBeaconListener() {
+            @Override
+            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region) {
+                TextView textView = beaconsTextViews.get(iBeacon.getUniqueId());
+                if(textView!=null)
+                    textView.setText(iBeacon.getUniqueId());
+            }
+
+            @Override
+            public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region)
+            {
+                for(IBeaconDevice iBeaconDevice : iBeacons)
+                {
+                    double distance = iBeaconDevice.getDistance();
+                    Log.d("FIZICAL BEACON", iBeaconDevice.getUniqueId());
+                    TextView textView = beaconsTextViews.get(iBeaconDevice.getUniqueId());
+                    if(textView!=null)
+                        textView.setText(region.getIdentifier() + ": " + iBeaconDevice.getDistance());
+                }
+            }
+
+            @Override
+            public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
+            }
+        });
 
         //region listener
         proximityManager.setSpaceListener(new SpaceListener() {
@@ -313,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (objectOutputStream)
                 {
                     currentTime = Calendar.getInstance().getTime();
-                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 1, true, currentTime, objectOutputStream));
+                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 3, true, currentTime, objectOutputStream));
                     sendLocationDataThread.start();
                 }
             }
@@ -329,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (objectOutputStream)
                 {
                     currentTime = Calendar.getInstance().getTime();
-                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 1, false, currentTime, objectOutputStream));
+                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 3, false, currentTime, objectOutputStream));
                     sendLocationDataThread.start();
                 }
             }
@@ -355,6 +394,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
             start();
@@ -413,19 +453,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         //set tabbed layout
-        StoreAdvertisementFragment storeAdvertisementFragment = new StoreAdvertisementFragment();
+        storeAdvertisementFragment = new StoreAdvertisementFragment();
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
         storeAdvertisementFragment.setArguments(bundle1, "storeAdvertisementsData");
 
-        MapFragment mapFragment = new MapFragment();
+        mapFragment = new MapFragment();
         Bundle bundle2 = new Bundle();
         ArrayList<String> userStatsData = new ArrayList<>();
         bundle2.putStringArrayList("userStatsData", userStatsData);
         mapFragment.setArguments(bundle2, "userStatsData");
 
-        SettingsFragment settingsFragment = new SettingsFragment();
+        settingsFragment = new SettingsFragment();
         Bundle bundle3 = new Bundle();
         ArrayList<String> profileDataAndSettingsData = new ArrayList<>();
         bundle3.putStringArrayList("profileDataAndSettingsData", profileDataAndSettingsData);
@@ -448,8 +488,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon);
 
 
-
-        //set the user profile UI variables
+        //set the user profile UFI variables
         usernameTextView = findViewById(R.id.usernameTextView);
         passwordTextView = findViewById(R.id.passwordTexView);
         ageTextView = findViewById(R.id.ageTextView);
