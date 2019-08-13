@@ -39,6 +39,8 @@ public class SolomonServer {
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
     public static ArrayList<Store> stores;
+    public static HashMap<Integer, 
+    
     //Solomon partners variables
     public static ServerSocket partnersServerSocket;
     public static volatile ArrayList<User> partnersDataUsers;
@@ -51,9 +53,11 @@ public class SolomonServer {
     public static ServerSocket unityDemoServerSocket;
     public static Socket unityDemoSocket;
     public static Thread connectToUnityDemoThread;
+    
     //sql server variables
     public static String error;
     public static Connection con;
+    
     //data processing variables
     public static volatile int lastLocationEntryId = 1;
     

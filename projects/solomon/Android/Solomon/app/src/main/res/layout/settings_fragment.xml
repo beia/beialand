@@ -32,7 +32,7 @@
                 android:layout_marginBottom="40dp"
                 android:textColor="@android:color/background_dark"/>
 
-            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/profileSettingsCardView"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
@@ -82,10 +82,10 @@
                             android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
 
-            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/preferencesCardView"
                 android:layout_width="match_parent"
                 android:layout_marginTop="30dp"
@@ -133,10 +133,10 @@
                             android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
 
-            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/notificationsCardView"
                 android:layout_width="match_parent"
                 android:layout_marginTop="30dp"
@@ -184,10 +184,10 @@
                             android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
 
-            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/statsCardView"
                 android:layout_width="match_parent"
                 android:layout_marginTop="30dp"
@@ -235,7 +235,7 @@
                             android:textColor="@android:color/background_dark"/>
                     </LinearLayout>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 

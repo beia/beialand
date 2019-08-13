@@ -24,16 +24,8 @@ public class MainActivityHandler extends Handler
         switch(msg.what)
         {
             case 1:
-                //beacons where received
-                if(mainActivity.beacons.isEmpty())
-                {
-                    Log.d("Handler", "no beacons");
-                }
-                //set Estimote beacons
-                //mainActivity.initEstimoteBeacons();
-                //set Kontakt beacons
+                // set Kontakt beacons
                 mainActivity.initKontaktBeacons();
-
                 //set the beacons textviews data section
                 for (Map.Entry entry : MainActivity.beacons.entrySet())
                 {
@@ -42,7 +34,6 @@ public class MainActivityHandler extends Handler
                     textView.setText(beacon.getLabel() + ": ");
                     MainActivity.storeAdvertisementFragment.linearLayout.addView(textView);
                     MainActivity.beaconsTextViews.put(beacon.getId(), textView);
-                    Log.d("BEACON", beacon.getId());
                 }
                 break;
             default:

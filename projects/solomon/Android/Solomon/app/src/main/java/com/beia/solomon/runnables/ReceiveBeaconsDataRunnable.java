@@ -37,7 +37,6 @@ public class ReceiveBeaconsDataRunnable implements Runnable
 
             if(serverFeedback.equals("Started listening to the location data"))
             {
-                Log.d("LOCATION DATA", "Server started listening to the location data");
                 //send a message to the handler in the main ui thread that we can start detecting the beacons and sending data to the server regarding user position
                 Message message = MainActivity.mainActivityHandler.obtainMessage(1);
                 message.sendToTarget();

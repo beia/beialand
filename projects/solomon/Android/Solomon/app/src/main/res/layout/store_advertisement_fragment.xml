@@ -22,7 +22,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/card_view1"
                 android:layout_gravity="center"
                 android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:src="@drawable/lenovo_legion_gamng_monitor"/>
+                        android:src="@drawable/lenovo_legion_gaming"/>
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -48,9 +48,9 @@
                         android:paddingBottom="5dp"
                         android:text="Monitor LED Lenovo Gaming Legion Y25f-10 24.5 inch 1ms FreeSync 144Hz"/>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/card_view2"
                 android:layout_gravity="center"
                 android:layout_width="match_parent"
@@ -76,9 +76,9 @@
                         android:paddingBottom="5dp"
                         android:text="GIGABYTE GeForce RTX 2060 OC 6GB GDDR6 (GA-VC-N2060OC-6GD) Placa video"/>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/card_view3"
                 android:layout_gravity="center"
                 android:layout_width="match_parent"
@@ -104,7 +104,7 @@
                         android:paddingBottom="5dp"
                         android:text="AMD Ryzen 5 2600 Hexa-Core 3.4GHz AM4 Procesor"/>
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
 
 

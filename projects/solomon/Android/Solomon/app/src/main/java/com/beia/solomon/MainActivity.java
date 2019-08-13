@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
@@ -45,8 +45,8 @@ import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.kontakt.sdk.android.common.profile.IEddystoneNamespace;
 
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
+import com.google.android.material.tabs.TabLayout;
+import androidx.viewpager.widget.ViewPager;
 import android.widget.Toast;
 
 
@@ -59,7 +59,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import kotlin.Unit;
@@ -70,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     //beacon variables
     public static volatile HashMap<String, Beacon> beacons;//change to public not static
+    public static HashMap<String, Boolean> regionsEntered;
     //Estimote variables
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
     public TabLayout tabLayout;
     public ViewPager viewPager;
     public ViewPagerAdapter viewPagerAdapter;
-    public TextView feedBackTextView;
     public LinearLayout mainActivityLinearLayout;
     //user profile UI variables
     public TextView usernameTextView;
@@ -167,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         //get the beacons data and initialize the beacons
         beacons = new HashMap<>();
+        regionsEntered = new HashMap<>();
         Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(beacons, objectInputStream, objectOutputStream));
         getBeaconsDataThread.start();
     }
@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
                         .onEnter(new Function1<ProximityZoneContext, Unit>() {
                             @Override
                             public Unit invoke(ProximityZoneContext context) {
-                                feedBackTextView.setText("Entered the: " + context.getTag());
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
                                 Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0, true, currentTime, objectOutputStream));
@@ -225,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
                         .onExit(new Function1<ProximityZoneContext, Unit>() {
                             @Override
                             public Unit invoke(ProximityZoneContext context) {
-                                feedBackTextView.setText("Left the: " + context.getTag());
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
                                 Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0,  false, currentTime, objectOutputStream));
@@ -313,9 +311,11 @@ public class MainActivity extends AppCompatActivity {
         //manage the regions
         proximityManager.spaces().iBeaconRegions(beaconRegions);
 
-        proximityManager.setIBeaconListener(new IBeaconListener() {
+        proximityManager.setIBeaconListener(new IBeaconListener()
+        {
             @Override
-            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region) {
+            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
+            {
                 TextView textView = beaconsTextViews.get(iBeacon.getUniqueId());
                 if(textView!=null)
                     textView.setText(iBeacon.getUniqueId());
@@ -327,10 +327,86 @@ public class MainActivity extends AppCompatActivity {
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                 {
                     double distance = iBeaconDevice.getDistance();
-                    Log.d("FIZICAL BEACON", iBeaconDevice.getUniqueId());
                     TextView textView = beaconsTextViews.get(iBeaconDevice.getUniqueId());
                     if(textView!=null)
                         textView.setText(region.getIdentifier() + ": " + iBeaconDevice.getDistance());
+
+                    //check if a user entered a region
+                    if(regionsEntered.isEmpty())
+                    {
+                        if(distance < 7)
+                        {
+                            regionsEntered.put(iBeaconDevice.getUniqueId(), true);
+                            Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
+                            toast.show();
+                            //send the location data to the server
+                            synchronized (objectOutputStream)
+                            {
+                                currentTime = Calendar.getInstance().getTime();
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                sendLocationDataThread.start();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(regionsEntered.containsKey(iBeaconDevice.getUniqueId()))
+                        {
+                            boolean inZone = regionsEntered.get(iBeaconDevice.getUniqueId());
+                            if(!inZone)
+                            {
+                                //user is outside the region
+                                if(distance < 7)
+                                {
+                                    regionsEntered.put(iBeaconDevice.getUniqueId(), true);
+                                    //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
+                                    Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
+                                    toast.show();
+                                    //send the location data to the server
+                                    synchronized (objectOutputStream)
+                                    {
+                                        currentTime = Calendar.getInstance().getTime();
+                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                        sendLocationDataThread.start();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //user is inside the region
+                                if(distance > 7)
+                                {
+                                    regionsEntered.put(iBeaconDevice.getUniqueId(), false);
+                                    //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
+                                    Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
+                                    toast.show();
+                                    //send the location data to the server
+                                    synchronized (objectOutputStream)
+                                    {
+                                        currentTime = Calendar.getInstance().getTime();
+                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                        sendLocationDataThread.start();
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if(distance < 7)
+                            {
+                                regionsEntered.put(iBeaconDevice.getUniqueId(), true);
+                                Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
+                                toast.show();
+                                //send the location data to the server
+                                synchronized (objectOutputStream)
+                                {
+                                    currentTime = Calendar.getInstance().getTime();
+                                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                    sendLocationDataThread.start();
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -338,52 +414,6 @@ public class MainActivity extends AppCompatActivity {
             public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
             }
         });
-
-        //region listener
-        proximityManager.setSpaceListener(new SpaceListener() {
-            @Override
-            public void onRegionEntered(IBeaconRegion region) {
-                //IBeacon region has been entered
-                Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
-                toast.show();
-                feedBackTextView.setText("Entered region: " + region.getIdentifier());
-
-                //send the location data to the server
-                synchronized (objectOutputStream)
-                {
-                    currentTime = Calendar.getInstance().getTime();
-                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 3, true, currentTime, objectOutputStream));
-                    sendLocationDataThread.start();
-                }
-            }
-
-            @Override
-            public void onRegionAbandoned(IBeaconRegion region) {
-                //IBeacon region has been abandoned
-                Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
-                toast.show();
-                feedBackTextView.setText("Left region: " + region.getIdentifier());
-
-                //send the location data to the server
-                synchronized (objectOutputStream)
-                {
-                    currentTime = Calendar.getInstance().getTime();
-                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, beacons.get(region.getIdentifier()).getId() , region.getIdentifier(), 3, false, currentTime, objectOutputStream));
-                    sendLocationDataThread.start();
-                }
-            }
-
-            @Override
-            public void onNamespaceEntered(IEddystoneNamespace namespace) {
-                //Eddystone namespace has been entered
-            }
-
-            @Override
-            public void onNamespaceAbandoned(IEddystoneNamespace namespace) {
-                //Eddystone namespace has been abandoned
-            }
-        });
-        //start scanning for the Kontakt beacons
         start();
     }
 
@@ -444,7 +474,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabLayoutId);
         viewPager = (ViewPager) findViewById(R.id.viewPagerId);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        feedBackTextView = findViewById(R.id.feedBackTextView);
         mainActivityLinearLayout = findViewById(R.id.mainActivityLinearLayout);
 
         Drawable backround = ContextCompat.getDrawable(context, R.drawable.cool_sky);
