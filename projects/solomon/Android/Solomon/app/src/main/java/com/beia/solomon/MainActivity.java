@@ -33,6 +33,7 @@ import com.beia.solomon.runnables.ReceiveBeaconsDataRunnable;
 import com.beia.solomon.runnables.SendLocationDataRunnable;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
@@ -258,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                                 {
                                     proximityObserver.startObserving(proximityZone);
                                 }
+
                                 //feedBackTextView.setText("requirements fulfiled");
                                 return null;
                             }
@@ -326,11 +328,14 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(MainActivity.mallsEntered.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId()) == false)
                 {
-                    //the user just entered the mall we change the map and we make all the other values in the mallEntered map as false
                     //update the map based on the beacon mallId
                     Mall mall = MainActivity.malls.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId());
                     LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
                     mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
+
+                    //the user just entered the mall we change the map and we make all the other values in the mallEntered map as false
+                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeacon.getUniqueId());
+                    mallsEntered.put(kontaktBeacon.getMallId(),true);
                     for(Integer mallId : mallsEntered.keySet())
                     {
                         if(mallId != mall.getMallId())
@@ -346,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                 {
+                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeaconDevice.getUniqueId());
                     double distance = iBeaconDevice.getDistance();
                     TextView textView = beaconsTextViews.get(iBeaconDevice.getUniqueId());
                     if(textView!=null)
@@ -354,8 +360,13 @@ public class MainActivity extends AppCompatActivity {
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
                     {
-                        if(distance < 7)
+                        if(distance < 5)
                         {
+                            //put the user on the map(not the exact location)
+                            LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
+                            mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
+                            mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+
                             regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                             Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                             toast.show();
@@ -363,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
                             synchronized (objectOutputStream)
                             {
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
                                 sendLocationDataThread.start();
                             }
                         }
@@ -375,9 +386,14 @@ public class MainActivity extends AppCompatActivity {
                             boolean inZone = regionsEntered.get(iBeaconDevice.getUniqueId());
                             if(!inZone)
                             {
-                                //user is outside the region
-                                if(distance < 7)
+                                //user is inside the region
+                                if(distance < 5)
                                 {
+                                    //put the user on the map(not the exact location)
+                                    LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
+                                    mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
+                                    mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
                                     Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
@@ -386,15 +402,15 @@ public class MainActivity extends AppCompatActivity {
                                     synchronized (objectOutputStream)
                                     {
                                         currentTime = Calendar.getInstance().getTime();
-                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
                                         sendLocationDataThread.start();
                                     }
                                 }
                             }
                             else
                             {
-                                //user is inside the region
-                                if(distance > 7)
+                                //user is outside the region
+                                if(distance > 5)
                                 {
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), false);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -405,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
                                     synchronized (objectOutputStream)
                                     {
                                         currentTime = Calendar.getInstance().getTime();
-                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), false, currentTime, objectOutputStream));
                                         sendLocationDataThread.start();
                                     }
                                 }
@@ -413,8 +429,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else
                         {
-                            if(distance < 7)
+                            if(distance < 5)
                             {
+                                //put the user on the map(not the exact location)
+                                LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
+                                mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
+                                mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+
+
                                 regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                 toast.show();
@@ -422,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
                                 synchronized (objectOutputStream)
                                 {
                                     currentTime = Calendar.getInstance().getTime();
-                                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), 3, true, currentTime, objectOutputStream));
+                                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
                                     sendLocationDataThread.start();
                                 }
                             }
