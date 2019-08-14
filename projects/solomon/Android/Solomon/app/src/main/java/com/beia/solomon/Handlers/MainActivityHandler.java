@@ -24,8 +24,6 @@ public class MainActivityHandler extends Handler
         switch(msg.what)
         {
             case 1:
-                // set Kontakt beacons
-                mainActivity.initKontaktBeacons();
                 //set the beacons textviews data section
                 for (Map.Entry entry : MainActivity.beacons.entrySet())
                 {
@@ -34,7 +32,26 @@ public class MainActivityHandler extends Handler
                     textView.setText(beacon.getLabel() + ": ");
                     MainActivity.storeAdvertisementFragment.linearLayout.addView(textView);
                     MainActivity.beaconsTextViews.put(beacon.getId(), textView);
+
+
+                    //initialize all the malls and set all the malls entered values to false
+                    if(MainActivity.mallsEntered.isEmpty())
+                    {
+                        MainActivity.mallsEntered.put(beacon.getMallId(), false);
+                    }
+                    else
+                    {
+                        if(MainActivity.mallsEntered.containsKey(beacon.getMallId()) == false)
+                        {
+                            MainActivity.mallsEntered.put(beacon.getMallId(), false);
+                        }
+                    }
                 }
+
+
+                // set Kontakt beacons
+                mainActivity.initKontaktBeacons();
+
                 break;
             default:
                 break;

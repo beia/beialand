@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.beia.solomon.networkPackets.Mall;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
@@ -30,6 +31,8 @@ import com.beia.solomon.networkPackets.KontaktBeacon;
 import com.beia.solomon.networkPackets.UserData;
 import com.beia.solomon.runnables.ReceiveBeaconsDataRunnable;
 import com.beia.solomon.runnables.SendLocationDataRunnable;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
@@ -59,6 +62,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import kotlin.Unit;
@@ -70,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
     //beacon variables
     public static volatile HashMap<String, Beacon> beacons;//change to public not static
     public static HashMap<String, Boolean> regionsEntered;
+    public static HashMap<Integer, Mall> malls;
+    public static HashMap<Integer, Boolean> mallsEntered;
     //Estimote variables
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
@@ -167,7 +173,9 @@ public class MainActivity extends AppCompatActivity {
         //get the beacons data and initialize the beacons
         beacons = new HashMap<>();
         regionsEntered = new HashMap<>();
-        Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(beacons, objectInputStream, objectOutputStream));
+        malls = new HashMap<>();
+        mallsEntered = new HashMap<>();
+        Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(objectInputStream, objectOutputStream));
         getBeaconsDataThread.start();
     }
 
@@ -316,9 +324,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
             {
-                TextView textView = beaconsTextViews.get(iBeacon.getUniqueId());
-                if(textView!=null)
-                    textView.setText(iBeacon.getUniqueId());
+                if(MainActivity.mallsEntered.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId()) == false)
+                {
+                    //the user just entered the mall we change the map and we make all the other values in the mallEntered map as false
+                    //update the map based on the beacon mallId
+                    Mall mall = MainActivity.malls.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId());
+                    LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
+                    mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
+                    for(Integer mallId : mallsEntered.keySet())
+                    {
+                        if(mallId != mall.getMallId())
+                        {
+                            mallsEntered.put(mallId, false);
+                        }
+                    }
+                }
             }
 
             @Override
@@ -380,6 +400,7 @@ public class MainActivity extends AppCompatActivity {
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
                                     Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                     toast.show();
+
                                     //send the location data to the server
                                     synchronized (objectOutputStream)
                                     {

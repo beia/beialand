@@ -2,154 +2,180 @@
 <beaconsList>
    <beacon id = "01d1b1ded3ea74f01f464d076f2f8138">
    <label>Room1</label>
-   <idMall>2</idMall>
+   <idMall>1</idMall>
    <company>Estimote</company>
    </beacon>
    
    <beacon id = "716cb1ae9008d60e5e40499ec67a772f">    
    <label>Room2</label>
-   <idMall>2</idMall>
+   <idMall>1</idMall>
    <company>Estimote</company>
    </beacon>
    
    <beacon id = "ee4d538a36c2bbac622980b351ba9a0a">
    <company>Estimote</company>
    <label>Room3</label>
-   <idMall>2</idMall>
+   <idMall>1</idMall>
    <company>Estimote</company>
    </beacon>
    
    <beacon id = "44cf736f23ac5add5e8d15b021600d03">
    <label>Room4</label>
-   <idMall>2</idMall>
+   <idMall>1</idMall>
    <company>Estimote</company>
    </beacon>
    
    <beacon id = "2c49b20fa9a9a4c9ee5d64b884811b34">
    <label>Room5</label>
-   <idMall>2</idMall>
+   <idMall>1</idMall>
    <company>Estimote</company>
    </beacon>
    
    <beacon id = "580a946d72a0aea856aa9e0dd4beda37">
    <label>Room6</label>
-   <idMall>2</idMall>
+   <idMall>1</idMall>
    <company>Estimote</company>
    </beacon>
    
    <beacon id = "LKhV">
    <label>POC</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>41302</major>
    <minor>22282</minor>
+   <latitude>44.430423</latitude>
+   <longitude>26.0516788</longitude>
    </beacon>
    
    <beacon id = "rrZd">
    <label>SERE</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>39824</major>
    <minor>22135</minor>
+   <latitude>44.430078</latitude>
+   <longitude>26.0515778</longitude>
    </beacon>
    
    <beacon id = "0Qq2">
    <label>Sales</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>33233</major>
    <minor>43572</minor>
+   <latitude>44.430258</latitude>
+   <longitude>26.0513068</longitude>
    </beacon>
    
    <beacon id = "zbCe">
    <label>Secretariat</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>60181</major>
    <minor>7706</minor>
+   <latitude>44.430157</latitude>
+   <longitude>26.0514518</longitude>
    </beacon>
    
    <beacon id = "R4JH">
    <label>Proiecte</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>24334</major>
    <minor>57021</minor>
+   <latitude>44.430195</latitude>
+   <longitude>26.0514088</longitude>
    </beacon>
    
-   <beacon id = "g0Mk">
+   <beacon id = "g0MK">
    <label>Management room</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>10428</major>
    <minor>42734</minor>
+   <latitude>44.42998</latitude>
+   <longitude>26.0516688</longitude>
    </beacon>
    
    <beacon id = "lZyt">
    <label>CEO room</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>51925</major>
    <minor>21455</minor>
+   <latitude>44.429936</latitude>
+   <longitude>26.0516957</longitude>
    </beacon>
    
    <beacon id = "MTFa">
-   <label>Conerence room</label>
-   <idMall>1</idMall>
+   <label>Conference room</label>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>59730</major>
    <minor>3532</minor>
+   <latitude>44.430137</latitude>
+   <longitude>26.0520308</longitude>
    </beacon>
    
    <beacon id = "aaai">
    <label>Oficiu 1</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>48319</major>
    <minor>1456</minor>
+   <latitude>44.430237</latitude>
+   <longitude>26.0519288</longitude>
    </beacon>
    
    <beacon id = "v7mz">
    <label>Scara2</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>25098</major>
    <minor>4628</minor>
+   <latitude>44.430277</latitude>
+   <longitude>26.0518238</longitude>
    </beacon>
-   
-   
    
    <beacon id = "tZF7">
    <label>Scara 1</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>3204</major>
    <minor>63655</minor>
+   <latitude>44.430456</latitude>
+   <longitude>26.0511848</longitude>
    </beacon>
    
    
    <beacon id = "PcNy">
    <label>POC 2</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>58450</major>
    <minor>19566</minor>
+   <latitude>44.430293</latitude>
+   <longitude>26.0513188</longitude>
    </beacon>
    
    <beacon id = "y0PY">
    <label>Garaj</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>9597</major>
    <minor>46982</minor>
+   <latitude>44.43067</latitude>
+   <longitude>26.0512978</longitude>
    </beacon>
    
    <beacon id = "yqmN">
    <label>Intrare</label>
-   <idMall>1</idMall>
+   <idMall>2</idMall>
    <company>Kontakt</company>
    <major>55561</major>
    <minor>26706</minor>
+   <latitude>44.430605</latitude>
+   <longitude>26.0514298</longitude>
    </beacon>
    
 </beaconsList>

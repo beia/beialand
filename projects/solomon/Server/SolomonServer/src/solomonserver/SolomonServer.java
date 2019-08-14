@@ -9,6 +9,7 @@ import SolomonPartnersNetworkObjects.Mall;
 import SolomonPartnersNetworkObjects.User;
 import SolomonPartnersNetworkObjects.UserStoreTime;
 import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.Coordinates;
 import com.beia.solomon.networkPackets.Store;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -38,8 +39,7 @@ public class SolomonServer {
     public static Thread connectClients;
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
-    public static ArrayList<Store> stores;
-    public static HashMap<Integer, 
+    public static HashMap<Integer, com.beia.solomon.networkPackets.Mall> malls;
     
     //Solomon partners variables
     public static ServerSocket partnersServerSocket;
@@ -66,7 +66,7 @@ public class SolomonServer {
     {
         //init variables
         beacons = new HashMap<>();
-        stores = new ArrayList<>();
+        malls = new HashMap<>();
         partnersDataUsers = new ArrayList<>();
         partnersDataUsersStoreTime = new ArrayList<>();
         partnersDataMalls = new ArrayList<>();
@@ -75,7 +75,7 @@ public class SolomonServer {
         connectToDatabase();
         
         //create a tcp server socket and wait for client connections
-        serverSocket = new ServerSocket(48000);
+        serverSocket = new ServerSocket(8000);
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
         
@@ -162,19 +162,20 @@ public class SolomonServer {
             {
                 System.out.println(mallId);
                 // create a prepared SQL statement
-                String roomInsertionStatement = "insert into beacons(id, label, idMall, company) values(?,?,?,?)";
+                String roomInsertionStatement = "insert into beacons(id, label, idMall, company, latitude, longitude) values(?,?,?,?,?,?)";
                 PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
                 updateRooms.setString(1, id);
                 updateRooms.setString(2, label);
                 updateRooms.setInt(3, mallId);
                 updateRooms.setString(4, company);
+                updateRooms.setDouble(5, 45);
+                updateRooms.setDouble(6, 26);
                 updateRooms.executeUpdate();
                 System.out.println("Inserted Estimote beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId + "\ncompany: " + company + "\n\n");
             }
             catch (SQLException sqle)
             {
-                error = "SqlException: Update failed; duplicates may exist.";
-                throw new SQLException(error);
+                sqle.printStackTrace();
             }
         } 
         else
@@ -184,14 +185,14 @@ public class SolomonServer {
         }
     }
     
-    public static void addKontaktBeacon(String id, String label, int mallId, String company, String major, String minor) throws SQLException, Exception
+    public static void addKontaktBeacon(String id, String label, int mallId, String company, String major, String minor, Coordinates coordinates) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String beaconInsertionStatement = "insert into beacons(id, label, idMall, company, major, minor) values(?,?,?,?,?,?)";
+                String beaconInsertionStatement = "insert into beacons(id, label, idMall, company, major, minor, latitude, longitude) values(?,?,?,?,?,?,?,?)";
                 PreparedStatement updateBeacons = con.prepareStatement(beaconInsertionStatement);
                 updateBeacons.setString(1, id);
                 updateBeacons.setString(2, label);
@@ -199,13 +200,14 @@ public class SolomonServer {
                 updateBeacons.setString(4, company);
                 updateBeacons.setString(5, major);
                 updateBeacons.setString(6, minor);
+                updateBeacons.setDouble(7, coordinates.getLatitude());
+                updateBeacons.setDouble(8, coordinates.getLongitude());
                 updateBeacons.executeUpdate();
-                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId +"\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor +"\n\n");
+                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId +"\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor + "\nlatitude: " + coordinates.getLatitude() + "\nlongitude: " + coordinates.getLongitude() +"\n\n");
             }
             catch (SQLException sqle)
             {
-                error = "SqlException: Update failed; duplicates may exist.";
-                throw new SQLException(error);
+                sqle.printStackTrace();
             }
         } 
         else

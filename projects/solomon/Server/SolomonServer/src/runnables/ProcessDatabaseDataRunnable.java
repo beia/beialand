@@ -21,9 +21,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.Coordinates;
 import com.beia.solomon.networkPackets.EstimoteBeacon;
 import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.KontaktBeacon;
+import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.networkPackets.MallData;
 import com.beia.solomon.networkPackets.Store;
 import data.ColorRGB;
@@ -35,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -61,66 +64,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
     public void run() {
         try
         {   
-            //get the malls data from the database
-            //MALL IMAGES PROCESSING
-            ResultSet resultSet = SolomonServer.getTableData("malls");
-            while(resultSet.next())
-            {
-                int mallId = resultSet.getInt("idMalls");
-                String name = resultSet.getString("name");
-                String mapImagePath = resultSet.getString("mapPicture");
-                if(mapImagePath == null)
-                {
-                    System.out.println("Server error");
-                }
-                else
-                {
-                    if(mapImagePath.equals("No store map"))
-                    {
-                        System.out.println("------------------------------\nNo store map found\n------------------------------");
-                    }
-                    else
-                    {
-                        try
-                        {
-                            //get the map image from path and convert it into the RGB format
-                            System.out.println(mapImagePath);
-                            File file = new File(mapImagePath);
-                            byte[] imageBytes;
-                            BufferedImage mapImage = ImageIO.read(new File(mapImagePath));
-                            System.out.println(mapImage);
-                            ColorRGB[][] rgbImage = convertToRGB(mapImage);
-                            int s = 0;
-                            for(int i = 0; i < rgbImage.length; i++)
-                                for(int j = 0; j < rgbImage[i].length; j++)
-                                    for(int k = 0; k < rgbImage.length; k++)
-                                        for(int l = 0; l < rgbImage[k].length; l++)
-                                            s++;
-                            System.out.println(s);
-                            
-                            /*
-                            //rescale the image and save it into the memory
-                            mapImage = resize(mapImage, 500, 500);
-                            String path = "C:\\Users\\beia\\Desktop\\StoreMaps\\map6Rescaled.jpg";
-                            file = new File(path);
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            ImageIO.write(mapImage, "jpg", baos);
-                            baos.flush();
-                            byte[] imageInByte = baos.toByteArray();
-                            baos.close();
-                            Files.write(file.toPath(), imageInByte);
-                            */
-                        }
-                        catch (IOException ex)
-                        {
-                            Logger.getLogger(ManageClientAppInteractionRunnable.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }    
-            }
-            
-            
-            
+                        
             //BEACON CONFIGURATION
             //get the beacons data from the XML configuration file
             getBeaconsData(SolomonServer.beacons);
@@ -139,7 +83,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     if(beacon instanceof KontaktBeacon)
                     {
                         KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
+                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor(), kontaktBeacon.getCoordinates());
                     }
                 }
             }
@@ -157,27 +101,29 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     switch(company)
                     {
                         case "Estimote":
-                            databaseBeaconMap.put(label, new EstimoteBeacon(id, label, mallId));
+                            databaseBeaconMap.put(id, new EstimoteBeacon(id, label, mallId));
                             break;
                         case "Kontakt":
                             String major = beaconData.getString("major");
                             String minor = beaconData.getString("minor");
-                            databaseBeaconMap.put(label, new KontaktBeacon(id, label, mallId, major, minor));
+                            double latitude = beaconData.getDouble("latitude");
+                            double longitude = beaconData.getDouble("longitude");
+                            databaseBeaconMap.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(latitude, longitude)));
                             break;
                         default:
                             break;
                     }
                 }
                 
-                for(String beaconLabel : databaseBeaconMap.keySet())
+                for(String beaconId : databaseBeaconMap.keySet())
                 {
-                    if(SolomonServer.beacons.containsKey(beaconLabel) == false)
+                    if(SolomonServer.beacons.containsKey(beaconId) == false)
                     {
                         //the SolomonServer.beacons hashmap contains the beacons from the configuration file
                         //this means that we don't want the beacon anymore
                         //remove the beacon from the database - the deletion from the database is CASCADE(foreign key - 'label')
                         //this action will remove also the time spent near the beacon and all the moments that where saved regarding that beacon
-                        SolomonServer.deleteBeacon(beaconLabel);
+                        SolomonServer.deleteBeacon(beaconId);
                     }
                 }
                 
@@ -186,7 +132,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 {
                     //check if the beacons from the configuration file are into the database
                     //if not we add them into the database
-                    if(databaseBeaconMap.containsKey(beacon.getLabel()) == false)
+                    if(databaseBeaconMap.containsKey(beacon.getId()) == false)
                     {
                         if(beacon instanceof EstimoteBeacon)
                         {
@@ -196,18 +142,48 @@ public class ProcessDatabaseDataRunnable implements Runnable
                         if(beacon instanceof KontaktBeacon)
                         {
                             KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor());
+                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor(), kontaktBeacon.getCoordinates());
                         }
                     }
                 }
-                
             }
             System.out.println("Added beacons into the database");
             System.out.println("------------------------------------------------------------");
             //end of beacon configuration
             
-            
-            //STORES PROCESSING
+            //MALLS CONFIG
+            File file = new File("C:\\Users\\beia\\Desktop\\beialand\\projects\\solomon\\Server\\SolomonServer\\src\\configFiles\\mallsCoordinates");
+            Scanner scan = new Scanner(file);
+            //get stores from the database
+            ArrayList<Store> stores = new ArrayList<>();
+            ResultSet storesResultSet = SolomonServer.getTableData("stores");
+            while(storesResultSet.next())
+            {
+                int idStore = storesResultSet.getInt("idStores");
+                String name = storesResultSet.getString("name");
+                String idEntranceBeacon = storesResultSet.getString("idBeacon");
+                int idMall = storesResultSet.getInt("idMall");
+                stores.add(new Store(idStore, name, idMall, SolomonServer.beacons.get(idEntranceBeacon)));
+            }
+            while(scan.hasNextLine())
+            {
+                String[] data = scan.nextLine().split(" ");
+                int mallId = Integer.parseInt(data[0]);
+                String mallName = data[1];
+                double latitude = Double.parseDouble(data[2]);
+                double longitude = Double.parseDouble(data[3]);
+                ArrayList<Store> storesFromMall = new ArrayList<>();
+                for(Store store : stores)
+                {
+                    if(store.getMallId() == mallId)
+                    {
+                        storesFromMall.add(store);
+                    }
+                }
+                Mall mall = new Mall(mallId, storesFromMall, new Coordinates(latitude, longitude));
+                SolomonServer.malls.put(mallId, mall);
+                System.out.println("Created mall with id: " + mall.getMallId() + " and name: " + mallName);
+            }
             
             
             //TIME PROCESSING
@@ -414,12 +390,14 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 switch(company)
                 {
                     case "Estimote":
-                        beacons.put(label , new EstimoteBeacon(id, label, mallId));
+                        beacons.put(id , new EstimoteBeacon(id, label, mallId));
                         break;
                     case "Kontakt":
                         String major = eElement.getElementsByTagName("major").item(0).getTextContent();
                         String minor = eElement.getElementsByTagName("minor").item(0).getTextContent();
-                        beacons.put(label, new KontaktBeacon(id, label, mallId, major, minor));
+                        String latitude = eElement.getElementsByTagName("latitude").item(0).getTextContent();
+                        String longitude = eElement.getElementsByTagName("longitude").item(0).getTextContent();
+                        beacons.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude))));
                         break;
                     default:
                         break;

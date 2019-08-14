@@ -6,6 +6,7 @@ import android.util.Log;
 import com.beia.solomon.MainActivity;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.BeaconsData;
+import com.beia.solomon.networkPackets.Mall;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,12 +15,10 @@ import java.util.HashMap;
 
 public class ReceiveBeaconsDataRunnable implements Runnable
 {
-    private HashMap<String, Beacon> beacons;
     private ObjectInputStream objectInputStream;
     private ObjectOutputStream objectOutputStream;
-    public ReceiveBeaconsDataRunnable(HashMap<String, Beacon> beacons, ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream)
+    public ReceiveBeaconsDataRunnable(ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream)
     {
-        this.beacons = beacons;
         this.objectInputStream = objectInputStream;
         this.objectOutputStream = objectOutputStream;
     }
@@ -30,7 +29,11 @@ public class ReceiveBeaconsDataRunnable implements Runnable
         {
             BeaconsData beaconsData = (BeaconsData) objectInputStream.readObject();
             MainActivity.beacons = beaconsData.getBeaconsData();//change .. make beacons not static
-            objectOutputStream.writeObject(new String("Client received beacons"));
+            objectOutputStream.writeObject("Client received beacons");
+
+            HashMap<Integer, Mall> malls = (HashMap<Integer, Mall>) objectInputStream.readObject();
+            MainActivity.malls = malls;
+            objectOutputStream.writeObject("Client received malls");
 
             //before listening to the beacons and sending data to the server regarding positions we must be sure that the server is listening for the data
             String serverFeedback = (String)objectInputStream.readObject();

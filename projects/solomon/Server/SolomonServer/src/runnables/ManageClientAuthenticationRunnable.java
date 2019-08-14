@@ -100,7 +100,7 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                             //send the beacons data to the users
                             if(SolomonServer.beacons != null)
                             {
-                                System.out.println("Sent the beacons data to the users");
+                                System.out.println("Sent the beacons data to the user");
                                 this.objectOutputStream.writeObject(new BeaconsData(SolomonServer.beacons));
                             }
                             else
@@ -108,13 +108,27 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                                 System.out.println("No beacons available to send");
                             }
                             
-                            //check if the beacons were received by the user
-                            String clientFeedback = (String)this.objectInputStream.readObject();
+                            
+                            //check if the beacons were received by the user - it's tcp it surely is received this step is unnecesary
+                            String clientFeedback1 = (String)this.objectInputStream.readObject();
+                            System.out.println(clientFeedback1);
+                            
+                            if(SolomonServer.malls != null)
+                            {
+                                System.out.println("Sent the malls data to the user");
+                                this.objectOutputStream.writeObject(SolomonServer.malls);
+                            }
+                            
+                            
+                            //check if the malls were received by the user - it's tcp it surely is received this step is unnecesary
+                            String clientFeedback2 = (String)this.objectInputStream.readObject();
+                            System.out.println(clientFeedback2);
+                            
                             
                             //if the client received the beacons then we start listening for location data
-                            if(clientFeedback.equals("Client received beacons"))
+                            if(clientFeedback1.equals("Client received beacons") && clientFeedback2.equals("Client received malls"))
                             {
-                                System.out.println("Client received the beacons");
+                                System.out.println("Client received the beacons and the malls");
                                 //start a new thread that is monitoring user interaction with the app
                                 Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
                                 manageClientAppInteractionsThread.start();

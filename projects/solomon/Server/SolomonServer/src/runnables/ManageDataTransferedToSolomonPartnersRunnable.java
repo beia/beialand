@@ -65,7 +65,6 @@ public class ManageDataTransferedToSolomonPartnersRunnable implements Runnable
                     //get the user store times from the database
                     ArrayList<UserStoreTime> storesTime = new ArrayList<>();
                     ResultSet storesTimeResultSet = SolomonServer.getStoreTimeByUserId(idUser);
-                    System.out.println(username);
                     while(storesTimeResultSet.next())
                     {
                         int idMall = storesTimeResultSet.getInt("idMall");

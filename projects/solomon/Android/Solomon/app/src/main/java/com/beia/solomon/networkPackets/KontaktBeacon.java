@@ -9,14 +9,16 @@ public class KontaktBeacon extends Beacon
     public final String COMPANY = "Kontakt";
     private String major;
     private String minor;
+    private Coordinates coordinates;
 
-    public KontaktBeacon(String id, String label, int mallId, String major, String minor)
+    public KontaktBeacon(String id, String label, int mallId, String major, String minor, Coordinates coordinates)
     {
         this.id = id;
         this.label = label;
         this.mallId = mallId;
         this.major = major;
         this.minor = minor;
+        this.coordinates = coordinates;
     }
     @Override
     public String getId()
@@ -44,5 +46,9 @@ public class KontaktBeacon extends Beacon
     public String getMinor()
     {
         return this.minor;
+    }
+    public Coordinates getCoordinates()
+    {
+        return this.coordinates;
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import android.os.Handler;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback{
 
+    public GoogleMap googleMap;
     //Display information variables
     private boolean needsInit=false;
 
@@ -40,8 +42,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap)
     {
+        this.googleMap = googleMap;
         // Add a marker in Sydney, Australia, and move the camera.
-        LatLng afi = new LatLng(44.4306476, 26.0519227);
+        LatLng afi = new LatLng(50, 26.051922);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(afi, 18.0f));
     }
 }
