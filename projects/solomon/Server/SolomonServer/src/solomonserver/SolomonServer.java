@@ -154,7 +154,7 @@ public class SolomonServer {
         }
     }
     
-    public static void addEstimoteBeacon(String id, String label, int mallId, String company) throws SQLException, Exception
+    public static void addEstimoteBeacon(String id, String label, int mallId, String company, Coordinates coordinates, int layer, int floor) throws SQLException, Exception
     {
         if (con != null)
         {
@@ -162,14 +162,16 @@ public class SolomonServer {
             {
                 System.out.println(mallId);
                 // create a prepared SQL statement
-                String roomInsertionStatement = "insert into beacons(id, label, idMall, company, latitude, longitude) values(?,?,?,?,?,?)";
+                String roomInsertionStatement = "insert into beacons(id, label, idMall, company, latitude, longitude, layer, floor) values(?,?,?,?,?,?,?,?)";
                 PreparedStatement updateRooms = con.prepareStatement(roomInsertionStatement);
                 updateRooms.setString(1, id);
                 updateRooms.setString(2, label);
                 updateRooms.setInt(3, mallId);
                 updateRooms.setString(4, company);
-                updateRooms.setDouble(5, 45);
-                updateRooms.setDouble(6, 26);
+                updateRooms.setDouble(5, coordinates.getLatitude());
+                updateRooms.setDouble(6, coordinates.getLongitude());
+                updateRooms.setInt(7, layer);
+                updateRooms.setInt(8, floor);
                 updateRooms.executeUpdate();
                 System.out.println("Inserted Estimote beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId + "\ncompany: " + company + "\n\n");
             }
@@ -185,14 +187,14 @@ public class SolomonServer {
         }
     }
     
-    public static void addKontaktBeacon(String id, String label, int mallId, String company, String major, String minor, Coordinates coordinates) throws SQLException, Exception
+    public static void addKontaktBeacon(String id, String label, int mallId, String company, String major, String minor, Coordinates coordinates, int layer, int floor) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String beaconInsertionStatement = "insert into beacons(id, label, idMall, company, major, minor, latitude, longitude) values(?,?,?,?,?,?,?,?)";
+                String beaconInsertionStatement = "insert into beacons(id, label, idMall, company, major, minor, latitude, longitude, layer, floor) values(?,?,?,?,?,?,?,?,?,?)";
                 PreparedStatement updateBeacons = con.prepareStatement(beaconInsertionStatement);
                 updateBeacons.setString(1, id);
                 updateBeacons.setString(2, label);
@@ -202,8 +204,10 @@ public class SolomonServer {
                 updateBeacons.setString(6, minor);
                 updateBeacons.setDouble(7, coordinates.getLatitude());
                 updateBeacons.setDouble(8, coordinates.getLongitude());
+                updateBeacons.setInt(9, layer);
+                updateBeacons.setInt(10, floor);
                 updateBeacons.executeUpdate();
-                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId +"\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor + "\nlatitude: " + coordinates.getLatitude() + "\nlongitude: " + coordinates.getLongitude() +"\n\n");
+                System.out.println("Inserted Kontakt beacon into the database:\nid: " + id + "\nlabel: " + label + "\nidMall: " + mallId +"\ncompany: " + company + "\nmajor: " + major + "\nminor: " + minor + "\nlatitude: " + coordinates.getLatitude() + "\nlongitude: " + coordinates.getLongitude() + "\nlayer: " + layer + "\nfloor: " + floor + "\n\n");
             }
             catch (SQLException sqle)
             {

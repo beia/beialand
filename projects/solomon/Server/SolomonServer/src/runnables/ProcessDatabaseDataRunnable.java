@@ -78,12 +78,12 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     if(beacon instanceof EstimoteBeacon)
                     {
                         EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
-                        SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), estimoteBeacon.getMallId(), EstimoteBeacon.COMPANY);
+                        SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), estimoteBeacon.getMallId(), EstimoteBeacon.COMPANY, estimoteBeacon.getCoordinates(), estimoteBeacon.getLayer(), estimoteBeacon.getFloor());
                     }
                     if(beacon instanceof KontaktBeacon)
                     {
                         KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor(), kontaktBeacon.getCoordinates());
+                        SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor(), kontaktBeacon.getCoordinates(), kontaktBeacon.getLayer(), kontaktBeacon.getFloor());
                     }
                 }
             }
@@ -98,17 +98,21 @@ public class ProcessDatabaseDataRunnable implements Runnable
                     String label = beaconData.getString("label");
                     int mallId = beaconData.getInt("idMall");
                     String company = beaconData.getString("company");
+                    double latitude = beaconData.getDouble("latitude");
+                    double longitude = beaconData.getDouble("longitude");
+                    int layer = beaconData.getInt("layer");
+                    int floor = beaconData.getInt("floor");
+                    
                     switch(company)
                     {
                         case "Estimote":
-                            databaseBeaconMap.put(id, new EstimoteBeacon(id, label, mallId));
+                            databaseBeaconMap.put(id, new EstimoteBeacon(id, label, mallId, new Coordinates(latitude, longitude), layer, floor));
                             break;
                         case "Kontakt":
                             String major = beaconData.getString("major");
                             String minor = beaconData.getString("minor");
-                            double latitude = beaconData.getDouble("latitude");
-                            double longitude = beaconData.getDouble("longitude");
-                            databaseBeaconMap.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(latitude, longitude)));
+                            
+                            databaseBeaconMap.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(latitude, longitude), layer, floor));
                             break;
                         default:
                             break;
@@ -137,12 +141,12 @@ public class ProcessDatabaseDataRunnable implements Runnable
                         if(beacon instanceof EstimoteBeacon)
                         {
                             EstimoteBeacon estimoteBeacon = (EstimoteBeacon) beacon;
-                            SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), estimoteBeacon.getMallId(), EstimoteBeacon.COMPANY);
+                            SolomonServer.addEstimoteBeacon(estimoteBeacon.getId(), estimoteBeacon.getLabel(), estimoteBeacon.getMallId(), EstimoteBeacon.COMPANY, estimoteBeacon.getCoordinates(), estimoteBeacon.getLayer(), estimoteBeacon.getFloor());
                         }
                         if(beacon instanceof KontaktBeacon)
                         {
                             KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor(), kontaktBeacon.getCoordinates());
+                            SolomonServer.addKontaktBeacon(kontaktBeacon.getId(), kontaktBeacon.getLabel(), kontaktBeacon.getMallId(), kontaktBeacon.COMPANY, kontaktBeacon.getMajor(), kontaktBeacon.getMinor(), kontaktBeacon.getCoordinates(), kontaktBeacon.getLayer(), kontaktBeacon.getFloor());
                         }
                     }
                 }
@@ -381,23 +385,29 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 String label = eElement.getElementsByTagName("label").item(0).getTextContent();
                 int mallId = Integer.parseInt(eElement.getElementsByTagName("idMall").item(0).getTextContent());
                 String company = eElement.getElementsByTagName("company").item(0).getTextContent();
+                String latitude = eElement.getElementsByTagName("latitude").item(0).getTextContent();
+                String longitude = eElement.getElementsByTagName("longitude").item(0).getTextContent();
+                int layer = Integer.parseInt(eElement.getElementsByTagName("layer").item(0).getTextContent());
+                int floor = Integer.parseInt(eElement.getElementsByTagName("floor").item(0).getTextContent());
                 System.out.println("Beacon id : " + eElement.getAttribute("id"));
                 System.out.println("Label : " + label);
                 System.out.println("Mall id: " + mallId);
                 System.out.println("Company : " + company);
+                System.out.println("Latitude : " + latitude);
+                System.out.println("Longitude : " + longitude);
+                System.out.println("Layer : " + layer);
+                System.out.println("Floor : " + floor);
                 
                 //add the beacon into the hashmap
                 switch(company)
                 {
                     case "Estimote":
-                        beacons.put(id , new EstimoteBeacon(id, label, mallId));
+                        beacons.put(id , new EstimoteBeacon(id, label, mallId, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude)), layer, floor));
                         break;
                     case "Kontakt":
                         String major = eElement.getElementsByTagName("major").item(0).getTextContent();
                         String minor = eElement.getElementsByTagName("minor").item(0).getTextContent();
-                        String latitude = eElement.getElementsByTagName("latitude").item(0).getTextContent();
-                        String longitude = eElement.getElementsByTagName("longitude").item(0).getTextContent();
-                        beacons.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude))));
+                        beacons.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude)), layer, floor));
                         break;
                     default:
                         break;

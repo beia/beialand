@@ -6,6 +6,7 @@
 package data;
 
 import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.Coordinates;
 
 /**
  *
@@ -39,6 +40,24 @@ public class Room extends Beacon
     public int getMallId()
     {
         return this.mallId;
+    }
+    
+    @Override
+    public Coordinates getCoordinates()
+    {
+        return this.coordinates;
+    }
+    
+    @Override
+    public int getLayer()
+    {
+        return this.layer;
+    }
+    
+    @Override
+    public int getFloor()
+    {
+        return this.floor;
     }
     
      public long getTimeSeconds()

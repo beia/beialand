@@ -4,12 +4,20 @@
    <label>Room1</label>
    <idMall>1</idMall>
    <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "716cb1ae9008d60e5e40499ec67a772f">    
    <label>Room2</label>
    <idMall>1</idMall>
    <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "ee4d538a36c2bbac622980b351ba9a0a">
@@ -17,24 +25,40 @@
    <label>Room3</label>
    <idMall>1</idMall>
    <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "44cf736f23ac5add5e8d15b021600d03">
    <label>Room4</label>
    <idMall>1</idMall>
    <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "2c49b20fa9a9a4c9ee5d64b884811b34">
    <label>Room5</label>
    <idMall>1</idMall>
    <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "580a946d72a0aea856aa9e0dd4beda37">
    <label>Room6</label>
    <idMall>1</idMall>
    <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "LKhV">
@@ -45,6 +69,8 @@
    <minor>22282</minor>
    <latitude>44.430423</latitude>
    <longitude>26.0516788</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "rrZd">
@@ -55,6 +81,8 @@
    <minor>22135</minor>
    <latitude>44.430078</latitude>
    <longitude>26.0515778</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "0Qq2">
@@ -65,6 +93,8 @@
    <minor>43572</minor>
    <latitude>44.430258</latitude>
    <longitude>26.0513068</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "zbCe">
@@ -75,6 +105,8 @@
    <minor>7706</minor>
    <latitude>44.430157</latitude>
    <longitude>26.0514518</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "R4JH">
@@ -85,6 +117,8 @@
    <minor>57021</minor>
    <latitude>44.430195</latitude>
    <longitude>26.0514088</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "g0MK">
@@ -95,6 +129,8 @@
    <minor>42734</minor>
    <latitude>44.42998</latitude>
    <longitude>26.0516688</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "lZyt">
@@ -105,6 +141,8 @@
    <minor>21455</minor>
    <latitude>44.429936</latitude>
    <longitude>26.0516957</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "MTFa">
@@ -115,6 +153,8 @@
    <minor>3532</minor>
    <latitude>44.430137</latitude>
    <longitude>26.0520308</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "aaai">
@@ -125,6 +165,8 @@
    <minor>1456</minor>
    <latitude>44.430237</latitude>
    <longitude>26.0519288</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "v7mz">
@@ -135,6 +177,8 @@
    <minor>4628</minor>
    <latitude>44.430277</latitude>
    <longitude>26.0518238</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
    </beacon>
    
    <beacon id = "tZF7">
@@ -145,6 +189,8 @@
    <minor>63655</minor>
    <latitude>44.430456</latitude>
    <longitude>26.0511848</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
    </beacon>
    
    
@@ -156,6 +202,8 @@
    <minor>19566</minor>
    <latitude>44.430293</latitude>
    <longitude>26.0513188</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "y0PY">
@@ -166,6 +214,8 @@
    <minor>46982</minor>
    <latitude>44.43067</latitude>
    <longitude>26.0512978</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
    </beacon>
    
    <beacon id = "ygmN">
@@ -176,6 +226,8 @@
    <minor>26706</minor>
    <latitude>44.430605</latitude>
    <longitude>26.0514298</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
    </beacon>
    
 </beaconsList>

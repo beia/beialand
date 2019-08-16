@@ -15,7 +15,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.beia.solomon.comparators.DistanceComparator;
 import com.beia.solomon.networkPackets.Mall;
+import com.beia.solomon.trilateration.Point;
+import com.beia.solomon.trilateration.Trilateration;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
@@ -24,7 +27,7 @@ import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
 import com.estimote.proximity_sdk.api.ProximityZone;
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
 import com.estimote.proximity_sdk.api.ProximityZoneContext;
-import com.beia.solomon.Handlers.MainActivityHandler;
+import com.beia.solomon.handlers.MainActivityHandler;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.EstimoteBeacon;
 import com.beia.solomon.networkPackets.KontaktBeacon;
@@ -32,6 +35,9 @@ import com.beia.solomon.networkPackets.UserData;
 import com.beia.solomon.runnables.ReceiveBeaconsDataRunnable;
 import com.beia.solomon.runnables.SendLocationDataRunnable;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.IndoorBuilding;
+import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
@@ -42,12 +48,10 @@ import com.kontakt.sdk.android.ble.device.BeaconRegion;
 import com.kontakt.sdk.android.ble.manager.ProximityManager;
 import com.kontakt.sdk.android.ble.manager.ProximityManagerFactory;
 import com.kontakt.sdk.android.ble.manager.listeners.IBeaconListener;
-import com.kontakt.sdk.android.ble.manager.listeners.SpaceListener;
 import com.kontakt.sdk.android.ble.spec.EddystoneFrameType;
 import com.kontakt.sdk.android.common.KontaktSDK;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
-import com.kontakt.sdk.android.common.profile.IEddystoneNamespace;
 
 import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
@@ -60,10 +64,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Stack;
 import java.util.UUID;
 
 import kotlin.Unit;
@@ -77,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
     public static HashMap<String, Boolean> regionsEntered;
     public static HashMap<Integer, Mall> malls;
     public static HashMap<Integer, Boolean> mallsEntered;
+    public static List<IndoorLevel> levels;
+    public ArrayList<Boolean> levelsActivated;
+    public HashSet<IBeaconDevice> ibeaconsSet;
+    public IBeaconDevice[] closestBeacons;
     //Estimote variables
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
@@ -176,6 +186,11 @@ public class MainActivity extends AppCompatActivity {
         regionsEntered = new HashMap<>();
         malls = new HashMap<>();
         mallsEntered = new HashMap<>();
+        levels = new ArrayList<>();
+        levelsActivated = new ArrayList<>();
+        ibeaconsSet = new HashSet<>();
+        closestBeacons = new IBeaconDevice[3];
+
         Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(objectInputStream, objectOutputStream));
         getBeaconsDataThread.start();
     }
@@ -326,12 +341,40 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
             {
+                //check if the mall changed
                 if(MainActivity.mallsEntered.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId()) == false)
                 {
                     //update the map based on the beacon mallId
                     Mall mall = MainActivity.malls.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId());
+                    Log.d("MALL", mall.getMallCoordinates().getLatitude() + " " + mall.getMallCoordinates().getLongitude());
                     LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
-                    mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
+                    mapFragment.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
+                    //get all the levels from the store(the floors)
+                    IndoorBuilding indoorBuilding = null;
+
+                    while(indoorBuilding == null)
+                    {
+                        indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
+                        Log.d("NO FOCUS", "onIBeaconDiscovered: ");
+                    }
+
+                    if(indoorBuilding == null)
+                        Log.d("NULL BUILDING", "onIBeaconDiscovered: ");
+                    if(indoorBuilding != null)
+                    {
+                        List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
+                        //spin the array because it has the upper levels at the begining
+                        Stack<IndoorLevel> stack = new Stack<>();
+                        for(IndoorLevel indoorLevel : levels_aux)
+                            stack.push(indoorLevel);
+                        while(!stack.empty())
+                            levels.add(stack.pop());
+                        //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
+                        for(IndoorLevel indoorLevel : levels)
+                        {
+                            levelsActivated.add(false);
+                        }
+                    }
 
                     //the user just entered the mall we change the map and we make all the other values in the mallEntered map as false
                     KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeacon.getUniqueId());
@@ -349,6 +392,47 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region)
             {
+                //trilateration algorithm for finding the position of the user using three beacons that are closest to the user
+                //this is used for giving the user a good shopping experience in the store by provinding a good indoor localization
+                for(IBeaconDevice iBeaconDevice : iBeacons)
+                    ibeaconsSet.add(iBeaconDevice);
+                if(ibeaconsSet.size() >= 3) {
+                    ArrayList<IBeaconDevice> iBeaconDevices = new ArrayList<>();
+                    for (IBeaconDevice iBeaconDevice : ibeaconsSet)
+                        iBeaconDevices.add(iBeaconDevice);
+                    //Collections.sort(iBeaconDevices, new DistanceComparator());
+                    double x1, y1, x2, y2, x3, y3, r1, r2, r3, x, y, A, B, C, D, E, F;
+                    KontaktBeacon kontaktBeacon1 = (KontaktBeacon) beacons.get(iBeaconDevices.get(0).getUniqueId());
+                    KontaktBeacon kontaktBeacon2 = (KontaktBeacon) beacons.get(iBeaconDevices.get(1).getUniqueId());
+                    KontaktBeacon kontaktBeacon3 = (KontaktBeacon) beacons.get(iBeaconDevices.get(2).getUniqueId());
+                    r1 = iBeaconDevices.get(0).getDistance() / 1000;
+                    r2 = iBeaconDevices.get(0).getDistance() / 1000;
+                    r3 = iBeaconDevices.get(0).getDistance() / 1000;
+
+                    Point p1=new Point(kontaktBeacon1.getCoordinates().getLatitude(),kontaktBeacon1.getCoordinates().getLongitude(), r1);
+                    Point p2=new Point(kontaktBeacon2.getCoordinates().getLatitude(), kontaktBeacon2.getCoordinates().getLongitude(), r2);
+                    Point p3=new Point(kontaktBeacon3.getCoordinates().getLatitude(), kontaktBeacon3.getCoordinates().getLongitude(), r3);
+                    double[] userPos = Trilateration.Compute(p1,p2,p3);
+
+                    //display a marker on the map
+                    if(userPos != null)
+                    {
+                        LatLng userCoordinates = new LatLng(userPos[0], userPos[1]);
+                        mapFragment.googleMap.addMarker(new MarkerOptions().position(userCoordinates).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    }
+
+                    ibeaconsSet.clear();
+                }
+                else
+                {
+                    Log.d("IBEACONS", "too few beacons for trilateration");
+                }
+                //end of trilateration algorithm
+
+
+
+
+                //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                 {
                     KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeaconDevice.getUniqueId());
@@ -360,8 +444,22 @@ public class MainActivity extends AppCompatActivity {
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
                     {
-                        if(distance < 5)
+                        if(distance < 7)
                         {
+                            //change the map level(floor) to the current floor
+                            if(levels != null && levels.isEmpty() == false) {
+                                if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
+                                    //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
+                                    levelsActivated.set(kontaktBeacon.getFloor(), true);
+                                    for (int i = 0; i < levelsActivated.size(); i++) {
+                                        if (i != kontaktBeacon.getFloor()) {
+                                            levelsActivated.set(i, false);
+                                        }
+                                    }
+                                    //set the new indoor map level
+                                    levels.get(kontaktBeacon.getFloor()).activate();
+                                }
+                            }
                             //put the user on the map(not the exact location)
                             LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
                             mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
@@ -387,8 +485,21 @@ public class MainActivity extends AppCompatActivity {
                             if(!inZone)
                             {
                                 //user is inside the region
-                                if(distance < 5)
+                                if(distance < 7)
                                 {
+                                    if(levels != null && levels.isEmpty() == false) {
+                                        if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
+                                            //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
+                                            levelsActivated.set(kontaktBeacon.getFloor(), true);
+                                            for (int i = 0; i < levelsActivated.size(); i++) {
+                                                if (i != kontaktBeacon.getFloor()) {
+                                                    levelsActivated.set(i, false);
+                                                }
+                                            }
+                                            //set the new indoor map level
+                                            levels.get(kontaktBeacon.getFloor()).activate();
+                                        }
+                                    }
                                     //put the user on the map(not the exact location)
                                     LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
                                     mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
@@ -410,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
                             else
                             {
                                 //user is outside the region
-                                if(distance > 5)
+                                if(distance > 7)
                                 {
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), false);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -429,8 +540,22 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else
                         {
-                            if(distance < 5)
+                            if(distance < 7)
                             {
+                                //change the map level(floor) to the current floor
+                                if(levels != null && levels.isEmpty() == false) {
+                                    if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
+                                        //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
+                                        levelsActivated.set(kontaktBeacon.getFloor(), true);
+                                        for (int i = 0; i < levelsActivated.size(); i++) {
+                                            if (i != kontaktBeacon.getFloor()) {
+                                                levelsActivated.set(i, false);
+                                            }
+                                        }
+                                        //set the new indoor map level
+                                        levels.get(kontaktBeacon.getFloor()).activate();
+                                    }
+                                }
                                 //put the user on the map(not the exact location)
                                 LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
                                 mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));

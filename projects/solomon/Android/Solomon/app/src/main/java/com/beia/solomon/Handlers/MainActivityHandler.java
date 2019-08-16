@@ -1,14 +1,12 @@
-package com.beia.solomon.Handlers;
+package com.beia.solomon.handlers;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.beia.solomon.MainActivity;
 import com.beia.solomon.networkPackets.Beacon;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivityHandler extends Handler
