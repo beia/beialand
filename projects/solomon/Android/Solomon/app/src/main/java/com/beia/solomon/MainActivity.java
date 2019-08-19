@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
@@ -68,7 +69,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -100,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
     //cache variables
     public static LruCache<String, Bitmap> picturesCache;
+
+    //google map variables
+    public Queue<Marker> positionMarkers;
 
 
 
@@ -190,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         levelsActivated = new ArrayList<>();
         ibeaconsSet = new HashSet<>();
         closestBeacons = new IBeaconDevice[3];
+        positionMarkers = new LinkedList<>();
 
         Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(objectInputStream, objectOutputStream));
         getBeaconsDataThread.start();
@@ -463,7 +470,12 @@ public class MainActivity extends AppCompatActivity {
                             //put the user on the map(not the exact location)
                             LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
                             mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
-                            mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                            Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                            positionMarkers.add(positionMarker);
+                            if(positionMarkers.size() > 1)
+                            {
+                                positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+                            }
 
                             regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                             Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
@@ -503,7 +515,12 @@ public class MainActivity extends AppCompatActivity {
                                     //put the user on the map(not the exact location)
                                     LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
                                     mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
-                                    mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                                    Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                                    positionMarkers.add(positionMarker);
+                                    if(positionMarkers.size() > 1)
+                                    {
+                                        positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+                                    }
 
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -559,7 +576,12 @@ public class MainActivity extends AppCompatActivity {
                                 //put the user on the map(not the exact location)
                                 LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
                                 mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
-                                mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                                Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                                positionMarkers.add(positionMarker);
+                                if(positionMarkers.size() > 1)
+                                {
+                                    positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+                                }
 
 
                                 regionsEntered.put(iBeaconDevice.getUniqueId(), true);
