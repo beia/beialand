@@ -103,7 +103,7 @@ public class SolomonServer {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "Puihoward_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "pUIHOWARD_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
             System.out.println("Successfully connected to the database!");
         }
         catch (ClassNotFoundException cnfe)
@@ -488,6 +488,30 @@ public class SolomonServer {
             {
                 sqle.printStackTrace();
             }
+        }
+        return resultSet;
+    }
+    
+    public static ResultSet getPreferencesByUserId(int idUser) throws Exception
+    {
+        ResultSet resultSet = null;
+        if(con != null)
+        {
+            try
+            {
+                String gueryString = "SELECT * FROM userpreferences WHERE idUser = '" + idUser + "';";
+                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = stmt.executeQuery(gueryString); //sql exception
+            }
+            catch(SQLException sqle)
+            {
+                
+            }
+        }
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
         }
         return resultSet;
     }

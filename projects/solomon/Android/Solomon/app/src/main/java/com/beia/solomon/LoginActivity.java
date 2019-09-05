@@ -84,6 +84,7 @@ public class LoginActivity extends AppCompatActivity {
             switch (msg.what) {
 
                 case 1: //change the feedback text
+
                     String feedbackText = (String) msg.obj;
                     feedbackTextView.setText(feedbackText);
                     switch (feedbackText)
@@ -106,11 +107,24 @@ public class LoginActivity extends AppCompatActivity {
                     feedbackTextView.setText("login successful");
                     feedbackTextView.setTextColor(Color.GREEN);
                     UserData userData = (UserData) msg.obj;
-                    //change activity
-                    Intent intent = new Intent(LoginActivity.context, MainActivity.class);
-                    intent.putExtra("UserData", userData);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    LoginActivity.context.startActivity(intent);
+
+                    //check if it's the first login of the user so we can setup his preferences first
+                    if(userData.isFirstLogin())
+                    {
+                        //start the preferences activity
+                        Intent intent = new Intent(LoginActivity.context, PreferencesActivity.class);
+                        intent.putExtra("UserData", userData);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        LoginActivity.context.startActivity(intent);
+                    }
+                    else
+                    {
+                        //start main activity
+                        Intent intent = new Intent(LoginActivity.context, MainActivity.class);
+                        intent.putExtra("UserData", userData);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        LoginActivity.context.startActivity(intent);
+                    }
                     break;
 
                 default:

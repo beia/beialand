@@ -93,7 +93,18 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                         if(signInData.getPassword().equals(password))
                         {
                             //username and password are correct login successful
-                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, lastName, firstName, age));
+                            boolean isFirstLogin;
+                            ResultSet preferencesResultSet = SolomonServer.getPreferencesByUserId(userId);
+                            if(!preferencesResultSet.isBeforeFirst())
+                            {
+                                //user has no preferences so the first thing that he will do when he opens the app is to set his preferences
+                                isFirstLogin = true;
+                            }
+                            else
+                            {
+                                isFirstLogin = false;
+                            }
+                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, lastName, firstName, age, isFirstLogin));
                             System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
                             this.connected = true;
                             

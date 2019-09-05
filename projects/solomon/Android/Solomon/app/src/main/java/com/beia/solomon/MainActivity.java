@@ -357,13 +357,15 @@ public class MainActivity extends AppCompatActivity {
                     LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
                     mapFragment.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
                     //get all the levels from the store(the floors)
-                    IndoorBuilding indoorBuilding = null;
+                    IndoorBuilding indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
 
+                    /*
                     while(indoorBuilding == null)
                     {
                         indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
                         Log.d("NO FOCUS", "onIBeaconDiscovered: ");
                     }
+                    */
 
                     if(indoorBuilding == null)
                         Log.d("NULL BUILDING", "onIBeaconDiscovered: ");
