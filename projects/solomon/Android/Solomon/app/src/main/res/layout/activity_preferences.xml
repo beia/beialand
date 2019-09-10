@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preferencesLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".PreferencesActivity">
@@ -9,21 +10,125 @@
         android:id="@+id/shoesLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="0dp"
         android:orientation="vertical">
         <ImageView
-            android:id="@+id/ball"
+            android:id="@+id/shoes"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:src="@drawable/shoe"/>
         <TextView
+            android:id="@+id/shoesText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textSize="10dp"
             android:text="Shoes" />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/electronicsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/eletronics"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/electronics"/>
+        <TextView
+            android:id="@+id/electronicsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="Electronics" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/clothesLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/clothes"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/clothes"/>
+        <TextView
+            android:id="@+id/clothesText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="Clothes" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/foodLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/food"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/food"/>
+        <TextView
+            android:id="@+id/foodText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="Food" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cofeeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/cofee"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/cofee"/>
+        <TextView
+            android:id="@+id/cofeeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="Cofee" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sportsLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/sports"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/sports"/>
+        <TextView
+            android:id="@+id/sportsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:text="Sports" />
+    </LinearLayout>
+
+
+
+
 
 
 </RelativeLayout>
