@@ -120,34 +120,20 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                             }
                             
                             
-                            //check if the beacons were received by the user - it's tcp it surely is received this step is unnecesary
-                            String clientFeedback1 = (String)this.objectInputStream.readObject();
-                            System.out.println(clientFeedback1);
-                            
                             if(SolomonServer.malls != null)
                             {
                                 System.out.println("Sent the malls data to the user");
                                 this.objectOutputStream.writeObject(SolomonServer.malls);
                             }
+                           
+                            System.out.println("Client received the beacons and the malls");
+                            //start a new thread that is monitoring user interaction with the app
+                            Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
+                            manageClientAppInteractionsThread.start();
+                            System.out.println("Started location thread");
                             
-                            
-                            //check if the malls were received by the user - it's tcp it surely is received this step is unnecesary
-                            String clientFeedback2 = (String)this.objectInputStream.readObject();
-                            System.out.println(clientFeedback2);
-                            
-                            
-                            //if the client received the beacons then we start listening for location data
-                            if(clientFeedback1.equals("Client received beacons") && clientFeedback2.equals("Client received malls"))
-                            {
-                                System.out.println("Client received the beacons and the malls");
-                                //start a new thread that is monitoring user interaction with the app
-                                Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
-                                manageClientAppInteractionsThread.start();
-                                System.out.println("Started location thread");
-                                
-                                //send a message to the user that we started listening to the location data
-                                this.objectOutputStream.writeObject("Started listening to the location data");
-                            }
+                            //send a message to the user that we started listening to the location data
+                            this.objectOutputStream.writeObject("Started listening to the location data");
                             
                         }
                         else

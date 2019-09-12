@@ -154,6 +154,33 @@ public class SolomonServer {
         }
     }
     
+    public static void addUserPreference(int userId, String preference) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                String userPreferenceInsertionStatement = "insert into userpreferences(idUser,category) values(?,?)";
+                PreparedStatement updateUsersPreferences = con.prepareStatement(userPreferenceInsertionStatement);
+                updateUsersPreferences.setInt(1, userId);
+                updateUsersPreferences.setString(2, preference);
+                updateUsersPreferences.executeUpdate();
+                System.out.println("Inserted user preference for idUser:'" + userId + "'\n category: " + preference + " into the database\n\n");
+            }
+            catch (SQLException sqle)
+            {
+                error = "SqlException: Update failed; duplicates may exist.";
+                throw new SQLException(error);
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
     public static void addEstimoteBeacon(String id, String label, int mallId, String company, Coordinates coordinates, int layer, int floor) throws SQLException, Exception
     {
         if (con != null)

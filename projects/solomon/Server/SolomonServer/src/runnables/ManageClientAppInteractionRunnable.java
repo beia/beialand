@@ -8,12 +8,14 @@ package runnables;
 import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.LocationData;
 import com.beia.solomon.networkPackets.UpdateUserData;
+import com.beia.solomon.networkPackets.UserPreferences;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import solomonserver.SolomonServer;
@@ -122,6 +124,17 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             break;
                         default:
                             break;
+                    }
+                }
+                
+                if(networkPacket instanceof UserPreferences)
+                {
+                    //add the user preferences into the database
+                    UserPreferences userPreferences = (UserPreferences)networkPacket;
+                    ArrayList<String> preferences = userPreferences.getPreferences();
+                    for(String preference : preferences)
+                    {
+                        SolomonServer.addUserPreference(userPreferences.getUserId(), preference);
                     }
                 }
             }

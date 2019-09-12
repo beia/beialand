@@ -33,7 +33,7 @@ public class UpdateImageLocationRunnable implements Runnable
         int locationX, locationY;
         int[] incrementXY = new int[2];
         Random random = new Random();
-        int speed = 3;
+        int speed = 2;
         incrementXY[0] = (int) (speed + (Math.random() * speed + 1));
         incrementXY[1] = (int) ((-1 * speed) + (Math.random() * (-1 * speed) - 1));
         try
@@ -68,54 +68,63 @@ public class UpdateImageLocationRunnable implements Runnable
                     incrementXY[1] = (int) ((-1 * speed) + (Math.random() * (-1 * speed) - 1));
                 }
                 //send a message to the UI thread to update the preference image layout location
-                Message message;
-                switch(preference)
-                {
-                    case "shoes":
-                        message = PreferencesActivity.handler1.obtainMessage(1);
-                        message.obj = incrementXY;
-                        message.sendToTarget();
-                        PreferencesActivity.handler1.obtainMessage();
-                        break;
-                    case "electronics":
-                        message = PreferencesActivity.handler2.obtainMessage(1);
-                        message.obj = incrementXY;
-                        message.sendToTarget();
-                        PreferencesActivity.handler2.obtainMessage();
-                        break;
-                    case "clothes":
-                        message = PreferencesActivity.handler3.obtainMessage(1);
-                        message.obj = incrementXY;
-                        message.sendToTarget();
-                        PreferencesActivity.handler3.obtainMessage();
-                        break;
-                    case "food":
-                        message = PreferencesActivity.handler4.obtainMessage(1);
-                        message.obj = incrementXY;
-                        message.sendToTarget();
-                        PreferencesActivity.handler4.obtainMessage();
-                        break;
-                    case "cofee":
-                        message = PreferencesActivity.handler5.obtainMessage(1);
-                        message.obj = incrementXY;
-                        message.sendToTarget();
-                        PreferencesActivity.handler5.obtainMessage();
-                        break;
-                    case "sports":
-                        message = PreferencesActivity.handler6.obtainMessage(1);
-                        message.obj = incrementXY;
-                        message.sendToTarget();
-                        PreferencesActivity.handler6.obtainMessage();
-                        break;
-                    default:
-                        break;
+                if(!preferenceSelected) {
+                    Message message;
+                    switch (preference) {
+                        case "shoes":
+                            message = PreferencesActivity.handler1.obtainMessage(1);
+                            message.obj = incrementXY;
+                            message.sendToTarget();
+                            PreferencesActivity.handler1.obtainMessage();
+                            break;
+                        case "electronics":
+                            message = PreferencesActivity.handler2.obtainMessage(1);
+                            message.obj = incrementXY;
+                            message.sendToTarget();
+                            PreferencesActivity.handler2.obtainMessage();
+                            break;
+                        case "clothes":
+                            message = PreferencesActivity.handler3.obtainMessage(1);
+                            message.obj = incrementXY;
+                            message.sendToTarget();
+                            PreferencesActivity.handler3.obtainMessage();
+                            break;
+                        case "food":
+                            message = PreferencesActivity.handler4.obtainMessage(1);
+                            message.obj = incrementXY;
+                            message.sendToTarget();
+                            PreferencesActivity.handler4.obtainMessage();
+                            break;
+                        case "cofee":
+                            message = PreferencesActivity.handler5.obtainMessage(1);
+                            message.obj = incrementXY;
+                            message.sendToTarget();
+                            PreferencesActivity.handler5.obtainMessage();
+                            break;
+                        case "sports":
+                            message = PreferencesActivity.handler6.obtainMessage(1);
+                            message.obj = incrementXY;
+                            message.sendToTarget();
+                            PreferencesActivity.handler6.obtainMessage();
+                            break;
+                        default:
+                            break;
+                    }
                 }
-                Thread.sleep(30);
+                Thread.sleep(35);
             }
         }
         catch (InterruptedException e)
         {
                 e.printStackTrace();
         }
+    }
+    public boolean isPreferenceSelected()
+    {
+        return this.preferenceSelected;
+    }
+    public void setPreferenceSelected(boolean selected)
+    {
+        this.preferenceSelected = selected;
     }
 }
