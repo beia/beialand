@@ -284,7 +284,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view)
                     {
-                        if(!shoesSelected) {
+                        if(!shoesSelected && preferencesSet.size() < 3) {
                             shoesSelected = true;
                             preferencesSet.add("shoes");
                             updateShoesImageLocation.interrupt();
@@ -294,25 +294,27 @@ public class PreferencesActivity extends AppCompatActivity {
                                 shoppingCart.getLocationOnScreen(shoppingCartLocation);
                                 //add the shoes preference in the shopping cart
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                                params.leftMargin = shoppingCartLocation[0] + (shoppingCart.getWidth() / 3) + (shoppingCartSize++ * shoppingCart.getWidth() / 10); //XCOORD
+                                params.leftMargin = shoppingCartLocation[0] + (int)(shoppingCart.getWidth() / 2.7f) + (shoppingCartSize++ * shoppingCart.getWidth() / 10); //XCOORD
                                 params.topMargin = shoppingCartLocation[1] + (shoppingCart.getHeight() / 5); //YCOORD
                                 shoesLayout.setLayoutParams(params);
                             }
                         }
                         else {
-                            shoesSelected = false;
-                            preferencesSet.remove("shoes");
-                            shoppingCartSize--;
-                            //set a new random position for the shoes preference
-                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                            Random random = new Random();
-                            params.leftMargin = random.nextInt(displayWidth - shoesLayout.getMeasuredWidth()); //XCOORD
-                            params.topMargin = random.nextInt((int)(displayHeight / 2)); //YCOORD
-                            shoesLayout.setLayoutParams(params);
-                            //update the shoes location
-                            final UpdateImageLocationRunnable updateShoesRunnable = new UpdateImageLocationRunnable(shoesLayout, shoesImageWidth, shoesImageHeight, displayWidth, displayHeight, false, "shoes");
-                            updateShoesImageLocation = new Thread(updateShoesRunnable);
-                            updateShoesImageLocation.start();
+                            if(shoesSelected) {
+                                shoesSelected = false;
+                                preferencesSet.remove("shoes");
+                                shoppingCartSize--;
+                                //set a new random position for the shoes preference
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
+                                Random random = new Random();
+                                params.leftMargin = random.nextInt(displayWidth - shoesLayout.getMeasuredWidth()); //XCOORD
+                                params.topMargin = random.nextInt((int) (displayHeight / 2)); //YCOORD
+                                shoesLayout.setLayoutParams(params);
+                                //update the shoes location
+                                final UpdateImageLocationRunnable updateShoesRunnable = new UpdateImageLocationRunnable(shoesLayout, shoesImageWidth, shoesImageHeight, displayWidth, displayHeight, false, "shoes");
+                                updateShoesImageLocation = new Thread(updateShoesRunnable);
+                                updateShoesImageLocation.start();
+                            }
                         }
 
                         //check if there are 3 preferences selected
@@ -340,7 +342,7 @@ public class PreferencesActivity extends AppCompatActivity {
                 electronicsLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(!electronicsSelected) {
+                        if(!electronicsSelected && preferencesSet.size() < 3) {
                             electronicsSelected = true;
                             preferencesSet.add("electronics");
                             updateElectronicsImageLocation.interrupt();
@@ -350,24 +352,26 @@ public class PreferencesActivity extends AppCompatActivity {
                                 shoppingCart.getLocationOnScreen(shoppingCartLocation);
                                 //add the electronics preference in the shopping cart
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                                params.leftMargin = shoppingCartLocation[0] + (shoppingCart.getWidth() / 3) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
+                                params.leftMargin = shoppingCartLocation[0] + (int)(shoppingCart.getWidth() / 2.7f) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
                                 params.topMargin = shoppingCartLocation[1] + (shoppingCart.getHeight() / 5); //YCOORD
                                 electronicsLayout.setLayoutParams(params);
                             }
                         }
                         else {
-                            electronicsSelected = false;
-                            preferencesSet.remove("electronics");
-                            shoppingCartSize--;
-                            //set a new random position for the electronics preference
-                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                            Random random = new Random();
-                            params.leftMargin = random.nextInt(displayWidth - electronicsLayout.getMeasuredWidth()); //XCOORD
-                            params.topMargin = random.nextInt((int)(displayHeight / 2)); //YCOORD
-                            electronicsLayout.setLayoutParams(params);
-                            //update the electronics location
-                            updateElectronicsImageLocation = new Thread(new UpdateImageLocationRunnable(electronicsLayout, electronicsImageWidth, electronicsImageHeight, displayWidth, displayHeight, false, "electronics"));
-                            updateElectronicsImageLocation.start();
+                            if(electronicsSelected) {
+                                electronicsSelected = false;
+                                preferencesSet.remove("electronics");
+                                shoppingCartSize--;
+                                //set a new random position for the electronics preference
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
+                                Random random = new Random();
+                                params.leftMargin = random.nextInt(displayWidth - electronicsLayout.getMeasuredWidth()); //XCOORD
+                                params.topMargin = random.nextInt((int) (displayHeight / 2)); //YCOORD
+                                electronicsLayout.setLayoutParams(params);
+                                //update the electronics location
+                                updateElectronicsImageLocation = new Thread(new UpdateImageLocationRunnable(electronicsLayout, electronicsImageWidth, electronicsImageHeight, displayWidth, displayHeight, false, "electronics"));
+                                updateElectronicsImageLocation.start();
+                            }
                         }
 
                         //check if there are 3 preferences selected
@@ -394,7 +398,7 @@ public class PreferencesActivity extends AppCompatActivity {
                 clothesLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(!clothesSelected) {
+                        if(!clothesSelected && preferencesSet.size() < 3) {
                             clothesSelected = true;
                             preferencesSet.add("clothes");
                             updateClothesImageLocation.interrupt();
@@ -404,24 +408,26 @@ public class PreferencesActivity extends AppCompatActivity {
                                 shoppingCart.getLocationOnScreen(shoppingCartLocation);
                                 //add the clothes preference in the shopping cart
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                                params.leftMargin = shoppingCartLocation[0] + (shoppingCart.getWidth() / 3) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
+                                params.leftMargin = shoppingCartLocation[0] + (int)(shoppingCart.getWidth() / 2.7f) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
                                 params.topMargin = shoppingCartLocation[1] + (shoppingCart.getHeight() / 5); //YCOORD
                                 clothesLayout.setLayoutParams(params);
                             }
                         }
                         else {
-                            clothesSelected = false;
-                            preferencesSet.remove("clothes");
-                            shoppingCartSize--;
-                            //set a new random position for the clothes preference
-                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                            Random random = new Random();
-                            params.leftMargin = random.nextInt(displayWidth - clothesLayout.getMeasuredWidth()); //XCOORD
-                            params.topMargin = random.nextInt((int)(displayHeight / 2)); //YCOORD
-                            clothesLayout.setLayoutParams(params);
-                            //update the clothes location
-                            updateClothesImageLocation = new Thread(new UpdateImageLocationRunnable(clothesLayout, clothesImageWidth, clothesImageHeight, displayWidth, displayHeight, false, "clothes"));
-                            updateClothesImageLocation.start();
+                            if(clothesSelected) {
+                                clothesSelected = false;
+                                preferencesSet.remove("clothes");
+                                shoppingCartSize--;
+                                //set a new random position for the clothes preference
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
+                                Random random = new Random();
+                                params.leftMargin = random.nextInt(displayWidth - clothesLayout.getMeasuredWidth()); //XCOORD
+                                params.topMargin = random.nextInt((int) (displayHeight / 2)); //YCOORD
+                                clothesLayout.setLayoutParams(params);
+                                //update the clothes location
+                                updateClothesImageLocation = new Thread(new UpdateImageLocationRunnable(clothesLayout, clothesImageWidth, clothesImageHeight, displayWidth, displayHeight, false, "clothes"));
+                                updateClothesImageLocation.start();
+                            }
                         }
 
                         //check if there are 3 preferences selected
@@ -448,7 +454,7 @@ public class PreferencesActivity extends AppCompatActivity {
                 foodLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(!foodSelected) {
+                        if(!foodSelected && preferencesSet.size() < 3) {
                             foodSelected = true;
                             preferencesSet.add("food");
                             updateFoodImageLocation.interrupt();
@@ -458,24 +464,26 @@ public class PreferencesActivity extends AppCompatActivity {
                                 shoppingCart.getLocationOnScreen(shoppingCartLocation);
                                 //add the food preference in the shopping cart
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                                params.leftMargin = shoppingCartLocation[0] + (shoppingCart.getWidth() / 3) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
+                                params.leftMargin = shoppingCartLocation[0] + (int)(shoppingCart.getWidth() / 2.7f) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
                                 params.topMargin = shoppingCartLocation[1] + (shoppingCart.getHeight() / 5); //YCOORD
                                 foodLayout.setLayoutParams(params);
                             }
                         }
                         else {
-                            foodSelected = false;
-                            preferencesSet.remove("food");
-                            shoppingCartSize--;
-                            //set a new random position for the food preference
-                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                            Random random = new Random();
-                            params.leftMargin = random.nextInt(displayWidth - foodLayout.getMeasuredWidth()); //XCOORD
-                            params.topMargin = random.nextInt((int)(displayHeight / 2)); //YCOORD
-                            foodLayout.setLayoutParams(params);
-                            //update the food location
-                            updateFoodImageLocation = new Thread(new UpdateImageLocationRunnable(foodLayout, foodImageWidth, foodImageHeight, displayWidth, displayHeight, false, "food"));
-                            updateFoodImageLocation.start();
+                            if(foodSelected) {
+                                foodSelected = false;
+                                preferencesSet.remove("food");
+                                shoppingCartSize--;
+                                //set a new random position for the food preference
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
+                                Random random = new Random();
+                                params.leftMargin = random.nextInt(displayWidth - foodLayout.getMeasuredWidth()); //XCOORD
+                                params.topMargin = random.nextInt((int) (displayHeight / 2)); //YCOORD
+                                foodLayout.setLayoutParams(params);
+                                //update the food location
+                                updateFoodImageLocation = new Thread(new UpdateImageLocationRunnable(foodLayout, foodImageWidth, foodImageHeight, displayWidth, displayHeight, false, "food"));
+                                updateFoodImageLocation.start();
+                            }
                         }
 
                         //check if there are 3 preferences selected
@@ -502,7 +510,7 @@ public class PreferencesActivity extends AppCompatActivity {
                 cofeeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(!cofeeSelected) {
+                        if(!cofeeSelected && preferencesSet.size() < 3) {
                             cofeeSelected = true;
                             preferencesSet.add("cofee");
                             updateCofeeImageLocation.interrupt();
@@ -512,24 +520,26 @@ public class PreferencesActivity extends AppCompatActivity {
                                 shoppingCart.getLocationOnScreen(shoppingCartLocation);
                                 //add the cofee preference in the shopping cart
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                                params.leftMargin = shoppingCartLocation[0] + (shoppingCart.getWidth() / 3) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
+                                params.leftMargin = shoppingCartLocation[0] + (int)(shoppingCart.getWidth() / 2.7f) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
                                 params.topMargin = shoppingCartLocation[1] + (shoppingCart.getHeight() / 5); //YCOORD
                                 cofeeLayout.setLayoutParams(params);
                             }
                         }
                         else {
-                            cofeeSelected = false;
-                            preferencesSet.remove("cofee");
-                            shoppingCartSize--;
-                            //set a new random position for the cofee preference
-                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                            Random random = new Random();
-                            params.leftMargin = random.nextInt(displayWidth - cofeeLayout.getMeasuredWidth()); //XCOORD
-                            params.topMargin = random.nextInt((int)(displayHeight / 2)); //YCOORD
-                            cofeeLayout.setLayoutParams(params);
-                            //update the cofee location
-                            updateCofeeImageLocation = new Thread(new UpdateImageLocationRunnable(cofeeLayout, cofeeImageWidth, cofeeImageHeight, displayWidth, displayHeight, false, "cofee"));
-                            updateCofeeImageLocation.start();
+                            if(cofeeSelected) {
+                                cofeeSelected = false;
+                                preferencesSet.remove("cofee");
+                                shoppingCartSize--;
+                                //set a new random position for the cofee preference
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
+                                Random random = new Random();
+                                params.leftMargin = random.nextInt(displayWidth - cofeeLayout.getMeasuredWidth()); //XCOORD
+                                params.topMargin = random.nextInt((int) (displayHeight / 2)); //YCOORD
+                                cofeeLayout.setLayoutParams(params);
+                                //update the cofee location
+                                updateCofeeImageLocation = new Thread(new UpdateImageLocationRunnable(cofeeLayout, cofeeImageWidth, cofeeImageHeight, displayWidth, displayHeight, false, "cofee"));
+                                updateCofeeImageLocation.start();
+                            }
                         }
 
                         //check if there are 3 preferences selected
@@ -556,7 +566,7 @@ public class PreferencesActivity extends AppCompatActivity {
                 sportsLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(!sportsSelected) {
+                        if(!sportsSelected && preferencesSet.size() < 3) {
                             sportsSelected = true;
                             preferencesSet.add("sports");
                             updateSportsImageLocation.interrupt();
@@ -566,24 +576,26 @@ public class PreferencesActivity extends AppCompatActivity {
                                 shoppingCart.getLocationOnScreen(shoppingCartLocation);
                                 //add the cofee preference in the shopping cart
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                                params.leftMargin = shoppingCartLocation[0] + (shoppingCart.getWidth() / 3) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
+                                params.leftMargin = shoppingCartLocation[0] + (int)(shoppingCart.getWidth() / 2.7f) + (shoppingCartSize++ * shoppingCart.getWidth() / 8); //XCOORD
                                 params.topMargin = shoppingCartLocation[1] + (shoppingCart.getHeight() / 5); //YCOORD
                                 sportsLayout.setLayoutParams(params);
                             }
                         }
                         else {
-                            sportsSelected = false;
-                            preferencesSet.remove("sports");
-                            shoppingCartSize--;
-                            //set a new random position for the sports preference
-                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
-                            Random random = new Random();
-                            params.leftMargin = random.nextInt(displayWidth - sportsLayout.getMeasuredWidth()); //XCOORD
-                            params.topMargin = random.nextInt((int)(displayHeight / 2)); //YCOORD
-                            sportsLayout.setLayoutParams(params);
-                            //update the sports location
-                            updateSportsImageLocation = new Thread(new UpdateImageLocationRunnable(sportsLayout, sportsImageWidth, sportsImageHeight, displayWidth, displayHeight, false, "sports"));
-                            updateSportsImageLocation.start();
+                            if(sportsSelected) {
+                                sportsSelected = false;
+                                preferencesSet.remove("sports");
+                                shoppingCartSize--;
+                                //set a new random position for the sports preference
+                                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
+                                Random random = new Random();
+                                params.leftMargin = random.nextInt(displayWidth - sportsLayout.getMeasuredWidth()); //XCOORD
+                                params.topMargin = random.nextInt((int) (displayHeight / 2)); //YCOORD
+                                sportsLayout.setLayoutParams(params);
+                                //update the sports location
+                                updateSportsImageLocation = new Thread(new UpdateImageLocationRunnable(sportsLayout, sportsImageWidth, sportsImageHeight, displayWidth, displayHeight, false, "sports"));
+                                updateSportsImageLocation.start();
+                            }
                         }
 
                         //check if there are 3 preferences selected

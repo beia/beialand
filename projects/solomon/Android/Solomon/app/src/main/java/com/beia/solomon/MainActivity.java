@@ -359,13 +359,13 @@ public class MainActivity extends AppCompatActivity {
                     //get all the levels from the store(the floors)
                     IndoorBuilding indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
 
-                    /*
+
                     while(indoorBuilding == null)
                     {
                         indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
                         Log.d("NO FOCUS", "onIBeaconDiscovered: ");
                     }
-                    */
+
 
                     if(indoorBuilding == null)
                         Log.d("NULL BUILDING", "onIBeaconDiscovered: ");

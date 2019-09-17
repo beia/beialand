@@ -25,7 +25,7 @@
         app:tabGravity="fill"
         app:tabMode="fixed"
         android:id="@+id/tabLayoutId"
-        app:tabTextColor="@color/orangeAccent"
+        app:tabTextColor="@color/greenAccent"
         app:tabIndicatorColor="@color/colorPrimary"
         android:background="@color/transparentColor"/>
 </LinearLayout>

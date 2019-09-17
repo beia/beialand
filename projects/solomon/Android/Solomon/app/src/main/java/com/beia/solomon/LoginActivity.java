@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     public static TextView loginTitleTextView;
     public static TextView feedbackTextView;
     public static int hintTextColor = Color.argb(50, 0, 0, 0);
-    public static int orangeAccentColor = Color.argb(200,255, 161, 114);
+    public static int orangeAccentColor = Color.argb(200,29, 222, 190);
     //sign in UI variables
     public static EditText usernameSignInEditText;
     public static EditText passwordSignInEditText;
@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 case 2://login successful
                     feedbackTextView.setText("login successful");
-                    feedbackTextView.setTextColor(Color.GREEN);
+                    feedbackTextView.setTextColor(LoginActivity.context.getResources().getColor(R.color.greenAccent));
                     UserData userData = (UserData) msg.obj;
 
                     //check if it's the first login of the user so we can setup his preferences first
@@ -134,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
     };
 
 
-                    @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -245,8 +245,7 @@ public class LoginActivity extends AppCompatActivity {
         loginRadioButton = findViewById(R.id.LoginRadioButton);
         signupRadioButton = findViewById(R.id.SignUpRadioButton);
         loginTitleTextView = findViewById(R.id.loginTitleTextView);
-        Drawable backround = ContextCompat.getDrawable(context, R.drawable.backround10);
-        backround.setAlpha(180);
+        Drawable backround = ContextCompat.getDrawable(context, R.color.solomonWallpaperColor);
         mainLinearLayout.setBackground(backround);
 
         //add feedback text
@@ -293,7 +292,7 @@ public class LoginActivity extends AppCompatActivity {
 
         LoginActivity.usernameSignInEditText = new EditText(LoginActivity.context);
         LinearLayout.LayoutParams layoutParamsUsernameEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsUsernameEditText.setMargins(0, 300, 0, 0);
+        layoutParamsUsernameEditText.setMargins(0, 100, 0, 0);
         layoutParamsUsernameEditText.gravity = Gravity.CENTER;
         usernameSignInEditText.setLayoutParams(layoutParamsUsernameEditText);
         usernameSignInEditText.setHint("username");
@@ -320,7 +319,7 @@ public class LoginActivity extends AppCompatActivity {
         layoutParamsLoginButton.gravity = Gravity.CENTER;
         layoutParamsLoginButton.setMargins(0, 100, 0, 0);
         signInButton.setLayoutParams(layoutParamsLoginButton);
-        signInButton.setBackgroundColor(Color.argb(100, 255, 255, 255));
+        signInButton.setBackgroundColor(Color.argb(255, 255, 255, 255));
         signInButton.setText("Login");
 
         //sign in button listener
@@ -511,7 +510,7 @@ public class LoginActivity extends AppCompatActivity {
         layoutParamsSignUpButton.gravity = Gravity.CENTER;
         layoutParamsSignUpButton.setMargins(0, 100, 0, 100);
         signUpButton.setLayoutParams(layoutParamsSignUpButton);
-        signUpButton.setBackgroundColor(Color.argb(100, 255, 255, 255));
+        signUpButton.setBackgroundColor(Color.argb(255, 255, 255, 255));
         signUpButton.setText("Sign up");
 
         //sign up button listener

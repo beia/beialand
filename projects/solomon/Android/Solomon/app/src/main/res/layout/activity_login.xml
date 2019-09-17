@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/solomonWallpaperColor"
     tools:context=".LoginActivity">
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
             android:id="@+id/LoginRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/orangeAccent"
+            android:buttonTint="@color/greenAccent"
             android:layout_marginTop="10dp"
             android:checked="true"
             android:text="Login"
@@ -27,7 +28,7 @@
             android:id="@+id/SignUpRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/orangeAccent"
+            android:buttonTint="@color/greenAccent"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="14dp"
             android:text="SignUp"
@@ -36,9 +37,10 @@
 
     <ImageView
         android:layout_width="325dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/solomon_title_image"
-        android:layout_gravity="center"/>
+        android:layout_height="320dp"
+        android:src="@drawable/solomon_wallpaper"
+        android:layout_gravity="center"
+        android:background="@color/transparentColor"/>
 
     <TextView
         android:id="@+id/loginTitleTextView"
@@ -46,12 +48,13 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:gravity="center"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="20dp"
         android:textSize="23dp" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp">
+        android:layout_height="wrap_content">
         <LinearLayout
             android:id="@+id/CustomAutenthificationLinearLayout"
             android:layout_width="match_parent"
