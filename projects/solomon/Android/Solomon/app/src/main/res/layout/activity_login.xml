@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:buttonTint="@color/greenAccent"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="14dp"
+            android:layout_marginLeft="17dp"
             android:text="SignUp"
             android:textSize="17dp" />
     </LinearLayout>
