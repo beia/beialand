@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     //google map variables
     public Queue<Marker> positionMarkers;
+    public IndoorBuilding indoorBuilding;
 
 
 
@@ -357,14 +358,15 @@ public class MainActivity extends AppCompatActivity {
                     LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
                     mapFragment.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
                     //get all the levels from the store(the floors)
-                    IndoorBuilding indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
+                    indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
 
-
+                    /*
                     while(indoorBuilding == null)
                     {
                         indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
                         Log.d("NO FOCUS", "onIBeaconDiscovered: ");
                     }
+                    */
 
 
                     if(indoorBuilding == null)
@@ -455,6 +457,26 @@ public class MainActivity extends AppCompatActivity {
                     {
                         if(distance < 7)
                         {
+                            //check if the map loaded and initialize variables
+                            if(indoorBuilding == null)
+                            {
+                                indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
+                                if(indoorBuilding != null)
+                                {
+                                    List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
+                                    //spin the array because it has the upper levels at the begining
+                                    Stack<IndoorLevel> stack = new Stack<>();
+                                    for(IndoorLevel indoorLevel : levels_aux)
+                                        stack.push(indoorLevel);
+                                    while(!stack.empty())
+                                        levels.add(stack.pop());
+                                    //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
+                                    for(IndoorLevel indoorLevel : levels)
+                                    {
+                                        levelsActivated.add(false);
+                                    }
+                                }
+                            }
                             //change the map level(floor) to the current floor
                             if(levels != null && levels.isEmpty() == false) {
                                 if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
@@ -501,6 +523,27 @@ public class MainActivity extends AppCompatActivity {
                                 //user is inside the region
                                 if(distance < 7)
                                 {
+                                    //check if the map loaded and initialize variables
+                                    if(indoorBuilding == null)
+                                    {
+                                        indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
+                                        if(indoorBuilding != null)
+                                        {
+                                            List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
+                                            //spin the array because it has the upper levels at the begining
+                                            Stack<IndoorLevel> stack = new Stack<>();
+                                            for(IndoorLevel indoorLevel : levels_aux)
+                                                stack.push(indoorLevel);
+                                            while(!stack.empty())
+                                                levels.add(stack.pop());
+                                            //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
+                                            for(IndoorLevel indoorLevel : levels)
+                                            {
+                                                levelsActivated.add(false);
+                                            }
+                                        }
+                                    }
+                                    //change the map level(floor) to the current floor
                                     if(levels != null && levels.isEmpty() == false) {
                                         if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
                                             //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
@@ -561,6 +604,26 @@ public class MainActivity extends AppCompatActivity {
                         {
                             if(distance < 7)
                             {
+                                //check if the map loaded and initialize variables
+                                if(indoorBuilding == null)
+                                {
+                                    indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
+                                    if(indoorBuilding != null)
+                                    {
+                                        List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
+                                        //spin the array because it has the upper levels at the begining
+                                        Stack<IndoorLevel> stack = new Stack<>();
+                                        for(IndoorLevel indoorLevel : levels_aux)
+                                            stack.push(indoorLevel);
+                                        while(!stack.empty())
+                                            levels.add(stack.pop());
+                                        //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
+                                        for(IndoorLevel indoorLevel : levels)
+                                        {
+                                            levelsActivated.add(false);
+                                        }
+                                    }
+                                }
                                 //change the map level(floor) to the current floor
                                 if(levels != null && levels.isEmpty() == false) {
                                     if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
