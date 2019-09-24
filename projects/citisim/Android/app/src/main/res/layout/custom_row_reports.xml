@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="10">
+
+    <ImageView
+        android:id="@+id/reportImage"
+        android:layout_width="80sp"
+        android:layout_height="80sp"
+        android:layout_margin="5sp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/logo"
+        />
+
+    <TextView
+        android:id="@+id/reportTitle"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5sp"
+        android:layout_marginRight="5sp"
+        android:layout_weight="6"
+        android:gravity="top"
+        android:text="TextView" />
+
+    <Button
+        android:id="@+id/locateOnMap"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:background="@drawable/buttonshape"
+        android:layout_marginTop="10sp"
+        android:text="LOcate On Map"
+        android:textSize="13sp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textColor="#FFFFFF"/>
+</LinearLayout>

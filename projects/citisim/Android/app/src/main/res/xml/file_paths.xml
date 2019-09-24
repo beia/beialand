@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://com.main.citisim/apk/res/android">
+    <external-files-path name="my_images" />
+</paths>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#32A187</color>
+    <color name="humidity">#32A1B7</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="dust">#8b4513</color>
+    <color name="speed">#a52a2a</color>
+    <color name="temperature">#2f4f4f</color>
+    <color name="airQuality">#8fbc8f</color>
+</resources>
