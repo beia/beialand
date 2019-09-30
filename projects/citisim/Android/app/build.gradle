@@ -33,6 +33,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
     implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'pl.pawelkleczkowski.customgauge:CustomGauge:1.0.4'
+    implementation 'com.github.zurche:plain-pie:v0.2.9'
     implementation 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     implementation 'me.dm7.barcodescanner:zxing:1.9'
 

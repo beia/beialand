@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/transparent"
     tools:context=".MapActivity">
-
-
 
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -16,8 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MapsActivity"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="16dp" />
+        tools:layout_editor_absoluteX="-16dp"
+        tools:layout_editor_absoluteY="0dp" />
 
 
 
@@ -102,5 +101,147 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile"
         app:srcCompat="@drawable/plusbutton" />
+
+
+
+        <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/transparent_white"
+            app:cardCornerRadius="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                 <LinearLayout
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:background="@color/transparent"
+                     android:layout_marginStart="20dp"
+                     android:layout_marginEnd="20dp"
+                     android:layout_marginRight="20dp"
+                     android:orientation="vertical">
+
+                     <TextView
+                         android:layout_width="wrap_content"
+                         android:layout_height="0dp"
+                         android:layout_gravity="center"
+                         android:layout_marginBottom="10dp"
+                         android:layout_weight="1"
+                         android:textSize="16sp"
+                         android:text="CO2" />
+
+                     <az.plainpie.PieView
+                         android:id="@+id/pieViewCO2"
+                         android:background="@color/transparent"
+                         android:layout_width="72dp"
+                         android:layout_height="72dp"
+                         app:inner_pie_padding="30"
+                         app:inner_text_visibility="true"
+                         app:percentage_size="18"
+                         app:percentage="30"
+                         app:inner_text="200"/>
+                 </LinearLayout>
+
+                 <LinearLayout
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginEnd="20dp"
+                     android:layout_marginRight="20dp"
+                     android:orientation="vertical">
+
+                     <TextView
+                         android:layout_width="wrap_content"
+                         android:layout_height="0dp"
+                         android:layout_gravity="center"
+                         android:layout_marginBottom="10dp"
+                         android:layout_weight="1"
+                         android:textSize="16sp"
+                         android:text="Dust"/>
+
+                     <az.plainpie.PieView
+                         android:id="@+id/pieViewDust"
+                         android:background="@color/transparent"
+                         android:layout_width="72dp"
+                         android:layout_height="72dp"
+                         app:inner_pie_padding="30"
+                         app:inner_text_visibility="true"
+                         app:percentage_size="18"
+                         app:percentage="45"
+                         app:inner_text="4000"/>
+                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:textSize="16sp"
+                        android:text="Air quality"/>
+
+                    <az.plainpie.PieView
+                        android:id="@+id/pieViewAirQuality"
+                        android:background="@color/transparent"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        app:inner_pie_padding="30"
+                        app:inner_text_visibility="true"
+                        app:percentage="75"
+                        app:percentage_size="18"
+                        app:inner_text="60" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginRight="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="10dp"
+                        android:layout_weight="1"
+                        android:textSize="16sp"
+                        android:text="Speed"/>
+
+                    <az.plainpie.PieView
+                        android:id="@+id/pieViewSpeed"
+                        android:background="@color/transparent"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        app:inner_pie_padding="30"
+                        app:inner_text_visibility="true"
+                        app:percentage="60"
+                        app:percentage_size="18"
+                        app:inner_text="140" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
 
 </android.support.constraint.ConstraintLayout>

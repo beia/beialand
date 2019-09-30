@@ -4,8 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#32A187</color>
     <color name="humidity">#32A1B7</color>
-    <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="transparent_white">#88FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
     <color name="black">#000000</color>
     <color name="dust">#8b4513</color>
     <color name="speed">#a52a2a</color>
