@@ -1,10 +1,6 @@
 package com.main.citisim;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,10 +12,10 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -35,12 +31,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.main.citisim.data.DeviceParameters;
+import com.main.citisim.runnables.UpdateDeviceRunnable;
 import com.main.citisim.runnables.UpdateMarkers;
 
 import org.json.JSONArray;
@@ -51,26 +50,92 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import java.util.Map;
+import az.plainpie.PieView;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     static boolean isRun=false;
-
     static boolean isDisplayed=false;
-
     final HashMap info = new HashMap();
-
     public static MarkersHandler markersHandler;
-
     static ArrayList<LatLng> markerLocations = new ArrayList<>();
+    private static final String TAG = "MapActivity";
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final float DEFAULT_ZOOM = 15f;
+    private Boolean mLocationPermissionsGranted = false;
+    public static GoogleMap mMap;
+    private ClusterManager<MarkerClusterItem> mClusterManager;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    public static double latitude;
+    public static double longitude;
+    private HeatmapTileProvider mProvider;
+
+    //UI variables
+    public static CardView gaugesCardView;
+    public static PieView pieViewCO2;
+    public static PieView pieViewDust;
+    public static PieView pieViewAirQuality;
+    public static PieView pieViewSpeed;
+
+    //devices variables
+    public static volatile boolean deviceSelected = false;
+    public static volatile int deviceSelectedId;
+    public static final int MAX_C02 = 600;
+    public static final int MAX_DUST = 10000;
+    public static final int MAX_AIRQUALITY = 100;
+    public static final int MAX_SPEED = 200;
+    public static Marker deviceMarker;
+    public Thread updateDeviceData;
+
+    //threads
+    public static Thread updateDevice;
+
+
+    public static Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch (msg.what)
+            {
+                case 1://update the gauges
+                    DeviceParameters device = (DeviceParameters) msg.obj;
+                    float cO2 = (float)Math.round(device.getCO2() * 100) / 100;
+                    float dust = (float)Math.round(device.getDust() * 100) / 100;
+                    float airQuality = (float)Math.round(device.getAirQuality() * 100) / 100;
+                    float speed = (float)Math.round(device.getSpeed() * 100) / 100;
+                    pieViewCO2.setPercentage(cO2 / MAX_C02 * 100);
+                    pieViewCO2.setInnerText(cO2 + "");
+                    pieViewDust.setPercentage(dust / MAX_DUST * 100);
+                    pieViewDust.setInnerText(dust + "");
+                    pieViewAirQuality.setPercentage(airQuality / MAX_AIRQUALITY * 100);
+                    pieViewAirQuality.setInnerText(airQuality + "");
+                    pieViewSpeed.setPercentage(speed / MAX_SPEED * 100);
+                    pieViewSpeed.setInnerText(speed + "");
+
+                    //show the device on the map
+                    if(deviceMarker != null)
+                        deviceMarker.remove();
+                    deviceMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(device.getLatitude(), device.getLongitude())).title("Marker at device"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(device.getLatitude(), device.getLongitude()), DEFAULT_ZOOM));
+
+                    Log.d("[GAUGES HANDLER]: ", " device parameters: {CO2: " + device.getCO2() + " Dust: " + device.getDust() + " Air quality: " + device.getAirQuality() + " Speed: " + device.getSpeed() + "}");
+                    break;
+            }
+        }
+    };
+
+
+
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap)
+    {
         mMap = googleMap;
-
-        if (mLocationPermissionsGranted) {
-            getDeviceLocation();
+        if (mLocationPermissionsGranted)
+        {
+            //getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -78,54 +143,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            //mMap.getUiSettings(). different settings
-
             mMap.getUiSettings().setCompassEnabled(true);
-
-            // Get the reports
-            /*
-            getReports();
-            getSensors();
-            getSensorLocations();
-            setUpClusterer();
-            */
-
             mMap.clear();
             getReports();
             getSensors();
-
-            //setUpClusterer();
-            //getDeviceLocation();
-
-
-                showReport();
-
+            showReport();
         }
-
-
-
     }
-
-    private static final String TAG = "MapActivity";
-
-    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
-    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
-    private static final float DEFAULT_ZOOM = 15f;
-    //vars
-    private Boolean mLocationPermissionsGranted = false;
-    private GoogleMap mMap;
-    private ClusterManager<MarkerClusterItem> mClusterManager;
-    private FusedLocationProviderClient mFusedLocationProviderClient;
-
-
-    public static double latitude;
-    public static double longitude;
-
-
-    private HeatmapTileProvider mProvider;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,8 +157,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         getLocationPermission();
-        ImageButton button2;
-        button2 = (ImageButton) findViewById(R.id.button2);
+        ImageButton button2 = (ImageButton) findViewById(R.id.button2);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,8 +165,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        ImageButton settings;
-        settings = (ImageButton) findViewById(R.id.settings);
+        ImageButton settings = (ImageButton) findViewById(R.id.settings);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,8 +173,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        final ImageButton profile;
-        profile = (ImageButton) findViewById(R.id.profile);
+        final ImageButton profile = (ImageButton) findViewById(R.id.profile);
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,32 +182,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 
         ImageButton refreshButton = findViewById(R.id.refreshButton);
-       // refreshButton.setVisibility(View.GONE);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 mMap.clear();
                 getReports();
                 getSensors();
-              //  getSensorLocations();
-               // setUpClusterer();
                 getDeviceLocation();
-                //isDisplayed=false;
-
-              //  Toast.makeText(MapActivity.this, com.main.citisim.profile.deviceId,Toast.LENGTH_LONG).show();
-
             }
         });
 
-
-
-        if(mMap!=null && ReportsActivity.showReport==true ){
+        if(mMap!=null && ReportsActivity.showReport==true)
+        {
             showReport();
             Log.d("savedem","da");
         }
 
-
-
+        //init the gauges
+        gaugesCardView = findViewById(R.id.gauges);
+        pieViewCO2 = findViewById(R.id.pieViewCO2);
+        pieViewDust = findViewById(R.id.pieViewDust);
+        pieViewAirQuality = findViewById(R.id.pieViewAirQuality);
+        pieViewSpeed = findViewById(R.id.pieViewSpeed);
     }
 
 
@@ -240,7 +258,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
 
-    private void updateHeatMap(List<LatLng> list) {
+    private void updateHeatMap(List<LatLng> list)
+    {
         // Create a heat map tile provider, passing it the latlngs of the police stations.
         mProvider = new HeatmapTileProvider.Builder()
                 .data(list)
@@ -271,7 +290,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 ////////////////////////////////////////////////////////////
 
-    public void getSensors() {
+    public void getSensors()
+    {
         final String url = getResources().getString(R.string.api_altfactor)+"/getlastrecordsdevice/user1";
 
 
@@ -282,12 +302,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     public void onResponse(JSONArray response) {
 
                         ArrayList<LatLng> markerLocation = new ArrayList<>();
-                        try {
-
-                            for (int i = 0; i < response.length(); i++) {
+                        try
+                        {
+                            for (int i = 0; i < response.length(); i++)
+                            {
                                 JSONArray report = response.getJSONArray(i);
-
-                               // for(int j=0;j < report.length();j++) {
                                 String lat,lon,airQuality,humidity,temperature;
                                 lat=report.getString(2);
                                 lon=report.getString(3);
@@ -295,8 +314,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 humidity=report.getString(4);
                                 temperature=report.getString(7);
 
-
-                              //  }
                                 markerLocation.add(new LatLng(Double.parseDouble(lat), Double.parseDouble(lon)));
 
                                 int height = 130;
@@ -305,35 +322,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 Bitmap b=bitmapdraw.getBitmap();
                                 Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
-
                                // mClusterManager.addItem(new MarkerClusterItem( Double.parseDouble(lat),Double.parseDouble(lon),"","") );
                                // mClusterManager.addItem(new MarkerClusterItem( Double.parseDouble(lat),Double.parseDouble(lon),"","") );
 
                                 mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMarker)).snippet(Math.round(Double.parseDouble(airQuality)*100d)/100d+" "+Math.round(Double.parseDouble(temperature)*100d)/100d+" "+Math.round(Double.parseDouble(humidity)*100d)/100d).position(markerLocation.get(i)).title("sensor 1"));
-
-
-
                                 mMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
-
-
                             }
-
-
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e)
+                        {
                             e.printStackTrace();
                         }
                     }
                 },
-                new Response.ErrorListener() {
+                new Response.ErrorListener()
+                {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public void onErrorResponse(VolleyError error)
+                    {
                         Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
         );
-
         MyVolleyQueue.getInstance(getApplicationContext()).addToRequestQueue(getRequest);
-
     }
 
 ///////////////////////////////////////
@@ -342,40 +353,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onResume(){
         super.onResume();
 
-
-
-
-        if(isDisplayed==false){
-
+        if(isDisplayed==false)
+        {
             if(mMap!=null)
-            mMap.clear();
+                mMap.clear();
             getSensorLocations();
             isDisplayed=true;
         }
 
-        if(mMap!=null && ReportsActivity.showReport==true ){
+        if(mMap!=null && ReportsActivity.showReport==true )
+        {
             showReport();
             Log.d("savedem","da");
         }
 
-
-
-
-
-       // getSensorLocations();
-       // Toast.makeText(this,profile.startDate, Toast.LENGTH_LONG).show();
-
+        //if a device was selected we show the gauges and the device name on the bottom of the screen
+        //we create a thread that will check for new data from the device that was clicked at every 5 seconds
+        if(deviceSelected)
+        {
+            gaugesCardView.setVisibility(View.VISIBLE);
+            updateDevice = new Thread(new UpdateDeviceRunnable(getApplicationContext(), deviceSelectedId));
+            updateDevice.start();
+            deviceSelected = false;
+        }
+        else
+        {
+            //it means that a device was previously selected
+            if(updateDevice != null) {
+                gaugesCardView.setVisibility(View.GONE);
+                updateDevice.interrupt();
+            }
+        }
     }
 
 
-    public void showReport(){
-        if(ReportsActivity.showReport==true){
-
-                //Log.d("verif", new LatLng(ReportsActivity.lat, ReportsActivity.lon).toString() + ReportsActivity.showReport);
+    public void showReport()
+    {
+        if(ReportsActivity.showReport==true)
+        {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ReportsActivity.reportLocation, DEFAULT_ZOOM));
-                //ReportsActivity.showReport = false;
-
-            Log.d("verif",ReportsActivity.reportLocation.toString() + ReportsActivity.showReport);
         }
     }
 
@@ -477,6 +493,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             Thread showMarkersThread = new Thread(new UpdateMarkers(markerLocations));
             showMarkersThread.start();
+
             Log.d("locatii",markerLocations.toString());
         }
     }

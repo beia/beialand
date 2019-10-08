@@ -105,10 +105,12 @@
 
 
         <android.support.v7.widget.CardView
+            android:id="@+id/gauges"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/transparent_white"
             app:cardCornerRadius="30dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">

@@ -378,9 +378,9 @@ public class profile extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 deviceId=deviceIdList.get(position)+"";
-                Intent intent = new Intent(profile.this, DeviceData.class);
-                startActivity(intent);
-
+                MapActivity.deviceSelected = true;
+                MapActivity.deviceSelectedId = Integer.parseInt(deviceId);
+                finish();
             }
         });
 
@@ -421,27 +421,20 @@ public class profile extends AppCompatActivity {
                     public void onResponse(JSONArray response) {
 
                         ArrayList<String> names = new ArrayList<String>();
-                        try {
-
+                        try
+                        {
                             deviceIdList.clear();
-
                             for (int i = 0; i < response.length(); i++) {
                                 JSONArray report = response.getJSONArray(i);
-
-                                // for(int j=0;j < report.length();j++) {
-                                String lat,lon,name;
+                                String name;
                                 name=report.getString(7);
-
-                                //  }
                                 names.add(name);
                                 deviceIdList.add(Integer.parseInt(report.getString(5)));
-
-
                             }
                             setLayout(names,v);
-
-
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e)
+                        {
                             e.printStackTrace();
                         }
                     }
@@ -464,8 +457,6 @@ public class profile extends AppCompatActivity {
     public void getDevicesHistory(final ListView v){
         final String url = getResources().getString(R.string.api_altfactor)+"/getuserdevices/user1/1";
 
-
-
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -478,21 +469,15 @@ public class profile extends AppCompatActivity {
 
                             for (int i = 0; i < response.length(); i++) {
                                 JSONArray report = response.getJSONArray(i);
-
-                                // for(int j=0;j < report.length();j++) {
-                                String lat,lon,name;
+                                String name;
                                 name=report.getString(7);
-
-                                //  }
-                                names.add(name);
                                 deviceIdList.add(Integer.parseInt(report.getString(5)));
-
-
+                                names.add(name);
                             }
                             setLayoutHistory(names,v);
-
-
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e)
+                        {
                             e.printStackTrace();
                         }
                     }
