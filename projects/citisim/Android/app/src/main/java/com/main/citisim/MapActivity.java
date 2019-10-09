@@ -59,7 +59,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     static boolean isDisplayed=false;
     final HashMap info = new HashMap();
     public static MarkersHandler markersHandler;
-    static ArrayList<LatLng> markerLocations = new ArrayList<>();
+    static ArrayList<DeviceParameters> markerLocations = new ArrayList<>();
     private static final String TAG = "MapActivity";
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -130,6 +130,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     pieViewSpeed.setInnerText(speed + "");
 
                     //show the device on the map
+                    if(mMap != null)
+                        mMap.clear();
                     if(deviceMarker != null)
                         deviceMarker.remove();
                     Bitmap smallMarker = Bitmap.createScaledBitmap(MapActivity.markerBitmap, markerWidth, markerHeight, false);
@@ -399,7 +401,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(deviceSelected)
         {
             gaugesCardView.setVisibility(View.VISIBLE);
-            updateDevice = new Thread(new UpdateDeviceRunnable(getApplicationContext(), deviceSelectedId));
+            updateDevice = new Thread(new UpdateDeviceRunnable(getApplicationContext()));
             updateDevice.start();
             deviceSelected = false;
         }
@@ -447,11 +449,57 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         {
                             for (int i = 0; i < response.length(); i++)
                             {
-                                JSONArray report = response.getJSONArray(i);
-                                String lat,lon;
-                                lat=report.getString(2);
-                                lon=report.getString(3);
-                                markerLocations.add(new LatLng(Double.parseDouble(lat), Double.parseDouble(lon)));
+                                JSONArray responseJSONArray = response.getJSONArray(i);
+                                float latitude, longitude, cO2, dust, airQuality, speed;
+                                if(responseJSONArray.getString(2).equals("null") == false)
+                                {
+                                    latitude = Float.parseFloat(responseJSONArray.getString(2));
+                                }
+                                else
+                                {
+                                    latitude = -1;
+                                }
+                                if(responseJSONArray.getString(3).equals("null") == false)
+                                {
+                                    longitude = Float.parseFloat(responseJSONArray.getString(3));
+                                }
+                                else
+                                {
+                                    longitude = -1;
+                                }
+                                if(responseJSONArray.getString(6).equals("null") == false) {
+                                    cO2 = Float.parseFloat(responseJSONArray.getString(6));
+                                }
+                                else
+                                {
+                                    cO2 = -1;
+                                }
+                                if(responseJSONArray.getString(8).equals("null") == false)
+                                {
+                                    dust = Float.parseFloat(responseJSONArray.getString(8));
+                                }
+                                else
+                                {
+                                    dust = -1;
+                                }
+                                if(responseJSONArray.getString(12).equals("null") == false)
+                                {
+                                    airQuality = Float.parseFloat(responseJSONArray.getString(12));
+                                }
+                                else
+                                {
+                                    airQuality = -1;
+                                }
+                                if(responseJSONArray.getString(5).equals("null") == false)
+                                {
+                                    speed = Float.parseFloat(responseJSONArray.getString(5));
+                                }
+                                else
+                                {
+                                    speed = -1;
+                                }
+                                DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                markerLocations.add(deviceParameters);
                             }
                             showMarkers();
                         }
@@ -476,9 +524,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     {
         if(profile.isReadyHistory==true)
         {
+            //start the markers thread
             Thread showMarkersThread = new Thread(new UpdateMarkers(markerLocations));
             showMarkersThread.start();
-            Log.d("locatii",markerLocations.toString());
+            //show the gauges that show us informations about some measured parameters
+            gaugesCardView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -547,11 +597,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
-
                             latitude = currentLocation.getLatitude();
                             longitude = currentLocation.getLongitude();
-
-
                             if(ReportsActivity.showReport==true){
                                 /*moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                 DEFAULT_ZOOM);*/
@@ -560,11 +607,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             }else{
                                 moveCamera(new LatLng(latitude,longitude),DEFAULT_ZOOM);
                             }
-
                             Log.d("mda","123");
-
-
-
                         }
                     }
                 });

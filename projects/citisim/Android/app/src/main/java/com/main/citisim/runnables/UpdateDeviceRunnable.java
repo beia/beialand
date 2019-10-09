@@ -18,12 +18,10 @@ import java.util.ArrayList;
 
 public class UpdateDeviceRunnable implements Runnable {
     private Context context;
-    private int deviceId;
 
-    public UpdateDeviceRunnable(Context context, int deviceId)
+    public UpdateDeviceRunnable(Context context)
     {
         this.context = context;
-        this.deviceId = deviceId;
     }
 
     @Override

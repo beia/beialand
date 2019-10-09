@@ -15,8 +15,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.main.citisim.data.DeviceParameters;
 
 import java.util.ArrayList;
+
+import static com.main.citisim.MapActivity.MAX_AIRQUALITY;
+import static com.main.citisim.MapActivity.MAX_C02;
+import static com.main.citisim.MapActivity.MAX_DUST;
+import static com.main.citisim.MapActivity.MAX_SPEED;
 
 public class MarkersHandler extends Handler
 {
@@ -48,7 +54,8 @@ public class MarkersHandler extends Handler
             switch (msg.what) {
                 case 1:
                     //adaugam marker
-                    LatLng position = (LatLng) msg.obj;
+                    DeviceParameters deviceParameters = (DeviceParameters)msg.obj;
+                    LatLng position = new LatLng(deviceParameters.getLatitude(), deviceParameters.getLongitude());
                     if (msg.arg1 == 0)
                     {
                         //move camera over first marker
@@ -82,7 +89,19 @@ public class MarkersHandler extends Handler
                             markerVector.get(5).setAlpha(0.8f);
                         }
                     }
-
+                    //show the gauges data
+                    float cO2 = (float)Math.round(deviceParameters.getCO2() * 100) / 100;
+                    float dust = (float)Math.round(deviceParameters.getDust() * 100) / 100;
+                    float airQuality = (float)Math.round(deviceParameters.getAirQuality() * 100) / 100;
+                    float speed = (float)Math.round(deviceParameters.getSpeed() * 100) / 100;
+                    MapActivity.pieViewCO2.setPercentage(cO2 / MAX_C02 * 100);
+                    MapActivity.pieViewCO2.setInnerText(cO2 + "");
+                    MapActivity.pieViewDust.setPercentage(dust / MAX_DUST * 100);
+                    MapActivity.pieViewDust.setInnerText(dust + "");
+                    MapActivity.pieViewAirQuality.setPercentage(airQuality / MAX_AIRQUALITY * 100);
+                    MapActivity.pieViewAirQuality.setInnerText(airQuality + "");
+                    MapActivity.pieViewSpeed.setPercentage(speed / MAX_SPEED * 100);
+                    MapActivity.pieViewSpeed.setInnerText(speed + "");
                 break;
             }
         }

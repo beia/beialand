@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.main.citisim.MainActivity;
 import com.main.citisim.MapActivity;
+import com.main.citisim.data.DeviceParameters;
 import com.main.citisim.profile;
 
 import java.util.ArrayList;
@@ -25,36 +26,33 @@ public class UpdateMarkers implements Runnable
 {
 
     public static int speedTime=400;
-    private ArrayList<LatLng> positions;
-    public UpdateMarkers(ArrayList<LatLng> positions)
+    private ArrayList<DeviceParameters> deviceParametersArrayList;//a time function
+    public UpdateMarkers(ArrayList<DeviceParameters> deviceParametersArrayList)
     {
-        this.positions = positions;
+        this.deviceParametersArrayList = deviceParametersArrayList;
     }
     @Override
     public void run()
     {
-        long updateInterval = Math.round(positions.size()==0?1:5000 / positions.size());
+        long updateInterval = Math.round(deviceParametersArrayList.size()==0?1:5000 / deviceParametersArrayList.size());
         try
         {
-            Log.d("positions",positions.size()+"");
-            for (int i = 0; i < positions.size(); i++)
+            for (int i = 0; i < deviceParametersArrayList.size(); i++)
             {
                 Message showMarkerMessage = MapActivity.markersHandler.obtainMessage(1);
-                showMarkerMessage.obj = positions.get(i);
+                showMarkerMessage.obj = deviceParametersArrayList.get(i);
                 if(i == 0)//if it's the first marker tell the handler to move the camera over it
                 {
                     showMarkerMessage.arg1 = 0;
                 }
-                else if(i == positions.size()-1)//if it's the last marker
+                else if(i == deviceParametersArrayList.size()-1)//if it's the last marker
                 {
                     showMarkerMessage.arg1 = 2;
-                    Log.d("test","intra");
                 }
                 else
                 {
                     showMarkerMessage.arg1 = 1;
                 }
-                Log.d("show","marker : "+positions.get(i).toString());
                 showMarkerMessage.sendToTarget();
                 Thread.sleep(speedTime);
             }
