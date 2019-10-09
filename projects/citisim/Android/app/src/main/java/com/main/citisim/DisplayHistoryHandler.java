@@ -24,13 +24,13 @@ public class DisplayHistoryHandler extends Handler
                 case 1:
                     //adaugam marker
                     LatLng position = (LatLng) msg.obj;
-                    if (msg.arg1 == 0) {
+                    if (msg.arg1 == 0)
+                    {
                         //move camera over first marker
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16.5f));
                     }
                     mMap.clear();
                     mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMarker)).position(position));
-
                     break;
                 default:
                     break;

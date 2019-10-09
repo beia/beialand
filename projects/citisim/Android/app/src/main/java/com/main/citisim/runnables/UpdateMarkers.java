@@ -25,14 +25,10 @@ public class UpdateMarkers implements Runnable
 {
 
     public static int speedTime=400;
-
-   // Activity activity;
     private ArrayList<LatLng> positions;
     public UpdateMarkers(ArrayList<LatLng> positions)
     {
         this.positions = positions;
-       // this.activity=activity;
-        Log.d("terogeu",positions.toString());
     }
     @Override
     public void run()
@@ -41,40 +37,29 @@ public class UpdateMarkers implements Runnable
         try
         {
             Log.d("positions",positions.size()+"");
-
             for (int i = 0; i < positions.size(); i++)
             {
                 Message showMarkerMessage = MapActivity.markersHandler.obtainMessage(1);
-
                 showMarkerMessage.obj = positions.get(i);
-
                 if(i == 0)//if it's the first marker tell the handler to move the camera over it
-                    showMarkerMessage.arg1 = 0;
-                else
-                if(i == positions.size()-1)//if it's the last marker
                 {
-
+                    showMarkerMessage.arg1 = 0;
+                }
+                else if(i == positions.size()-1)//if it's the last marker
+                {
                     showMarkerMessage.arg1 = 2;
-                   // showMarkerMessage.obj = positions.get(i);
                     Log.d("test","intra");
-
                 }
                 else
+                {
                     showMarkerMessage.arg1 = 1;
-
-
+                }
                 Log.d("show","marker : "+positions.get(i).toString());
                 showMarkerMessage.sendToTarget();
-                //Thread.sleep(updateInterval);
                 Thread.sleep(speedTime);
-
             }
-            Thread.sleep(1500);
+            MapActivity.historyThreadFinished = true;
             profile.setIsReadyHistory(false);
-
-
-            //MapActivity.refreshMap();
-
 
         }
         catch (InterruptedException e)

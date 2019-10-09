@@ -1,6 +1,7 @@
 package com.main.citisim;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -71,6 +72,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static double latitude;
     public static double longitude;
     private HeatmapTileProvider mProvider;
+    public static String alfactorApiString;
+    public static Context context;
 
     //UI variables
     public static CardView gaugesCardView;
@@ -79,7 +82,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static PieView pieViewAirQuality;
     public static PieView pieViewSpeed;
 
-    //devices variables
+    //marker variables
+    public static BitmapDrawable markerBitmapDrawable;
+    public static Bitmap markerBitmap;
+    public static Bitmap smallMarker;
+    public static Bitmap firstMarker;
+    public static Bitmap lastMarker;
+    public static int markerHeight = 130;
+    public static int markerWidth = 120;
+
+    //History variables
+    public static volatile boolean historyThreadFinished = true;
+
+    //My devices variables
     public static volatile boolean deviceSelected = false;
     public static volatile int deviceSelectedId;
     public static final int MAX_C02 = 600;
@@ -117,8 +132,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     //show the device on the map
                     if(deviceMarker != null)
                         deviceMarker.remove();
-                    deviceMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(device.getLatitude(), device.getLongitude())).title("Marker at device"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(device.getLatitude(), device.getLongitude()), DEFAULT_ZOOM));
+                    Bitmap smallMarker = Bitmap.createScaledBitmap(MapActivity.markerBitmap, markerWidth, markerHeight, false);
+                    LatLng devicePosition = new LatLng(device.getLatitude(), device.getLongitude());
+                    deviceMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMarker)).position(devicePosition));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(devicePosition, DEFAULT_ZOOM));
 
                     Log.d("[GAUGES HANDLER]: ", " device parameters: {CO2: " + device.getCO2() + " Dust: " + device.getDust() + " Air quality: " + device.getAirQuality() + " Speed: " + device.getSpeed() + "}");
                     break;
@@ -135,7 +152,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap = googleMap;
         if (mLocationPermissionsGranted)
         {
-            //getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -148,7 +164,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             getReports();
             getSensors();
             showReport();
+            getDeviceLocation();
         }
+        markersHandler = new MarkersHandler(mMap, smallMarker,firstMarker,lastMarker);
     }
 
     @Override
@@ -156,6 +174,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        context = getApplicationContext();
+        alfactorApiString = getResources().getString(R.string.api_altfactor);
         getLocationPermission();
         ImageButton button2 = (ImageButton) findViewById(R.id.button2);
         button2.setOnClickListener(new View.OnClickListener() {
@@ -196,8 +216,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(mMap!=null && ReportsActivity.showReport==true)
         {
             showReport();
-            Log.d("savedem","da");
         }
+
+        //create a marker
+        markerBitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.marker);
+        markerBitmap = markerBitmapDrawable.getBitmap();
+        //create the markers needed for showing the history
+        int height = 90;
+        int width = 85;
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.marker);
+        Bitmap b=bitmapdraw.getBitmap();
+        BitmapDrawable bitmapdraw1=(BitmapDrawable)getResources().getDrawable(R.drawable.firstmarkerr);
+        Bitmap c=bitmapdraw1.getBitmap();
+        BitmapDrawable bitmapdraw2=(BitmapDrawable)getResources().getDrawable(R.drawable.lastmarkerr);
+        Bitmap d=bitmapdraw2.getBitmap();
+        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+        firstMarker = Bitmap.createScaledBitmap(c,width,height,false);
+        lastMarker = Bitmap.createScaledBitmap(d,width,height,false);
+
 
         //init the gauges
         gaugesCardView = findViewById(R.id.gauges);
@@ -352,15 +388,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onResume(){
         super.onResume();
-
-        if(isDisplayed==false)
-        {
-            if(mMap!=null)
-                mMap.clear();
-            getSensorLocations();
-            isDisplayed=true;
-        }
-
         if(mMap!=null && ReportsActivity.showReport==true )
         {
             showReport();
@@ -395,29 +422,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    public void getSensorLocations(){
-       // final String url = getResources().getString(R.string.api_altfactor)+"/getrecordsperiod/3/"+profile.startDate+"12:17:52/"+profile.endDate+"12:18:09";
+    public static void getSensorLocations()//get sensor locations and show them
+    {
         String url=null;
-
         if(mMap!=null)
-        mMap.clear();
-
+            mMap.clear();
         if(profile.startDate==null || profile.endDate==null || profile.deviceId==null)
         {
              url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
         }
-        else{
-              url = getResources().getString(R.string.api_altfactor)+"/getrecordsperiod/"+profile.deviceId+"/"+profile.startDate+" 12:19:40/"+profile.endDate+" 12:20:13";
-            Log.d("merge1",url);
+        else
+        {
+              url = alfactorApiString+"/getrecordsperiod/"+profile.deviceId+"/"+profile.startDate+" 12:19:40/"+profile.endDate+" 12:20:13";
+              Log.d("merge1",url);
         }
-
-       // String url ="http://86.127.100.48:5000/getrecordsperiod/3/"+profile.startDate+ " 12:19:40/"+profile.endDate+" 12:20:13";
-
-        Log.d("merge1",url);
-        //Log.d("merge2",url2);
-
-      //  Toast.makeText(this,profile.startDate,Toast.LENGTH_LONG).show();
-
         markerLocations.clear();
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
@@ -425,49 +443,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onResponse(JSONArray response) {
 
-                        int height = 90;
-                        int width = 85;
-
-                        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.marker);
-                        Bitmap b=bitmapdraw.getBitmap();
-                        BitmapDrawable bitmapdraw1=(BitmapDrawable)getResources().getDrawable(R.drawable.firstmarkerr);
-                        Bitmap c=bitmapdraw1.getBitmap();
-                        BitmapDrawable bitmapdraw2=(BitmapDrawable)getResources().getDrawable(R.drawable.lastmarkerr);
-                        Bitmap d=bitmapdraw2.getBitmap();
-
-                        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-                        Bitmap firstMarker = Bitmap.createScaledBitmap(c,width,height,false);
-                        Bitmap lastMarker = Bitmap.createScaledBitmap(d,width,height,false);
-
                         try
                         {
-                            for (int i = 0; i < response.length(); i++) {
+                            for (int i = 0; i < response.length(); i++)
+                            {
                                 JSONArray report = response.getJSONArray(i);
                                 String lat,lon;
                                 lat=report.getString(2);
                                 lon=report.getString(3);
                                 markerLocations.add(new LatLng(Double.parseDouble(lat), Double.parseDouble(lon)));
                             }
-
-                            Log.d("catevalori",markerLocations.toString());
-
-
-
-                            if(markersHandler!=null){
-                                markersHandler=null;
-                            }
-
-
-                            markersHandler = new MarkersHandler(mMap, smallMarker,firstMarker,lastMarker);
-                            /*Thread showMarkersThread = new Thread(new UpdateMarkers(markerLocations));
-                            showMarkersThread.start();*/
-
-
-
-
                             showMarkers();
-
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e)
+                        {
                             e.printStackTrace();
                         }
                     }
@@ -475,25 +464,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
         );
-
-        MyVolleyQueue.getInstance(getApplicationContext()).addToRequestQueue(getRequest);
-
-
-
+        MyVolleyQueue.getInstance(context).addToRequestQueue(getRequest);
     }
 
 
-    public static  void showMarkers(){
-        if(profile.isReadyHistory==true){
-
-
+    public static  void showMarkers()
+    {
+        if(profile.isReadyHistory==true)
+        {
             Thread showMarkersThread = new Thread(new UpdateMarkers(markerLocations));
             showMarkersThread.start();
-
             Log.d("locatii",markerLocations.toString());
         }
     }
@@ -512,20 +496,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         try {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject report = response.getJSONObject(i);
-
-
                                 Double lat = Double.parseDouble(report.getJSONObject("location").getString("lat"));
                                 Double lng = Double.parseDouble(report.getJSONObject("location").getString("lon"));
-
-
-
                                 coordinates.add(new LatLng(lat, lng));
-
-
                             }
-
-
-
                             updateHeatMap(coordinates);
 
                         } catch (JSONException e) {

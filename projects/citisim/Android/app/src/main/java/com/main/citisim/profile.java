@@ -220,33 +220,25 @@ public class profile extends AppCompatActivity {
         runButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isVisibleRun ==false)
+                if(isVisibleRun == false && MapActivity.historyThreadFinished == true)
                 {
                     isReadyHistory=true;
-                    MapActivity.showMarkers();
-
-                    finish();
-
-
-                  //  Toast.makeText(profile.this , startDate + " " + endDate,Toast.LENGTH_LONG).show();
-
                     closeAll(deviceList,historyList);
-
                     calendarEnd.setVisibility(View.GONE);
-                    //calendarStart.set
                     calendarStart.setVisibility(View.GONE);
-
                     isVisibleRun =true;
                     changeWidth("small");
-
-
-
-
-                }else{
-                    historyList.setVisibility(View.GONE);
-                    calendarEnd.setVisibility(View.GONE);
-                    isVisibleRun =false;
-                    changeWidth("small");
+                    MapActivity.getSensorLocations();
+                    MapActivity.historyThreadFinished = false;
+                    finish();
+                }
+                else {
+                    if(MapActivity.historyThreadFinished) {
+                        historyList.setVisibility(View.GONE);
+                        calendarEnd.setVisibility(View.GONE);
+                        isVisibleRun = false;
+                        changeWidth("small");
+                    }
                 }
             }
         });
