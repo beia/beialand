@@ -52,10 +52,6 @@ public class profile extends AppCompatActivity {
     boolean isVisibleRun=false;
     static  boolean isReadyHistory=false;
 
-    public static String startDate;
-    public static String endDate;
-    public static String deviceId;
-
 
     public ArrayList<Integer> deviceIdList;
 
@@ -138,7 +134,7 @@ public class profile extends AppCompatActivity {
         device.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isVisibleDevice ==false)
+                if(isVisibleDevice == false)
                 {
                     closeAll(deviceList,historyList);
                     getDevicesHistory(historyListView);
@@ -253,15 +249,15 @@ public class profile extends AppCompatActivity {
 
                // Toast.makeText(profile.this, year+ "/ "+(month+1)+"/ "+dayOfMonth,Toast.LENGTH_LONG).show();
                 if(month+1<10 && dayOfMonth<10)
-                    startDate=year+ "-"+"0"+(month+1)+"-"+"0"+dayOfMonth;
+                    MapActivity.startDate=year+ "-"+"0"+(month+1)+"-"+"0"+dayOfMonth;
                 else
                     if(month+1<10 && dayOfMonth>=10)
-                    startDate=year+ "-"+"0"+(month+1)+"-"+dayOfMonth;
+                    MapActivity.startDate=year+ "-"+"0"+(month+1)+"-"+dayOfMonth;
                     else
                     if(month+1>=10 && dayOfMonth<10)
-                        startDate=year+ "-"+(month+1)+"-"+"0"+dayOfMonth;
+                        MapActivity.startDate=year+ "-"+(month+1)+"-"+"0"+dayOfMonth;
                     else
-                        startDate=year+ "-"+(month+1)+"-"+dayOfMonth;
+                        MapActivity.startDate=year+ "-"+(month+1)+"-"+dayOfMonth;
 
             }
         });
@@ -276,15 +272,15 @@ public class profile extends AppCompatActivity {
                 //Toast.makeText(profile.this, year+ "/ "+(month+1)+"/ "+dayOfMonth,Toast.LENGTH_LONG).show();
 
                 if(month+1<10 && dayOfMonth<10)
-                    endDate=year+ "-"+"0"+(month+1)+"-"+"0"+dayOfMonth;
+                    MapActivity.endDate=year+ "-"+"0"+(month+1)+"-"+"0"+dayOfMonth;
                 else
                 if(month+1<10 && dayOfMonth>=10)
-                    endDate=year+ "-"+"0"+(month+1)+"-"+dayOfMonth;
+                    MapActivity.endDate=year+ "-"+"0"+(month+1)+"-"+dayOfMonth;
                 else
                 if(month+1>=10 && dayOfMonth<10)
-                    endDate=year+ "-"+(month+1)+"-"+"0"+dayOfMonth;
+                    MapActivity.endDate=year+ "-"+(month+1)+"-"+"0"+dayOfMonth;
                 else
-                    endDate=year+ "-"+(month+1)+"-"+dayOfMonth;
+                    MapActivity.endDate=year+ "-"+(month+1)+"-"+dayOfMonth;
 
             }
         });
@@ -369,9 +365,8 @@ public class profile extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                deviceId=deviceIdList.get(position)+"";
+                MapActivity.deviceSelectedId = deviceIdList.get(position);
                 MapActivity.deviceSelected = true;
-                MapActivity.deviceSelectedId = Integer.parseInt(deviceId);
                 finish();
             }
         });
@@ -389,10 +384,7 @@ public class profile extends AppCompatActivity {
         reportListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                deviceId=deviceIdList.get(position)+"";
-
-
+                MapActivity.deviceSelectedId = deviceIdList.get(position);
             }
         });
 
@@ -455,10 +447,9 @@ public class profile extends AppCompatActivity {
                     public void onResponse(JSONArray response) {
 
                         ArrayList<String> names = new ArrayList<String>();
-                        try {
-
+                        try
+                        {
                             deviceIdList.clear();
-
                             for (int i = 0; i < response.length(); i++) {
                                 JSONArray report = response.getJSONArray(i);
                                 String name;

@@ -142,7 +142,7 @@ public class DeviceData extends AppCompatActivity {
 
 
     public void getCO2() {
-        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+profile.deviceId;
+        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+MapActivity.deviceSelectedId;
 
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
@@ -255,7 +255,7 @@ public class DeviceData extends AppCompatActivity {
 
 
     public void getDust() {
-        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+profile.deviceId;
+        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+MapActivity.deviceSelectedId;
 
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
@@ -365,7 +365,7 @@ public class DeviceData extends AppCompatActivity {
 
 
     public void getHumidity() {
-        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+profile.deviceId;
+        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+MapActivity.deviceSelectedId;
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -475,7 +475,7 @@ public class DeviceData extends AppCompatActivity {
 
 
     public void getSpeed() {
-        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+profile.deviceId;
+        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+MapActivity.deviceSelectedId;
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -587,7 +587,7 @@ public class DeviceData extends AppCompatActivity {
 
 
     public void getTemperature() {
-        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+profile.deviceId;
+        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+MapActivity.deviceSelectedId;
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
@@ -696,7 +696,7 @@ public class DeviceData extends AppCompatActivity {
 
 
     public void getAirQuality() {
-        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+profile.deviceId;
+        final String url = getResources().getString(R.string.api_altfactor) + "/getrecordslasthours/"+MapActivity.deviceSelectedId;
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {

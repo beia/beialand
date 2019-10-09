@@ -48,6 +48,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -93,6 +94,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //History variables
     public static volatile boolean historyThreadFinished = true;
+    public static String startDate;
+    public static String endDate;
+
+    //time variables
+    public static Calendar calendar;
 
     //My devices variables
     public static volatile boolean deviceSelected = false;
@@ -429,15 +435,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         String url=null;
         if(mMap!=null)
             mMap.clear();
-        if(profile.startDate==null || profile.endDate==null || profile.deviceId==null)
+        if(MapActivity.startDate==null || MapActivity.endDate==null)
         {
-             url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
+            //get the current date and set the uncompleted fields for the user
+            calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            String currentDate = year + "-" + month + "-" + day;
+            if (MapActivity.startDate == null)
+            {
+                startDate = currentDate;
+                endDate = currentDate;
+            }
+            if (MapActivity.endDate == null)
+            {
+                endDate = currentDate;
+            }
         }
-        else
-        {
-              url = alfactorApiString+"/getrecordsperiod/"+profile.deviceId+"/"+profile.startDate+" 12:19:40/"+profile.endDate+" 12:20:13";
-              Log.d("merge1",url);
-        }
+
+        //the api is not working properly so we create a mock-up url
+        url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
+        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 12:19:40/" + MapActivity.endDate + " 12:20:13";
+        Log.d("URL", desiredURL);
         markerLocations.clear();
 
         final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
