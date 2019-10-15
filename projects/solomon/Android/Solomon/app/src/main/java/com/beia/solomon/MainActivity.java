@@ -455,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
                     {
-                        if(distance < 2)
+                        if(distance < 3.5)
                         {
                             //check if the map loaded and initialize variables
                             if(indoorBuilding == null)
@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
                             if(!inZone)
                             {
                                 //user is inside the region
-                                if(distance < 2)
+                                if(distance < 3.5)
                                 {
                                     //check if the map loaded and initialize variables
                                     if(indoorBuilding == null)
@@ -602,7 +602,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else
                         {
-                            if(distance < 2)
+                            if(distance < 3.5)
                             {
                                 //check if the map loaded and initialize variables
                                 if(indoorBuilding == null)
