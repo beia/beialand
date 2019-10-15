@@ -50,7 +50,7 @@ public class UpdateImageLocationRunnable implements Runnable
                     incrementXY[0] = (int) (speed + (Math.random() * speed + 1));
                 }
                 //the preference layout would go outside the screen from the right
-                if(locationX + incrementXY[0] > displayWidth - preferenceImageLayout.getMeasuredWidth())
+                if(locationX + incrementXY[0] > displayWidth - preferenceImageLayout.getWidth())
                 {
                     //change the increment on the x axis to a negative one
                     incrementXY[0] = (int) ((-1 * speed) + (Math.random() * (-1 * speed) - 1));

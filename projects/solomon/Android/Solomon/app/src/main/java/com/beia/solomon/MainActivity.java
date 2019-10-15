@@ -455,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
                     {
-                        if(distance < 7)
+                        if(distance < 2)
                         {
                             //check if the map loaded and initialize variables
                             if(indoorBuilding == null)
@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity {
                             if(!inZone)
                             {
                                 //user is inside the region
-                                if(distance < 7)
+                                if(distance < 2)
                                 {
                                     //check if the map loaded and initialize variables
                                     if(indoorBuilding == null)
@@ -583,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
                             else
                             {
                                 //user is outside the region
-                                if(distance > 7)
+                                if(distance > 6)
                                 {
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), false);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -602,7 +602,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else
                         {
-                            if(distance < 7)
+                            if(distance < 2)
                             {
                                 //check if the map loaded and initialize variables
                                 if(indoorBuilding == null)
