@@ -156,7 +156,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
             //end of beacon configuration
             
             //MALLS CONFIG
-            File file = new File("C:\\Users\\tehnic\\Desktop\\beialand\\projects\\solomon\\Server\\SolomonServer\\src\\configFiles\\mallsCoordinates");
+            File file = new File("C:\\Users\\beia\\Desktop\\beialand\\projects\\solomon\\Server\\SolomonServer\\src\\configFiles\\mallsCoordinates");
             Scanner scan = new Scanner(file);
             //get stores from the database
             ArrayList<Store> stores = new ArrayList<>();
@@ -363,7 +363,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
     public void getBeaconsData(HashMap<String, Beacon> beacons) throws SAXException, ParserConfigurationException, IOException
     {
         //get the beacons data from a XML configuration file
-        File inputFile = new File("C:\\Users\\tehnic\\Desktop\\beialand\\projects\\solomon\\Server\\SolomonServer\\src\\configFiles\\beacons.xml");
+        File inputFile = new File("C:\\Users\\beia\\Desktop\\beialand\\projects\\solomon\\Server\\SolomonServer\\src\\configFiles\\beacons.xml");
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = (Document) dBuilder.parse(inputFile);

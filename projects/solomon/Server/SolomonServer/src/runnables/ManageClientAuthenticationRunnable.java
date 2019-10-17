@@ -104,7 +104,7 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                             {
                                 isFirstLogin = false;
                             }
-                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, lastName, firstName, age, isFirstLogin));
+                            this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, password, lastName, firstName, age, isFirstLogin));
                             System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
                             this.connected = true;
                             

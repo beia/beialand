@@ -2,6 +2,7 @@ package com.beia.solomon;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -52,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
     public static Socket socket;
     public static ObjectOutputStream objectOutputStream;
     public static ObjectInputStream objectInputStream;
+    public static SharedPreferences sharedPref;
+    public static SharedPreferences.Editor editor;
+
 
     //UI variables
     public static LinearLayout mainLinearLayout;    //the linear layout that contains the title and the other linear layout
@@ -108,6 +112,11 @@ public class LoginActivity extends AppCompatActivity {
                     feedbackTextView.setTextColor(LoginActivity.context.getResources().getColor(R.color.greenAccent));
                     UserData userData = (UserData) msg.obj;
 
+                    //check if the user signed in before for automatic login
+                    editor.putString("username", userData.getUsername());
+                    editor.putString("password", userData.getPassword());
+                    editor.commit();
+
                     //check if it's the first login of the user so we can setup his preferences first
                     if(userData.isFirstLogin())
                     {
@@ -140,6 +149,9 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        //initialize the cache
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
 
         //request permission
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -190,6 +202,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        //sign in automatically
+        String username, password;
+        username = sharedPref.getString("username", null);
+        password = sharedPref.getString("password", null);
+        if(username != null && password != null)
+        {
+            automaticSignIn(username, password);
+        }
     }
 
 
@@ -198,7 +218,6 @@ public class LoginActivity extends AppCompatActivity {
     public void connectToJavaServer()
     {
         connectClientThread = new Thread(new ConnectToJavaServerRunnable());
-
         connectClientThread.start();
     }
 
@@ -209,6 +228,14 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordSignInEditText.getText().toString();
         usernameSignInEditText.setText("");
         passwordSignInEditText.setText("");
+        //send the sign in data to the server
+        SignInData signInData = new SignInData(username, password);
+        Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
+        sendSignInDataThread.start();
+    }
+    public void automaticSignIn(String username, String password)
+    {
+        //send the sign in data to the server
         SignInData signInData = new SignInData(username, password);
         Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
         sendSignInDataThread.start();
