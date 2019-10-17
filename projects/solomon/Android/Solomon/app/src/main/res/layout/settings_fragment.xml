@@ -236,6 +236,15 @@
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+            <TextView
+                android:id="@+id/logoutTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="45dp"
+                android:textSize="22sp"
+                android:textColor="@android:color/holo_red_light"
+                android:text="log out"/>
 
         </LinearLayout>
 

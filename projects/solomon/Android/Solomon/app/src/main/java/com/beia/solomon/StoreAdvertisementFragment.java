@@ -36,8 +36,9 @@ public class StoreAdvertisementFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.store_advertisement_fragment, container, false);
         initUI(view);
-        if(!MainActivity.beaconsTextViews.isEmpty())
+        if(MainActivity.beacons != null)
         {
+            Log.d("BEACONS", "INITIALIZED BEACON TEXTVIEWS");
             MainActivity.beaconsTextViews = new HashMap<>();
             for (Map.Entry entry : MainActivity.beacons.entrySet())
             {

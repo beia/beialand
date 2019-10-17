@@ -62,7 +62,7 @@
    </beacon>
    
    <beacon id = "LKhV">
-   <label>POC</label>
+   <label>Media Galaxy</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>41302</major>
@@ -74,7 +74,7 @@
    </beacon>
    
    <beacon id = "rrZd">
-   <label>SERE</label>
+   <label>Florarie</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>39824</major>
@@ -86,7 +86,7 @@
    </beacon>
    
    <beacon id = "0Qq2">
-   <label>Sales</label>
+   <label>Zara</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>33233</major>
@@ -98,7 +98,7 @@
    </beacon>
    
    <beacon id = "zbCe">
-   <label>Secretariat</label>
+   <label>Pull&amp;Bear</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>60181</major>
@@ -110,7 +110,7 @@
    </beacon>
    
    <beacon id = "R4JH">
-   <label>Proiecte</label>
+   <label>Carturesti</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>24334</major>
@@ -122,7 +122,7 @@
    </beacon>
    
    <beacon id = "g0MK">
-   <label>Management room</label>
+   <label>Altex</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>10428</major>
@@ -134,7 +134,7 @@
    </beacon>
    
    <beacon id = "lZyt">
-   <label>CEO room</label>
+   <label>Diverta</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>51925</major>
@@ -146,7 +146,7 @@
    </beacon>
    
    <beacon id = "MTFa">
-   <label>Conference room</label>
+   <label>Starbucks</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>59730</major>
@@ -158,7 +158,7 @@
    </beacon>
    
    <beacon id = "aaai">
-   <label>Oficiu 1</label>
+   <label>McDonald's</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>48319</major>
@@ -170,7 +170,7 @@
    </beacon>
    
    <beacon id = "v7mz">
-   <label>Scara2</label>
+   <label>Stairs 2</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>25098</major>
@@ -182,7 +182,7 @@
    </beacon>
    
    <beacon id = "tZF7">
-   <label>Scara 1</label>
+   <label>Stairs 1</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>3204</major>
@@ -195,7 +195,7 @@
    
    
    <beacon id = "PcNy">
-   <label>POC 2</label>
+   <label>Auchan</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>58450</major>
@@ -207,7 +207,7 @@
    </beacon>
    
    <beacon id = "y0PY">
-   <label>Garaj</label>
+   <label>Gloria</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>9597</major>
@@ -219,7 +219,7 @@
    </beacon>
    
    <beacon id = "ygmN">
-   <label>Intrare</label>
+   <label>Entrance</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>55561</major>

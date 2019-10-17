@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
 
     //beacon variables
     public static volatile HashMap<String, Beacon> beacons;//change to public not static
-    public static HashMap<String, Boolean> regionsEntered;
-    public static HashMap<Integer, Mall> malls;
-    public static HashMap<Integer, Boolean> mallsEntered;
+    public static volatile HashMap<String, Boolean> regionsEntered;
+    public static volatile HashMap<Integer, Mall> malls;
+    public static volatile HashMap<Integer, Boolean> mallsEntered;
     public static List<IndoorLevel> levels;
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     public static MapFragment mapFragment;
     public static SettingsFragment settingsFragment;
 
-    public static HashMap<String, TextView> beaconsTextViews;
+    public static volatile HashMap<String, TextView> beaconsTextViews;
 
     //Other variables
     public static Date currentTime;
@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
 
+        Log.d("BEACONS", "onCreate: ");
 
         //create a local cache
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
@@ -206,10 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
-        Intent startLoginActivityIntent = new Intent(this, LoginActivity.class);
-        startActivity(startLoginActivityIntent);
+        //do nothing
     }
 
 
@@ -310,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
     //KONTAKT
     public void initKontaktBeacons()
     {
+        Log.d("BEACONS", "initKontaktBeacons: ");
         //initialize the Kontakt SDK
         KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
         proximityManager = ProximityManagerFactory.create(this);
@@ -706,6 +705,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        proximityManager.stopScanning();
         proximityManager.disconnect();
         proximityManager = null;
         super.onDestroy();
@@ -719,8 +719,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     @SuppressLint("ResourceAsColor")
     public void initUI()
@@ -776,5 +774,6 @@ public class MainActivity extends AppCompatActivity {
         usernameTextView = findViewById(R.id.usernameTextView);
         passwordTextView = findViewById(R.id.passwordTexView);
         ageTextView = findViewById(R.id.ageTextView);
+        Log.d("BEACONS", "LAYOUT");
     }
 }

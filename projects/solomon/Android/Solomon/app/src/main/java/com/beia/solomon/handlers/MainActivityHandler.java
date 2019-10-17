@@ -26,12 +26,6 @@ public class MainActivityHandler extends Handler
                 for (Map.Entry entry : MainActivity.beacons.entrySet())
                 {
                     Beacon beacon = (Beacon) entry.getValue();
-                    TextView textView = new TextView(MainActivity.context);
-                    textView.setText(beacon.getLabel() + ": ");
-                    MainActivity.storeAdvertisementFragment.linearLayout.addView(textView);
-                    MainActivity.beaconsTextViews.put(beacon.getId(), textView);
-
-
                     //initialize all the malls and set all the malls entered values to false
                     if(MainActivity.mallsEntered.isEmpty())
                     {
@@ -45,8 +39,6 @@ public class MainActivityHandler extends Handler
                         }
                     }
                 }
-
-
                 // set Kontakt beacons
                 mainActivity.initKontaktBeacons();
 

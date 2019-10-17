@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static runnables.ConnectClientsRunnable.objectInputStream;
 import solomonserver.SolomonServer;
 
 /**
@@ -29,18 +30,20 @@ public class ManageClientAppInteractionRunnable implements Runnable
     public int userId;
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
+    public boolean finishThread;
     public ManageClientAppInteractionRunnable(int userId, ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream)
     {
         this.userId = userId;
         this.objectOutputStream = objectOutputStream;
         this.objectInputStream = objectInputStream;
+        this.finishThread = false;
     }
     @Override
     public void run() {
         try
         {
             //wait for client location data
-            while(true)
+            while(!finishThread)
             {
                 Object networkPacket = this.objectInputStream.readObject();
                 if(networkPacket instanceof LocationData)
@@ -119,8 +122,13 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                         Logger.getLogger(ManageClientAppInteractionRunnable.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                 }
-                            }
-                            
+                            }           
+                            break;
+                        case "log out":
+                            //manage client authentication and exit this thread thatmanages the client app interaction
+                            Thread manageClientAuthentication = new Thread(new ManageClientAuthenticationRunnable(objectOutputStream, objectInputStream));
+                            manageClientAuthentication.start();
+                            finishThread = true;
                             break;
                         default:
                             break;

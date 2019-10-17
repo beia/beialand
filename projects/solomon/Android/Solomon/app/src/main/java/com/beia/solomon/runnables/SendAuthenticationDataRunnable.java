@@ -24,6 +24,12 @@ public class SendAuthenticationDataRunnable implements Runnable
         this.signInData = signInData;
         this.objectOutputStream = objectOutputStream;
     }
+    public SendAuthenticationDataRunnable(String actionLabel, ObjectOutputStream objectOutputStream)
+    {
+        this.actionLabel = actionLabel;
+        this.objectOutputStream = objectOutputStream;
+    }
+
     @Override
     public void run()
     {
@@ -36,6 +42,9 @@ public class SendAuthenticationDataRunnable implements Runnable
                     break;
                 case "sign up":
                     objectOutputStream.writeObject(signUpData);
+                    break;
+                case "log out":
+                    objectOutputStream.writeObject("log out");
                     break;
                 default:
                     break;

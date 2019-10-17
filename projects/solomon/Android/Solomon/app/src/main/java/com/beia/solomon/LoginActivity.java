@@ -1,6 +1,7 @@
 package com.beia.solomon;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -79,6 +80,8 @@ public class LoginActivity extends AppCompatActivity {
     public static EditText passwordConfirmationSignUpEditText;
     public static Button signUpButton;
 
+    public static Activity loginActivityInstance;
+
 
     public static Handler handler = new Handler() {
 
@@ -134,6 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         LoginActivity.context.startActivity(intent);
                     }
+                    LoginActivity.loginActivityInstance.finish();
                     break;
 
                 default:
@@ -149,31 +153,55 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        //request permission
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
         //initialize the cache
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         editor = sharedPref.edit();
 
-        //request permission
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-
-
-
         //initialize variables
         r = getResources();
         context = this.getApplicationContext();
-
-
-
-        //connect to servers
-        connectToJavaServer();
-
+        loginActivityInstance = this;
 
         //initialize the UI
         initUI();
 
-        //set login layout
-        setLoginLayout();
+        //check if the user needs to sign in automatically
+        String username, password;
+        username = sharedPref.getString("username", null);
+        password = sharedPref.getString("password", null);
+        //manual login
+        if(username == null || password == null)
+        {
+            //set login layout
+            setLoginLayout();
+            //login radio button listener
+            loginRadioButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setLoginLayout();
+                }
+            });
+            //sign up radio button listener
+            signupRadioButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setSignUpLayout();
+                }
+            });
+        }
+        else
+        {
+            //automatic login
+            setAutomaticLogin();
+        }
 
+        if(objectOutputStream == null || objectInputStream == null) {
+            //connect to the server
+            connectToJavaServer();
+        }
         //start the login thread - in the handler this method is bad
         while(true)
         {
@@ -184,28 +212,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-        //login radio button listener
-        loginRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                setLoginLayout();
-            }
-        });
-
-        //sign up radio button listener
-        signupRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                setSignUpLayout();
-            }
-        });
-
-        //sign in automatically
-        String username, password;
-        username = sharedPref.getString("username", null);
-        password = sharedPref.getString("password", null);
         if(username != null && password != null)
         {
             automaticSignIn(username, password);
@@ -289,6 +295,10 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void setLoginLayout()
     {
+        loginRadioButton.setVisibility(View.VISIBLE);
+        signupRadioButton.setVisibility(View.VISIBLE);
+        loginTitleTextView.setVisibility(View.VISIBLE);
+
         //set the login title
         loginTitleTextView.setText("Sign in");
 
@@ -364,6 +374,13 @@ public class LoginActivity extends AppCompatActivity {
         loginLinearLayout.addView(LoginActivity.passwordSignInEditText);
         loginLinearLayout.addView(LoginActivity.signInButton);
         loginLinearLayout.addView(feedbackTextView);
+    }
+
+    public void setAutomaticLogin()
+    {
+        loginLinearLayout.removeAllViews();
+        loginRadioButton.setVisibility(View.GONE);
+        signupRadioButton.setVisibility(View.GONE);
     }
     public void setSignUpLayout()
     {

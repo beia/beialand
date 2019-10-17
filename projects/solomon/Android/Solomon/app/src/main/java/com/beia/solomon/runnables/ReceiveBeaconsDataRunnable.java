@@ -29,14 +29,15 @@ public class ReceiveBeaconsDataRunnable implements Runnable
         {
             BeaconsData beaconsData = (BeaconsData) objectInputStream.readObject();
             MainActivity.beacons = beaconsData.getBeaconsData();//change .. make beacons not static
-            objectOutputStream.writeObject("Client received beacons");
+            Log.d("BEACONS", "RECEIVED BEACON DATA");
 
             HashMap<Integer, Mall> malls = (HashMap<Integer, Mall>) objectInputStream.readObject();
             MainActivity.malls = malls;
-            objectOutputStream.writeObject("Client received malls");
+            Log.d("BEACONS", "RECEIVED MALLS DATA");
 
             //before listening to the beacons and sending data to the server regarding positions we must be sure that the server is listening for the data
             String serverFeedback = (String)objectInputStream.readObject();
+            Log.d("BEACONS", "RECEIVED SERVER FEEDBACK " + serverFeedback);
 
             if(serverFeedback.equals("Started listening to the location data"))
             {
