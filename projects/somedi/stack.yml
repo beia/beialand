@@ -10,6 +10,7 @@ services:
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
       ACCESS_TOKEN__FILE: '/run/secrets/somedi_access_token'
       GOOGLE_APPLICATION_CREDENTIALS: '/srv/sentiment-analysis/creds/auth.json'
+      BERT_BASE_URL: 'http://somedi-vm.beia-consult.ro:45401/enesro_sentiment_analyzer'
       REDIS_HOST: 'redis'
     networks:
      - proxy_net
