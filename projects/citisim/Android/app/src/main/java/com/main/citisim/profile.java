@@ -101,6 +101,7 @@ public class profile extends AppCompatActivity {
         getWindow().setLayout( (int)(width*0.4),height);
         getWindow().setGravity(Gravity.RIGHT);
 
+        //DEVICES
         ImageButton myDevices = (ImageButton)findViewById(R.id.myDevices);
         myDevices.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -354,20 +355,22 @@ public class profile extends AppCompatActivity {
 
     }
 
-
+    //DEVICES
     public void setLayout(ArrayList s,ListView v) {
 
         final ListAdapter reportAdapter = new ArrayAdapter<>(this,R.layout.devicelist_profile,s);
         ListView reportListView = v;//(ListView) findViewById(R.id.reportListView);
-        reportListView.setAdapter(reportAdapter);
+        reportListView.setAdapter(reportAdapter);cd
 
         reportListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                MapActivity.deviceSelectedId = deviceIdList.get(position);
-                MapActivity.deviceSelected = true;
-                finish();
+                if(MapActivity.historyThreadFinished) {
+                    MapActivity.deviceSelectedId = deviceIdList.get(position);
+                    MapActivity.deviceSelected = true;
+                    finish();
+                }
             }
         });
 
@@ -472,10 +475,7 @@ public class profile extends AppCompatActivity {
                     }
                 }
         );
-
         MyVolleyQueue.getInstance(getApplicationContext()).addToRequestQueue(getRequest);
-
-
 
     }
 

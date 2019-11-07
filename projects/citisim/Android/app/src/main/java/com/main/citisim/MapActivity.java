@@ -399,9 +399,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(mMap!=null && ReportsActivity.showReport==true )
         {
             showReport();
-            Log.d("savedem","da");
         }
 
+        //DEVICES
         //if a device was selected we show the gauges and the device name on the bottom of the screen
         //we create a thread that will check for new data from the device that was clicked at every 5 seconds
         if(deviceSelected)
@@ -410,14 +410,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             updateDevice = new Thread(new UpdateDeviceRunnable(getApplicationContext()));
             updateDevice.start();
             deviceSelected = false;
-        }
-        else
-        {
-            //it means that a device was previously selected
-            if(updateDevice != null) {
-                gaugesCardView.setVisibility(View.GONE);
-                updateDevice.interrupt();
-            }
         }
     }
 
@@ -430,6 +422,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+
+    //HISTORY
     public static void getSensorLocations()//get sensor locations and show them
     {
         String url=null;
@@ -521,6 +515,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
                                 markerLocations.add(deviceParameters);
                             }
+                            //stop the real time display of the device so we can see the history
+                            if(updateDevice != null && updateDevice.isAlive())
+                                updateDevice.interrupt();
                             showMarkers();
                         }
                         catch (JSONException e)

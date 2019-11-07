@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "ro.beia.citisimR"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 28
         versionCode 9
         versionName "1.0.5"

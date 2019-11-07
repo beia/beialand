@@ -44,7 +44,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     {
         this.googleMap = googleMap;
         // Add a marker in Sydney, Australia, and move the camera.
-        LatLng afi = new LatLng(50, 26.051922);
+        LatLng afi = new LatLng(50, 6.051922);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(afi, 18.0f));
     }
 }
