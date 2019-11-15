@@ -38,5 +38,5 @@ dependencies {
     implementation 'com.github.zurche:plain-pie:v0.2.9'
     implementation 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     implementation 'me.dm7.barcodescanner:zxing:1.9'
-
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

@@ -1,5 +1,9 @@
 package com.main.citisim.data;
 
+import java.lang.reflect.Array;
+import java.nio.channels.FileLock;
+import java.util.ArrayList;
+
 public class DeviceParameters
 {
     private String time;//1

@@ -1,14 +1,20 @@
 package com.main.citisim;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -18,11 +24,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.main.citisim.data.DeviceParameters;
 
 import java.util.ArrayList;
+import java.util.Map;
 
+import static android.content.Context.MODE_APPEND;
 import static com.main.citisim.MapActivity.MAX_AIRQUALITY;
 import static com.main.citisim.MapActivity.MAX_C02;
 import static com.main.citisim.MapActivity.MAX_DUST;
 import static com.main.citisim.MapActivity.MAX_SPEED;
+import static com.main.citisim.MapActivity.pieViewCO2;
 
 public class MarkersHandler extends Handler
 {
@@ -54,7 +63,7 @@ public class MarkersHandler extends Handler
             switch (msg.what) {
                 case 1:
                     //adaugam marker
-                    DeviceParameters deviceParameters = (DeviceParameters)msg.obj;
+                    final DeviceParameters deviceParameters = (DeviceParameters)msg.obj;
                     LatLng position = new LatLng(deviceParameters.getLatitude(), deviceParameters.getLongitude());
                     if (msg.arg1 == 0)
                     {
@@ -102,6 +111,22 @@ public class MarkersHandler extends Handler
                     MapActivity.pieViewAirQuality.setInnerText(airQuality + "");
                     MapActivity.pieViewSpeed.setPercentage(speed / MAX_SPEED * 100);
                     MapActivity.pieViewSpeed.setInnerText(speed + "");
+
+                    //set the listeners for the gauges so we can see the graphs associated with the coresponding sensor measurements
+                    pieViewCO2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            XAxis xAxis = MapActivity.lineChartCO2.getXAxis();
+                            xAxis.enableGridDashedLine(10f, 10f, 0f);
+                            YAxis yAxis = MapActivity.lineChartCO2.getAxisLeft();
+                            // disable dual axis (only use LEFT axis)
+                            MapActivity.lineChartCO2.getAxisRight().setEnabled(false);
+                            yAxis.enableGridDashedLine(10f, 10f, 0f);
+                            // axis range
+                            yAxis.setAxisMaximum(200f);
+                            yAxis.setAxisMinimum(-50f);
+                        }
+                    });
                 break;
             }
         }

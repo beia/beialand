@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.github.mikephil.charting.charts.LineChart;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -82,6 +84,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static PieView pieViewDust;
     public static PieView pieViewAirQuality;
     public static PieView pieViewSpeed;
+    public static LineChart lineChartCO2;
+    public static LineChart lineChartDust;
+    public static LineChart lineChartAirQuality;
+    public static LineChart lineChartSpeed;
 
     //marker variables
     public static BitmapDrawable markerBitmapDrawable;
@@ -249,6 +255,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         pieViewDust = findViewById(R.id.pieViewDust);
         pieViewAirQuality = findViewById(R.id.pieViewAirQuality);
         pieViewSpeed = findViewById(R.id.pieViewSpeed);
+        lineChartCO2 = findViewById(R.id.CO2Graph);
+        lineChartDust = findViewById(R.id.SpeedGraph);
+        lineChartAirQuality = findViewById(R.id.AirQualityGraph);
+        lineChartSpeed = findViewById(R.id.SpeedGraph);
+
+        //setup the graphs
+        lineChartCO2.setBackgroundColor(Color.WHITE);
+        lineChartCO2.getDescription().setEnabled(false);
+        lineChartCO2.setTouchEnabled(true);
+        lineChartCO2.setDrawGridBackground(true);
     }
 
 

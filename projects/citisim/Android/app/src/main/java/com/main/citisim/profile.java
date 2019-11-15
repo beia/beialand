@@ -360,7 +360,7 @@ public class profile extends AppCompatActivity {
 
         final ListAdapter reportAdapter = new ArrayAdapter<>(this,R.layout.devicelist_profile,s);
         ListView reportListView = v;//(ListView) findViewById(R.id.reportListView);
-        reportListView.setAdapter(reportAdapter);cd
+        reportListView.setAdapter(reportAdapter);
 
         reportListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
