@@ -21,11 +21,17 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -49,10 +55,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import az.plainpie.PieView;
 
@@ -121,12 +129,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
     public static Handler handler = new Handler(){
+        ArrayList<Entry> cO2Values = new ArrayList<>();
+        ArrayList<Entry> dustValues = new ArrayList<>();
+        ArrayList<Entry> airQualityValues = new ArrayList<>();
+        ArrayList<Entry> speedValues = new ArrayList<>();
+        LineDataSet cO2Set, dustSet, airQualitySet, speedSet;
+        LineData cO2LineData, dustLineData, airQualityLineData, speedLineData;
         @Override
         public void handleMessage(Message msg)
         {
+
             switch (msg.what)
             {
-                case 1://update the gauges
+                case 1:
+                    //update the gauges(receiveing the last record from the device)
                     DeviceParameters device = (DeviceParameters) msg.obj;
                     float cO2 = (float)Math.round(device.getCO2() * 100) / 100;
                     float dust = (float)Math.round(device.getDust() * 100) / 100;
@@ -141,6 +157,58 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     pieViewSpeed.setPercentage(speed / MAX_SPEED * 100);
                     pieViewSpeed.setInnerText(speed + "");
 
+                    //update the graphs
+                    //remove the first element from the parameters array
+                    //update all the (x, y) points from the graph by translating the x values to the left by one
+                    //add the value received in the array
+                    if(cO2Values.size() > 60) {
+                        cO2Values.remove(0);
+                        for (Entry point : cO2Values)
+                            point.setX(point.getX() - 1);
+                    }
+                    cO2Values.add(new Entry(cO2Values.size(), device.getCO2()));
+                    if(dustValues.size() > 60) {
+                        dustValues.remove(0);
+                        for (Entry point : dustValues)
+                            point.setX(point.getX() - 1);
+                    }
+                    dustValues.add(new Entry(dustValues.size(), device.getDust()));
+                    if(airQualityValues.size() > 60) {
+                        airQualityValues.remove(0);
+                        for (Entry point : airQualityValues)
+                            point.setX(point.getX() - 1);
+                    }
+                    airQualityValues.add(new Entry(airQualityValues.size(), device.getAirQuality()));
+                    if(speedValues.size() > 60) {
+                        speedValues.remove(0);
+                        for (Entry point : speedValues)
+                            point.setX(point.getX() - 1);
+                    }
+                    speedValues.add(new Entry(speedValues.size(), device.getSpeed()));
+                    //update the data sets
+                    cO2Set.setValues(cO2Values);
+                    dustSet.setValues(dustValues);
+                    airQualitySet.setValues(airQualityValues);
+                    speedSet.setValues(speedValues);
+                    //update the line data objects
+                    cO2LineData = new LineData(cO2Set);
+                    dustLineData = new LineData(dustSet);
+                    airQualityLineData = new LineData(airQualitySet);
+                    speedLineData = new LineData(speedSet);
+                    //update the graph charts
+                    lineChartCO2.setData(cO2LineData);
+                    lineChartCO2.notifyDataSetChanged();
+                    lineChartCO2.invalidate();
+                    lineChartDust.setData(dustLineData);
+                    lineChartDust.notifyDataSetChanged();
+                    lineChartDust.invalidate();
+                    lineChartAirQuality.setData(airQualityLineData);
+                    lineChartAirQuality.notifyDataSetChanged();
+                    lineChartAirQuality.invalidate();
+                    lineChartSpeed.setData(speedLineData);
+                    lineChartSpeed.notifyDataSetChanged();
+                    lineChartSpeed.invalidate();
+
                     //show the device on the map
                     if(mMap != null)
                         mMap.clear();
@@ -152,6 +220,96 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(devicePosition, DEFAULT_ZOOM));
 
                     Log.d("[GAUGES HANDLER]: ", " device parameters: {CO2: " + device.getCO2() + " Dust: " + device.getDust() + " Air quality: " + device.getAirQuality() + " Speed: " + device.getSpeed() + "}");
+                    break;
+                case 2://receiving the records from the last 500 seconds(to have 100 samples)
+                    ArrayList<DeviceParameters> deviceParameters = (ArrayList<DeviceParameters>) msg.obj;
+                    for(int i = 0; i < deviceParameters.size(); i++)
+                    {
+                        cO2Values.add(new Entry(i, deviceParameters.get(i).getCO2()));
+                        dustValues.add(new Entry(i, deviceParameters.get(i).getDust()));
+                        airQualityValues.add(new Entry(i, deviceParameters.get(i).getAirQuality()));
+                        speedValues.add(new Entry(i, deviceParameters.get(i).getSpeed()));
+                    }
+                    // init the cO2 dataset
+                    cO2Set = new LineDataSet(cO2Values, "CO2");
+                    cO2Set.setAxisDependency(YAxis.AxisDependency.LEFT);
+                    cO2Set.setColor(ColorTemplate.getHoloBlue());
+                    cO2Set.setValueTextColor(ColorTemplate.getHoloBlue());
+                    cO2Set.setLineWidth(2f);
+                    cO2Set.setDrawCircles(false);
+                    cO2Set.setDrawValues(false);
+                    cO2Set.setFillAlpha(65);
+                    cO2Set.setFillColor(ColorTemplate.getHoloBlue());
+                    cO2Set.setHighLightColor(Color.rgb(244, 117, 117));
+                    cO2Set.setDrawCircleHole(false);
+                    // init the dust dataset
+                    dustSet = new LineDataSet(dustValues, "Dust");
+                    dustSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                    dustSet.setColor(ColorTemplate.getHoloBlue());
+                    dustSet.setValueTextColor(ColorTemplate.getHoloBlue());
+                    dustSet.setLineWidth(2f);
+                    dustSet.setDrawCircles(false);
+                    dustSet.setDrawValues(false);
+                    dustSet.setFillAlpha(65);
+                    dustSet.setFillColor(ColorTemplate.getHoloBlue());
+                    dustSet.setHighLightColor(Color.rgb(244, 117, 117));
+                    dustSet.setDrawCircleHole(false);
+                    // init the airQuality dataset
+                    airQualitySet = new LineDataSet(airQualityValues, "Air Quality");
+                    airQualitySet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                    airQualitySet.setColor(ColorTemplate.getHoloBlue());
+                    airQualitySet.setValueTextColor(ColorTemplate.getHoloBlue());
+                    airQualitySet.setLineWidth(2f);
+                    airQualitySet.setDrawCircles(false);
+                    airQualitySet.setDrawValues(false);
+                    airQualitySet.setFillAlpha(65);
+                    airQualitySet.setFillColor(ColorTemplate.getHoloBlue());
+                    airQualitySet.setHighLightColor(Color.rgb(244, 117, 117));
+                    airQualitySet.setDrawCircleHole(false);
+                    // init the speed dataset
+                    speedSet= new LineDataSet(speedValues, "Speed");
+                    speedSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                    speedSet.setColor(ColorTemplate.getHoloBlue());
+                    speedSet.setValueTextColor(ColorTemplate.getHoloBlue());
+                    speedSet.setLineWidth(2f);
+                    speedSet.setDrawCircles(false);
+                    speedSet.setDrawValues(false);
+                    speedSet.setFillAlpha(65);
+                    speedSet.setFillColor(ColorTemplate.getHoloBlue());
+                    speedSet.setHighLightColor(Color.rgb(244, 117, 117));
+                    speedSet.setDrawCircleHole(false);
+                    // cO2 line data
+                    cO2LineData = new LineData(cO2Set);
+                    cO2LineData.setValueTextColor(Color.WHITE);
+                    cO2LineData.setValueTextSize(9f);
+                    // dust line data
+                    dustLineData = new LineData(dustSet);
+                    dustLineData.setValueTextColor(Color.WHITE);
+                    dustLineData.setValueTextSize(9f);
+                    // airQuality line data
+                    airQualityLineData = new LineData(airQualitySet);
+                    airQualityLineData.setValueTextColor(Color.WHITE);
+                    airQualityLineData.setValueTextSize(9f);
+                    // speed line data
+                    speedLineData = new LineData(speedSet);
+                    speedLineData.setValueTextColor(Color.WHITE);
+                    speedLineData.setValueTextSize(9f);
+                    //cO2 chart data
+                    lineChartCO2.setData(cO2LineData);
+                    lineChartCO2.notifyDataSetChanged();
+                    lineChartCO2.invalidate();
+                    //dust chart data
+                    lineChartDust.setData(dustLineData);
+                    lineChartDust.notifyDataSetChanged();
+                    lineChartDust.invalidate();
+                    //airQuality chart data
+                    lineChartAirQuality.setData(airQualityLineData);
+                    lineChartAirQuality.notifyDataSetChanged();
+                    lineChartAirQuality.invalidate();
+                    //speed chart data
+                    lineChartSpeed.setData(speedLineData);
+                    lineChartSpeed.notifyDataSetChanged();
+                    lineChartSpeed.invalidate();
                     break;
             }
         }
@@ -191,6 +349,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         context = getApplicationContext();
         alfactorApiString = getResources().getString(R.string.api_altfactor);
         getLocationPermission();
+
+        //get the calendar instance
+        calendar = Calendar.getInstance();
+
         ImageButton button2 = (ImageButton) findViewById(R.id.button2);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -256,7 +418,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         pieViewAirQuality = findViewById(R.id.pieViewAirQuality);
         pieViewSpeed = findViewById(R.id.pieViewSpeed);
         lineChartCO2 = findViewById(R.id.CO2Graph);
-        lineChartDust = findViewById(R.id.SpeedGraph);
+        lineChartDust = findViewById(R.id.DustGraph);
         lineChartAirQuality = findViewById(R.id.AirQualityGraph);
         lineChartSpeed = findViewById(R.id.SpeedGraph);
 
@@ -264,7 +426,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         lineChartCO2.setBackgroundColor(Color.WHITE);
         lineChartCO2.getDescription().setEnabled(false);
         lineChartCO2.setTouchEnabled(true);
-        lineChartCO2.setDrawGridBackground(true);
+        lineChartCO2.setDrawGridBackground(false);
+        lineChartCO2.getAxisLeft().setDrawGridLines(false);
+        lineChartCO2.getAxisRight().setDrawGridLines(false);
+        lineChartCO2.getAxisRight().setDrawLabels(false);
+        lineChartCO2.getXAxis().setDrawGridLines(false);
+        lineChartCO2.getXAxis().setDrawLabels(false);
+        lineChartDust.setBackgroundColor(Color.WHITE);
+        lineChartDust.getDescription().setEnabled(false);
+        lineChartDust.setTouchEnabled(true);
+        lineChartDust.setDrawGridBackground(false);
+        lineChartDust.getAxisLeft().setDrawGridLines(false);
+        lineChartDust.getAxisRight().setDrawGridLines(false);
+        lineChartDust.getAxisRight().setDrawLabels(false);
+        lineChartDust.getXAxis().setDrawGridLines(false);
+        lineChartDust.getXAxis().setDrawLabels(false);
+        lineChartAirQuality.setBackgroundColor(Color.WHITE);
+        lineChartAirQuality.getDescription().setEnabled(false);
+        lineChartAirQuality.setTouchEnabled(true);
+        lineChartAirQuality.setDrawGridBackground(false);
+        lineChartAirQuality.getAxisLeft().setDrawGridLines(false);
+        lineChartAirQuality.getAxisRight().setDrawGridLines(false);
+        lineChartAirQuality.getAxisRight().setDrawLabels(false);
+        lineChartAirQuality.getXAxis().setDrawGridLines(false);
+        lineChartAirQuality.getXAxis().setDrawLabels(false);
+        lineChartSpeed.setBackgroundColor(Color.WHITE);
+        lineChartSpeed.getDescription().setEnabled(false);
+        lineChartSpeed.setTouchEnabled(true);
+        lineChartSpeed.setDrawGridBackground(false);
+        lineChartSpeed.getAxisLeft().setDrawGridLines(false);
+        lineChartSpeed.getAxisRight().setDrawGridLines(false);
+        lineChartSpeed.getAxisRight().setDrawLabels(false);
+        lineChartSpeed.getXAxis().setDrawGridLines(false);
+        lineChartSpeed.getXAxis().setDrawLabels(false);
     }
 
 
@@ -448,7 +642,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(MapActivity.startDate==null || MapActivity.endDate==null)
         {
             //get the current date and set the uncompleted fields for the user
-            calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
