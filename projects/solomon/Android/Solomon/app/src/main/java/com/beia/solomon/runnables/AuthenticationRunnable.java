@@ -43,7 +43,7 @@ public class AuthenticationRunnable implements Runnable
                             break;
                         case "registered successfully":
                             message = LoginActivity.handler.obtainMessage(1);
-                            message.obj = "registered succesfully";
+                            message.obj = "registered successfully";
                             message.sendToTarget();
                             break;
                         case "can't login user":

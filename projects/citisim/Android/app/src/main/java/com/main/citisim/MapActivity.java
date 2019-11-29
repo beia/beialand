@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.components.YAxis;
@@ -92,6 +93,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static PieView pieViewDust;
     public static PieView pieViewAirQuality;
     public static PieView pieViewSpeed;
+    public static boolean showGraphsDevices = false;
+    public static LinearLayout graphsLinearLayout;
     public static LineChart lineChartCO2;
     public static LineChart lineChartDust;
     public static LineChart lineChartAirQuality;
@@ -417,10 +420,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         pieViewDust = findViewById(R.id.pieViewDust);
         pieViewAirQuality = findViewById(R.id.pieViewAirQuality);
         pieViewSpeed = findViewById(R.id.pieViewSpeed);
+        //init the graphs
+        graphsLinearLayout = findViewById(R.id.graphsLineaLayout);
         lineChartCO2 = findViewById(R.id.CO2Graph);
         lineChartDust = findViewById(R.id.DustGraph);
         lineChartAirQuality = findViewById(R.id.AirQualityGraph);
         lineChartSpeed = findViewById(R.id.SpeedGraph);
+
 
         //setup the graphs
         lineChartCO2.setBackgroundColor(Color.WHITE);
@@ -459,6 +465,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         lineChartSpeed.getAxisRight().setDrawLabels(false);
         lineChartSpeed.getXAxis().setDrawGridLines(false);
         lineChartSpeed.getXAxis().setDrawLabels(false);
+
+        gaugesCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(showGraphsDevices)
+                {
+                    graphsLinearLayout.setVisibility(View.INVISIBLE);
+                    showGraphsDevices = false;
+                }
+                else
+                {
+                    graphsLinearLayout.setVisibility(View.VISIBLE);
+                    showGraphsDevices = true;
+                }
+            }
+        });
     }
 
 
@@ -826,8 +848,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             latitude = currentLocation.getLatitude();
                             longitude = currentLocation.getLongitude();
                             if(ReportsActivity.showReport==true){
-                                /*moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                DEFAULT_ZOOM);*/
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                DEFAULT_ZOOM);
                                 showReport();
                                 ReportsActivity.showReport=false;
                             }else{

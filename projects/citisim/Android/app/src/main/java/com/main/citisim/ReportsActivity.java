@@ -24,8 +24,6 @@ import java.util.HashMap;
 
 public class ReportsActivity extends AppCompatActivity {
 
-   // static String t;
-
     public static LatLng reportLocation;
     public static double lat;
     public static double lon;
@@ -33,33 +31,17 @@ public class ReportsActivity extends AppCompatActivity {
     public static ArrayList<LatLng> coordinates;
     ArrayList<String> ids = new ArrayList<>();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reports);
-
         coordinates=new ArrayList<>();
-
-
-       //reports = (TextView) findViewById(R.id.reports);
-
         getReports();
-
-
-        //String []  s = .toString().split("\n",0);
-
-
-
-
-
-
-
-
     }
 
 
-    private void openReportPage(int position) {
+    private void openReportPage(int position)
+    {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.api_server) + "/#/entity/report/"+ids.get(position))));
     }
 
@@ -69,8 +51,6 @@ public class ReportsActivity extends AppCompatActivity {
         final ListAdapter reportAdapter = new ReportAdapterReports(this,s);
         ListView reportListView = (ListView)  findViewById(R.id.reportListView);
         reportListView.setAdapter(reportAdapter);
-
-
 
         reportListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

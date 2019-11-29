@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-public class Session {
+public class Session
+{
     private SharedPreferences prefs;
     final private String AUTH_TOKEN_KEY = "authToken";
-
 
     public Session(Context cntx) {
         // TODO Auto-generated constructor stub

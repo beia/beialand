@@ -81,20 +81,146 @@ public class NewReport extends AppCompatActivity {
     EditText latitude;
     EditText longitude;
     EditText title;
-    final HashMap info = new HashMap();
+    public static HashMap<String, String> info;
+    public static HashMap<String, String> query_params;
     String category;
     Bitmap imageToBitmap;
     Bitmap imageBitmap;
-    HashMap query_params;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_new_report);
+
+        //init variables
+        info = new HashMap<>();
+        query_params = new HashMap();
+        Date c = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            c = Calendar.getInstance().getTime();
+        }
+        getUserInfo();
+
+        final Spinner dropdown = findViewById(R.id.spinner1);
+        //create a list of items for the spinner.
+        String[] items = new String[]{"CATEGORY ▼","STREET_LIGHTING", "REGULATED_PARKING", "TREES_AND_PARKS",
+        "PUBLIC_BICYCLE","WALKWAYS_AND_SIDEWALKS","FOUNTAINS","CLEANING_IN_PUBLIC_SPACES",
+        "FOUNTAINS","CLEANING_IN_PUBLIC_SPACES","PESTS","WITHDRAWAL_OF_ELEMENTS","SIGNS_AND_TRAFIC_LIGHTS",
+        "ABANDONED_OR_WITHDRAWAL_VEHICLES","SANITARY_EMERGENCE","ROBBERY","FIGHT_OR_AGGRESSION",
+        "TRAFFIC_ACCIDENT","GENRE_VIOLENCE","GUNFIGHT","ARCHITECTURAL_DAMAGE"};
+        //create an adapter to describe how the items are displayed, adapters are used in several places in android.
+        //There are multiple variations of this, but this is the basic variant.
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        //set the spinners adapter to the previously created one.
+        dropdown.setAdapter(adapter);
+
+        ImageButton QRCodeReader = findViewById(R.id.QRCodeReader);
+        QRCodeReader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openQRActivity();
+            }
+        });
+
+        title = (EditText) findViewById(R.id.reportTitle);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+
+        image = (ImageView) findViewById(R.id.image);
+        //
+        image.setVisibility(View.INVISIBLE);
+        backToReports = (Button) findViewById(R.id.backToReports);
+        backToReports.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewReports();
+            }
+        });
+
+        addImage = (ImageButton) findViewById(R.id.addImage);
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
+
+        addImageCamera = findViewById(R.id.addImageCamera);
+        addImageCamera.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View v)
+            {
+               dispatchTakePictureIntent();
+               galleryAddPic();
+            }
+        });
+
+
+        submitImage = (Button) findViewById(R.id.submitImage);
+        submitImage.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View v) {
+
+                String url = getResources().getString(R.string.api_server) + "/api/reports";
+                String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+                query_params.put("latitude", Double.toString(MapActivity.latitude));
+                query_params.put("longitude", Double.toString(MapActivity.longitude));
+                query_params.put("altitude", "0");
+                query_params.put("userId", info.get("id"));
+                query_params.put("category",dropdown.getSelectedItem().toString());
+                query_params.put("title", title.getText().toString());
+                query_params.put("date", date);
+
+                if(title.getText().length()<1)
+                {
+                    Toast.makeText(getApplicationContext(), "title is required", Toast.LENGTH_LONG).show();
+                }
+                else if(image.getVisibility()==View.GONE || image.getVisibility()==View.INVISIBLE)
+                {
+                    Toast.makeText(getApplicationContext(), "image is required", Toast.LENGTH_LONG).show();
+                }
+                else if(dropdown.getSelectedItem().toString().equals("CATEGORY ▼"))
+                {
+                    Toast.makeText(getApplicationContext(), "category is not valid", Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Report submitted.", Toast.LENGTH_LONG).show();
+                   // uploadImage(image_bitmap, url, query_params);
+                    if(imageToBitmap!=null)
+                    {
+                        try
+                        {
+                            uploadImage(getCorrectBitmap(currentPhotoPath,imageToBitmap), url, query_params);
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                    else
+                        uploadImage(image_bitmap, url, query_params);
+
+                    submitImage.setEnabled(false);
+                }
+            }
+        });
+    }
+
 
     private Uri buildURI(String url, Map<String, String> params) {
 
         // build url with parameters.
         Uri.Builder builder = Uri.parse(url).buildUpon();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
+        for (Map.Entry<String, String> entry : params.entrySet())
+        {
             builder.appendQueryParameter(entry.getKey(), entry.getValue());
         }
-
         return builder.build();
     }
 
@@ -106,11 +232,13 @@ public class NewReport extends AppCompatActivity {
                 new Response.Listener<NetworkResponse>() {
                     @Override
                     public void onResponse(NetworkResponse response) {
-                        try {
+                        try
+                        {
                             JSONObject jsonObject = new JSONObject(new String(response.data));
                             Log.d("raspuns", response.data.toString());
-
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e)
+                        {
                             e.printStackTrace();
                         }
                     }
@@ -175,165 +303,9 @@ public class NewReport extends AppCompatActivity {
 
 
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_report);
-
-        Date c = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            c = Calendar.getInstance().getTime();
-        }
-        System.out.println("Current time => " + c);
 
 
 
-        getUserInfo();
-
-        query_params = new HashMap();
-
-        final Spinner dropdown = findViewById(R.id.spinner1);
-//create a list of items for the spinner.
-        String[] items = new String[]{"CATEGORY ▼","STREET_LIGHTING", "REGULATED_PARKING", "TREES_AND_PARKS",
-        "PUBLIC_BICYCLE","WALKWAYS_AND_SIDEWALKS","FOUNTAINS","CLEANING_IN_PUBLIC_SPACES",
-        "FOUNTAINS","CLEANING_IN_PUBLIC_SPACES","PESTS","WITHDRAWAL_OF_ELEMENTS","SIGNS_AND_TRAFIC_LIGHTS",
-        "ABANDONED_OR_WITHDRAWAL_VEHICLES","SANITARY_EMERGENCE","ROBBERY","FIGHT_OR_AGGRESSION",
-        "TRAFFIC_ACCIDENT","GENRE_VIOLENCE","GUNFIGHT","ARCHITECTURAL_DAMAGE"};
-//create an adapter to describe how the items are displayed, adapters are used in several places in android.
-//There are multiple variations of this, but this is the basic variant.
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
-//set the spinners adapter to the previously created one.
-        dropdown.setAdapter(adapter);
-
-
-        ImageButton QRCodeReader = findViewById(R.id.QRCodeReader);
-        QRCodeReader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openQRActivity();
-            }
-        });
-
-
-        title = (EditText) findViewById(R.id.reportTitle);
-
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-
-        image = (ImageView) findViewById(R.id.image);
-        //
-        image.setVisibility(View.INVISIBLE);
-        backToReports = (Button) findViewById(R.id.backToReports);
-        backToReports.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openMap2();
-            }
-        });
-
-        addImage = (ImageButton) findViewById(R.id.addImage);
-        addImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
-        });
-
-        addImageCamera = findViewById(R.id.addImageCamera);
-        addImageCamera.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View v) {
-
-               /* Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                }
-                */
-
-               dispatchTakePictureIntent();
-               galleryAddPic();
-
-            }
-
-
-    });
-
-
-
-        submitImage = (Button) findViewById(R.id.submitImage);
-        submitImage.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View v) {
-
-
-            /*latitude.setText(Double.toString(MapActivity.latitude));
-            longitude.setText(Double.toString(MapActivity.longitude));
-
-
-*/
-
-
-                String date = null;
-
-                    date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-                    Log.d("verificare",date);
-
-
-                Log.d("time test",date);
-
-                query_params.put("latitude", Double.toString(MapActivity.latitude));
-                query_params.put("longitude", Double.toString(MapActivity.longitude));
-                query_params.put("altitude", "0");
-                query_params.put("userId", info.get("id").toString());
-                query_params.put("category",dropdown.getSelectedItem().toString());
-                // data.put("photoDescription","0");
-                //data.put("photoPath","0");
-
-                //data.put("status","REPORT_CREATED");
-                query_params.put("title", title.getText().toString());
-                //data.put("id","0");
-                query_params.put("date", date);
-
-
-                String url = getResources().getString(R.string.api_server) + "/api/reports";
-
-
-                if(title.getText().length()<1)
-                {
-                    Toast.makeText(getApplicationContext(), "title is required", Toast.LENGTH_LONG).show();
-                }else
-
-                if(image.getVisibility()==View.GONE || image.getVisibility()==View.INVISIBLE){
-                    Toast.makeText(getApplicationContext(), "image is required", Toast.LENGTH_LONG).show();
-                }else
-                if(dropdown.getSelectedItem().toString().equals("CATEGORY ▼"))
-                {
-                    Toast.makeText(getApplicationContext(), "category is not valid", Toast.LENGTH_LONG).show();
-                }else{
-                    Toast.makeText(getApplicationContext(), "Report submitted.", Toast.LENGTH_LONG).show();
-                   // uploadImage(image_bitmap, url, query_params);
-                    if(imageToBitmap!=null) {
-                        try {
-                            uploadImage(getCorrectBitmap(currentPhotoPath,imageToBitmap), url, query_params);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else
-                        uploadImage(image_bitmap, url, query_params);
-
-                    submitImage.setEnabled(false);
-                }
-
-
-
-            }
-        });
-
-
-    }
 
     public Bitmap getCorrectBitmap(String photoPath, Bitmap bitmap) throws IOException
     {
@@ -382,8 +354,6 @@ public class NewReport extends AppCompatActivity {
 
     public void getUserInfo() {
         final String url = getResources().getString(R.string.api_server) + "/api/account";
-
-
         final JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -393,8 +363,8 @@ public class NewReport extends AppCompatActivity {
 
                             info.put("id", response.getString("id"));
                             // Toast.makeText(NewReport.this, info.get("id").toString(), Toast.LENGTH_SHORT).show();
-
-                        } catch (JSONException e) {
+                        }
+                        catch (JSONException e) {
                             e.printStackTrace();
 
                         }
@@ -421,9 +391,6 @@ public class NewReport extends AppCompatActivity {
         // add it to the RequestQueue
         MyVolleyQueue.getInstance(getApplicationContext()).addToRequestQueue(getRequest);
     }
-
-
-
 
 
     private void openGallery() {
@@ -478,19 +445,15 @@ public class NewReport extends AppCompatActivity {
             }
 
             image.setVisibility(View.VISIBLE);
-
-            //aici imaginea trebuie rotita
-            //aici imaginea trebuie rotita
-            //aici imaginea trebuie rotita
-            //aici imaginea trebuie rotita
-
             image_bitmap = null;
-            try {
+            try
+            {
                 image_bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
-
         }
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -500,12 +463,7 @@ public class NewReport extends AppCompatActivity {
             image.setVisibility(View.VISIBLE);*/
             setPic();
             image.setVisibility(View.VISIBLE);
-
-
-
         }
-
-
     }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +520,8 @@ public class NewReport extends AppCompatActivity {
         }
     }
 
-    private void galleryAddPic() {
+    private void galleryAddPic()
+    {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(currentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
@@ -570,8 +529,8 @@ public class NewReport extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-
-    private void setPic() {
+    private void setPic()
+    {
         // Get the dimensions of the View
         int targetW = image.getWidth();
         int targetH = image.getHeight();
@@ -592,36 +551,26 @@ public class NewReport extends AppCompatActivity {
         bmOptions.inPurgeable = true;
 
         imageToBitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        try {
+        try
+        {
             image.setImageBitmap(getCorrectBitmap(currentPhotoPath,imageToBitmap));
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-
-    public void openMap2() {
+    public void viewReports()
+    {
         Intent intent = new Intent(this, ReportsActivity.class);
         startActivity(intent);
-
-
     }
-
-
-
-
-
-
-    public void openQRActivity() {
-
-
+    public void openQRActivity()
+    {
         Intent intent = new Intent(this, QRscanner.class);
         startActivity(intent);
-
     }
-
-
-
 }

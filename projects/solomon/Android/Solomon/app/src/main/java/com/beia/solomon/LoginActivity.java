@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                         case "username is taken":
                             feedbackTextView.setTextColor(Color.RED);
                             break;
-                        case "registered succesfully":
+                        case "registered successfully":
                             feedbackTextView.setTextColor(Color.GREEN);
                             break;
                         case "username or password are wrong":

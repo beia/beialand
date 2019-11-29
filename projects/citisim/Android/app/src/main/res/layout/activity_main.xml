@@ -9,6 +9,7 @@
 
 
     <ScrollView
+        android:id="@+id/loginScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -27,8 +28,8 @@
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="230dp"
-                android:layout_height="254dp"
+                android:layout_width="210dp"
+                android:layout_height="244dp"
                 android:layout_gravity="center"
                 android:adjustViewBounds="true"
                 android:scaleType="centerInside"
@@ -98,9 +99,7 @@
                     android:inputType="textPassword"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/Password"
-
-                    />
+                    app:layout_constraintTop_toBottomOf="@id/Password" />
 
                 <ImageButton
                     android:id="@+id/showPass"
@@ -112,17 +111,22 @@
                     app:srcCompat="@drawable/picture1" />
             </LinearLayout>
 
+            <CheckBox android:id="@+id/rememberMeCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Remember me"
+                android:layout_gravity="center"
+                android:onClick="onCheckboxClicked"/>
 
             <Button
                 android:id="@+id/addDevice"
                 android:layout_width="193dp"
                 android:layout_height="51dp"
-
-
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="25dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:background="@drawable/buttonshape"
@@ -190,6 +194,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/addDevice"
                 app:layout_constraintVertical_bias="1.0" />
+
 
 
         </LinearLayout>
