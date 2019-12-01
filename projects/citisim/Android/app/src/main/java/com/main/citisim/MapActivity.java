@@ -76,6 +76,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final int CAMERA_PERMISSION_CODE = 100;
+    private static final int STORAGE_PERMISSION_CODE = 101;
     private static final float DEFAULT_ZOOM = 15f;
     private Boolean mLocationPermissionsGranted = false;
     public static GoogleMap mMap;
@@ -923,13 +925,31 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
     }
+    public void getCameraPermission()
+    {
+        checkPermission(Manifest.permission.CAMERA, CAMERA_PERMISSION_CODE);
+    }
+    public void getGalleryPermision()
+    {
+        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
+    }
+    public void checkPermission(String permission, int requestCode)
+    {
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED)
+        {
+            // Requesting the permission
+            ActivityCompat.requestPermissions(this,
+                    new String[] { permission },
+                    requestCode);
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         mLocationPermissionsGranted = false;
 
         switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST_CODE: {
+            case LOCATION_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0) {
                     for (int i = 0; i < grantResults.length; i++) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
@@ -940,12 +960,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     mLocationPermissionsGranted = true;
                     //initialize map
                     initMap();
-
-
+                    getCameraPermission();
                 }
-
-            }
-
+                break;
+            case CAMERA_PERMISSION_CODE:
+                getGalleryPermision();
+                break;
         }
     }
 
