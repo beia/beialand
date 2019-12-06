@@ -115,6 +115,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static volatile boolean historyThreadFinished = true;
     public static String startDate;
     public static String endDate;
+    //Analytics variables
+    public static volatile boolean analyticsThreadFinished = true;
+    public static String startDateAnalytics;
+    public static String endDateAnalytics;
+    public static String parameterName;
+    public static double threshold;
 
     //time variables
     public static Calendar calendar;
@@ -128,6 +134,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static final int MAX_SPEED = 200;
     public static Marker deviceMarker;
     public Thread updateDeviceData;
+
+    //Analytics variables
+    public static volatile Integer selectedParameterAnalytics;
+    public static volatile Integer parameterThreshold;
 
     //threads
     public static Thread updateDevice;
@@ -782,6 +792,128 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    //ANALYTICS
+    public static void getSensorLocationsAnalytics()//get sensor locations and show them
+    {
+        String url=null;
+        if(mMap!=null)
+            mMap.clear();
+        if(MapActivity.startDateAnalytics==null || MapActivity.endDateAnalytics==null)
+        {
+            //get the current date and set the uncompleted fields for the user
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            String currentDate = year + "-" + month + "-" + day;
+            if (MapActivity.startDate == null)
+            {
+                startDateAnalytics = currentDate;
+                endDateAnalytics = currentDate;
+            }
+            if (MapActivity.endDateAnalytics == null)
+            {
+                endDateAnalytics = currentDate;
+            }
+        }
+
+        //the api is not working properly so we create a mock-up url
+        url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
+        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 12:19:40/" + MapActivity.endDate + " 12:20:13";
+        Log.d("URL", desiredURL);
+        markerLocations.clear();
+
+        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+
+                        try
+                        {
+                            for (int i = 0; i < response.length(); i++)
+                            {
+                                JSONArray responseJSONArray = response.getJSONArray(i);
+                                float latitude, longitude, cO2, dust, airQuality, speed;
+                                if(responseJSONArray.getString(2).equals("null") == false)
+                                {
+                                    latitude = Float.parseFloat(responseJSONArray.getString(2));
+                                }
+                                else
+                                {
+                                    latitude = -1;
+                                }
+                                if(responseJSONArray.getString(3).equals("null") == false)
+                                {
+                                    longitude = Float.parseFloat(responseJSONArray.getString(3));
+                                }
+                                else
+                                {
+                                    longitude = -1;
+                                }
+                                if(responseJSONArray.getString(6).equals("null") == false) {
+                                    cO2 = Float.parseFloat(responseJSONArray.getString(6));
+                                }
+                                else
+                                {
+                                    cO2 = -1;
+                                }
+                                if(responseJSONArray.getString(8).equals("null") == false)
+                                {
+                                    dust = Float.parseFloat(responseJSONArray.getString(8));
+                                }
+                                else
+                                {
+                                    dust = -1;
+                                }
+                                if(responseJSONArray.getString(12).equals("null") == false)
+                                {
+                                    airQuality = Float.parseFloat(responseJSONArray.getString(12));
+                                }
+                                else
+                                {
+                                    airQuality = -1;
+                                }
+                                if(responseJSONArray.getString(5).equals("null") == false)
+                                {
+                                    speed = Float.parseFloat(responseJSONArray.getString(5));
+                                }
+                                else
+                                {
+                                    speed = -1;
+                                }
+                                DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                markerLocations.add(deviceParameters);
+                            }
+                            //stop the real time display of the device so we can see the history
+                            if(updateDevice != null && updateDevice.isAlive())
+                                updateDevice.interrupt();
+                            showMarkersAnalytics();
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        MyVolleyQueue.getInstance(context).addToRequestQueue(getRequest);
+    }
+    public static void showMarkersAnalytics()
+    {
+        if(profile.isReadyAnalytics==true)
+        {
+            //start the markers thread
+            //Thread showMarkersAnalyticsThread = new Thread(new UpdateMarkers(markerLocations));
+            //showMarkersAnalyticsThread.start();
+            //show the gauges that show us informations about some measured parameters
+            gaugesCardView.setVisibility(View.VISIBLE);
+        }
+    }
 
     public void getReports() {
         final String url = getResources().getString(R.string.api_server) + "/api/reports";

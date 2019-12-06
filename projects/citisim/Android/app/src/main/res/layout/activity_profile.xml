@@ -282,7 +282,7 @@
             android:layout_height="match_parent">
 
             <ImageButton
-                android:id="@+id/myDevices4"
+                android:id="@+id/analyticsButton"
                 android:layout_width="71dp"
                 android:layout_height="wrap_content"
                 android:background="#FF32A187"
@@ -295,6 +295,225 @@
                 android:layout_marginTop="5dp"
                 android:layout_weight="1"
                 android:text="Analytics"
+                android:textColor="#FFFFFF" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/deviceAnalytics"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <ImageButton
+                android:id="@+id/devicesAnalyticsImageButton"
+                android:layout_width="51dp"
+                android:layout_marginLeft="20dp"
+                android:layout_height="wrap_content"
+                android:background="#FF32A187"
+
+                app:srcCompat="@android:drawable/ic_menu_more" />
+
+            <TextView
+                android:id="@+id/devicesAnalyticsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="Device"
+                android:textColor="#FFFFFF" />
+
+        </TableRow>
+
+        <ScrollView
+            android:id="@+id/analyticsList"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ListView
+                    android:id="@+id/analyticsListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp" />
+            </LinearLayout>
+        </ScrollView>
+
+        <TableRow
+            android:id="@+id/startAnalytics"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20sp"
+            android:layout_height="match_parent">
+
+
+            <ImageButton
+                android:id="@+id/startButtonAnalytics"
+                android:layout_width="51dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:background="#FF32A187"
+
+                app:srcCompat="@android:drawable/ic_menu_today" />
+
+            <TextView
+                android:id="@+id/startTextAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="Start"
+                android:textColor="#FFFFFF" />
+
+        </TableRow>
+
+        <CalendarView
+            android:id="@+id/calendarStartAnalytics"
+            android:layout_width="wrap_content"
+            android:layout_height="280sp"
+            android:layout_marginTop="10dp"
+            android:background="#55000000"
+            android:theme="@style/CalenderViewCustom"
+            android:dateTextAppearance="@style/CalenderViewDateCustomText"
+            android:weekDayTextAppearance="@style/CalenderViewWeekCustomText"/>
+
+        <TableRow
+            android:id="@+id/endAnalytics"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20sp"
+            android:layout_height="match_parent">
+
+
+            <ImageButton
+                android:id="@+id/endButtonAnalytics"
+                android:layout_width="51dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:background="#FF32A187"
+
+                app:srcCompat="@android:drawable/ic_menu_today" />
+
+            <TextView
+                android:id="@+id/endTextAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="End"
+                android:textColor="#FFFFFF" />
+
+        </TableRow>
+
+        <CalendarView
+            android:id="@+id/calendarEndAnalytics"
+            android:layout_width="wrap_content"
+            android:layout_height="280sp"
+            android:layout_marginTop="10dp"
+            android:background="#55000000"
+            android:theme="@style/CalenderViewCustom"
+            android:dateTextAppearance="@style/CalenderViewDateCustomText"
+            android:weekDayTextAppearance="@style/CalenderViewWeekCustomText"/>
+
+        <TableRow
+            android:id="@+id/parameterAnalytics"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20sp"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/parameterButtonAnalytics"
+                android:layout_width="51dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="#FF32A187"
+                app:srcCompat="@android:drawable/ic_media_play" />
+            <TextView
+                android:id="@+id/parameterTextAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="Parameter"
+                android:textColor="#FFFFFF" />
+        </TableRow>
+        <LinearLayout
+            android:id="@+id/parameterLinearLayout"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <CheckBox
+                android:id="@+id/CO2Checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="C02"
+                android:onClick="onCheckboxClicked"
+                android:textColor="@android:color/white"/>
+            <CheckBox
+                android:id="@+id/DustCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Dust"
+                android:onClick="onCheckboxClicked"
+                android:textColor="@android:color/white"/>
+            <CheckBox
+                android:id="@+id/AirQualityCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Air Quality"
+                android:onClick="onCheckboxClicked"
+                android:textColor="@android:color/white"/>
+            <CheckBox
+                android:id="@+id/SpeedCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="Speed"
+                android:onClick="onCheckboxClicked"
+                android:textColor="@android:color/white"/>
+            <EditText
+                android:id="@+id/thresholdEditText"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:textSize="12sp"
+                android:textAlignment="center"
+                android:textColorHint="@android:color/white"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/white"
+                android:hint="threshold"/>
+        </LinearLayout>
+
+        <TableRow
+            android:id="@+id/runRowAnalytics"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20sp"
+            android:layout_height="match_parent">
+
+
+            <ImageButton
+                android:id="@+id/runButtonAnalytics"
+                android:layout_width="51dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="#FF32A187"
+
+                app:srcCompat="@android:drawable/ic_media_play" />
+
+            <TextView
+                android:id="@+id/runTextAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:text="Run"
                 android:textColor="#FFFFFF" />
 
         </TableRow>
