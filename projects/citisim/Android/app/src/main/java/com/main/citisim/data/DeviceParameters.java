@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class DeviceParameters
 {
+    public String usecase;
     private String time;//1
     private float latitude;//2
     private float longitude;//3
@@ -48,4 +49,5 @@ public class DeviceParameters
     {
         return this.speed;
     }
+    public void setUsecase(String usecase) { this.usecase = usecase; }
 }

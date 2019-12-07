@@ -43,6 +43,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -65,7 +67,7 @@ import java.util.Map;
 
 import az.plainpie.PieView;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     static boolean isRun=false;
     static boolean isDisplayed=false;
@@ -78,7 +80,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final int CAMERA_PERMISSION_CODE = 100;
     private static final int STORAGE_PERMISSION_CODE = 101;
-    private static final float DEFAULT_ZOOM = 15f;
+    public static final float DEFAULT_ZOOM = 15f;
     private Boolean mLocationPermissionsGranted = false;
     public static GoogleMap mMap;
     private ClusterManager<MarkerClusterItem> mClusterManager;
@@ -90,7 +92,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static Context context;
 
     //UI variables
-    public static CardView gaugesCardView;
+    public static LinearLayout gaugesLinearLayout;
     public static PieView pieViewCO2;
     public static PieView pieViewDust;
     public static PieView pieViewAirQuality;
@@ -105,11 +107,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     //marker variables
     public static BitmapDrawable markerBitmapDrawable;
     public static Bitmap markerBitmap;
+    public static Bitmap analyticsGreenMarker;
+    public static Bitmap analyticsRedMarker;
     public static Bitmap smallMarker;
     public static Bitmap firstMarker;
     public static Bitmap lastMarker;
-    public static int markerHeight = 130;
     public static int markerWidth = 120;
+    public static int markerHeight = 130;
+    public static int analyticsMarkerWidth = 50;
+    public static int analyticsMarkerHeight = 50;
 
     //History variables
     public static volatile boolean historyThreadFinished = true;
@@ -337,6 +343,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap)
     {
         mMap = googleMap;
+        mMap.setOnMarkerClickListener(this);
         if (mLocationPermissionsGranted)
         {
             if (ActivityCompat.checkSelfPermission(this,
@@ -412,6 +419,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //create a marker
         markerBitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.marker);
         markerBitmap = markerBitmapDrawable.getBitmap();
+        BitmapDrawable greenMarkerBitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.green_dot);
+        analyticsGreenMarker = Bitmap.createScaledBitmap(greenMarkerBitmapDrawable.getBitmap(), analyticsMarkerWidth, analyticsMarkerHeight, false);
+        BitmapDrawable redMarkerBitmapDrawable = (BitmapDrawable)getResources().getDrawable(R.drawable.red_dot);
+        analyticsRedMarker = Bitmap.createScaledBitmap(redMarkerBitmapDrawable.getBitmap(), analyticsMarkerWidth, analyticsMarkerHeight, false);
         //create the markers needed for showing the history
         int height = 90;
         int width = 85;
@@ -427,7 +438,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
         //init the gauges
-        gaugesCardView = findViewById(R.id.gauges);
+        gaugesLinearLayout = findViewById(R.id.gaugesLinearLayout);
         pieViewCO2 = findViewById(R.id.pieViewCO2);
         pieViewDust = findViewById(R.id.pieViewDust);
         pieViewAirQuality = findViewById(R.id.pieViewAirQuality);
@@ -478,7 +489,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         lineChartSpeed.getXAxis().setDrawGridLines(false);
         lineChartSpeed.getXAxis().setDrawLabels(false);
 
-        gaugesCardView.setOnClickListener(new View.OnClickListener() {
+        gaugesLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(showGraphsDevices)
@@ -650,7 +661,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //we create a thread that will check for new data from the device that was clicked at every 5 seconds
         if(deviceSelected)
         {
-            gaugesCardView.setVisibility(View.VISIBLE);
+            gaugesLinearLayout.setVisibility(View.VISIBLE);
             updateDevice = new Thread(new UpdateDeviceRunnable(getApplicationContext()));
             updateDevice.start();
             deviceSelected = false;
@@ -694,10 +705,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //the api is not working properly so we create a mock-up url
         url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
         String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 12:19:40/" + MapActivity.endDate + " 12:20:13";
+        Log.d("MOCKUP URL", url);
         Log.d("URL", desiredURL);
         markerLocations.clear();
 
-        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, desiredURL, null,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
@@ -756,6 +768,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     speed = -1;
                                 }
                                 DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                deviceParameters.setUsecase("History");
                                 markerLocations.add(deviceParameters);
                             }
                             //stop the real time display of the device so we can see the history
@@ -788,7 +801,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Thread showMarkersThread = new Thread(new UpdateMarkers(markerLocations));
             showMarkersThread.start();
             //show the gauges that show us informations about some measured parameters
-            gaugesCardView.setVisibility(View.VISIBLE);
+            gaugesLinearLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -817,12 +830,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         //the api is not working properly so we create a mock-up url
-        url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
-        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 12:19:40/" + MapActivity.endDate + " 12:20:13";
+        url = "http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
+        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDateAnalytics + " 12:19:40/" + MapActivity.endDateAnalytics + " 12:20:13";
         Log.d("URL", desiredURL);
         markerLocations.clear();
 
-        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, desiredURL, null,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
@@ -881,6 +894,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     speed = -1;
                                 }
                                 DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                deviceParameters.setUsecase("Analytics");
                                 markerLocations.add(deviceParameters);
                             }
                             //stop the real time display of the device so we can see the history
@@ -907,11 +921,52 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     {
         if(profile.isReadyAnalytics==true)
         {
-            //start the markers thread
-            //Thread showMarkersAnalyticsThread = new Thread(new UpdateMarkers(markerLocations));
-            //showMarkersAnalyticsThread.start();
-            //show the gauges that show us informations about some measured parameters
-            gaugesCardView.setVisibility(View.VISIBLE);
+            for(int i = 0; i < markerLocations.size(); i++)
+            {
+                Float parameterValue;
+                DeviceParameters deviceParameter = markerLocations.get(i);
+                switch(parameterName)
+                {
+                    case "CO2":
+                        parameterValue = deviceParameter.getCO2();
+                        break;
+                    case "Dust":
+                        parameterValue = deviceParameter.getDust();
+                        break;
+                    case "AirQuality":
+                        parameterValue = deviceParameter.getAirQuality();
+                        break;
+                    case "Speed":
+                        parameterValue = deviceParameter.getSpeed();
+                        break;
+                    default:
+                        parameterValue = -1f;
+                        break;
+                }
+                LatLng devicePosition = new LatLng(deviceParameter.getLatitude(), deviceParameter.getLongitude());
+                if(parameterValue < threshold)
+                    deviceMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(analyticsGreenMarker)).position(devicePosition));
+                else
+                    deviceMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(analyticsRedMarker)).position(devicePosition));
+                deviceMarker.setTag(deviceParameter);
+                if(i != markerLocations.size() - 1) {
+                    if(parameterValue < threshold) {
+                        Polyline line = mMap.addPolyline(new PolylineOptions()
+                                .add(new LatLng(deviceParameter.getLatitude(), deviceParameter.getLongitude()), new LatLng(markerLocations.get(i + 1).getLatitude(), markerLocations.get(i + 1).getLongitude()))
+                                .width(10)
+                                .color(Color.GREEN));
+                    }
+                    else
+                    {
+                        Polyline line = mMap.addPolyline(new PolylineOptions()
+                                .add(new LatLng(deviceParameter.getLatitude(), deviceParameter.getLongitude()), new LatLng(markerLocations.get(i + 1).getLatitude(), markerLocations.get(i + 1).getLongitude()))
+                                .width(10)
+                                .color(Color.RED));
+                    }
+                }
+                if(i == 1)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(devicePosition, 12));
+            }
         }
     }
 
@@ -1102,4 +1157,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        DeviceParameters deviceParameter = null;
+        if (marker.getTag() instanceof DeviceParameters)
+            deviceParameter = (DeviceParameters) marker.getTag();
+        if(deviceParameter != null) {
+            switch (deviceParameter.usecase) {
+                case "Analytics":
+                    double parameterValue;
+                    switch (parameterName)
+                    {
+                        case "CO2":
+                            parameterValue = deviceParameter.getCO2();
+                            break;
+                        case "Dust":
+                            parameterValue = deviceParameter.getDust();
+                            break;
+                        case "AirQuality":
+                            parameterValue = deviceParameter.getAirQuality();
+                            break;
+                        case "Speed":
+                            parameterValue = deviceParameter.getSpeed();
+                            break;
+                        default:
+                            parameterValue = -1;
+                            break;
+                    }
+                    Toast.makeText(context, parameterName + ": " + parameterValue, Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return true;
+    }
 }

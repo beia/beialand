@@ -2,6 +2,7 @@ package com.main.citisim;
 
 import android.annotation.SuppressLint;
 
+import android.support.v4.app.NotificationCompatSideChannelService;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 
@@ -13,7 +14,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 
 import com.google.android.gms.maps.model.Marker;
-
+import com.main.citisim.data.DeviceParameters;
 
 
 class PopupAdapter implements InfoWindowAdapter {
@@ -36,27 +37,33 @@ class PopupAdapter implements InfoWindowAdapter {
 
     public View getInfoWindow(Marker marker) {
 
-        View v = inflater.inflate(R.layout.popup, null);
+        if(!(marker.getTag() instanceof DeviceParameters)) {
 
-        TextView airQualityValue=(TextView)v.findViewById(R.id.airQualityValue);
-        TextView temperatureValue=(TextView)v.findViewById(R.id.temperatureValue);
-        TextView humidityValue=(TextView)v.findViewById(R.id.humidityValue);
-        ProgressBar progressBar=(ProgressBar)v.findViewById(R.id.progressBar);
+            View v = inflater.inflate(R.layout.popup, null);
+
+            TextView airQualityValue = (TextView) v.findViewById(R.id.airQualityValue);
+            TextView temperatureValue = (TextView) v.findViewById(R.id.temperatureValue);
+            TextView humidityValue = (TextView) v.findViewById(R.id.humidityValue);
+            ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 
 
-        //airQualityValue.setText(marker.getTitle());
+            //airQualityValue.setText(marker.getTitle());
 
-        //tv=(TextView)popup.findViewById(R.id.snippet);
-        String []s=marker.getSnippet().split(" ",0);
+            //tv=(TextView)popup.findViewById(R.id.snippet);
+            String[] s = marker.getSnippet().split(" ", 0);
 
-        airQualityValue.setText(s[0]);
-        temperatureValue.setText(s[1]);
-        humidityValue.setText(s[2]);
-        progressBar.setProgress((int)Double.parseDouble(s[0]));
+            airQualityValue.setText(s[0]);
+            temperatureValue.setText(s[1]);
+            humidityValue.setText(s[2]);
+            progressBar.setProgress((int) Double.parseDouble(s[0]));
 
-        //return(null);
-        return v;
-
+            //return(null);
+            return v;
+        }
+        else
+        {
+            return null;
+        }
     }
 
 

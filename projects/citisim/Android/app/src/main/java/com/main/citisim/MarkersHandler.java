@@ -70,7 +70,7 @@ public class MarkersHandler extends Handler
                         //move camera over first marker
                         if(mMap!=null)
                             mMap.clear();
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 16.5f));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
                         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(firstMarker)).position(position)) ;
                     }
 
@@ -79,11 +79,13 @@ public class MarkersHandler extends Handler
                         for(int i= 0; i<markerVector.size();i++){
                             markerVector.get(i).remove();
                         }
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
                         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(lastMarker)).position(position)) ;
                         MapActivity.isDisplayed=false;
                     }
                     else
                     {
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
                         Marker marker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMarker)).position(position));
                         markerVector.add(marker);
                         if (markerVector.size() > 6)

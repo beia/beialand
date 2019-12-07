@@ -569,24 +569,28 @@ public class profile extends AppCompatActivity {
         switch(view.getId())
         {
             case R.id.CO2Checkbox:
+                MapActivity.parameterName = "CO2";
                 cO2Checkbox.setChecked(true);
                 dustCheckbox.setChecked(false);
                 airQualityCheckbox.setChecked(false);
                 speedCheckbox.setChecked(false);
                 break;
             case R.id.DustCheckbox:
+                MapActivity.parameterName = "Dust";
                 cO2Checkbox.setChecked(false);
                 dustCheckbox.setChecked(true);
                 airQualityCheckbox.setChecked(false);
                 speedCheckbox.setChecked(false);
                 break;
             case R.id.AirQualityCheckbox:
+                MapActivity.parameterName = "AirQuality";
                 cO2Checkbox.setChecked(false);
                 dustCheckbox.setChecked(false);
                 airQualityCheckbox.setChecked(true);
                 speedCheckbox.setChecked(false);
                 break;
             case R.id.SpeedCheckbox:
+                MapActivity.parameterName = "Speed";
                 cO2Checkbox.setChecked(false);
                 dustCheckbox.setChecked(false);
                 airQualityCheckbox.setChecked(false);
