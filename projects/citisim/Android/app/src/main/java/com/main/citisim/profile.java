@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.transition.Explode;
 import android.transition.Slide;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -409,6 +410,7 @@ public class profile extends AppCompatActivity {
                 if(isVisibleParameters == false)
                 {
                     closeAll(deviceList, analyticsList);
+                    calendarEnd.setVisibility(View.GONE);
                     parametersLinearLayout.setVisibility(View.VISIBLE);
                     isVisibleParameters = true;
                     changeWidth("small");
@@ -425,8 +427,6 @@ public class profile extends AppCompatActivity {
         runButtonAnalytics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(MapActivity.analyticsThreadFinished == true)
-                {
                     boolean correctDataFormat = true;
                     double threshold = 0;
                     if(MapActivity.selectedParameterAnalytics != null)
@@ -455,19 +455,16 @@ public class profile extends AppCompatActivity {
                     if(correctDataFormat)
                     {
                         MapActivity.threshold = threshold;
-                        isReadyAnalytics = true;
                         closeAll(deviceList, analyticsList);
                         calendarEndAnalytics.setVisibility(View.GONE);
                         calendarStartAnalytics.setVisibility(View.GONE);
                         isVisibleRunAnalytics = true;
                         changeWidth("small");
                         MapActivity.getSensorLocationsAnalytics();
-                        MapActivity.analyticsThreadFinished = false;
                         MapActivity.selectedParameterAnalytics = null;
                         finish();
                     }
                 }
-            }
         });
 
 
@@ -651,11 +648,9 @@ public class profile extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                if(MapActivity.historyThreadFinished) {
-                    MapActivity.deviceSelectedId = deviceIdList.get(position);
-                    MapActivity.deviceSelected = true;
-                    finish();
-                }
+                MapActivity.deviceSelectedId = deviceIdList.get(position);
+                MapActivity.deviceSelected = true;
+                finish();
             }
         });
 

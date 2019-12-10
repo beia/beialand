@@ -32,6 +32,7 @@ import static com.main.citisim.MapActivity.MAX_C02;
 import static com.main.citisim.MapActivity.MAX_DUST;
 import static com.main.citisim.MapActivity.MAX_SPEED;
 import static com.main.citisim.MapActivity.pieViewCO2;
+import static com.main.citisim.MapActivity.zoom;
 
 public class MarkersHandler extends Handler
 {
@@ -70,7 +71,15 @@ public class MarkersHandler extends Handler
                         //move camera over first marker
                         if(mMap!=null)
                             mMap.clear();
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
+                        if(!zoom)//zoom in only the first time so the user can zoom out if he wants
+                        {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
+                            zoom = true;
+                        }
+                        else
+                        {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                        }
                         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(firstMarker)).position(position)) ;
                     }
 

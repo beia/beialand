@@ -127,6 +127,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static String endDateAnalytics;
     public static String parameterName;
     public static double threshold;
+    public static volatile boolean zoom = false;
 
     //time variables
     public static Calendar calendar;
@@ -147,6 +148,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //threads
     public static Thread updateDevice;
+    public static Thread displayHistoryThread;
 
 
     public static Handler handler = new Handler(){
@@ -238,8 +240,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Bitmap smallMarker = Bitmap.createScaledBitmap(MapActivity.markerBitmap, markerWidth, markerHeight, false);
                     LatLng devicePosition = new LatLng(device.getLatitude(), device.getLongitude());
                     deviceMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMarker)).position(devicePosition));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(devicePosition, DEFAULT_ZOOM));
-
+                    if(!zoom)//zoom in only the first time so the user can zoom out if he wants
+                    {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(devicePosition, DEFAULT_ZOOM));
+                        zoom = true;
+                    }
+                    else
+                    {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(devicePosition));
+                    }
                     Log.d("[GAUGES HANDLER]: ", " device parameters: {CO2: " + device.getCO2() + " Dust: " + device.getDust() + " Air quality: " + device.getAirQuality() + " Speed: " + device.getSpeed() + "}");
                     break;
                 case 2://receiving the records from the last 500 seconds(to have 100 samples)
@@ -661,6 +670,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //we create a thread that will check for new data from the device that was clicked at every 5 seconds
         if(deviceSelected)
         {
+            zoom = false;//set the zoom to false so we cam zoom only on the first marker displayed
+            //stop the real time display of the history so we can see the real time device display
+            if(displayHistoryThread != null && displayHistoryThread.isAlive())
+                displayHistoryThread.interrupt();
+            historyThreadFinished = true;
+            profile.setIsReadyHistory(false);
             gaugesLinearLayout.setVisibility(View.VISIBLE);
             updateDevice = new Thread(new UpdateDeviceRunnable(getApplicationContext()));
             updateDevice.start();
@@ -704,7 +719,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         //the api is not working properly so we create a mock-up url
         url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
-        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 12:19:40/" + MapActivity.endDate + " 12:20:13";
+        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 00:00:00/" + MapActivity.endDate + " 20:00:00";
         Log.d("MOCKUP URL", url);
         Log.d("URL", desiredURL);
         markerLocations.clear();
@@ -797,9 +812,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     {
         if(profile.isReadyHistory==true)
         {
+            zoom = false;
             //start the markers thread
-            Thread showMarkersThread = new Thread(new UpdateMarkers(markerLocations));
-            showMarkersThread.start();
+            displayHistoryThread = new Thread(new UpdateMarkers(markerLocations));
+            displayHistoryThread.start();
             //show the gauges that show us informations about some measured parameters
             gaugesLinearLayout.setVisibility(View.VISIBLE);
         }
@@ -900,6 +916,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             //stop the real time display of the device so we can see the history
                             if(updateDevice != null && updateDevice.isAlive())
                                 updateDevice.interrupt();
+                            //stop the real time display of the history so we can see the analytics
+                            if(displayHistoryThread != null && displayHistoryThread.isAlive())
+                                displayHistoryThread.interrupt();
+                            historyThreadFinished = true;
+                            gaugesLinearLayout.setVisibility(View.GONE);
                             showMarkersAnalytics();
                         }
                         catch (JSONException e)
@@ -919,8 +940,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
     public static void showMarkersAnalytics()
     {
-        if(profile.isReadyAnalytics==true)
-        {
             for(int i = 0; i < markerLocations.size(); i++)
             {
                 Float parameterValue;
@@ -967,7 +986,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(i == 1)
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(devicePosition, 12));
             }
-        }
     }
 
     public void getReports() {
@@ -1027,24 +1045,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (mLocationPermissionsGranted) {
-                Task location = mFusedLocationProviderClient.getLastLocation();
+                final Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(Task task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
-                            latitude = currentLocation.getLatitude();
-                            longitude = currentLocation.getLongitude();
-                            if(ReportsActivity.showReport==true){
-                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                DEFAULT_ZOOM);
-                                showReport();
-                                ReportsActivity.showReport=false;
-                            }else{
-                                moveCamera(new LatLng(latitude,longitude),DEFAULT_ZOOM);
+                            if (currentLocation != null) {
+                                latitude = currentLocation.getLatitude();
+                                longitude = currentLocation.getLongitude();
+                                if (ReportsActivity.showReport == true) {
+                                    moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                            DEFAULT_ZOOM);
+                                    showReport();
+                                    ReportsActivity.showReport = false;
+                                } else {
+                                    moveCamera(new LatLng(latitude, longitude), DEFAULT_ZOOM);
+                                }
+                                Log.d("mda", "123");
                             }
-                            Log.d("mda","123");
                         }
                     }
                 });

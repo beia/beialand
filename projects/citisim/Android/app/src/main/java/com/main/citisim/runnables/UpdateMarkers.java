@@ -60,9 +60,9 @@ public class UpdateMarkers implements Runnable
             profile.setIsReadyHistory(false);
 
         }
-        catch (InterruptedException e)
+        catch (InterruptedException e)//when changing from history to device real time monitoring or from history to analytics the thread will be interrupted
         {
-                e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
