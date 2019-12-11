@@ -49,5 +49,7 @@ public class DeviceParameters
     {
         return this.speed;
     }
-    public void setUsecase(String usecase) { this.usecase = usecase; }
+    public String getTime() { return this.time; }
+    public void setUsecase(String usecase) { this.usecase = usecase;}
+    public void setTime(String time) { this.time = time; }
 }

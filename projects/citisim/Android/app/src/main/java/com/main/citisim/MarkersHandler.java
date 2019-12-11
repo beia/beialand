@@ -31,6 +31,7 @@ import static com.main.citisim.MapActivity.MAX_AIRQUALITY;
 import static com.main.citisim.MapActivity.MAX_C02;
 import static com.main.citisim.MapActivity.MAX_DUST;
 import static com.main.citisim.MapActivity.MAX_SPEED;
+import static com.main.citisim.MapActivity.historyTimeTextView;
 import static com.main.citisim.MapActivity.pieViewCO2;
 import static com.main.citisim.MapActivity.zoom;
 
@@ -63,8 +64,17 @@ public class MarkersHandler extends Handler
         if (profile.isReadyHistory == true) {
             switch (msg.what) {
                 case 1:
-                    //adaugam marker
                     final DeviceParameters deviceParameters = (DeviceParameters)msg.obj;
+
+                    //set the time
+                    String badTime = deviceParameters.getTime();
+                    String[] dateHour = badTime.split(" ");
+                    String[] monthDayYear = dateHour[0].split("/");
+                    String time = monthDayYear[1] + "/" + monthDayYear[0] + "/" + monthDayYear[2] + " " + dateHour[1];
+                    historyTimeTextView.setText(time);
+                    historyTimeTextView.setVisibility(View.VISIBLE);
+
+                    //add a marker on the map
                     LatLng position = new LatLng(deviceParameters.getLatitude(), deviceParameters.getLongitude());
                     if (msg.arg1 == 0)
                     {
@@ -88,13 +98,27 @@ public class MarkersHandler extends Handler
                         for(int i= 0; i<markerVector.size();i++){
                             markerVector.get(i).remove();
                         }
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
+                        if(!zoom) {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
+                            zoom = true;
+                        }
+                        else
+                        {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                        }
                         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(lastMarker)).position(position)) ;
                         MapActivity.isDisplayed=false;
                     }
                     else
                     {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
+                        if(!zoom) {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, MapActivity.DEFAULT_ZOOM));
+                            zoom = true;
+                        }
+                        else
+                        {
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                        }
                         Marker marker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMarker)).position(position));
                         markerVector.add(marker);
                         if (markerVector.size() > 6)

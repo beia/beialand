@@ -1,8 +1,10 @@
 package com.main.citisim;
 
 import android.Manifest;
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -20,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.components.YAxis;
@@ -67,7 +70,7 @@ import java.util.Map;
 
 import az.plainpie.PieView;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{//, GoogleMap.OnMarkerClic {
 
     static boolean isRun=false;
     static boolean isDisplayed=false;
@@ -103,6 +106,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static LineChart lineChartDust;
     public static LineChart lineChartAirQuality;
     public static LineChart lineChartSpeed;
+    public static TextView historyTimeTextView;
+
+
+    //chache variables
+    public static SharedPreferences sharedPref;
+    public static SharedPreferences.Editor editor;
 
     //marker variables
     public static BitmapDrawable markerBitmapDrawable;
@@ -137,7 +146,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static volatile int deviceSelectedId;
     public static final int MAX_C02 = 600;
     public static final int MAX_DUST = 10000;
-    public static final int MAX_AIRQUALITY = 100;
+    public static final int MAX_AIRQUALITY = 140;
     public static final int MAX_SPEED = 200;
     public static Marker deviceMarker;
     public Thread updateDeviceData;
@@ -180,6 +189,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     pieViewSpeed.setPercentage(speed / MAX_SPEED * 100);
                     pieViewSpeed.setInnerText(speed + "");
 
+                    //set the time
+                    String badTime = device.getTime();
+                    String[] dateHour = badTime.split(" ");
+                    String[] monthDayYear = dateHour[0].split("/");
+                    String time = monthDayYear[1] + "/" + monthDayYear[0] + "/" + monthDayYear[2] + " " + dateHour[1];
+                    historyTimeTextView.setText(time);
+
                     //update the graphs
                     //remove the first element from the parameters array
                     //update all the (x, y) points from the graph by translating the x values to the left by one
@@ -209,10 +225,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                     speedValues.add(new Entry(speedValues.size(), device.getSpeed()));
                     //update the data sets
-                    cO2Set.setValues(cO2Values);
-                    dustSet.setValues(dustValues);
-                    airQualitySet.setValues(airQualityValues);
-                    speedSet.setValues(speedValues);
+                    if(cO2Set != null)
+                        cO2Set.setValues(cO2Values);
+                    if(dustSet != null)
+                        dustSet.setValues(dustValues);
+                    if(airQualitySet != null)
+                        airQualitySet.setValues(airQualityValues);
+                    if(speedSet != null)
+                        speedSet.setValues(speedValues);
                     //update the line data objects
                     cO2LineData = new LineData(cO2Set);
                     dustLineData = new LineData(dustSet);
@@ -252,6 +272,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Log.d("[GAUGES HANDLER]: ", " device parameters: {CO2: " + device.getCO2() + " Dust: " + device.getDust() + " Air quality: " + device.getAirQuality() + " Speed: " + device.getSpeed() + "}");
                     break;
                 case 2://receiving the records from the last 500 seconds(to have 100 samples)
+                    historyTimeTextView.setVisibility(View.VISIBLE);
                     ArrayList<DeviceParameters> deviceParameters = (ArrayList<DeviceParameters>) msg.obj;
                     for(int i = 0; i < deviceParameters.size(); i++)
                     {
@@ -352,7 +373,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap)
     {
         mMap = googleMap;
-        mMap.setOnMarkerClickListener(this);
+        //mMap.setOnMarkerClickListener(this);
         if (mLocationPermissionsGranted)
         {
             if (ActivityCompat.checkSelfPermission(this,
@@ -380,6 +401,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         context = getApplicationContext();
         alfactorApiString = getResources().getString(R.string.api_altfactor);
         getLocationPermission();
+
+        //init cache
+        sharedPref = this.getPreferences(MODE_PRIVATE);
+
 
         //get the calendar instance
         calendar = Calendar.getInstance();
@@ -458,6 +483,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         lineChartDust = findViewById(R.id.DustGraph);
         lineChartAirQuality = findViewById(R.id.AirQualityGraph);
         lineChartSpeed = findViewById(R.id.SpeedGraph);
+        //init the time for the history display
+        historyTimeTextView = findViewById(R.id.historyTimeTextView);
 
 
         //setup the graphs
@@ -648,7 +675,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
-                        Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -671,6 +697,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if(deviceSelected)
         {
             zoom = false;//set the zoom to false so we cam zoom only on the first marker displayed
+            //stop the real time display of a device
+            if(updateDevice != null && updateDevice.isAlive())
+                updateDevice.interrupt();
             //stop the real time display of the history so we can see the real time device display
             if(displayHistoryThread != null && displayHistoryThread.isAlive())
                 displayHistoryThread.interrupt();
@@ -717,94 +746,130 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
 
-        //the api is not working properly so we create a mock-up url
-        url ="http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
-        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 00:00:00/" + MapActivity.endDate + " 20:00:00";
-        Log.d("MOCKUP URL", url);
-        Log.d("URL", desiredURL);
-        markerLocations.clear();
+        String historyData = sharedPref.getString(startDate + endDate, null);
+        if(historyData == null) {
+            //the api is not working properly so we create a mock-up url
+            url = "http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
+            String desiredURL = alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDate + " 00:00:00/" + MapActivity.endDate + " 23:59:59";
+            Log.d("MOCKUP URL", url);
+            Log.d("URL", desiredURL);
+            markerLocations.clear();
 
-        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, desiredURL, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-
-                        try
-                        {
-                            for (int i = 0; i < response.length(); i++)
-                            {
-                                JSONArray responseJSONArray = response.getJSONArray(i);
-                                float latitude, longitude, cO2, dust, airQuality, speed;
-                                if(responseJSONArray.getString(2).equals("null") == false)
-                                {
-                                    latitude = Float.parseFloat(responseJSONArray.getString(2));
+            final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, desiredURL, null,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            //save the history data into the cache memory
+                            editor = sharedPref.edit();
+                            editor.putString(startDate + endDate, response.toString());
+                            editor.commit();
+                            try {
+                                for (int i = 0; i < response.length(); i++) {
+                                    JSONArray responseJSONArray = response.getJSONArray(i);
+                                    float latitude, longitude, cO2, dust, airQuality, speed;
+                                    if (responseJSONArray.getString(2).equals("null") == false) {
+                                        latitude = Float.parseFloat(responseJSONArray.getString(2));
+                                    } else {
+                                        latitude = -1;
+                                    }
+                                    if (responseJSONArray.getString(3).equals("null") == false) {
+                                        longitude = Float.parseFloat(responseJSONArray.getString(3));
+                                    } else {
+                                        longitude = -1;
+                                    }
+                                    if (responseJSONArray.getString(6).equals("null") == false) {
+                                        cO2 = Float.parseFloat(responseJSONArray.getString(6));
+                                    } else {
+                                        cO2 = -1;
+                                    }
+                                    if (responseJSONArray.getString(8).equals("null") == false) {
+                                        dust = Float.parseFloat(responseJSONArray.getString(8));
+                                    } else {
+                                        dust = -1;
+                                    }
+                                    if (responseJSONArray.getString(12).equals("null") == false) {
+                                        airQuality = Float.parseFloat(responseJSONArray.getString(12));
+                                    } else {
+                                        airQuality = -1;
+                                    }
+                                    if (responseJSONArray.getString(5).equals("null") == false) {
+                                        speed = Float.parseFloat(responseJSONArray.getString(5));
+                                    } else {
+                                        speed = -1;
+                                    }
+                                    DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                    deviceParameters.setUsecase("History");
+                                    deviceParameters.setTime(responseJSONArray.getString(1));
+                                    markerLocations.add(deviceParameters);
                                 }
-                                else
-                                {
-                                    latitude = -1;
-                                }
-                                if(responseJSONArray.getString(3).equals("null") == false)
-                                {
-                                    longitude = Float.parseFloat(responseJSONArray.getString(3));
-                                }
-                                else
-                                {
-                                    longitude = -1;
-                                }
-                                if(responseJSONArray.getString(6).equals("null") == false) {
-                                    cO2 = Float.parseFloat(responseJSONArray.getString(6));
-                                }
-                                else
-                                {
-                                    cO2 = -1;
-                                }
-                                if(responseJSONArray.getString(8).equals("null") == false)
-                                {
-                                    dust = Float.parseFloat(responseJSONArray.getString(8));
-                                }
-                                else
-                                {
-                                    dust = -1;
-                                }
-                                if(responseJSONArray.getString(12).equals("null") == false)
-                                {
-                                    airQuality = Float.parseFloat(responseJSONArray.getString(12));
-                                }
-                                else
-                                {
-                                    airQuality = -1;
-                                }
-                                if(responseJSONArray.getString(5).equals("null") == false)
-                                {
-                                    speed = Float.parseFloat(responseJSONArray.getString(5));
-                                }
-                                else
-                                {
-                                    speed = -1;
-                                }
-                                DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
-                                deviceParameters.setUsecase("History");
-                                markerLocations.add(deviceParameters);
+                                //stop the real time display of the device so we can see the history
+                                if (updateDevice != null && updateDevice.isAlive())
+                                    updateDevice.interrupt();
+                                showMarkers();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            //stop the real time display of the device so we can see the history
-                            if(updateDevice != null && updateDevice.isAlive())
-                                updateDevice.interrupt();
-                            showMarkers();
                         }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
                         }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+            );
+            MyVolleyQueue.getInstance(context).addToRequestQueue(getRequest);
+        }
+        else
+        {
+            try
+            {
+                JSONArray historyDataJsonArray = new JSONArray(historyData);
+                for (int i = 0; i < historyDataJsonArray.length(); i++) {
+                    JSONArray responseJSONArray = historyDataJsonArray.getJSONArray(i);
+                    float latitude, longitude, cO2, dust, airQuality, speed;
+                    if (responseJSONArray.getString(2).equals("null") == false) {
+                        latitude = Float.parseFloat(responseJSONArray.getString(2));
+                    } else {
+                        latitude = -1;
                     }
+                    if (responseJSONArray.getString(3).equals("null") == false) {
+                        longitude = Float.parseFloat(responseJSONArray.getString(3));
+                    } else {
+                        longitude = -1;
+                    }
+                    if (responseJSONArray.getString(6).equals("null") == false) {
+                        cO2 = Float.parseFloat(responseJSONArray.getString(6));
+                    } else {
+                        cO2 = -1;
+                    }
+                    if (responseJSONArray.getString(8).equals("null") == false) {
+                        dust = Float.parseFloat(responseJSONArray.getString(8));
+                    } else {
+                        dust = -1;
+                    }
+                    if (responseJSONArray.getString(12).equals("null") == false) {
+                        airQuality = Float.parseFloat(responseJSONArray.getString(12));
+                    } else {
+                        airQuality = -1;
+                    }
+                    if (responseJSONArray.getString(5).equals("null") == false) {
+                        speed = Float.parseFloat(responseJSONArray.getString(5));
+                    } else {
+                        speed = -1;
+                    }
+                    DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                    deviceParameters.setUsecase("History");
+                    deviceParameters.setTime(responseJSONArray.getString(1));
+                    markerLocations.add(deviceParameters);
                 }
-        );
-        MyVolleyQueue.getInstance(context).addToRequestQueue(getRequest);
+                //stop the real time display of the device so we can see the history
+                if (updateDevice != null && updateDevice.isAlive())
+                    updateDevice.interrupt();
+                showMarkers();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -845,98 +910,77 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
 
-        //the api is not working properly so we create a mock-up url
-        url = "http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
-        String desiredURL= alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDateAnalytics + " 12:19:40/" + MapActivity.endDateAnalytics + " 12:20:13";
-        Log.d("URL", desiredURL);
-        markerLocations.clear();
+        String analyticsData = sharedPref.getString(startDateAnalytics + endDateAnalytics, null);
+            //the api is not working properly so we create a mock-up url
+            url = "http://86.127.100.48:5000/getrecordsperiod/3/2019-04-02 12:19:40/2019-04-02 12:20:13";
+            String desiredURL = alfactorApiString + "/getrecordsperiod/" + MapActivity.deviceSelectedId + "/" + MapActivity.startDateAnalytics + " 00:00:00/" + MapActivity.endDateAnalytics + " 23:59:59";
+            Log.d("URL", desiredURL);
+            markerLocations.clear();
 
-        final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, desiredURL, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
+            final JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, desiredURL, null,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
 
-                        try
-                        {
-                            for (int i = 0; i < response.length(); i++)
-                            {
-                                JSONArray responseJSONArray = response.getJSONArray(i);
-                                float latitude, longitude, cO2, dust, airQuality, speed;
-                                if(responseJSONArray.getString(2).equals("null") == false)
-                                {
-                                    latitude = Float.parseFloat(responseJSONArray.getString(2));
+                            try {
+                                for (int i = 0; i < response.length(); i++) {
+                                    JSONArray responseJSONArray = response.getJSONArray(i);
+                                    float latitude, longitude, cO2, dust, airQuality, speed;
+                                    if (responseJSONArray.getString(2).equals("null") == false) {
+                                        latitude = Float.parseFloat(responseJSONArray.getString(2));
+                                    } else {
+                                        latitude = -1;
+                                    }
+                                    if (responseJSONArray.getString(3).equals("null") == false) {
+                                        longitude = Float.parseFloat(responseJSONArray.getString(3));
+                                    } else {
+                                        longitude = -1;
+                                    }
+                                    if (responseJSONArray.getString(6).equals("null") == false) {
+                                        cO2 = Float.parseFloat(responseJSONArray.getString(6));
+                                    } else {
+                                        cO2 = -1;
+                                    }
+                                    if (responseJSONArray.getString(8).equals("null") == false) {
+                                        dust = Float.parseFloat(responseJSONArray.getString(8));
+                                    } else {
+                                        dust = -1;
+                                    }
+                                    if (responseJSONArray.getString(12).equals("null") == false) {
+                                        airQuality = Float.parseFloat(responseJSONArray.getString(12));
+                                    } else {
+                                        airQuality = -1;
+                                    }
+                                    if (responseJSONArray.getString(5).equals("null") == false) {
+                                        speed = Float.parseFloat(responseJSONArray.getString(5));
+                                    } else {
+                                        speed = -1;
+                                    }
+                                    DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                    deviceParameters.setUsecase("Analytics");
+                                    markerLocations.add(deviceParameters);
                                 }
-                                else
-                                {
-                                    latitude = -1;
-                                }
-                                if(responseJSONArray.getString(3).equals("null") == false)
-                                {
-                                    longitude = Float.parseFloat(responseJSONArray.getString(3));
-                                }
-                                else
-                                {
-                                    longitude = -1;
-                                }
-                                if(responseJSONArray.getString(6).equals("null") == false) {
-                                    cO2 = Float.parseFloat(responseJSONArray.getString(6));
-                                }
-                                else
-                                {
-                                    cO2 = -1;
-                                }
-                                if(responseJSONArray.getString(8).equals("null") == false)
-                                {
-                                    dust = Float.parseFloat(responseJSONArray.getString(8));
-                                }
-                                else
-                                {
-                                    dust = -1;
-                                }
-                                if(responseJSONArray.getString(12).equals("null") == false)
-                                {
-                                    airQuality = Float.parseFloat(responseJSONArray.getString(12));
-                                }
-                                else
-                                {
-                                    airQuality = -1;
-                                }
-                                if(responseJSONArray.getString(5).equals("null") == false)
-                                {
-                                    speed = Float.parseFloat(responseJSONArray.getString(5));
-                                }
-                                else
-                                {
-                                    speed = -1;
-                                }
-                                DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
-                                deviceParameters.setUsecase("Analytics");
-                                markerLocations.add(deviceParameters);
+                                //stop the real time display of the device so we can see the history
+                                if (updateDevice != null && updateDevice.isAlive())
+                                    updateDevice.interrupt();
+                                //stop the real time display of the history so we can see the analytics
+                                if (displayHistoryThread != null && displayHistoryThread.isAlive())
+                                    displayHistoryThread.interrupt();
+                                historyThreadFinished = true;
+                                gaugesLinearLayout.setVisibility(View.GONE);
+                                showMarkersAnalytics();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            //stop the real time display of the device so we can see the history
-                            if(updateDevice != null && updateDevice.isAlive())
-                                updateDevice.interrupt();
-                            //stop the real time display of the history so we can see the analytics
-                            if(displayHistoryThread != null && displayHistoryThread.isAlive())
-                                displayHistoryThread.interrupt();
-                            historyThreadFinished = true;
-                            gaugesLinearLayout.setVisibility(View.GONE);
-                            showMarkersAnalytics();
                         }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
                         }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-        MyVolleyQueue.getInstance(context).addToRequestQueue(getRequest);
+            );
+            MyVolleyQueue.getInstance(context).addToRequestQueue(getRequest);
     }
     public static void showMarkersAnalytics()
     {
@@ -1015,7 +1059,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -1050,7 +1093,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     @Override
                     public void onComplete(Task task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
                             if (currentLocation != null) {
                                 latitude = currentLocation.getLatitude();
@@ -1063,7 +1105,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 } else {
                                     moveCamera(new LatLng(latitude, longitude), DEFAULT_ZOOM);
                                 }
-                                Log.d("mda", "123");
                             }
                         }
                     }
@@ -1176,7 +1217,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-
+    /*
     @Override
     public boolean onMarkerClick(Marker marker) {
         DeviceParameters deviceParameter = null;
@@ -1212,4 +1253,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         return true;
     }
+    */
 }

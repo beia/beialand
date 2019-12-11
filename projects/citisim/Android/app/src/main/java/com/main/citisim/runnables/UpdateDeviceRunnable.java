@@ -249,6 +249,7 @@ public class UpdateDeviceRunnable implements Runnable {
                                                 speed = -1;
                                             }
                                             device = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
+                                            device.setTime(responseJSONArray.getString(1));
                                         }
                                     }
                                     //send the message with the data to the UI thread

@@ -410,7 +410,7 @@ public class profile extends AppCompatActivity {
                 if(isVisibleParameters == false)
                 {
                     closeAll(deviceList, analyticsList);
-                    calendarEnd.setVisibility(View.GONE);
+                    calendarEndAnalytics.setVisibility(View.GONE);
                     parametersLinearLayout.setVisibility(View.VISIBLE);
                     isVisibleParameters = true;
                     changeWidth("small");
