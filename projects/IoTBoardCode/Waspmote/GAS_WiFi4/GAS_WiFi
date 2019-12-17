@@ -490,5 +490,22 @@ void loop()
 // Go to deepsleep  
     // After 30 seconds, Waspmote wakes up thanks to the RTC Alarm
   USB.println(F("Go to deepsleep --- After 10 seconds, Waspmote wakes up thanks to the RTC Alarm")); 
-  PWR.deepSleep("00:00:00:10", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
+  //PWR.deepSleep("00:00:00:10", RTC_OFFSET, RTC_ALM1_MODE1, ALL_OFF);
+ // USB.ON();
+  //USB.println(F("\nwake up"));
+
+  // After wake up check interruption source
+  //if( intFlag & RTC_INT )
+ // {
+    // clear interruption flag
+   // intFlag &= ~(RTC_INT);
+    
+   // USB.println(F("---------------------"));
+    //USB.println(F("RTC INT captured"));
+    //USB.println(F("---------------------"));
+    Utils.blinkLEDs(300);
+    Utils.blinkLEDs(300);
+    Utils.blinkLEDs(300);
+ // }
+ delay (10000);
 }
