@@ -1,0 +1,15 @@
+version: '3.6'
+services:
+  nginx:
+    image: dorinelfilip/nginx-redirect
+    environment:
+      VIRTUAL_HOST: 'sarws.beia-consult.ro'
+      LETSENCRYPT_HOST: 'sarws.beia-consult.ro'
+      LETSENCRYPT_EMAIL: 'no-reply@sarws.beia-consult.ro'
+      SERVER_REDIRECT: 'sarws.eu'
+    networks:
+      - proxy_net
+
+networks:
+  proxy_net:
+    external: true
