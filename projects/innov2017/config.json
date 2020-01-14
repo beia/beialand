@@ -48,7 +48,7 @@
 		},
 		{
 			"name": "sarws",
-			"virtual_hosts": ["sarws.beia-consult.ro"],
+			"virtual_hosts": ["sarws.eu","www.sarws.eu"],
 			"db_name": "sarws_db"
 		},
 		{
