@@ -4,6 +4,7 @@ STACK_FOLDERS = \
   projects/iot-cloud \
   projects/libelium-backup \
   projects/somedi \
+  misc/sarws_redirect \
 
 DOCKER_FOLDERS = \
   projects/docker-images/wordpress \
