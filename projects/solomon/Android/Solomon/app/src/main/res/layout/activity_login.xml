@@ -8,61 +8,204 @@
     android:orientation="vertical"
     android:background="@color/solomonWallpaperColor"
     tools:context=".LoginActivity">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="170dp">
 
-        <RadioButton
-            android:id="@+id/LoginRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/greenAccent"
-            android:layout_marginTop="10dp"
-            android:checked="true"
-            android:text="Login"
-            android:textSize="17dp" />
-
-        <RadioButton
-            android:id="@+id/SignUpRadioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="@color/greenAccent"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="16dp"
-            android:text="SignUp"
-            android:textSize="17dp" />
-    </LinearLayout>
-
+    <!--Sign in-->
     <ImageView
-        android:layout_width="325dp"
-        android:layout_height="320dp"
+        android:visibility="invisible"
+        android:layout_width="@dimen/dimen12dp"
+        android:layout_height="@dimen/dimen12dp"
+        android:layout_marginStart="@dimen/dimen2dp"
+        android:layout_marginTop="@dimen/dimen2dp"
+        android:src="@drawable/back_button"/>
+    <ImageView
+        android:layout_width="@dimen/dimen130dp"
+        android:layout_height="@dimen/dimen100dp"
         android:src="@drawable/solomon_wallpaper"
         android:layout_gravity="center"
         android:background="@color/transparentColor"/>
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/usernameLoginCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen12dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/usernameLoginEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:hint="username"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/passwordLoginCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/passwordLoginEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:hint="password"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/loginButton"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp"
+        app:cardBackgroundColor="@color/gray">
+        <TextView
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="Login"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/guestLoginButton"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen14dp"
+        android:layout_marginTop="@dimen/dimen45dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp"
+        app:cardBackgroundColor="@color/gray">
+        <TextView
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="17sp"
+            android:text="Login as guest"/>
+    </androidx.cardview.widget.CardView>
+
     <TextView
-        android:id="@+id/loginTitleTextView"
+        android:id="@+id/createAccount"
+        android:layout_marginTop="@dimen/dimen10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
         android:gravity="center"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="20dp"
-        android:textSize="23dp" />
+        android:textSize="19sp"
+        android:text="Create an account"/>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:id="@+id/CustomAutenthificationLinearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:focusable="true"
-            android:focusableInTouchMode="true">
-        </LinearLayout>
-    </ScrollView>
+    <!--Sign up-->
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/firstNameSignUpCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen12dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/firstNameSignUpEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:hint="first name"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/ageSignUpCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/ageSignUpEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:hint="last name"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/usernameSignUpCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/usernameSignUpEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:inputType="number"
+            android:hint="age"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/passwordSignUpCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/passwordSignUpEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:inputType="textPassword"
+            android:hint="password"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/passwordConfirmationSignUpCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <EditText
+            android:id="@+id/passwordConfirmationSignUpEditText"
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:background="@null"
+            android:hint="password confirmation"
+            android:textSize="16sp"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/signUpButton"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp"
+        app:cardBackgroundColor="@color/gray">
+        <TextView
+            android:layout_width="@dimen/dimen70dp"
+            android:layout_height="@dimen/dimen20dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="SignUp"/>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

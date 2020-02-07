@@ -958,6 +958,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                     }
                                     DeviceParameters deviceParameters = new DeviceParameters(latitude, longitude, cO2, dust, airQuality, speed);
                                     deviceParameters.setUsecase("Analytics");
+                                    deviceParameters.setTime(responseJSONArray.getString(1));
                                     markerLocations.add(deviceParameters);
                                 }
                                 //stop the real time display of the device so we can see the history

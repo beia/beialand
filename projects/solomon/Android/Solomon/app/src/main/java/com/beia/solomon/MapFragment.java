@@ -35,7 +35,6 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         if (savedInstanceState == null) {
             needsInit=true;
         }
-
         getMapAsync(this);
     }
 

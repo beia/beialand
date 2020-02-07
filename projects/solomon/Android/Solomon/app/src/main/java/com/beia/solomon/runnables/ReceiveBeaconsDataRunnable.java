@@ -34,7 +34,6 @@ public class ReceiveBeaconsDataRunnable implements Runnable
             HashMap<Integer, Mall> malls = (HashMap<Integer, Mall>) objectInputStream.readObject();
             MainActivity.malls = malls;
             Log.d("BEACONS", "RECEIVED MALLS DATA");
-
             //before listening to the beacons and sending data to the server regarding positions we must be sure that the server is listening for the data
             String serverFeedback = (String)objectInputStream.readObject();
             Log.d("BEACONS", "RECEIVED SERVER FEEDBACK " + serverFeedback);
