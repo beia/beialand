@@ -41,6 +41,7 @@
             android:layout_width="@dimen/dimen70dp"
             android:layout_height="@dimen/dimen20dp"
             android:background="@null"
+            android:inputType="text"
             android:hint="username"
             android:layout_gravity="center"/>
     </androidx.cardview.widget.CardView>
@@ -58,6 +59,7 @@
             android:layout_width="@dimen/dimen70dp"
             android:layout_height="@dimen/dimen20dp"
             android:background="@null"
+            android:inputType="textPassword"
             android:hint="password"
             android:layout_gravity="center"/>
     </androidx.cardview.widget.CardView>
@@ -112,7 +114,7 @@
     <TextView
         android:visibility="visible"
         android:id="@+id/createAccountText"
-        android:layout_marginTop="@dimen/dimen10dp"
+        android:layout_marginTop="@dimen/dimen5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -148,13 +150,13 @@
     </androidx.cardview.widget.CardView>
     
     <TextView
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/firstNameFeedbackText"
         android:layout_width="@dimen/dimen70dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:text="first name not valid"/>
 
@@ -177,13 +179,13 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/lastNameFeedbackText"
         android:layout_width="@dimen/dimen70dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:text="last name not valid"/>
 
@@ -206,13 +208,13 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/ageFeedbackText"
         android:layout_width="@dimen/dimen70dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:text="age not valid"/>
 
@@ -235,13 +237,13 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/usernameFeedbackText"
         android:layout_width="@dimen/dimen70dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:text="username not valid"/>
 
@@ -264,13 +266,13 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/passwordFeedbackText"
         android:layout_width="@dimen/dimen70dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:text="password not valid"/>
 

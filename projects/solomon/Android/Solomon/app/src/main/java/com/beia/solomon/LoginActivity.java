@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -43,6 +44,9 @@ import java.lang.reflect.Field;
 import java.net.*;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -114,13 +118,30 @@ public class LoginActivity extends AppCompatActivity {
                     switch (feedbackText)
                     {
                         case "username is taken":
-                            //set the username field red
-                            Toast.makeText(context, "username is taken", Toast.LENGTH_SHORT).show();
+                            usernameFeedbackText.setText("username is taken");
+                            usernameFeedbackText.setVisibility(View.VISIBLE);
+                            usernameSignInCardView.setBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
                             break;
                         case "registered successfully":
+                            firstNameFeedbackText.setVisibility(View.INVISIBLE);
+                            lastNameFeedbackText.setVisibility(View.INVISIBLE);
+                            ageFeedbackText.setVisibility(View.INVISIBLE);
+                            usernameFeedbackText.setVisibility(View.INVISIBLE);
+                            passwordFeedbackText.setVisibility(View.INVISIBLE);
+                            passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
+                            firstNameSignUpEditText.setText("");
+                            lastNameSignUpEditText.setText("");
+                            ageSignUpEditText.setText("");
+                            passwordSignUpEditText.setText("");
+                            passwordConfirmationSignUpEditText.setText("");
+                            Toast.makeText(context, "account created", Toast.LENGTH_SHORT).show();
+                            setLoginLayout();
                             break;
                         case "username or password are wrong":
                             //set the login fields red
+                            usernameSignInCardView.setBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
+                            passwordSignInCardView.setBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
+                            feedbackTextView.setVisibility(View.INVISIBLE);
                             Toast.makeText(context, "username or password are wrong", Toast.LENGTH_SHORT).show();
                             break;
                         default:
@@ -142,6 +163,8 @@ public class LoginActivity extends AppCompatActivity {
                     if(userData.isFirstLogin())
                     {
                         //start the preferences activity
+                        usernameSignInEditText.setText("");
+                        passwordSignInEditText.setText("");
                         Intent intent = new Intent(LoginActivity.context, PreferencesActivity.class);
                         intent.putExtra("UserData", userData);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -230,14 +253,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //CLIENT COMMUNICATION METHODS
-    public void sendSignInData()
+    public void sendSignInData(SignInData signInData)
     {
-        String username = usernameSignInEditText.getText().toString();
-        String password = passwordSignInEditText.getText().toString();
-        usernameSignInEditText.setText("");
-        passwordSignInEditText.setText("");
-        //send the sign in data to the server
-        SignInData signInData = new SignInData(username, password);
         Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
         sendSignInDataThread.start();
     }
@@ -248,21 +265,8 @@ public class LoginActivity extends AppCompatActivity {
         Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
         sendSignInDataThread.start();
     }
-    public void sendSignUpData()
+    public void sendSignUpData(SignUpData signUpData)
     {
-        String lastName = lastNameSignUpEditText.getText().toString();
-        String firstName = firstNameSignUpEditText.getText().toString();
-        int age = Integer.parseInt(ageSignUpEditText.getText().toString());
-        String username = usernameSignUpEditText.getText().toString();
-        String password = passwordSignUpEditText.getText().toString();
-        String passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString();
-        lastNameSignUpEditText.setText("");
-        firstNameSignUpEditText.setText("");
-        ageSignUpEditText.setText("");
-        usernameSignUpEditText.setText("");
-        passwordSignUpEditText.setText("");
-        passwordConfirmationSignUpEditText.setText("");
-        SignUpData signUpData = new SignUpData(lastName, firstName, age, username, password, passwordConfirmation);
         Thread sendSignUpDataThread = new Thread(new SendAuthenticationDataRunnable("sign up", signUpData, objectOutputStream));
         sendSignUpDataThread.start();
     }
@@ -279,6 +283,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordSignInCardView = findViewById(R.id.passwordLoginCardView);
         passwordSignInEditText = findViewById(R.id.passwordLoginEditText);
         feedbackTextView = findViewById(R.id.feedbackText);
+        feedbackTextView.setVisibility(View.INVISIBLE);
         loginButton = findViewById(R.id.loginButton);
         loginAsGuestButton = findViewById(R.id.guestLoginButton);
         createAccountTextView = findViewById(R.id.createAccountText);
@@ -318,24 +323,150 @@ public class LoginActivity extends AppCompatActivity {
                 setLoginLayout();
             }
         });
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                feedbackTextView.setVisibility(View.VISIBLE);
+                String username, password;
+                boolean correctLoginData = true;
+                username = usernameSignInEditText.getText().toString();
+                password = passwordSignInEditText.getText().toString();
+                if(username.trim().equals("")) {
+                    usernameSignInCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctLoginData = false;
+                }
+                if(password.trim().equals("")) {
+                    passwordSignInCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctLoginData = false;
+                }
+                if(correctLoginData) {
+                    String encryptedPassword = null;
+                    try {//encrypt the password
+                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+                        encryptedPassword = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                    if(encryptedPassword != null) {
+                        sendSignInData(new SignInData(username, encryptedPassword));
+                        feedbackTextView.setVisibility(View.VISIBLE);
+                    }
+                    else
+                        Log.d("LOGIN", "error: can't encrypt password");
+                }
+            }
+        });
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //clear the error texts
+                firstNameFeedbackText.setVisibility(View.INVISIBLE);
+                lastNameFeedbackText.setVisibility(View.INVISIBLE);
+                ageFeedbackText.setVisibility(View.INVISIBLE);
+                usernameFeedbackText.setVisibility(View.INVISIBLE);
+                passwordFeedbackText.setVisibility(View.INVISIBLE);
+                passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
+                //get the sign up data
+                String firstName, lastName, username, password, passwordConfirmation;
+                int age;
+                firstName = firstNameSignUpEditText.getText().toString().trim();
+                lastName = lastNameSignUpEditText.getText().toString().trim();
+                age = Integer.parseInt(ageSignUpEditText.getText().toString().trim());
+                username = usernameSignUpEditText.getText().toString().trim();
+                password = passwordSignUpEditText.getText().toString().trim();
+                passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString().trim();
+                boolean correctSignUpData = true;
+                if(firstName.equals(""))
+                {
+                    firstNameFeedbackText.setText("first name not filled");
+                    firstNameFeedbackText.setVisibility(View.VISIBLE);
+                    firstNameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(lastName.equals(""))
+                {
+                    lastNameFeedbackText.setText("last name not filled");
+                    lastNameFeedbackText.setVisibility(View.VISIBLE);
+                    lastNameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(age < 0 || age > 120)
+                {
+                    ageFeedbackText.setText("age not possible");
+                    ageFeedbackText.setVisibility(View.VISIBLE);
+                    ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(Integer.toString(age).equals(""))
+                {
+                    ageFeedbackText.setText("age not filled");
+                    ageFeedbackText.setVisibility(View.VISIBLE);
+                    ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(username.equals(""))
+                {
+                    usernameFeedbackText.setText("username not filled");
+                    usernameFeedbackText.setVisibility(View.VISIBLE);
+                    usernameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(password.equals(""))
+                {
+                    passwordFeedbackText.setText("password not filled");
+                    passwordFeedbackText.setVisibility(View.VISIBLE);
+                    passwordSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(passwordConfirmation.equals(""))
+                {
+                    passwordConfirmationFeedbackText.setText("password confirmation not filled");
+                    passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+                    passwordConfirmationSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(!password.equals(passwordConfirmation))
+                {
+                    passwordConfirmationFeedbackText.setText("passwords don't match");
+                    passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+                    passwordSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    passwordConfirmationSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    correctSignUpData = false;
+                }
+                if(correctSignUpData)
+                {
+                    String encryptedPassword = null;
+                    try {//encrypt the password
+                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+                        encryptedPassword = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                    if(encryptedPassword != null)
+                        sendSignUpData(new SignUpData(lastName, firstName, age, username, encryptedPassword, encryptedPassword));
+                    else
+                        Log.d("LOGIN", "error: can't encrypt password");
+                }
+            }
+        });
     }
-    public void setLoginLayout()
+    public static void setLoginLayout()
     {
         //hide the sign up views
         backButton.setVisibility(View.GONE);
         createAccountTitle.setVisibility(View.GONE);
         firstNameSignUpCardView.setVisibility(View.GONE);
-        firstNameFeedbackText.setVisibility(View.GONE);
+        firstNameFeedbackText.setVisibility(View.INVISIBLE);
         lastNameSignUpCardView.setVisibility(View.GONE);
-        lastNameFeedbackText.setVisibility(View.GONE);
+        lastNameFeedbackText.setVisibility(View.INVISIBLE);
         ageSignUpCardView.setVisibility(View.GONE);
-        ageFeedbackText.setVisibility(View.GONE);
+        ageFeedbackText.setVisibility(View.INVISIBLE);
         usernameSignUpCardView.setVisibility(View.GONE);
-        usernameFeedbackText.setVisibility(View.GONE);
+        usernameFeedbackText.setVisibility(View.INVISIBLE);
         passwordSignUpCardView.setVisibility(View.GONE);
-        passwordFeedbackText.setVisibility(View.GONE);
+        passwordFeedbackText.setVisibility(View.INVISIBLE);
         passwordConfirmationSignUpCardView.setVisibility(View.GONE);
-        passwordConfirmationFeedbackText.setVisibility(View.GONE);
+        passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
         signUpButton.setVisibility(View.GONE);
         //show the login views
         solomonPicture.setVisibility(View.VISIBLE);
@@ -345,7 +476,7 @@ public class LoginActivity extends AppCompatActivity {
         loginAsGuestButton.setVisibility(View.VISIBLE);
         createAccountTextView.setVisibility(View.VISIBLE);
     }
-    public void setSignUpLayout()
+    public static void setSignUpLayout()
     {
         //hide the login views
         solomonPicture.setVisibility(View.GONE);
@@ -359,17 +490,17 @@ public class LoginActivity extends AppCompatActivity {
         backButton.setVisibility(View.VISIBLE);
         createAccountTitle.setVisibility(View.VISIBLE);
         firstNameSignUpCardView.setVisibility(View.VISIBLE);
-        firstNameFeedbackText.setVisibility(View.VISIBLE);
+        firstNameFeedbackText.setVisibility(View.INVISIBLE);
         lastNameSignUpCardView.setVisibility(View.VISIBLE);
-        lastNameFeedbackText.setVisibility(View.VISIBLE);
+        lastNameFeedbackText.setVisibility(View.INVISIBLE);
         ageSignUpCardView.setVisibility(View.VISIBLE);
-        ageFeedbackText.setVisibility(View.VISIBLE);
+        ageFeedbackText.setVisibility(View.INVISIBLE);
         usernameSignUpCardView.setVisibility(View.VISIBLE);
-        usernameFeedbackText.setVisibility(View.VISIBLE);
+        usernameFeedbackText.setVisibility(View.INVISIBLE);
         passwordSignUpCardView.setVisibility(View.VISIBLE);
-        passwordFeedbackText.setVisibility(View.VISIBLE);
+        passwordFeedbackText.setVisibility(View.INVISIBLE);
         passwordConfirmationSignUpCardView.setVisibility(View.VISIBLE);
-        passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+        passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
         signUpButton.setVisibility(View.VISIBLE);
     }
     public void setAutomaticLogin()
