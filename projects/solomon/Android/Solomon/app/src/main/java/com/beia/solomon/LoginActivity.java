@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.ColorInt;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.ViewCompat;
 import android.text.InputType;
@@ -26,9 +27,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.SignUpData;
@@ -60,25 +63,40 @@ public class LoginActivity extends AppCompatActivity {
 
     //UI variables
     public static LinearLayout mainLinearLayout;    //the linear layout that contains the title and the other linear layout
-    public static LinearLayout loginLinearLayout;   //the linear layout that is common for both login and signup instances
-    public static RadioButton loginRadioButton;
-    public static RadioButton signupRadioButton;
-    public static TextView loginTitleTextView;
-    public static TextView feedbackTextView;
     public static int hintTextColor = Color.argb(50, 0, 0, 0);
     public static int orangeAccentColor = Color.argb(200,29, 222, 190);
     //sign in UI variables
+    public static ImageView solomonPicture;
+    public static CardView usernameSignInCardView;
     public static EditText usernameSignInEditText;
+    public static CardView passwordSignInCardView;
     public static EditText passwordSignInEditText;
-    public static Button signInButton;
+    public static CardView loginButton;
+    public static TextView feedbackTextView;
+    public static CardView loginAsGuestButton;
+    public static TextView createAccountTextView;
     //sign up UI variables
-    public static EditText lastNameSignUpEditText;
+    public static ImageView backButton;
+    public static TextView createAccountTitle;
+    public static CardView firstNameSignUpCardView;
     public static EditText firstNameSignUpEditText;
+    public static TextView firstNameFeedbackText;
+    public static CardView lastNameSignUpCardView;
+    public static EditText lastNameSignUpEditText;
+    public static TextView lastNameFeedbackText;
+    public static CardView ageSignUpCardView;
     public static EditText ageSignUpEditText;
+    public static TextView ageFeedbackText;
+    public static CardView usernameSignUpCardView;
     public static EditText usernameSignUpEditText;
+    public static TextView usernameFeedbackText;
+    public static CardView passwordSignUpCardView;
     public static EditText passwordSignUpEditText;
+    public static TextView passwordFeedbackText;
+    public static CardView passwordConfirmationSignUpCardView;
     public static EditText passwordConfirmationSignUpEditText;
-    public static Button signUpButton;
+    public static TextView passwordConfirmationFeedbackText;
+    public static CardView signUpButton;
 
     public static Activity loginActivityInstance;
 
@@ -91,19 +109,19 @@ public class LoginActivity extends AppCompatActivity {
             switch (msg.what) {
 
                 case 1: //change the feedback text
-
                     String feedbackText = (String) msg.obj;
                     feedbackTextView.setText(feedbackText);
                     switch (feedbackText)
                     {
                         case "username is taken":
-                            feedbackTextView.setTextColor(Color.RED);
+                            //set the username field red
+                            Toast.makeText(context, "username is taken", Toast.LENGTH_SHORT).show();
                             break;
                         case "registered successfully":
-                            feedbackTextView.setTextColor(Color.GREEN);
                             break;
                         case "username or password are wrong":
-                            feedbackTextView.setTextColor(Color.RED);
+                            //set the login fields red
+                            Toast.makeText(context, "username or password are wrong", Toast.LENGTH_SHORT).show();
                             break;
                         default:
                             break;
@@ -173,27 +191,11 @@ public class LoginActivity extends AppCompatActivity {
         username = sharedPref.getString("username", null);
         password = sharedPref.getString("password", null);
         //manual login
-        if(username == null || password == null)
-        {
+        if(username == null || password == null) {
             //set login layout
             setLoginLayout();
-            //login radio button listener
-            loginRadioButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setLoginLayout();
-                }
-            });
-            //sign up radio button listener
-            signupRadioButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setSignUpLayout();
-                }
-            });
         }
-        else
-        {
+        else {
             //automatic login
             setAutomaticLogin();
         }
@@ -266,325 +268,114 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
-
     //UI METHODS
-
-
     public void initUI()
     {
+        //login layout
+        solomonPicture = findViewById(R.id.solomonPicture);
         mainLinearLayout = findViewById(R.id.MainMenuLinearLayout);
-        loginLinearLayout = findViewById(R.id.CustomAutenthificationLinearLayout);
-        loginRadioButton = findViewById(R.id.LoginRadioButton);
-        signupRadioButton = findViewById(R.id.SignUpRadioButton);
-        loginTitleTextView = findViewById(R.id.loginTitleTextView);
-        Drawable backround = ContextCompat.getDrawable(context, R.color.solomonWallpaperColor);
-        mainLinearLayout.setBackground(backround);
+        usernameSignInCardView = findViewById(R.id.usernameLoginCardView);
+        usernameSignInEditText = findViewById(R.id.usernameLoginEditText);
+        passwordSignInCardView = findViewById(R.id.passwordLoginCardView);
+        passwordSignInEditText = findViewById(R.id.passwordLoginEditText);
+        feedbackTextView = findViewById(R.id.feedbackText);
+        loginButton = findViewById(R.id.loginButton);
+        loginAsGuestButton = findViewById(R.id.guestLoginButton);
+        createAccountTextView = findViewById(R.id.createAccountText);
+        //sign up layout
+        backButton = findViewById(R.id.signUpBackButton);
+        createAccountTitle = findViewById(R.id.createAccountTitle);
+        firstNameSignUpCardView = findViewById(R.id.firstNameSignUpCardView);
+        firstNameSignUpEditText = findViewById(R.id.firstNameSignUpEditText);
+        firstNameFeedbackText = findViewById(R.id.firstNameFeedbackText);
+        lastNameSignUpCardView = findViewById(R.id.lastNameSignUpCardView);
+        lastNameSignUpEditText = findViewById(R.id.lastNameSignUpEditText);
+        lastNameFeedbackText = findViewById(R.id.lastNameFeedbackText);
+        ageSignUpCardView = findViewById(R.id.ageSignUpCardView);
+        ageSignUpEditText = findViewById(R.id.ageSignUpEditText);
+        ageFeedbackText = findViewById(R.id.ageFeedbackText);
+        usernameSignUpCardView = findViewById(R.id.usernameSignUpCardView);
+        usernameSignUpEditText = findViewById(R.id.usernameSignUpEditText);
+        usernameFeedbackText = findViewById(R.id.usernameFeedbackText);
+        passwordSignUpCardView = findViewById(R.id.passwordSignUpCardView);
+        passwordSignUpEditText = findViewById(R.id.passwordSignUpEditText);
+        passwordFeedbackText = findViewById(R.id.passwordFeedbackText);
+        passwordConfirmationSignUpCardView = findViewById(R.id.passwordConfirmationSignUpCardView);
+        passwordConfirmationSignUpEditText = findViewById(R.id.passwordConfirmationSignUpEditText);
+        passwordConfirmationFeedbackText = findViewById(R.id.passwordConfirmationFeedbackText);
+        signUpButton = findViewById(R.id.signUpButton);
 
-        //add feedback text
-        feedbackTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsFeedbackTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsFeedbackTextView.setMargins(0, 0 , 0, 0);
-        feedbackTextView.setLayoutParams(layoutParamsFeedbackTextView);
-        feedbackTextView.setTextSize(20);
-        feedbackTextView.setGravity(Gravity.CENTER);
-        feedbackTextView.setTypeface(null, Typeface.BOLD);
-        feedbackTextView.setPadding(14, 14, 14, 14);
-        feedbackTextView.setText("");
-
+        //click listeners
+        createAccountTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSignUpLayout();
+            }
+        });
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setLoginLayout();
+            }
+        });
     }
     public void setLoginLayout()
     {
-        loginRadioButton.setVisibility(View.VISIBLE);
-        signupRadioButton.setVisibility(View.VISIBLE);
-        loginTitleTextView.setVisibility(View.VISIBLE);
-
-        //set the login title
-        loginTitleTextView.setText("Sign in");
-
-        //uncheck the SignUpRadioButton if it's checked
-        if (signupRadioButton.isChecked())
-            signupRadioButton.setChecked(false);
-
-        //remove all the views from the linear layout
-        loginLinearLayout.removeAllViews();
-
-        // UI dimensions
-        float dip = 50f;
-
-        float px = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dip,
-                r.getDisplayMetrics()
-        );
-
-        int width = (int)(3 * px);
-        int height = (int) px;
-
-        int loginButtonWidth = (int) (3 * px);
-        int loginButtonHeight = (int) (px / 1.2f);
-
-        //add login UI in the linear Layout
-
-
-        LoginActivity.usernameSignInEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsUsernameEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsUsernameEditText.setMargins(0, 100, 0, 0);
-        layoutParamsUsernameEditText.gravity = Gravity.CENTER;
-        usernameSignInEditText.setLayoutParams(layoutParamsUsernameEditText);
-        usernameSignInEditText.setHint("username");
-        setCursorColor(usernameSignInEditText, orangeAccentColor);
-        ColorStateList colorStateList = ColorStateList.valueOf(orangeAccentColor);
-        ViewCompat.setBackgroundTintList(usernameSignInEditText, colorStateList);
-        usernameSignInEditText.setHintTextColor(hintTextColor);
-
-
-        LoginActivity.passwordSignInEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsPasswordEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsPasswordEditText.setMargins(0, 100, 0, 0);
-        layoutParamsPasswordEditText.gravity = Gravity.CENTER;
-        passwordSignInEditText.setLayoutParams(layoutParamsPasswordEditText);
-        passwordSignInEditText.setHint("password");
-        setCursorColor(passwordSignInEditText, orangeAccentColor);
-        ViewCompat.setBackgroundTintList(passwordSignInEditText, colorStateList);
-        passwordSignInEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        passwordSignInEditText.setHintTextColor(hintTextColor);
-
-
-        LoginActivity.signInButton = new Button(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsLoginButton = new LinearLayout.LayoutParams(loginButtonWidth, loginButtonHeight);
-        layoutParamsLoginButton.gravity = Gravity.CENTER;
-        layoutParamsLoginButton.setMargins(0, 100, 0, 0);
-        signInButton.setLayoutParams(layoutParamsLoginButton);
-        signInButton.setBackgroundColor(Color.argb(255, 255, 255, 255));
-        signInButton.setText("Login");
-
-        //sign in button listener
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendSignInData();
-            }
-        });
-
-        feedbackTextView.setText("");
-
-
-        loginLinearLayout.addView(LoginActivity.usernameSignInEditText);
-        loginLinearLayout.addView(LoginActivity.passwordSignInEditText);
-        loginLinearLayout.addView(LoginActivity.signInButton);
-        loginLinearLayout.addView(feedbackTextView);
-    }
-
-    public void setAutomaticLogin()
-    {
-        loginLinearLayout.removeAllViews();
-        loginRadioButton.setVisibility(View.GONE);
-        signupRadioButton.setVisibility(View.GONE);
+        //hide the sign up views
+        backButton.setVisibility(View.GONE);
+        createAccountTitle.setVisibility(View.GONE);
+        firstNameSignUpCardView.setVisibility(View.GONE);
+        firstNameFeedbackText.setVisibility(View.GONE);
+        lastNameSignUpCardView.setVisibility(View.GONE);
+        lastNameFeedbackText.setVisibility(View.GONE);
+        ageSignUpCardView.setVisibility(View.GONE);
+        ageFeedbackText.setVisibility(View.GONE);
+        usernameSignUpCardView.setVisibility(View.GONE);
+        usernameFeedbackText.setVisibility(View.GONE);
+        passwordSignUpCardView.setVisibility(View.GONE);
+        passwordFeedbackText.setVisibility(View.GONE);
+        passwordConfirmationSignUpCardView.setVisibility(View.GONE);
+        passwordConfirmationFeedbackText.setVisibility(View.GONE);
+        signUpButton.setVisibility(View.GONE);
+        //show the login views
+        solomonPicture.setVisibility(View.VISIBLE);
+        usernameSignInCardView.setVisibility(View.VISIBLE);
+        passwordSignInCardView.setVisibility(View.VISIBLE);
+        loginButton.setVisibility(View.VISIBLE);
+        loginAsGuestButton.setVisibility(View.VISIBLE);
+        createAccountTextView.setVisibility(View.VISIBLE);
     }
     public void setSignUpLayout()
     {
-        //set the login title
-        loginTitleTextView.setText("Sign up");
-
-        //uncheck the LogInRadioButton if it's checked
-        if (loginRadioButton.isChecked())
-            loginRadioButton.setChecked(false);
-
-        //remove all the views from the linear layout
-        loginLinearLayout.removeAllViews();
-
-
-        //UI dimensions
-        float dip = 50f;
-
-        float px = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dip,
-                r.getDisplayMetrics()
-        );
-
-        int width = (int)(3 * px);
-        int height = (int) px;
-
-        int signUpButtonWidth = (int) (3 * px);
-        int signUpButtonHeight = (int) (px / 1.2f);
-
-
-        //add login UI in the linear Layout
-
-
-        TextView lastNameTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsLastNameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsLastNameTextView.setMargins(100, 100, 0, 0);
-        lastNameTextView.setLayoutParams(layoutParamsLastNameTextView);
-        lastNameTextView.setTextSize(15);
-        lastNameTextView.setTextColor(Color.BLACK);
-        lastNameTextView.setPadding(14, 10, 14, 14);
-        lastNameTextView.setText("Last name: ");
-
-
-        //add a horizontal linear layout and add the last name EditText and the feedback text for the coresponding edittext
-        LoginActivity.lastNameSignUpEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsLastNameEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsLastNameEditText.setMargins(0, 10, 0, 0);
-        layoutParamsLastNameEditText.gravity = Gravity.CENTER;
-        lastNameSignUpEditText.setLayoutParams(layoutParamsLastNameEditText);
-        lastNameSignUpEditText.setHint("enter last name");
-        setCursorColor(lastNameSignUpEditText, orangeAccentColor);
-        ColorStateList colorStateList = ColorStateList.valueOf(orangeAccentColor);
-        ViewCompat.setBackgroundTintList(lastNameSignUpEditText, colorStateList);
-        lastNameSignUpEditText.setHintTextColor(hintTextColor);
-
-
-        TextView firstNameTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsFirstNameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsFirstNameTextView.setMargins(100, 10, 0, 0);
-        firstNameTextView.setLayoutParams(layoutParamsFirstNameTextView);
-        firstNameTextView.setTextSize(15);
-        firstNameTextView.setTextColor(Color.BLACK);
-        firstNameTextView.setPadding(14, 100, 14, 14);
-        firstNameTextView.setText("First name: ");
-
-        //add a horizontal linear layout and add the first name EditText and the feedback text for the coresponding edittext
-        LoginActivity.firstNameSignUpEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsFirstNameEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsFirstNameEditText.setMargins(0, 10, 0, 0);
-        layoutParamsFirstNameEditText.gravity = Gravity.CENTER;
-        firstNameSignUpEditText.setLayoutParams(layoutParamsFirstNameEditText);
-        firstNameSignUpEditText.setHint("enter first name");
-        setCursorColor(firstNameSignUpEditText, orangeAccentColor);
-        ViewCompat.setBackgroundTintList(firstNameSignUpEditText, colorStateList);
-        firstNameSignUpEditText.setHintTextColor(hintTextColor);
-
-
-        TextView ageTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsAgeTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsAgeTextView.setMargins(100, 10, 0, 0);
-        ageTextView.setLayoutParams(layoutParamsAgeTextView);
-        ageTextView.setTextSize(15);
-        ageTextView.setTextColor(Color.BLACK);
-        ageTextView.setPadding(14, 100, 14, 14);
-        ageTextView.setText("Age: ");
-
-
-        //add a horizontal linear layout and add the age EditText and the feedback text for the coresponding edittext
-        LoginActivity.ageSignUpEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsAgeEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsAgeEditText.setMargins(0, 10, 0, 0);
-        layoutParamsAgeEditText.gravity = Gravity.CENTER;
-        ageSignUpEditText.setLayoutParams(layoutParamsAgeEditText);
-        ageSignUpEditText.setHint("enter age");
-        setCursorColor(ageSignUpEditText, orangeAccentColor);
-        ViewCompat.setBackgroundTintList(ageSignUpEditText, colorStateList);
-        ageSignUpEditText.setHintTextColor(hintTextColor);
-
-
-        TextView usernameTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsUsernameTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsUsernameTextView.setMargins(100, 10, 0, 0);
-        usernameTextView.setLayoutParams(layoutParamsUsernameTextView);
-        usernameTextView.setTextSize(15);
-        usernameTextView.setTextColor(Color.BLACK);
-        usernameTextView.setPadding(14, 100, 14, 14);
-        usernameTextView.setText("Username: ");
-
-
-        //add a horizontal linear layout and add the username EditText and the feedback text for the coresponding edittext
-        LoginActivity.usernameSignUpEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsUsernameEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsUsernameEditText.setMargins(0, 10, 0, 0);
-        layoutParamsUsernameEditText.gravity = Gravity.CENTER;
-        usernameSignUpEditText.setLayoutParams(layoutParamsUsernameEditText);
-        usernameSignUpEditText.setHint("enter username");
-        setCursorColor(usernameSignUpEditText, orangeAccentColor);
-        ViewCompat.setBackgroundTintList(usernameSignUpEditText, colorStateList);
-        usernameSignUpEditText.setHintTextColor(hintTextColor);
-
-
-        TextView passwordTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsPasswordTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsPasswordTextView.setMargins(100, 10, 0, 0);
-        passwordTextView.setLayoutParams(layoutParamsPasswordTextView);
-        passwordTextView.setTextSize(15);
-        passwordTextView.setTextColor(Color.BLACK);
-        passwordTextView.setPadding(14, 100, 14, 14);
-        passwordTextView.setText("Password: ");
-
-
-        //add a horizontal linear layout and add the password EditText and the feedback text for the coresponding edittext
-        LoginActivity.passwordSignUpEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsPasswordEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsPasswordEditText.setMargins(0, 10, 0, 0);
-        layoutParamsPasswordEditText.gravity = Gravity.CENTER;
-        passwordSignUpEditText.setLayoutParams(layoutParamsPasswordEditText);
-        passwordSignUpEditText.setHint("enter password");
-        setCursorColor(passwordSignUpEditText, orangeAccentColor);
-        ViewCompat.setBackgroundTintList(passwordSignUpEditText, colorStateList);
-        passwordSignUpEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        passwordSignUpEditText.setHintTextColor(hintTextColor);
-
-
-
-        TextView passwordConfirationTextView = new TextView(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsPasswordConfirmationTextView = new LinearLayout.LayoutParams(loginLinearLayout.getLayoutParams().MATCH_PARENT, loginLinearLayout.getLayoutParams().WRAP_CONTENT);
-        layoutParamsPasswordConfirmationTextView.setMargins(100, 10, 0, 0);
-        passwordConfirationTextView.setLayoutParams(layoutParamsPasswordConfirmationTextView);
-        passwordConfirationTextView.setTextSize(15);
-        passwordConfirationTextView.setTextColor(Color.BLACK);
-        passwordConfirationTextView.setPadding(14, 100, 14, 14);
-        passwordConfirationTextView.setText("Confirm password: ");
-
-
-        //add a horizontal linear layout and add password confirmation EditText and the feedback text for the coresponding edittext
-        LoginActivity.passwordConfirmationSignUpEditText = new EditText(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsPasswordConfirmationEditText = new LinearLayout.LayoutParams(width , height);
-        layoutParamsPasswordConfirmationEditText.setMargins(0, 10, 0, 0);
-        layoutParamsPasswordConfirmationEditText.gravity = Gravity.CENTER;
-        passwordConfirmationSignUpEditText.setLayoutParams(layoutParamsPasswordConfirmationEditText);
-        passwordConfirmationSignUpEditText.setHint("enter password");
-        setCursorColor(passwordConfirmationSignUpEditText, orangeAccentColor);
-        ViewCompat.setBackgroundTintList(passwordConfirmationSignUpEditText, colorStateList);
-        passwordConfirmationSignUpEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        passwordConfirmationSignUpEditText.setHintTextColor(hintTextColor);
-
-
-        LoginActivity.signUpButton = new Button(LoginActivity.context);
-        LinearLayout.LayoutParams layoutParamsSignUpButton = new LinearLayout.LayoutParams(signUpButtonWidth, signUpButtonHeight);
-        layoutParamsSignUpButton.gravity = Gravity.CENTER;
-        layoutParamsSignUpButton.setMargins(0, 100, 0, 100);
-        signUpButton.setLayoutParams(layoutParamsSignUpButton);
-        signUpButton.setBackgroundColor(Color.argb(255, 255, 255, 255));
-        signUpButton.setText("Sign up");
-
-        //sign up button listener
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendSignUpData();
-            }
-        });
-
-        feedbackTextView.setText("");
-
-
-
-        loginLinearLayout.addView(lastNameTextView);
-        loginLinearLayout.addView(lastNameSignUpEditText);
-        loginLinearLayout.addView(firstNameTextView);
-        loginLinearLayout.addView(firstNameSignUpEditText);
-        loginLinearLayout.addView(ageTextView);
-        loginLinearLayout.addView(ageSignUpEditText);
-        loginLinearLayout.addView(usernameTextView);
-        loginLinearLayout.addView(usernameSignUpEditText);
-        loginLinearLayout.addView(passwordTextView);
-        loginLinearLayout.addView(passwordSignUpEditText);
-        loginLinearLayout.addView(passwordConfirationTextView);
-        loginLinearLayout.addView(passwordConfirmationSignUpEditText);
-        loginLinearLayout.addView(signUpButton);
-        loginLinearLayout.addView(feedbackTextView);
+        //hide the login views
+        solomonPicture.setVisibility(View.GONE);
+        usernameSignInCardView.setVisibility(View.GONE);
+        passwordSignInCardView.setVisibility(View.GONE);
+        feedbackTextView.setVisibility(View.INVISIBLE);
+        loginButton.setVisibility(View.GONE);
+        loginAsGuestButton.setVisibility(View.GONE);
+        createAccountTextView.setVisibility(View.GONE);
+        //show the sign up views
+        backButton.setVisibility(View.VISIBLE);
+        createAccountTitle.setVisibility(View.VISIBLE);
+        firstNameSignUpCardView.setVisibility(View.VISIBLE);
+        firstNameFeedbackText.setVisibility(View.VISIBLE);
+        lastNameSignUpCardView.setVisibility(View.VISIBLE);
+        lastNameFeedbackText.setVisibility(View.VISIBLE);
+        ageSignUpCardView.setVisibility(View.VISIBLE);
+        ageFeedbackText.setVisibility(View.VISIBLE);
+        usernameSignUpCardView.setVisibility(View.VISIBLE);
+        usernameFeedbackText.setVisibility(View.VISIBLE);
+        passwordSignUpCardView.setVisibility(View.VISIBLE);
+        passwordFeedbackText.setVisibility(View.VISIBLE);
+        passwordConfirmationSignUpCardView.setVisibility(View.VISIBLE);
+        passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+        signUpButton.setVisibility(View.VISIBLE);
     }
-
+    public void setAutomaticLogin()
+    {
+        mainLinearLayout.setVisibility(View.GONE);
+    }
 
 
     //change cursor color
