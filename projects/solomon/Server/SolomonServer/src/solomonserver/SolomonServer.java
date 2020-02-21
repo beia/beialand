@@ -22,11 +22,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import runnables.ConnectClientsRunnable;
 import runnables.ConnectToUnityDemoRunnable;
 import runnables.ManageDataTransferedToSolomonPartnersRunnable;
 import runnables.ProcessDatabaseDataRunnable;
 import runnables.WaitForPartnersConnectionRunnable;
+import runnables.WaitForWebPlatformClientsRequestsRunnable;
 
 /**
  *
@@ -48,6 +50,12 @@ public class SolomonServer {
     public static volatile ArrayList<Mall> partnersDataMalls;    
     public static Thread manageDataTransferedToSolomonPartners;
     public static Thread waitForPartnersHttpRequests;
+    
+    //Solomon web platform variables
+    public static ServerSocket webPlatformServerSocket;
+    public static Thread waitForSolomonWebClientsRequests;
+    public static HashSet<String> webClientsTokensSet;
+    public static HashMap<Integer, String> webClientsTokensMap;
     
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
@@ -79,13 +87,18 @@ public class SolomonServer {
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
         
+        //cerate a tcp server socket and wait for web clients connections
+        webPlatformServerSocket = new ServerSocket(7000);
+        waitForSolomonWebClientsRequests = new Thread(new WaitForWebPlatformClientsRequestsRunnable(webPlatformServerSocket));
+        waitForSolomonWebClientsRequests.start();
+        
         //create a tcp server socket and wait for Solomon partners connection
         partnersServerSocket = new ServerSocket(9000);
         waitForPartnersHttpRequests = new Thread(new WaitForPartnersConnectionRunnable(partnersServerSocket));
         waitForPartnersHttpRequests.start();
         
         //create the Unity tcp server socket and wait for client connections
-        unityDemoServerSocket = new ServerSocket(7000);
+        unityDemoServerSocket = new ServerSocket(10000);
         connectToUnityDemoThread = new Thread(new ConnectToUnityDemoRunnable(unityDemoServerSocket));
         connectToUnityDemoThread.start();
         

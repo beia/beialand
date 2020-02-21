@@ -14,6 +14,9 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -32,10 +35,11 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
         {
             while(true)
             {
+                //REQUEST
                 System.out.println("Waiting for web plaform clients http requests...");
                 Socket socket = serverSocket.accept();
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                //read the request
+                //HEADERS
                 String line;
                 String body = "";
                 while ((line = in.readLine()) != null)
@@ -44,9 +48,28 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         break;
                     System.out.println(line);
                 }
+                //BODY
                 byte[] bytes = new byte[1000];
-                socket.getInputStream().read(bytes);
-                System.out.print(new String(bytes, StandardCharsets.UTF_8));
+                socket.getInputStream().read(bytes, 0, 900);
+                body = new String(bytes, StandardCharsets.UTF_8);
+                System.out.println(body);
+                //PARSE JSON
+                JSONParser parser = new JSONParser();
+                JSONObject jsonObject = (JSONObject) parser.parse(body);
+                String requestType = (String)jsonObject.get("requestType");
+                switch(requestType)
+                {
+                    case "login":
+                        String username = (String)jsonObject.get("username");
+                        String password = (String)jsonObject.get("password");
+                        break;
+                    case "logout":
+                        break;
+                    case "register":
+                        break;
+                    default:
+                        break;
+                }
                 
                 //write the response
                 PrintWriter out = new PrintWriter(socket.getOutputStream());
@@ -55,11 +78,13 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                 out.print("Connection: close\r\n"); // Will close stream
                 out.print("\r\n"); // End of headers
                 //write the body of the response
-               out.close();
-               in.close();
-               socket.close();
+                out.close();
+                in.close();
+                socket.close();
             }
         } catch (IOException ex) {
+            Logger.getLogger(WaitForWebPlatformClientsRequestsRunnable.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
             Logger.getLogger(WaitForWebPlatformClientsRequestsRunnable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
