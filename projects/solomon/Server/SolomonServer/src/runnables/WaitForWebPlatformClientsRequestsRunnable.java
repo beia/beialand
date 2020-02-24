@@ -7,7 +7,9 @@ package runnables;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,26 +41,24 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
             {
                 try(Socket socket = serverSocket.accept()){
                 //REQUEST
+                OutputStream outputStream = socket.getOutputStream();
+                InputStream inputStream = socket.getInputStream();
                 System.out.println("Waiting for web plaform clients http requests...");
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                //HEADERS
-                String line;
-                int contentLength = 0;
+                StringBuilder content;
                 String body = "";
-                while ((line = in.readLine()) != null)
+                try (BufferedReader input = new BufferedReader(new InputStreamReader(inputStream)))
                 {
-                    if (line.length() == 0)
-                        break;
-                    System.out.println(line);
-                    if(line.split(":")[0].trim().equals("Content-Length"))
-                        contentLength = Integer.parseInt(line.split(":")[1].trim());
+                    String line = "";
+                    content = new StringBuilder();
+                    while ((line = input.readLine()) != null)
+                    {
+                        // Append each line of the response and separate them
+                        content.append(line);
+                        content.append(System.lineSeparator());
+                        body = line.trim();
+                    }
+                    System.out.println(body.toString());
                 }
-                System.out.println(contentLength);
-                //BODY
-                byte[] bytes = new byte[contentLength];
-                socket.getInputStream().read(bytes);
-                body = new String(bytes, StandardCharsets.UTF_8).trim();
-                System.out.println(body);
                 //PARSE JSON
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObject = (JSONObject) parser.parse(body);
@@ -73,7 +73,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         {
                             System.out.println("DEBUG1");
                             //write the response
-                            PrintWriter out = new PrintWriter(socket.getOutputStream());
+                            PrintWriter out = new PrintWriter(outputStream);
                             out.print("HTTP/1.1 200 \r\n"); // Version & status code
                             out.print("Content-Type: application/json\r\n"); // The type of data
                             out.print("Connection: close\r\n"); // Will close stream
@@ -87,7 +87,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         {
                             System.out.println("DEBUG2");
                             //write the response
-                            PrintWriter out = new PrintWriter(socket.getOutputStream());
+                            PrintWriter out = new PrintWriter(outputStream);
                             out.print("HTTP/1.1 200 \r\n"); // Version & status code
                             out.print("Content-Type: application/json\r\n"); // The type of data
                             out.print("Connection: close\r\n"); // Will close stream
@@ -112,17 +112,17 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         System.out.println("FORMAT NOT CORRECT");
                         break;
                 }
-                in.close();
                 socket.close();
            }
                 catch (IOException ex) {
-            Logger.getLogger(WaitForWebPlatformClientsRequestsRunnable.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
         } catch (ParseException ex) {
-            Logger.getLogger(WaitForWebPlatformClientsRequestsRunnable.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            
         }       catch (SQLException ex) {
-                    Logger.getLogger(WaitForWebPlatformClientsRequestsRunnable.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 } catch (Exception ex) {
-                    Logger.getLogger(WaitForWebPlatformClientsRequestsRunnable.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 }
         } 
     }
