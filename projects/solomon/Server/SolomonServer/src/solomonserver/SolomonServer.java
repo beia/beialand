@@ -54,8 +54,7 @@ public class SolomonServer {
     //Solomon web platform variables
     public static ServerSocket webPlatformServerSocket;
     public static Thread waitForSolomonWebClientsRequests;
-    public static HashSet<String> webClientsTokensSet;
-    public static HashMap<Integer, String> webClientsTokensMap;
+    public static HashMap<String, Integer> webClientsTokensMap;
     
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
@@ -78,6 +77,7 @@ public class SolomonServer {
         partnersDataUsers = new ArrayList<>();
         partnersDataUsersStoreTime = new ArrayList<>();
         partnersDataMalls = new ArrayList<>();
+        webClientsTokensMap = new HashMap<>();
         
         //connect to a mySql database
         connectToDatabase();

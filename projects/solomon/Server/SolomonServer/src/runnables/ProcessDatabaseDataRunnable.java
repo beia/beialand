@@ -351,7 +351,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 this.usersLocations.clear();
                 
                 //wait 30 sec until the next data aquisition
-                Thread.sleep(30000);
+                Thread.sleep(300000);
             }
         }
         catch(Exception ex)
