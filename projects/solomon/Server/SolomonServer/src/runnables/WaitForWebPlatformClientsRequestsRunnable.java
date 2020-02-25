@@ -6,6 +6,7 @@
 package runnables;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +17,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
@@ -45,20 +47,33 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                 InputStream inputStream = socket.getInputStream();
                 System.out.println("Waiting for web plaform clients http requests...");
                 StringBuilder content;
-                String body = "";
-                try (BufferedReader input = new BufferedReader(new InputStreamReader(inputStream)))
-                {
-                    String line = "";
-                    content = new StringBuilder();
-                    while ((line = input.readLine()) != null)
+                String body = ""; 
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[1024];
+                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                    byte[] byteArray = buffer.toByteArray();
+                    body = new String(byteArray, StandardCharsets.UTF_8);
+                    Scanner scan = new Scanner(body);
+                    int contentLength = 0;
+                    while(scan.hasNextLine())
                     {
-                        // Append each line of the response and separate them
-                        content.append(line);
-                        content.append(System.lineSeparator());
-                        body = line.trim();
+                        String line = scan.nextLine();
+                        String[] header = line.split(":");
+                        if(header[0].trim().equals("Content-Length"))
+                            contentLength = Integer.parseInt(header[1].trim());
+                        System.out.println(line);
+                        if(line.equals("\n"))
+                        {
+                            body = scan.nextLine();
+                            break;
+                        }
                     }
-                    System.out.println(body.toString());
                 }
+                System.out.println(body);
+                buffer.flush();
+                
                 //PARSE JSON
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObject = (JSONObject) parser.parse(body);
