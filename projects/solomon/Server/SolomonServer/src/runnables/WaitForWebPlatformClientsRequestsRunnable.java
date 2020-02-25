@@ -39,9 +39,12 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     }
     @Override
     public void run() {
+            Socket socket = null;
             while(true)
             {
-                try(Socket socket = serverSocket.accept()){
+                try
+                {
+                socket = serverSocket.accept();
                 //REQUEST
                 OutputStream outputStream = socket.getOutputStream();
                 InputStream inputStream = socket.getInputStream();
@@ -56,27 +59,27 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                     byte[] byteArray = buffer.toByteArray();
                     body = new String(byteArray, StandardCharsets.UTF_8);
                     Scanner scan = new Scanner(body);
-                    int contentLength = 0;
+                    boolean dataReceived = false;
                     while(scan.hasNextLine())
                     {
                         String line = scan.nextLine();
-                        String[] header = line.split(":");
-                        if(header[0].trim().equals("Content-Length"))
-                            contentLength = Integer.parseInt(header[1].trim());
-                        System.out.println(line);
-                        if(line.equals("\n"))
+                        if(line.length() > 0 && line.charAt(line.length() - 1) == '}')
                         {
-                            body = scan.nextLine();
+                            System.out.println(line);
+                            body = line;
+                            dataReceived = true;
                             break;
                         }
                     }
+                    if(dataReceived == true)
+                        break;
                 }
-                System.out.println(body);
+                //System.out.println(body);
                 buffer.flush();
                 
                 //PARSE JSON
                 JSONParser parser = new JSONParser();
-                JSONObject jsonObject = (JSONObject) parser.parse(body);
+                JSONObject jsonObject = (JSONObject) parser.parse(body.trim());
                 String requestType = (String)jsonObject.get("requestType");
                 switch(requestType)
                 {
@@ -114,7 +117,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             resultSet.next();
                             SolomonServer.webClientsTokensMap.put(token, resultSet.getInt("idusers"));
                             //write the body of the response
-                            String jsonResponseBody = "{\"authToken\":" + token + "}";
+                            String jsonResponseBody = "{\"authToken\":\"" + token + "\"}";
                             out.print(jsonResponseBody);
                             out.close();
                         }
@@ -127,18 +130,19 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         System.out.println("FORMAT NOT CORRECT");
                         break;
                 }
-                socket.close();
+                System.out.println("SOCKET CLOSED");
            }
                 catch (IOException ex) {
                     ex.printStackTrace();
         } catch (ParseException ex) {
             ex.printStackTrace();
             
-        }       catch (SQLException ex) {
-                    ex.printStackTrace();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+        }   catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
         } 
     }
     public String getAlphaNumericString(int n) 
@@ -164,7 +168,6 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
             sb.append(AlphaNumericString 
                           .charAt(index)); 
         } 
-  
         return sb.toString(); 
     }
 }

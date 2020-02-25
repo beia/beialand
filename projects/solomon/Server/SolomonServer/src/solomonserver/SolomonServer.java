@@ -83,12 +83,12 @@ public class SolomonServer {
         connectToDatabase();
         
         //create a tcp server socket and wait for client connections
-        serverSocket = new ServerSocket(8000);
+        serverSocket = new ServerSocket(7000);
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
         connectClients.start();
         
         //cerate a tcp server socket and wait for web clients connections
-        webPlatformServerSocket = new ServerSocket(7000);
+        webPlatformServerSocket = new ServerSocket(8000);
         waitForSolomonWebClientsRequests = new Thread(new WaitForWebPlatformClientsRequestsRunnable(webPlatformServerSocket));
         waitForSolomonWebClientsRequests.start();
         
