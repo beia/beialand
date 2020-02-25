@@ -84,12 +84,12 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                 switch(requestType)
                 {
                     case "login":
-                        String username = (String)jsonObject.get("username");
-                        String password = (String)jsonObject.get("password");
-                        ResultSet resultSet = SolomonServer.getUserDataFromDatabase("users", username);
-                        if(!resultSet.isBeforeFirst())//the user isn't in the database
+                        String usernameLogin = (String)jsonObject.get("username");
+                        String passwordLogin = (String)jsonObject.get("password");
+                        ResultSet resultSetLogin = SolomonServer.getUserDataFromDatabase("companies", usernameLogin);
+                        if(!resultSetLogin.isBeforeFirst())//the user isn't in the database
                         {
-                            System.out.println("DEBUG1");
+                            System.out.println("LOGIN FAILED");
                             //write the response
                             PrintWriter out = new PrintWriter(outputStream);
                             out.print("HTTP/1.1 200 \r\n"); // Version & status code
@@ -97,34 +97,70 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             out.print("Connection: close\r\n"); // Will close stream
                             out.print("\r\n"); // End of headers
                             //write the body of the response
-                            String jsonResponseBody = "{\"authToken\":null}";
-                            out.print(jsonResponseBody);
+                            String jsonResponseLogin = "{\"authToken\":null}";
+                            out.print(jsonResponseLogin);
                             out.close();
                         }
                         else
                         {
-                            System.out.println("DEBUG2");
-                            //write the response
-                            PrintWriter out = new PrintWriter(outputStream);
-                            out.print("HTTP/1.1 200 \r\n"); // Version & status code
-                            out.print("Content-Type: application/json\r\n"); // The type of data
-                            out.print("Connection: close\r\n"); // Will close stream
-                            out.print("\r\n"); // End of headers
-                            //create a authentication token
-                            String token = getAlphaNumericString(TOKEN_DIMENSION);
-                            while(SolomonServer.webClientsTokensMap.containsKey(token))
-                                token = getAlphaNumericString(TOKEN_DIMENSION);
-                            resultSet.next();
-                            SolomonServer.webClientsTokensMap.put(token, resultSet.getInt("idusers"));
-                            //write the body of the response
-                            String jsonResponseBody = "{\"authToken\":\"" + token + "\"}";
-                            out.print(jsonResponseBody);
-                            out.close();
+                            resultSetLogin.next();
+                            String usernameDatabase = resultSetLogin.getString("username");
+                            String passwordDatabase = resultSetLogin.getString("password");
+                            String nameDatabase = resultSetLogin.getString("name");
+                            if(passwordLogin.equals(passwordDatabase))
+                            {
+                                System.out.println("LOGIN SUCCESSFULL");
+                                //create a authentication token
+                                String token = getAlphaNumericString(TOKEN_DIMENSION);
+                                while(SolomonServer.webClientsTokensMap.containsKey(token))
+                                    token = getAlphaNumericString(TOKEN_DIMENSION);
+                                SolomonServer.webClientsTokensMap.put(token, usernameLogin);
+                                String jsonResponseLogin = "{\"authToken\":\"" + token + "\"}";
+                                writeResponse(jsonResponseLogin, outputStream);
+                            }
+                            else
+                            {
+                                System.out.println("LOGIN FAILED");
+                                String jsonResponseLogin = "{\"authToken\":null}";
+                                writeResponse(jsonResponseLogin, outputStream);
+                            }
                         }
                         break;
                     case "logout":
+                        String token = (String)jsonObject.get("authToken");
+                        if(SolomonServer.webClientsTokensMap.containsKey(token))//user logged in
+                        {
+                            String username = SolomonServer.webClientsTokensMap.get(token);
+                            System.out.println("User with username: " + username + " logged out!");
+                            SolomonServer.webClientsTokensMap.remove(token);
+                            String jsonResponseLogout = "{\"logout\":true}";
+                            writeResponse(jsonResponseLogout, outputStream);
+                        }
+                        else//user is not logged in or token expired
+                        {
+                            System.out.println("User with token: " + token + " has token expired or logged out already!");
+                            String jsonResponseLogout = "{\"logout\":false}";
+                            writeResponse(jsonResponseLogout, outputStream);
+                        }
                         break;
                     case "register":
+                        String usernameRegister = (String)jsonObject.get("username");
+                        String passwordRegister = (String)jsonObject.get("password");
+                        String nameRegister = (String)jsonObject.get("name");
+                        ResultSet resultSetRegister = SolomonServer.getUserDataFromDatabase("companies", usernameRegister);
+                        if(!resultSetRegister.isBeforeFirst())//the user isn't in the database
+                        {
+                            System.out.println("REGISTER SUCCESFULL");
+                            SolomonServer.addCompany(usernameRegister, passwordRegister, nameRegister);
+                            String jsonResponseRegister = "{\"success\":true}";
+                            writeResponse(jsonResponseRegister, outputStream);
+                        }
+                        else
+                        {
+                            System.out.println("REGISTER FAILED");
+                            String jsonResponseRegister = "{\"success\":false}";
+                            writeResponse(jsonResponseRegister, outputStream);
+                        }
                         break;
                     default:
                         System.out.println("FORMAT NOT CORRECT");
@@ -144,6 +180,18 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                 ex.printStackTrace();
             }
         } 
+    }
+    public void writeResponse(String response, OutputStream outputStream)
+    {
+        //write the response
+        PrintWriter out = new PrintWriter(outputStream);
+        out.print("HTTP/1.1 200 \r\n"); // Version & status code
+        out.print("Content-Type: application/json\r\n"); // The type of data
+        out.print("Connection: close\r\n"); // Will close stream
+        out.print("\r\n"); // End of headers
+        //write the body of the response
+        out.print(response);
+        out.close();
     }
     public String getAlphaNumericString(int n) 
     { 

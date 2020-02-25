@@ -54,7 +54,7 @@ public class SolomonServer {
     //Solomon web platform variables
     public static ServerSocket webPlatformServerSocket;
     public static Thread waitForSolomonWebClientsRequests;
-    public static HashMap<String, Integer> webClientsTokensMap;
+    public static HashMap<String, String> webClientsTokensMap;//key: token, value: username
     
     //unity demo server variables
     public static ServerSocket unityDemoServerSocket;
@@ -158,6 +158,33 @@ public class SolomonServer {
             {
                 error = "SqlException: Update failed; duplicates may exist.";
                 throw new SQLException(error);
+            }
+        } 
+        else
+        {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
+    
+    public static void addCompany(String username, String password, String name) throws SQLException, Exception
+    {
+        if (con != null)
+        {
+            try
+            {
+                // create a prepared SQL statement
+                String userInsertionStatement = "insert into companies(username, password, name) values(?,?,?)";
+                PreparedStatement updateUsers = con.prepareStatement(userInsertionStatement);
+                updateUsers.setString(1, username);
+                updateUsers.setString(2, password);
+                updateUsers.setString(3, name);
+                updateUsers.executeUpdate();
+                System.out.println("Inserted company '" + username + "'\n password: " + password + "\nname:  " + name + " into the database\n\n");
+            }
+            catch (SQLException sqle)
+            {
+               sqle.printStackTrace();
             }
         } 
         else
