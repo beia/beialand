@@ -17,6 +17,9 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +36,8 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     
     private ServerSocket serverSocket;
     private final int TOKEN_DIMENSION = 14;
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    Calendar cal = Calendar.getInstance();
     public WaitForWebPlatformClientsRequestsRunnable(ServerSocket serverSocket)
     {
         this.serverSocket = serverSocket;
@@ -161,6 +166,44 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             String jsonResponseRegister = "{\"success\":false}";
                             writeResponse(jsonResponseRegister, outputStream);
                         }
+                        break;
+                    case "campaigns"://send the active campains
+                        String response = null;
+                        String authToken = (String)jsonObject.get("authToken");
+                        if(!SolomonServer.webClientsTokensMap.containsKey(authToken))
+                        {
+                            response = "{\"success\":false,\"campains\":null}";
+                            writeResponse(response, outputStream);
+                            break;
+                        }
+                        ResultSet campainsResultSet = SolomonServer.getTableData("campains");
+                        if(!campainsResultSet.isBeforeFirst())//no campain available
+                        {
+                            response = "{\"success\":true,\"campains\":null}";
+                        }
+                        else//campains available
+                        {
+                            response = "{\"success\":true,\"campains\":[";
+                            int validCampains = 0;
+                            while(campainsResultSet.next())
+                            {
+                                String startDate = campainsResultSet.getString("startDate");
+                                String endDate = campainsResultSet.getString("endDate");
+                                String currentDate = dateFormat.format(cal);
+                                if(currentDate.compareTo(startDate) >= 0 && currentDate.compareTo(endDate) <= 0) //the campain is still active
+                                {
+                                    validCampains++;
+                                    response += campainsResultSet.getInt("idCampain");
+                                    if(!campainsResultSet.isLast())
+                                        response += ',';
+                                    else
+                                        response += "]}";
+                                }
+                            }
+                            if(validCampains == 0)
+                                response = "{\"success\":true,\"campains\":null}";
+                        }
+                        writeResponse(response, outputStream);
                         break;
                     default:
                         System.out.println("FORMAT NOT CORRECT");
