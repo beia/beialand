@@ -8,6 +8,7 @@ package runnables;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +27,7 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +55,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     @Override
     public void run() {
             Socket socket = null;
-            
+            String authToken, campaignId;
             //get the campaigns ids
             try
             {
@@ -192,7 +194,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         break;
                     case "campaigns"://send the active campains
                         String response = null;
-                        String authToken = (String)jsonObject.get("authToken");
+                        authToken = (String)jsonObject.get("authToken");
                         if(!SolomonServer.webClientsTokensMap.containsKey(authToken))
                         {
                             response = "{\"success\":false,\"campaigns\":null}";
@@ -296,6 +298,33 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             writeResponse(responseAddCampaign, outputStream);
                         }
                         break;
+                    case "getCampaign":
+                        authToken = (String)jsonObject.get("authToken");
+                        campaignId = (String)jsonObject.get("campaignID");
+                        String responseGetCampaign;
+                        if(SolomonServer.webClientsTokensMap.containsKey(authToken))
+                        {
+                            if(campaignsMap.containsKey(campaignId))
+                            {
+                                Campaign campaign = campaignsMap.get(campaignId);
+                                responseGetCampaign = "{\"campaignID\":\"" + campaignId 
+                                                        + ",\"title\":\"" + campaign.getTitle() 
+                                                        + ",\"description\":\"" + campaign.getDescription() 
+                                                        + ",\"startDate\":\"" + campaign.getStartDate() 
+                                                        + ",\"endDate\":\"" + campaign.getEndDate() 
+                                                        + ",\"image\":\"" + Base64.getEncoder().encodeToString(getImageFromDisk(campaign.getPhotoPath())) + "\"}";
+                            }
+                            else
+                            {
+                                responseGetCampaign = "{\"campaignID\":null}";
+                            }
+                        }
+                        else//the user isn't logged in
+                        {
+                            responseGetCampaign = "{\"campaignID\":null}";
+                        }
+                        writeResponse(responseGetCampaign, outputStream);
+                        break;
                     default:
                         System.out.println("FORMAT NOT CORRECT");
                         break;
@@ -351,5 +380,22 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                           .charAt(index)); 
         } 
         return sb.toString(); 
+    }
+    public static byte[] getImageFromDisk(String path)
+    {
+        File file = new File(path);
+        byte[] imageBytes = new byte[(int) file.length()];
+        try
+        {
+            //read file into bytes[]
+            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream.read(imageBytes);
+            fileInputStream.close();
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+        return imageBytes;
     }
 }
