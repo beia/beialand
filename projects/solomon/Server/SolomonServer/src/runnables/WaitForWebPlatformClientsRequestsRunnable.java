@@ -7,6 +7,7 @@ package runnables;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,17 +16,23 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import solomonWebClientsObjects.Campaign;
 import solomonserver.SolomonServer;
 
 /**
@@ -38,6 +45,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     private final int TOKEN_DIMENSION = 14;
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Calendar cal = Calendar.getInstance();
+    public static HashMap<String, Campaign> campaignsMap;
     public WaitForWebPlatformClientsRequestsRunnable(ServerSocket serverSocket)
     {
         this.serverSocket = serverSocket;
@@ -45,10 +53,25 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     @Override
     public void run() {
             Socket socket = null;
+            
+            //get the campaigns ids
+            try
+            {
+                campaignsMap = new HashMap<>();
+                ResultSet rs = SolomonServer.getTableData("campains");
+                while(rs.next())
+                    campaignsMap.put(rs.getString("idCampain"), new Campaign(rs.getString("idCampain"), rs.getString("idCompany"), rs.getString("title"), 
+                                        rs.getString("description"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("photoPath")));
+                rs.getStatement().close();
+            }
+            catch(Exception ex) {
+                ex.printStackTrace(); 
+            }
+            
+          
             while(true)
             {
-                try
-                {
+                try { 
                 socket = serverSocket.accept();
                 //REQUEST
                 OutputStream outputStream = socket.getOutputStream();
@@ -172,38 +195,106 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         String authToken = (String)jsonObject.get("authToken");
                         if(!SolomonServer.webClientsTokensMap.containsKey(authToken))
                         {
-                            response = "{\"success\":false,\"campains\":null}";
+                            response = "{\"success\":false,\"campaigns\":null}";
                             writeResponse(response, outputStream);
                             break;
                         }
-                        ResultSet campainsResultSet = SolomonServer.getTableData("campains");
+                        ResultSet campainsResultSet = SolomonServer.getCampains(SolomonServer.webClientsTokensMap.get(authToken));
                         if(!campainsResultSet.isBeforeFirst())//no campain available
                         {
-                            response = "{\"success\":true,\"campains\":null}";
+                            response = "{\"success\":true,\"campaigns\":null}";
                         }
                         else//campains available
                         {
-                            response = "{\"success\":true,\"campains\":[";
+                            response = "{\"success\":true,\"campaigns\":[";
                             int validCampains = 0;
                             while(campainsResultSet.next())
                             {
                                 String startDate = campainsResultSet.getString("startDate");
                                 String endDate = campainsResultSet.getString("endDate");
-                                String currentDate = dateFormat.format(cal);
+                                String currentDate = dateFormat.format(cal.getTime());
                                 if(currentDate.compareTo(startDate) >= 0 && currentDate.compareTo(endDate) <= 0) //the campain is still active
                                 {
                                     validCampains++;
-                                    response += campainsResultSet.getInt("idCampain");
-                                    if(!campainsResultSet.isLast())
-                                        response += ',';
-                                    else
-                                        response += "]}";
+                                    if(validCampains > 1) response += ',';
+                                    response += campainsResultSet.getString("idCampain");
                                 }
                             }
                             if(validCampains == 0)
-                                response = "{\"success\":true,\"campains\":null}";
+                                response = "{\"success\":true,\"campaigns\":null}";
+                            else
+                                response += "]}";
                         }
                         writeResponse(response, outputStream);
+                        break;
+                    case "oldCampaigns"://send the active campains
+                        String responseOldCampains = null;
+                        String authTokenOldCampains = (String)jsonObject.get("authToken");
+                        if(!SolomonServer.webClientsTokensMap.containsKey(authTokenOldCampains))
+                        {
+                            responseOldCampains = "{\"success\":false,\"oldCampaigns\":null}";
+                            writeResponse(responseOldCampains, outputStream);
+                            break;
+                        }
+                        ResultSet oldCampainsResultSet = SolomonServer.getCampains(SolomonServer.webClientsTokensMap.get(authTokenOldCampains));
+                        if(!oldCampainsResultSet.isBeforeFirst())//no campain available
+                        {
+                            responseOldCampains = "{\"success\":true,\"oldCampaigns\":null}";
+                        }
+                        else//campains available
+                        {
+                            responseOldCampains = "{\"success\":true,\"oldCampaigns\":[";
+                            int oldCampains = 0;
+                            while(oldCampainsResultSet.next())
+                            {
+                                String startDate = oldCampainsResultSet.getString("startDate");
+                                String endDate = oldCampainsResultSet.getString("endDate");
+                                String currentDate = dateFormat.format(cal.getTime());
+                                if(currentDate.compareTo(startDate) > 0 && currentDate.compareTo(endDate) > 0) //the campain is still active
+                                {
+                                    oldCampains++;
+                                    if(oldCampains > 1) responseOldCampains += ',';
+                                    responseOldCampains += oldCampainsResultSet.getString("idCampain");
+                                }
+                            }
+                            if(oldCampains == 0)
+                                responseOldCampains = "{\"success\":true,\"oldCampaigns\":null}";
+                            else
+                                responseOldCampains += "]}";
+                        }
+                        writeResponse(responseOldCampains, outputStream);
+                    break;
+                    case "addCampaign":
+                        String authTokenAddCampaign = (String)jsonObject.get("authToken");
+                        String responseAddCampaign;
+                        if(SolomonServer.webClientsTokensMap.containsKey(authTokenAddCampaign))
+                        {
+                            String title = (String)jsonObject.get("title");
+                            String description = (String)jsonObject.get("description");
+                            String startDate = (String)jsonObject.get("startDate");
+                            String endDate = (String)jsonObject.get("endDate");
+                            byte[] imageBytes = Base64.getDecoder().decode((String)jsonObject.get("image"));
+                            String idCampain = getAlphaNumericString(10);
+                            while(campaignsMap.containsKey(idCampain))
+                                idCampain = getAlphaNumericString(10);
+                            String idCompany = SolomonServer.webClientsTokensMap.get(authTokenAddCampaign);
+                            String path = "C:\\Users\\beia\\Desktop\\CampainsPictures\\" + idCampain + ".jpg";
+                            SolomonServer.addCampain(idCampain, idCompany, title, description, startDate, endDate, path);
+                            campaignsMap.put(idCampain, new Campaign(idCampain, idCompany, title, description, startDate, endDate, path));
+                            System.out.println("Company '" + idCompany + " inserted campain with id " + idCampain);
+                            responseAddCampaign = "{\"success\":true}";
+                            writeResponse(responseAddCampaign, outputStream);
+                            
+                            //save the photo on the disk(ideally a new thread)
+                            File file = new File(path);
+                            Files.write(file.toPath(), imageBytes);
+                        }
+                        else//wrong auth token
+                        {
+                            System.out.println("wrong token");
+                            responseAddCampaign = "{\"success\":false}";
+                            writeResponse(responseAddCampaign, outputStream);
+                        }
                         break;
                     default:
                         System.out.println("FORMAT NOT CORRECT");

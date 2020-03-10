@@ -10,7 +10,10 @@ import SolomonPartnersNetworkObjects.User;
 import SolomonPartnersNetworkObjects.UserStoreTime;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.Coordinates;
+import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.Store;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,8 +26,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import runnables.ConnectClientsRunnable;
 import runnables.ConnectToUnityDemoRunnable;
+import runnables.ManageClientAppInteractionRunnable;
 import runnables.ManageDataTransferedToSolomonPartnersRunnable;
 import runnables.ProcessDatabaseDataRunnable;
 import runnables.WaitForPartnersConnectionRunnable;
@@ -473,6 +479,29 @@ public class SolomonServer {
         return rs;
     }
     
+    public static ResultSet getCampains(String idCompany)
+    {
+        ResultSet resultSet = null;
+        try
+        {
+            if(con != null)
+            {
+                String queryString = "SELECT * FROM campains WHERE idCompany = '" + idCompany + "';";
+                Statement getCampainsStatement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = getCampainsStatement.executeQuery(queryString);
+            }
+        }
+        catch(SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return resultSet;
+    }
+    
     public static ResultSet getTableDataById(String tableName, String idColumnName, int id)
     {
         ResultSet resultSet = null;
@@ -727,6 +756,20 @@ public class SolomonServer {
         }
     }
     
+    public static void addCampain(String idCampain, String idCompany, String title, String description, String startDate, String endDate, String photoPath) throws SQLException
+    {
+        String statementString = "INSERT INTO campains(idCampain, idCompany, title, description, startDate, endDate, photoPath) VALUES(?,?,?,?,?,?,?)";
+        PreparedStatement statement = con.prepareStatement(statementString);
+        statement.setString(1, idCampain);
+        statement.setString(2, idCompany);
+        statement.setString(3, title);
+        statement.setString(4, description);
+        statement.setString(5, startDate);
+        statement.setString(6, endDate);
+        statement.setString(7, photoPath);
+        statement.executeUpdate();
+    }
+    
     public static String getUserProfilePicturePath(int userId) throws Exception
     {
         ResultSet resultSet = null;
@@ -761,5 +804,22 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return null;
+    }
+    public byte[] getImageFromDisk(String path)
+    {
+        File file = new File(path);
+        byte[] imageBytes = new byte[(int) file.length()];
+        try
+        {
+            //read file into bytes[]
+            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream.read(imageBytes);
+            fileInputStream.close();
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(ManageClientAppInteractionRunnable.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return imageBytes;
     }
 }
