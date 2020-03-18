@@ -45,6 +45,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     
     private ServerSocket serverSocket;
     private final int TOKEN_DIMENSION = 14;
+    private String campaignsPhotoPath = "C:\\Users\\puiho\\Desktop\\PicturesSolomon\\Campaigns\\";
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Calendar cal = Calendar.getInstance();
     public static HashMap<String, Campaign> campaignsMap;
@@ -280,7 +281,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             while(campaignsMap.containsKey(idCampain))
                                 idCampain = getAlphaNumericString(10);
                             String idCompany = SolomonServer.webClientsTokensMap.get(authTokenAddCampaign);
-                            String path = "C:\\Users\\beia\\Desktop\\CampainsPictures\\" + idCampain + ".jpg";
+                            String path = campaignsPhotoPath + idCampain + ".jpg";
                             SolomonServer.addCampain(idCampain, idCompany, title, description, startDate, endDate, path);
                             campaignsMap.put(idCampain, new Campaign(idCampain, idCompany, title, description, startDate, endDate, path));
                             System.out.println("Company '" + idCompany + " inserted campain with id " + idCampain);
@@ -325,6 +326,55 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         writeResponse(responseGetCampaign, outputStream);
                         break;
+                    case "updateCampaign":
+                        String authTokenUpdateCampaign = (String)jsonObject.get("authToken");
+                        String responseUpdateCampaign;
+                        if(SolomonServer.webClientsTokensMap.containsKey(authTokenUpdateCampaign))
+                        {
+                            String campaignID = (String)jsonObject.get("campaignID");
+                            String title = (String)jsonObject.get("title");
+                            String description = (String)jsonObject.get("description");
+                            String startDate = (String)jsonObject.get("startDate");
+                            String endDate = (String)jsonObject.get("endDate");
+                            byte[] imageBytes = Base64.getDecoder().decode((String)jsonObject.get("image"));
+                            String idCompany = SolomonServer.webClientsTokensMap.get(authTokenUpdateCampaign);
+                            String path = campaignsPhotoPath + campaignID + ".jpg";
+                            SolomonServer.updateCampain(campaignID, title, description, startDate, endDate);
+                            Campaign campaign = campaignsMap.get(campaignID);
+                            campaign.update(title, description, startDate, endDate);
+                            System.out.println("Company '" + idCompany + " updated campain with id " + campaignID);
+                            responseAddCampaign = "{\"success\":true}";
+                            writeResponse(responseAddCampaign, outputStream);
+
+                            //save the photo on the disk(ideally a new thread)
+                            File file = new File(path);
+                            Files.write(file.toPath(), imageBytes);
+                        }
+                        else//wrong auth token
+                        {
+                            System.out.println("wrong token");
+                            responseAddCampaign = "{\"success\":false}";
+                            writeResponse(responseAddCampaign, outputStream);
+                        }
+                        break;
+                    case "removeCampaign":
+                        String authTokenRemoveCampaign = (String)jsonObject.get("authToken");
+                        String responseRemoveCampaign;
+                        if(SolomonServer.webClientsTokensMap.containsKey(authTokenRemoveCampaign))
+                        {
+                            String campaignID = (String)jsonObject.get("campaignID");
+                            SolomonServer.removeCampaign(campaignID);
+                            responseAddCampaign = "{\"success\":true}";
+                            writeResponse(responseAddCampaign, outputStream);
+                            System.out.println("Company '" + SolomonServer.webClientsTokensMap.get(authTokenRemoveCampaign) + " removed campaign with id " + campaignID);
+                        }
+                        else//wrong auth token
+                        {
+                            System.out.println("wrong token");
+                            responseAddCampaign = "{\"success\":false}";
+                            writeResponse(responseAddCampaign, outputStream);
+                        }
+                        break;
                     default:
                         System.out.println("FORMAT NOT CORRECT");
                         break;
@@ -357,8 +407,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
         out.close();
     }
     public String getAlphaNumericString(int n) 
-    { 
-  
+    {
         // chose a Character random from this String 
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                     + "0123456789"

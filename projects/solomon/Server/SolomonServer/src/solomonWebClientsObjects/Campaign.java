@@ -35,4 +35,15 @@ public class Campaign
     public String getStartDate() { return this.startDate; }
     public String getEndDate() { return this.endDate; }
     public String getPhotoPath() { return this.photoPath; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
+    public void setStartDate(String startDate) { this.startDate = startDate; }
+    public void setEndDate(String endDate) { this.endDate = endDate; }
+    public void update(String title, String description, String startDate, String endDate)
+    {
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

@@ -1,0 +1,233 @@
+<?xml version = "1.0"?>
+<beaconsList>
+   <beacon id = "01d1b1ded3ea74f01f464d076f2f8138">
+   <label>Room1</label>
+   <idMall>1</idMall>
+   <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "716cb1ae9008d60e5e40499ec67a772f">    
+   <label>Room2</label>
+   <idMall>1</idMall>
+   <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "ee4d538a36c2bbac622980b351ba9a0a">
+   <company>Estimote</company>
+   <label>Room3</label>
+   <idMall>1</idMall>
+   <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "44cf736f23ac5add5e8d15b021600d03">
+   <label>Room4</label>
+   <idMall>1</idMall>
+   <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "2c49b20fa9a9a4c9ee5d64b884811b34">
+   <label>Room5</label>
+   <idMall>1</idMall>
+   <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "580a946d72a0aea856aa9e0dd4beda37">
+   <label>Room6</label>
+   <idMall>1</idMall>
+   <company>Estimote</company>
+   <latitude>0</latitude>
+   <longitude>0</longitude>
+   <layer>0</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "LKhV">
+   <label>Media Galaxy</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>41302</major>
+   <minor>22282</minor>
+   <latitude>44.430856</latitude>
+   <longitude>26.051566</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "rrZd">
+   <label>Florarie</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>39824</major>
+   <minor>22135</minor>
+   <latitude>44.430417</latitude>
+   <longitude>26.051598</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "0Qq2">
+   <label>Zara</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>33233</major>
+   <minor>43572</minor>
+   <latitude>44.430648</latitude>
+   <longitude>26.051281</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "zbCe">
+   <label>Pull&amp;Bear</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>60181</major>
+   <minor>7706</minor>
+   <latitude>44.430526</latitude>
+   <longitude>26.051446</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "R4JH">
+   <label>Carturesti</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>24334</major>
+   <minor>57021</minor>
+   <latitude>44.430576</latitude>
+   <longitude>26.051338</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "g0MK">
+   <label>Altex</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>10428</major>
+   <minor>42734</minor>
+   <latitude>44.430218</latitude>
+   <longitude>26.051877</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "lZyt">
+   <label>Diverta</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>51925</major>
+   <minor>21455</minor>
+   <latitude>44.430114</latitude>
+   <longitude>26.052022</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "MTFa">
+   <label>Starbucks</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>59730</major>
+   <minor>3532</minor>
+   <latitude>44.430286</latitude>
+   <longitude>26.052396</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "aaai">
+   <label>McDonald's</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>48319</major>
+   <minor>1456</minor>
+   <latitude>44.430359</latitude>
+   <longitude>26.052307</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "v7mz">
+   <label>Stairs 2</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>25098</major>
+   <minor>4628</minor>
+   <latitude>44.430607</latitude>
+   <longitude>26.051946</longitude>
+   <layer>1</layer>
+   <floor>1</floor>
+   </beacon>
+   
+   <beacon id = "tZF7">
+   <label>Stairs 1</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>3204</major>
+   <minor>63655</minor>
+   <latitude>44.430607</latitude>
+   <longitude>26.051946</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   
+   <beacon id = "PcNy">
+   <label>Auchan</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>58450</major>
+   <minor>19566</minor>
+   <latitude>44.430273</latitude>
+   <longitude>26.052117</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "y0PY">
+   <label>Gloria</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>9597</major>
+   <minor>46982</minor>
+   <latitude>44.430739</latitude>
+   <longitude>26.051680</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
+   </beacon>
+   
+   <beacon id = "ygmN">
+   <label>Entrance</label>
+   <idMall>2</idMall>
+   <company>Kontakt</company>
+   <major>55561</major>
+   <minor>26706</minor>
+   <latitude>44.430644</latitude>
+   <longitude>26.051991</longitude>
+   <layer>2</layer>
+   <floor>0</floor>
+   </beacon>
+   
+</beaconsList>

@@ -122,7 +122,7 @@ public class SolomonServer {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "Puihoward_1423"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "root"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
             System.out.println("Successfully connected to the database!");
         }
         catch (ClassNotFoundException cnfe)
@@ -768,6 +768,30 @@ public class SolomonServer {
         statement.setString(6, endDate);
         statement.setString(7, photoPath);
         statement.executeUpdate();
+    }
+
+    public static void updateCampain(String idCampain, String title, String description, String startDate, String endDate) throws SQLException
+    {
+        if(con != null) {
+            String statementString = "UPDATE campains SET title = ?, description = ?, startDate = ?, endDate = ? WHERE idCampain = ?;";
+            PreparedStatement statement = con.prepareStatement(statementString);
+            statement.setString(1, title);
+            statement.setString(2, description);
+            statement.setString(3, startDate);
+            statement.setString(4, endDate);
+            statement.setString(5, idCampain);
+            statement.executeUpdate();
+        }
+    }
+
+    public static void removeCampaign(String idCampain) throws SQLException
+    {
+        if(con != null) {
+            String statementString = "DELETE FROM campains WHERE idCampain = ?;";
+            PreparedStatement statement = con.prepareStatement(statementString);
+            statement.setString(1, idCampain);
+            statement.executeUpdate();
+        }
     }
     
     public static String getUserProfilePicturePath(int userId) throws Exception
