@@ -1,0 +1,132 @@
+Autentificare (LogIn, LogOut, Register)
+
+Request login
+{
+    “requestType”: “login”,
+    “username”: <string>,
+    “password”: <string>
+}
+
+Raspuns
+token unic pe care sa il adaug si in celelalte requesturi
+{
+“authToken”: <id>
+}
+
+null - daca user sau pass gresite
+------------------------------------------------------------------------------------------------------------
+
+Request logout
+    { 
+        “requestType”: “logout”,
+        “authToken”: <id>
+    }
+Response
+un mesaj text (orice)
+---------------------------------------------------------------------------------------------------------------------
+
+Request register
+    {
+    “requestType”: “register”,
+    “username”: <string>,
+    “password”: <string>,
+    “name”: <string
+}
+Response
+
+<boolean> - “true” daca a fost creat contul
+<boolean> - “false” daca sunt probleme
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+Pt Campain 
+Titlu
+Descriere
+StartDate yyyy/MM/dd HH:mm:ss
+EndDate yyyy/MM/dd HH:mm:ss
+Image
+
+Request campaigns 
+{
+    requestType: “campaigns”,
+    authToken: <token>
+}
+Response:
+{\"success\":false,\"campaigns\":null}    daca utilizatorul nu mai este logat
+{\"success\":true,\"campaigns\":null}     daca nu exista nicio campanie valida
+{\"success\":true,\"campaigns\":[iduri]}  daca tokenul e bun si exista campanii valide
+
+Request oldCampaigns 
+{
+    requestType: “oldCampaigns”,
+    authToken: <token>
+} 
+
+Response:
+{\"success\":false,\"oldCampaigns\":null}    daca utilizatorul nu mai este logat
+{\"success\":true,\"oldCampaigns\":null}     daca nu exista nicio campanie valida
+{\"success\":true,\"oldCampaigns\":[iduri]}  daca tokenul e bun si exista campanii valide
+
+
+Request getCampaign    
+{
+    requestType: “getCampaign”,
+    authToken: <token>,
+    campaignID: <string>
+}
+
+response:
+responseGetCampaign = "{\"campaignID\":\"" + campaignId
+                                                        + ",\"title\":\"" + campaign.getTitle()
+                                                        + ",\"description\":\"" + campaign.getDescription()
+                                                        + ",\"startDate\":\"" + campaign.getStartDate()
+                                                        + ",\"endDate\":\"" + campaign.getEndDate()
+                                                        + ",\"image\":\"" + Base64.getEncoder().encodeToString(getImageFromDisk(campaign.getPhotoPath())) + "\"}";
+Toate sunt stringuri.
+----------------------------------------------------------
+
+Request addCampaign
+{    
+    requestType: “addCampaign”,
+    authToken: <token>,
+    title: <string>,
+    description: <string>,
+    startDate: <string/ date>,
+    endDate: <string/ date>,
+    image: <string> (base64 encoded string)
+}  
+response - true, false { depinde daca apare vreo eroare }
+
+------------------------------------------------------------------------------
+
+Aici ma gandesc ca ai putea sa faci update la toate coloanele pt campaignID cu ce ai primit din request
+Request updateCampaign
+{    
+    requestType: “updateCampaign”,
+    authToken: <token>,
+    campaignID: <string>,
+    title: <string>,
+    description: <string>,
+    startDate: <string/ date>,
+    endDate: <string/ date>,
+    image: <byte array>?
+} - response - true, false { depinde daca apare vreo eroare/ nu exista ID-ul respectiv }
+
+Request removeCampaign
+{
+    requestType: “removeCampaign”,
+    authToken: <token>,
+    campaignID: <string>
+} - respinse -  true/ false
+
+
+Pt a pastra evidenta persoanelor care au vizualizat o anumita oferta facem o tabela noua cu urm coloane
+Tabel reactionsCampaign
+IdUser
+IdCampaign
+ViewDate
