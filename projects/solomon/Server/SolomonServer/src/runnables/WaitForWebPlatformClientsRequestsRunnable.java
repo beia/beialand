@@ -60,10 +60,11 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
             //get the campaigns ids
             try
             {
+                getCampaigns();
                 campaignsMap = new HashMap<>();
-                ResultSet rs = SolomonServer.getTableData("campains");
+                ResultSet rs = SolomonServer.getTableData("campaigns");
                 while(rs.next())
-                    campaignsMap.put(rs.getString("idCampain"), new Campaign(rs.getString("idCampain"), rs.getString("idCompany"), rs.getString("title"), 
+                    campaignsMap.put(rs.getString("idCampaign"), new Campaign(rs.getString("idCampaign"), rs.getString("idCompany"), rs.getString("title"),
                                         rs.getString("description"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("photoPath")));
                 rs.getStatement().close();
             }
@@ -220,7 +221,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                                 {
                                     validCampains++;
                                     if(validCampains > 1) response += ',';
-                                    response += campainsResultSet.getString("idCampain");
+                                    response += campainsResultSet.getString("idCampaign");
                                 }
                             }
                             if(validCampains == 0)
@@ -257,7 +258,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                                 {
                                     oldCampains++;
                                     if(oldCampains > 1) responseOldCampains += ',';
-                                    responseOldCampains += oldCampainsResultSet.getString("idCampain");
+                                    responseOldCampains += oldCampainsResultSet.getString("idCampaign");
                                 }
                             }
                             if(oldCampains == 0)
@@ -284,7 +285,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             String path = campaignsPhotoPath + idCampain + ".jpg";
                             SolomonServer.addCampain(idCampain, idCompany, title, description, startDate, endDate, path);
                             campaignsMap.put(idCampain, new Campaign(idCampain, idCompany, title, description, startDate, endDate, path));
-                            System.out.println("Company '" + idCompany + " inserted campain with id " + idCampain);
+                            System.out.println("Company '" + idCompany + " inserted campaign with id " + idCampain);
                             responseAddCampaign = "{\"success\":true}";
                             writeResponse(responseAddCampaign, outputStream);
                             
@@ -342,7 +343,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             SolomonServer.updateCampain(campaignID, title, description, startDate, endDate);
                             Campaign campaign = campaignsMap.get(campaignID);
                             campaign.update(title, description, startDate, endDate);
-                            System.out.println("Company '" + idCompany + " updated campain with id " + campaignID);
+                            System.out.println("Company '" + idCompany + " updated campaign with id " + campaignID);
                             responseAddCampaign = "{\"success\":true}";
                             writeResponse(responseAddCampaign, outputStream);
 
@@ -447,4 +448,24 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
         }
         return imageBytes;
     }
+    public void getCampaigns() throws Exception {
+
+        ResultSet campaignsResultSet = SolomonServer.getCampaigns();
+        if(campaignsResultSet.isBeforeFirst())
+        {
+            while(campaignsResultSet.next())
+            {
+                String idCampaign = campaignsResultSet.getString("campaigns.idCampaign");
+                String companyName = campaignsResultSet.getString("companyName");
+                String title = campaignsResultSet.getString("campaigns.title");
+                String description = campaignsResultSet.getString("campaigns.description");
+                String startDate = campaignsResultSet.getString("campaigns.startDate");
+                String endDate = campaignsResultSet.getString("campaigns.endDate");
+                String photoPath = campaignsResultSet.getString("campaigns.photoPath");
+                byte[] image = getImageFromDisk(photoPath);
+                SolomonServer.campaigns.add(new com.beia.solomon.networkPackets.Campaign(idCampaign, companyName, title, description, startDate, endDate, image));
+            }
+        }
+    }
+
 }

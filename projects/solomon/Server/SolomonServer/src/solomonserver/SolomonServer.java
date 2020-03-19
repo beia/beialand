@@ -8,10 +8,8 @@ package solomonserver;
 import SolomonPartnersNetworkObjects.Mall;
 import SolomonPartnersNetworkObjects.User;
 import SolomonPartnersNetworkObjects.UserStoreTime;
-import com.beia.solomon.networkPackets.Beacon;
-import com.beia.solomon.networkPackets.Coordinates;
-import com.beia.solomon.networkPackets.ImageData;
-import com.beia.solomon.networkPackets.Store;
+import com.beia.solomon.networkPackets.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -48,6 +46,7 @@ public class SolomonServer {
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
     public static HashMap<Integer, com.beia.solomon.networkPackets.Mall> malls;
+    public static ArrayList<Campaign> campaigns;
     
     //Solomon partners variables
     public static ServerSocket partnersServerSocket;
@@ -83,6 +82,7 @@ public class SolomonServer {
         partnersDataUsers = new ArrayList<>();
         partnersDataUsersStoreTime = new ArrayList<>();
         partnersDataMalls = new ArrayList<>();
+        campaigns = new ArrayList<>();
         webClientsTokensMap = new HashMap<>();
         
         //connect to a mySql database
@@ -486,7 +486,30 @@ public class SolomonServer {
         {
             if(con != null)
             {
-                String queryString = "SELECT * FROM campains WHERE idCompany = '" + idCompany + "';";
+                String queryString = "SELECT * FROM campaigns WHERE idCompany = '" + idCompany + "';";
+                Statement getCampainsStatement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = getCampainsStatement.executeQuery(queryString);
+            }
+        }
+        catch(SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    public static ResultSet getCampaigns()
+    {
+        ResultSet resultSet = null;
+        try
+        {
+            if(con != null)
+            {
+                String queryString = "SELECT campaigns.idCampaign, companies.name as companyName, campaigns.title, campaigns.description, campaigns.startDate, campaigns.endDate FROM campaigns INNER JOIN companies ON(campaigns.idCompany = companies.username);";
                 Statement getCampainsStatement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 resultSet = getCampainsStatement.executeQuery(queryString);
             }
@@ -758,7 +781,7 @@ public class SolomonServer {
     
     public static void addCampain(String idCampain, String idCompany, String title, String description, String startDate, String endDate, String photoPath) throws SQLException
     {
-        String statementString = "INSERT INTO campains(idCampain, idCompany, title, description, startDate, endDate, photoPath) VALUES(?,?,?,?,?,?,?)";
+        String statementString = "INSERT INTO campaigns(idCampaign, idCompany, title, description, startDate, endDate, photoPath) VALUES(?,?,?,?,?,?,?)";
         PreparedStatement statement = con.prepareStatement(statementString);
         statement.setString(1, idCampain);
         statement.setString(2, idCompany);
@@ -773,7 +796,7 @@ public class SolomonServer {
     public static void updateCampain(String idCampain, String title, String description, String startDate, String endDate) throws SQLException
     {
         if(con != null) {
-            String statementString = "UPDATE campains SET title = ?, description = ?, startDate = ?, endDate = ? WHERE idCampain = ?;";
+            String statementString = "UPDATE campaigns SET title = ?, description = ?, startDate = ?, endDate = ? WHERE idCampaign = ?;";
             PreparedStatement statement = con.prepareStatement(statementString);
             statement.setString(1, title);
             statement.setString(2, description);
@@ -787,7 +810,7 @@ public class SolomonServer {
     public static void removeCampaign(String idCampain) throws SQLException
     {
         if(con != null) {
-            String statementString = "DELETE FROM campains WHERE idCampain = ?;";
+            String statementString = "DELETE FROM campaigns WHERE idCampain = ?;";
             PreparedStatement statement = con.prepareStatement(statementString);
             statement.setString(1, idCampain);
             statement.executeUpdate();

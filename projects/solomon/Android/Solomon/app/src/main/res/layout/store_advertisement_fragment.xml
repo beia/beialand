@@ -7,109 +7,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
-    <ScrollView
-        android:id="@+id/ScrollView"
+    <GridView
+        android:id="@+id/campaignsGridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10dp">
-
-        <LinearLayout
-            android:id="@+id/ScrollViewLinearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_view1"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                card_view:cardCornerRadius="4dp"
-                android:layout_marginBottom="14dp">
-                <LinearLayout
-                    android:id="@+id/cardViewLinearLayout1"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:src="@drawable/lenovo_legion_gaming"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:text="Monitor LED Lenovo Gaming Legion Y25f-10 24.5 inch 1ms FreeSync 144Hz"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_view2"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                card_view:cardCornerRadius="4dp"
-                android:layout_marginBottom="14dp">
-                <LinearLayout
-                    android:id="@+id/cardViewLinearLayout2"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:src="@drawable/placa_video_rtx_2060"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:text="GIGABYTE GeForce RTX 2060 OC 6GB GDDR6 (GA-VC-N2060OC-6GD) Placa video"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_view3"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                card_view:cardCornerRadius="4dp"
-                android:layout_marginBottom="14dp">
-                <LinearLayout
-                    android:id="@+id/cardViewLinearLayou3"
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:src="@drawable/amd_rizen_2600"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:text="AMD Ryzen 5 2600 Hexa-Core 3.4GHz AM4 Procesor"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-
-
-
-        </LinearLayout>
-    </ScrollView>
-
+        android:layout_marginTop="100dp"
+        android:gravity="center"
+        android:columnWidth="120dp"
+        android:numColumns="3"
+        android:verticalSpacing="50dp"
+        android:horizontalSpacing="5dp"
+        android:stretchMode="spacingWidthUniform"/>
 </LinearLayout>

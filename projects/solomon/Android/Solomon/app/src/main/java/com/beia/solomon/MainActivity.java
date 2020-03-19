@@ -404,8 +404,11 @@ public class MainActivity extends AppCompatActivity {
             {
                 //trilateration algorithm for finding the position of the user using three beacons that are closest to the user
                 //this is used for giving the user a good shopping experience in the store by provinding a good indoor localization
+                /*
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                     ibeaconsSet.add(iBeaconDevice);
+                 */
+                /*
                 if(ibeaconsSet.size() >= 3) {
                     ArrayList<IBeaconDevice> iBeaconDevices = new ArrayList<>();
                     for (IBeaconDevice iBeaconDevice : ibeaconsSet)
@@ -438,9 +441,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("IBEACONS", "too few beacons for trilateration");
                 }
                 //end of trilateration algorithm
-
-
-
+                */
 
                 //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
                 for(IBeaconDevice iBeaconDevice : iBeacons)
@@ -450,6 +451,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView textView = beaconsTextViews.get(iBeaconDevice.getUniqueId());
                     if(textView!=null)
                         textView.setText(region.getIdentifier() + ": " + iBeaconDevice.getDistance());
+
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
