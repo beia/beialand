@@ -12,7 +12,7 @@ public class ConnectToJavaServerRunnable implements Runnable
         try
         {
             //solomon-beacon.beia-consult.ro(virtual machine adress)
-            LoginActivity.socket = new Socket("solomon-beacon.beia-consult.ro", 48000);
+            LoginActivity.socket = new Socket("172.20.10.11", 7000);
             LoginActivity.objectOutputStream = new ObjectOutputStream(LoginActivity.socket.getOutputStream());
             LoginActivity.objectInputStream = new ObjectInputStream(LoginActivity.socket.getInputStream());
         }

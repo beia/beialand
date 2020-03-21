@@ -31,11 +31,15 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.beia.solomon.networkPackets.Campaign;
+import com.mysql.cj.protocol.Resultset;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import solomonWebClientsObjects.Campaign;
 import solomonserver.SolomonServer;
+
+import javax.xml.transform.Result;
 
 /**
  *
@@ -48,7 +52,6 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     private String campaignsPhotoPath = "C:\\Users\\puiho\\Desktop\\PicturesSolomon\\Campaigns\\";
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Calendar cal = Calendar.getInstance();
-    public static HashMap<String, Campaign> campaignsMap;
     public WaitForWebPlatformClientsRequestsRunnable(ServerSocket serverSocket)
     {
         this.serverSocket = serverSocket;
@@ -57,22 +60,6 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     public void run() {
             Socket socket = null;
             String authToken, campaignId;
-            //get the campaigns ids
-            try
-            {
-                getCampaigns();
-                campaignsMap = new HashMap<>();
-                ResultSet rs = SolomonServer.getTableData("campaigns");
-                while(rs.next())
-                    campaignsMap.put(rs.getString("idCampaign"), new Campaign(rs.getString("idCampaign"), rs.getString("idCompany"), rs.getString("title"),
-                                        rs.getString("description"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("photoPath")));
-                rs.getStatement().close();
-            }
-            catch(Exception ex) {
-                ex.printStackTrace(); 
-            }
-            
-          
             while(true)
             {
                 try { 
@@ -184,6 +171,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         {
                             System.out.println("REGISTER SUCCESFULL");
                             SolomonServer.addCompany(usernameRegister, passwordRegister, nameRegister);
+                            SolomonServer.companiesMap.put(usernameRegister, nameRegister);
                             String jsonResponseRegister = "{\"success\":true}";
                             writeResponse(jsonResponseRegister, outputStream);
                         }
@@ -279,12 +267,12 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             String endDate = (String)jsonObject.get("endDate");
                             byte[] imageBytes = Base64.getDecoder().decode((String)jsonObject.get("image"));
                             String idCampain = getAlphaNumericString(10);
-                            while(campaignsMap.containsKey(idCampain))
+                            while(SolomonServer.campaignsMapById.containsKey(idCampain))
                                 idCampain = getAlphaNumericString(10);
                             String idCompany = SolomonServer.webClientsTokensMap.get(authTokenAddCampaign);
                             String path = campaignsPhotoPath + idCampain + ".jpg";
                             SolomonServer.addCampain(idCampain, idCompany, title, description, startDate, endDate, path);
-                            campaignsMap.put(idCampain, new Campaign(idCampain, idCompany, title, description, startDate, endDate, path));
+                            SolomonServer.campaignsMapById.put(idCampain, new Campaign(idCampain, idCompany, title, description, startDate, endDate, path));
                             System.out.println("Company '" + idCompany + " inserted campaign with id " + idCampain);
                             responseAddCampaign = "{\"success\":true}";
                             writeResponse(responseAddCampaign, outputStream);
@@ -306,9 +294,9 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         String responseGetCampaign;
                         if(SolomonServer.webClientsTokensMap.containsKey(authToken))
                         {
-                            if(campaignsMap.containsKey(campaignId))
+                            if(SolomonServer.campaignsMapById.containsKey(campaignId))
                             {
-                                Campaign campaign = campaignsMap.get(campaignId);
+                                Campaign campaign = SolomonServer.campaignsMapById.get(campaignId);
                                 responseGetCampaign = "{\"campaignID\":\"" + campaignId 
                                                         + ",\"title\":\"" + campaign.getTitle() 
                                                         + ",\"description\":\"" + campaign.getDescription() 
@@ -341,7 +329,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             String idCompany = SolomonServer.webClientsTokensMap.get(authTokenUpdateCampaign);
                             String path = campaignsPhotoPath + campaignID + ".jpg";
                             SolomonServer.updateCampain(campaignID, title, description, startDate, endDate);
-                            Campaign campaign = campaignsMap.get(campaignID);
+                            Campaign campaign = SolomonServer.campaignsMapById.get(campaignID);
                             campaign.update(title, description, startDate, endDate);
                             System.out.println("Company '" + idCompany + " updated campaign with id " + campaignID);
                             responseAddCampaign = "{\"success\":true}";
@@ -365,6 +353,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         {
                             String campaignID = (String)jsonObject.get("campaignID");
                             SolomonServer.removeCampaign(campaignID);
+                            SolomonServer.campaignsMapById.remove(campaignID);
                             responseAddCampaign = "{\"success\":true}";
                             writeResponse(responseAddCampaign, outputStream);
                             System.out.println("Company '" + SolomonServer.webClientsTokensMap.get(authTokenRemoveCampaign) + " removed campaign with id " + campaignID);
@@ -448,24 +437,4 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
         }
         return imageBytes;
     }
-    public void getCampaigns() throws Exception {
-
-        ResultSet campaignsResultSet = SolomonServer.getCampaigns();
-        if(campaignsResultSet.isBeforeFirst())
-        {
-            while(campaignsResultSet.next())
-            {
-                String idCampaign = campaignsResultSet.getString("campaigns.idCampaign");
-                String companyName = campaignsResultSet.getString("companyName");
-                String title = campaignsResultSet.getString("campaigns.title");
-                String description = campaignsResultSet.getString("campaigns.description");
-                String startDate = campaignsResultSet.getString("campaigns.startDate");
-                String endDate = campaignsResultSet.getString("campaigns.endDate");
-                String photoPath = campaignsResultSet.getString("campaigns.photoPath");
-                byte[] image = getImageFromDisk(photoPath);
-                SolomonServer.campaigns.add(new com.beia.solomon.networkPackets.Campaign(idCampaign, companyName, title, description, startDate, endDate, image));
-            }
-        }
-    }
-
 }

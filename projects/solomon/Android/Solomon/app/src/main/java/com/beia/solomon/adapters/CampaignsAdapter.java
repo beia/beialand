@@ -23,7 +23,9 @@ public class CampaignsAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return campaigns.size();
+        if(campaigns != null)
+            return campaigns.size();
+        return 0;
     }
 
     @Override

@@ -119,22 +119,18 @@ public class ManageClientAuthenticationRunnable  implements Runnable
                                 System.out.println("No beacons available to send");
                             }
                             
-                            
+                            //send the malls data to the users
                             if(SolomonServer.malls != null)
                             {
                                 System.out.println("Sent the malls data to the user");
                                 this.objectOutputStream.writeObject(SolomonServer.malls);
                             }
-                           
                             System.out.println("Client received the beacons and the malls");
+
                             //start a new thread that is monitoring user interaction with the app
                             Thread manageClientAppInteractionsThread = new Thread(new ManageClientAppInteractionRunnable(userId, this.objectOutputStream, this.objectInputStream));
                             manageClientAppInteractionsThread.start();
                             System.out.println("Started location thread");
-                            
-                            //send a message to the user that we started listening to the location data
-                            this.objectOutputStream.writeObject("Started listening to the location data");
-                            
                         }
                         else
                         {

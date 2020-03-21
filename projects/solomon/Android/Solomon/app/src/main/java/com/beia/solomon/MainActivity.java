@@ -16,7 +16,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.beia.solomon.comparators.DistanceComparator;
+import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.Mall;
+import com.beia.solomon.runnables.RequestRunnable;
+import com.beia.solomon.runnables.WaitForServerDataRunnable;
 import com.beia.solomon.trilateration.Point;
 import com.beia.solomon.trilateration.Trilateration;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
@@ -32,7 +35,6 @@ import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.EstimoteBeacon;
 import com.beia.solomon.networkPackets.KontaktBeacon;
 import com.beia.solomon.networkPackets.UserData;
-import com.beia.solomon.runnables.ReceiveBeaconsDataRunnable;
 import com.beia.solomon.runnables.SendLocationDataRunnable;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     public static volatile HashMap<String, Boolean> regionsEntered;
     public static volatile HashMap<Integer, Mall> malls;
     public static volatile HashMap<Integer, Boolean> mallsEntered;
+    public static volatile ArrayList<Campaign> campaigns;
     public static List<IndoorLevel> levels;
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
@@ -199,9 +202,11 @@ public class MainActivity extends AppCompatActivity {
         ibeaconsSet = new HashSet<>();
         closestBeacons = new IBeaconDevice[3];
         positionMarkers = new LinkedList<>();
+        campaigns = new ArrayList<>();
 
-        Thread getBeaconsDataThread = new Thread(new ReceiveBeaconsDataRunnable(objectInputStream, objectOutputStream));
-        getBeaconsDataThread.start();
+        new Thread(new WaitForServerDataRunnable(objectInputStream)).start();
+        String request = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + "Pc Garage" + "\"}";
+        new Thread(new RequestRunnable(request, objectOutputStream)).start();
     }
 
 
@@ -448,10 +453,11 @@ public class MainActivity extends AppCompatActivity {
                 {
                     KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeaconDevice.getUniqueId());
                     double distance = iBeaconDevice.getDistance();
-                    TextView textView = beaconsTextViews.get(iBeaconDevice.getUniqueId());
-                    if(textView!=null)
-                        textView.setText(region.getIdentifier() + ": " + iBeaconDevice.getDistance());
-
+                    if(distance < 15)//request the campaigns from the store only if the distance is smaller that 15 metres
+                    {
+                        String request = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.COMPANY + "\"}";
+                        new Thread(new RequestRunnable(request, objectOutputStream)).start();
+                    }
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
@@ -737,7 +743,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //set tabbed layout
-        storeAdvertisementFragment = new StoreAdvertisementFragment();
+        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns);
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);

@@ -44,7 +44,7 @@ public class SendAuthenticationDataRunnable implements Runnable
                     objectOutputStream.writeObject(signUpData);
                     break;
                 case "log out":
-                    objectOutputStream.writeObject("log out");
+                    objectOutputStream.writeObject("{\"requestType\":\"logOut\"}");
                     break;
                 default:
                     break;

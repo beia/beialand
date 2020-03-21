@@ -346,7 +346,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         try {
                             synchronized (MainActivity.objectOutputStream) {
                                 //send the photo request
-                                MainActivity.objectOutputStream.writeObject("Photo request");
+                                MainActivity.objectOutputStream.writeObject("{\"requestType\":\"profilePicture\"}");
                             }
                             synchronized (MainActivity.objectInputStream) {
                                 //receive the image data
@@ -389,8 +389,9 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Result code is RESULT_OK only if the user selects an Image
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
 
@@ -398,8 +399,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     //data.getData returns the content URI for the selected Image
                     Uri selectedImageUri = data.getData();
                     String path = getRealPathFromURI(selectedImageUri);
-                    try
-                    {
+                    try {
                         //extract bytes from the imageUri and create an object that contains the profile picture and the user id
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                         bitmap = getCorrectBitmap(path, bitmap);
@@ -416,8 +416,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         Toast.makeText(this, "Updated the profile picture", Toast.LENGTH_LONG).show();
 
                         //start sending image thread
-                        synchronized (MainActivity.objectOutputStream)
-                        {
+                        synchronized (MainActivity.objectOutputStream) {
                             Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
                             sendImageThread.start();
                         }
@@ -431,9 +430,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         String userImageString = imageString + " " + MainActivity.userId;
                         userPrefs.putString("profilePicture", userImageString);
                         userPrefs.commit();
-                    }
-                    catch (IOException e)
-                    {
+                    } catch (IOException e) {
                         Toast.makeText(this, "Image format error", Toast.LENGTH_LONG).show();
                         e.printStackTrace();
                     }

@@ -27,8 +27,8 @@ public class StoreAdvertisementFragment extends Fragment {
     public CampaignsAdapter campaignsAdapter;
     public ArrayList<Campaign> campaigns;
 
-    public StoreAdvertisementFragment() {
-
+    public StoreAdvertisementFragment(ArrayList<Campaign> campaigns) {
+        this.campaigns = campaigns;
     }
 
     public void setArguments(@Nullable Bundle args, String bundleDataName) {

@@ -26,13 +26,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import runnables.ConnectClientsRunnable;
-import runnables.ConnectToUnityDemoRunnable;
-import runnables.ManageClientAppInteractionRunnable;
-import runnables.ManageDataTransferedToSolomonPartnersRunnable;
-import runnables.ProcessDatabaseDataRunnable;
-import runnables.WaitForPartnersConnectionRunnable;
-import runnables.WaitForWebPlatformClientsRequestsRunnable;
+
+import runnables.*;
 
 /**
  *
@@ -46,7 +41,9 @@ public class SolomonServer {
     public static Thread processDatabaseData;
     public static HashMap<String, Beacon> beacons;
     public static HashMap<Integer, com.beia.solomon.networkPackets.Mall> malls;
-    public static ArrayList<Campaign> campaigns;
+    public static volatile HashMap<String, String> companiesMap;//key:id value:name
+    public static volatile HashMap<String, Campaign> campaignsMapById;//key:id value:campaign
+    public static volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName;//key:companyName value:array of campaigns
     
     //Solomon partners variables
     public static ServerSocket partnersServerSocket;
@@ -82,11 +79,19 @@ public class SolomonServer {
         partnersDataUsers = new ArrayList<>();
         partnersDataUsersStoreTime = new ArrayList<>();
         partnersDataMalls = new ArrayList<>();
-        campaigns = new ArrayList<>();
+        companiesMap = new HashMap<>();
+        campaignsMapById = new HashMap<>();
+        campaignsMapByCompanyName = new HashMap<>();
         webClientsTokensMap = new HashMap<>();
         
         //connect to a mySql database
         connectToDatabase();
+
+        //get the data from the database
+        getCompanies();
+        getCampaigns();
+        new Thread(new UpdateCampaignsForUsersRunnable(companiesMap, campaignsMapById, campaignsMapByCompanyName)).start();
+
         
         //create a tcp server socket and wait for client connections
         serverSocket = new ServerSocket(7000);
@@ -501,29 +506,6 @@ public class SolomonServer {
         }
         return resultSet;
     }
-
-    public static ResultSet getCampaigns()
-    {
-        ResultSet resultSet = null;
-        try
-        {
-            if(con != null)
-            {
-                String queryString = "SELECT campaigns.idCampaign, companies.name as companyName, campaigns.title, campaigns.description, campaigns.startDate, campaigns.endDate FROM campaigns INNER JOIN companies ON(campaigns.idCompany = companies.username);";
-                Statement getCampainsStatement = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                resultSet = getCampainsStatement.executeQuery(queryString);
-            }
-        }
-        catch(SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
-        return resultSet;
-    }
     
     public static ResultSet getTableDataById(String tableName, String idColumnName, int id)
     {
@@ -868,5 +850,37 @@ public class SolomonServer {
             Logger.getLogger(ManageClientAppInteractionRunnable.class.getName()).log(Level.SEVERE, null, ex);
         }
         return imageBytes;
+    }
+
+    public static void getCompanies() throws Exception {
+        ResultSet companiesResultSet = SolomonServer.getTableData("companies");
+        if(companiesResultSet.isBeforeFirst())
+        {
+            while(companiesResultSet.next())
+            {
+                String idCompany = companiesResultSet.getString("username");
+                String companyName = companiesResultSet.getString("name");
+                companiesMap.put(idCompany, companyName);
+            }
+        }
+
+    }
+    public static void getCampaigns() throws Exception {
+
+        ResultSet campaignsResultSet = SolomonServer.getTableData("campaigns");
+        if(campaignsResultSet.isBeforeFirst())
+        {
+            while(campaignsResultSet.next())
+            {
+                String idCampaign = campaignsResultSet.getString("campaigns.idCampaign");
+                String idCompany = campaignsResultSet.getString("campaigns.idCompany");
+                String title = campaignsResultSet.getString("campaigns.title");
+                String description = campaignsResultSet.getString("campaigns.description");
+                String startDate = campaignsResultSet.getString("campaigns.startDate");
+                String endDate = campaignsResultSet.getString("campaigns.endDate");
+                String photoPath = campaignsResultSet.getString("campaigns.photoPath");
+                campaignsMapById.put(idCampaign, new Campaign(idCampaign, idCompany, title, description, startDate, endDate, photoPath));
+            }
+        }
     }
 }

@@ -5,10 +5,8 @@
  */
 package runnables;
 
-import com.beia.solomon.networkPackets.ImageData;
-import com.beia.solomon.networkPackets.LocationData;
-import com.beia.solomon.networkPackets.UpdateUserData;
-import com.beia.solomon.networkPackets.UserPreferences;
+import com.beia.solomon.networkPackets.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +17,10 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static runnables.ConnectClientsRunnable.objectInputStream;
+
+import com.mysql.cj.xdevapi.JsonParser;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import solomonserver.SolomonServer;
 
 /**
@@ -85,9 +87,12 @@ public class ManageClientAppInteractionRunnable implements Runnable
                 if(networkPacket instanceof String)
                 {
                     String requestString = (String)networkPacket;
-                    switch(requestString)
+                    JSONParser parser = new JSONParser();
+                    JSONObject jsonObject = (JSONObject) parser.parse(requestString.trim());
+                    String requestType = (String)jsonObject.get("requestType");
+                    switch(requestType)
                     {
-                        case "Photo request":
+                        case "profilePicture":
                             System.out.println("User with id: "+ userId + " requested an image");
                             String imagePath = SolomonServer.getUserProfilePicturePath(userId);
                             if(imagePath == null)
@@ -124,11 +129,26 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 }
                             }           
                             break;
-                        case "log out":
+                        case "logOut":
                             //manage client authentication and exit this thread thatmanages the client app interaction
                             Thread manageClientAuthentication = new Thread(new ManageClientAuthenticationRunnable(objectOutputStream, objectInputStream));
                             manageClientAuthentication.start();
                             finishThread = true;
+                            break;
+                        case "getCampaigns":
+                            String companyName = (String)jsonObject.get("companyName");
+                            System.out.println("Client requested campaigns for store '" + companyName + "'");
+                            System.out.println(SolomonServer.campaignsMapByCompanyName.size());
+                            ArrayList<Campaign> storeCampaigns = SolomonServer.campaignsMapByCompanyName.get(companyName);
+                            if(storeCampaigns != null)
+                            {
+                                objectOutputStream.writeObject(SolomonServer.campaignsMapByCompanyName.get(companyName));
+                                System.out.println("Campaigns sent, available campaigns: " + storeCampaigns.size());
+                            }
+                            else
+                            {
+                                System.out.println("No campaigns available");
+                            }
                             break;
                         default:
                             break;

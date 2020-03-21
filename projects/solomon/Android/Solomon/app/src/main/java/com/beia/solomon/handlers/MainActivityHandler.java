@@ -2,6 +2,7 @@ package com.beia.solomon.handlers;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.beia.solomon.MainActivity;
@@ -41,7 +42,10 @@ public class MainActivityHandler extends Handler
                 }
                 // set Kontakt beacons
                 mainActivity.initKontaktBeacons();
-
+                break;
+            case 2:
+                MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
+                Log.d("CAMPAIGN", "handleMessage: ");
                 break;
             default:
                 break;
