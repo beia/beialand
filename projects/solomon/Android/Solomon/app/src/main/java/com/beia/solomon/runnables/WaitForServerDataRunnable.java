@@ -4,8 +4,10 @@ import android.os.Message;
 import android.util.Log;
 
 import com.beia.solomon.MainActivity;
+import com.beia.solomon.ProfileSettingsActivity;
 import com.beia.solomon.networkPackets.BeaconsData;
 import com.beia.solomon.networkPackets.Campaign;
+import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.Mall;
 
 import java.io.IOException;
@@ -62,6 +64,17 @@ public class WaitForServerDataRunnable implements Runnable
                             message.sendToTarget();
                         }
                     }
+                }
+
+                //PROFILE PICTURE
+                if(networkPacket instanceof ImageData)
+                {
+                    ImageData imageData = (ImageData) networkPacket;
+                    //Send a message to the ProfileSettings activity handler with the imagedata so we can change the profile picture
+                    Message message = Message.obtain(ProfileSettingsActivity.handler);
+                    message.what = 1;
+                    message.obj = imageData;
+                    message.sendToTarget();
                 }
             }
         }

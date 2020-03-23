@@ -348,18 +348,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                                 //send the photo request
                                 MainActivity.objectOutputStream.writeObject("{\"requestType\":\"profilePicture\"}");
                             }
-                            synchronized (MainActivity.objectInputStream) {
-                                //receive the image data
-                                ImageData imageData = (ImageData) MainActivity.objectInputStream.readObject();
-                                //Send a message to the ProfileSettings activity handler with the imagedata so we can change the profile picture
-                                Message message = Message.obtain(ProfileSettingsActivity.handler);
-                                message.what = 1;
-                                message.obj = imageData;
-                                message.sendToTarget();
-                            }
                         } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
                     }
