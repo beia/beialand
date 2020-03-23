@@ -30,6 +30,7 @@ import solomonserver.SolomonServer;
 public class ManageClientAppInteractionRunnable implements Runnable
 {
     public int userId;
+    public String profilePicturePath = "ProfilePictures\\";
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
     public boolean finishThread;
@@ -76,7 +77,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                     //received the picture bytes from the user
                     ImageData imageData = (ImageData)networkPacket;
                     //create a file with a path name that coresponds to the user so we can identify him
-                    String path = "C:\\Users\\beia\\Desktop\\UsersProfilePictures\\" + imageData.getUserId() + ".jpg";
+                    String path = profilePicturePath + imageData.getUserId() + ".jpg";
                     File file = new File(path);
                     //save the image into the memory
                     Files.write(file.toPath(), imageData.getImageBytes());

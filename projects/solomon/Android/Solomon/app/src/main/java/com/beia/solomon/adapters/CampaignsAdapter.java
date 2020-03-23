@@ -2,12 +2,17 @@ package com.beia.solomon.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.Campaign;
-import com.beia.solomon.viewObjects.CampaignView;
 
 import java.util.ArrayList;
 
@@ -40,7 +45,21 @@ public class CampaignsAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, final View convertView, ViewGroup parent) {
-        CampaignView campaignView = new CampaignView(context, campaigns.get(position));
+        Campaign campaign = campaigns.get(position);
+        View campaignView = LayoutInflater.from(context).inflate(R.layout.campaign_layout, parent, false);
+        TextView companyNameTextView = campaignView.findViewById(R.id.companyName);
+        ImageView campaignImageView = campaignView.findViewById(R.id.campaignImage);
+        TextView campaignTitleTextView = campaignView.findViewById(R.id.campaignTitle);
+        TextView campaignDescriptionTextView = campaignView.findViewById(R.id.campaignDescription);
+        TextView campaignStartDateTextView = campaignView.findViewById(R.id.startDate);
+        TextView campaignEndDateTextView = campaignView.findViewById(R.id.endDate);
+        companyNameTextView.setText(campaign.getCompanyName());
+        campaignTitleTextView.setText(campaign.getTitle());
+        campaignDescriptionTextView.setText(campaign.getDescription());
+        campaignStartDateTextView.setText(campaign.getStartDate());
+        campaignEndDateTextView.setText(campaign.getEndDate());
+        Bitmap bitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
+        campaignImageView.setImageBitmap(bitmap);
         return campaignView;
     }
 }

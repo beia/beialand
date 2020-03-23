@@ -47,4 +47,8 @@
 	<dimen name="dimen45dp">90dp</dimen>
 	<dimen name="dimen40dp">80dp</dimen>
 	<dimen name="dimen60dp">120dp</dimen>
+	<dimen name="dimen50dp">100dp</dimen>
+	<dimen name="dimen110dp">220dp</dimen>
+	<dimen name="dimen105dp">210dp</dimen>
+	<dimen name="dimen102dp">204dp</dimen>
 </resources>

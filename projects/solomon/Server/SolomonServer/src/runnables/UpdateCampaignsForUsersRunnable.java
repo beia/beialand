@@ -44,14 +44,14 @@ public class UpdateCampaignsForUsersRunnable implements Runnable
                         if(!campaignsMapByCompanyName.containsKey(companyName))
                         {
                             ArrayList<Campaign> storeCampaigns = new ArrayList<>();
-                            Campaign campaignForUser = new Campaign(campaign.getId(), campaign.getCompanyName(), campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath()));
+                            Campaign campaignForUser = new Campaign(campaign.getId(), companyName, campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath()));
                             storeCampaigns.add(campaignForUser);
                             campaignsMapByCompanyName.put(companyName, storeCampaigns);
                             System.out.println("Added campaign");
                         }
                         else
                         {
-                            campaignsMapByCompanyName.get(companyName).add(new Campaign(campaign.getId(), campaign.getCompanyName(), campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath())));
+                            campaignsMapByCompanyName.get(companyName).add(new Campaign(campaign.getId(), companyName, campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath())));
                         }
                     }
                 }

@@ -3,8 +3,8 @@
     <output-path>$PROJECT_DIR$/build/classes/artifacts/SolomonServer_jar</output-path>
     <root id="archive" name="SolomonServer.jar">
       <element id="module-output" name="SolomonServer" />
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/json-simple-1.1.jar/json-simple-1.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/Downloads/mysql-connector-java-8.0.19/mysql-connector-java-8.0.19.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/json-simple-1.1.jar/json-simple-1.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

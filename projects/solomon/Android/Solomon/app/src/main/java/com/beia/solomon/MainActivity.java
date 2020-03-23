@@ -172,6 +172,17 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        //get the beacons data and initialize the beacons
+        beacons = new HashMap<>();
+        regionsEntered = new HashMap<>();
+        malls = new HashMap<>();
+        mallsEntered = new HashMap<>();
+        levels = new ArrayList<>();
+        levelsActivated = new ArrayList<>();
+        ibeaconsSet = new HashSet<>();
+        closestBeacons = new IBeaconDevice[3];
+        positionMarkers = new LinkedList<>();
+        campaigns = new ArrayList<>();
 
         initUI();
 
@@ -192,17 +203,6 @@ public class MainActivity extends AppCompatActivity {
 
         MainActivity.beaconsTextViews = new HashMap<>();
 
-        //get the beacons data and initialize the beacons
-        beacons = new HashMap<>();
-        regionsEntered = new HashMap<>();
-        malls = new HashMap<>();
-        mallsEntered = new HashMap<>();
-        levels = new ArrayList<>();
-        levelsActivated = new ArrayList<>();
-        ibeaconsSet = new HashSet<>();
-        closestBeacons = new IBeaconDevice[3];
-        positionMarkers = new LinkedList<>();
-        campaigns = new ArrayList<>();
 
         new Thread(new WaitForServerDataRunnable(objectInputStream)).start();
         String request = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + "Pc Garage" + "\"}";

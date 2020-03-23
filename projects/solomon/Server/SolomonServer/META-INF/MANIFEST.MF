@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: solomonserver.SolomonServer
+Class-Path: build/classes/production/SolomonServer/solomonserver/Solomon
+ Server.class
+

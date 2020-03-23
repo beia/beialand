@@ -49,7 +49,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     
     private ServerSocket serverSocket;
     private final int TOKEN_DIMENSION = 14;
-    private String campaignsPhotoPath = "C:\\Users\\puiho\\Desktop\\PicturesSolomon\\Campaigns\\";
+    private String campaignsPhotoPath = "CampaignsPictures\\";
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Calendar cal = Calendar.getInstance();
     public WaitForWebPlatformClientsRequestsRunnable(ServerSocket serverSocket)

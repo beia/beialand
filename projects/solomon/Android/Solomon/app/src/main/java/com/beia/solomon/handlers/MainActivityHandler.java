@@ -44,7 +44,7 @@ public class MainActivityHandler extends Handler
                 mainActivity.initKontaktBeacons();
                 break;
             case 2:
-                MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
+                //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
                 Log.d("CAMPAIGN", "handleMessage: ");
                 break;
             default:

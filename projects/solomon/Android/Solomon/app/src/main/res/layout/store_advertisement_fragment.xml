@@ -11,11 +11,11 @@
         android:id="@+id/campaignsGridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="@dimen/dimen20dp"
         android:gravity="center"
-        android:columnWidth="120dp"
-        android:numColumns="3"
-        android:verticalSpacing="50dp"
-        android:horizontalSpacing="5dp"
+        android:columnWidth="@dimen/dimen102dp"
+        android:numColumns="2"
+        android:verticalSpacing="@dimen/dimen5dp"
+        android:horizontalSpacing="@dimen/dimen5dp"
         android:stretchMode="spacingWidthUniform"/>
 </LinearLayout>
