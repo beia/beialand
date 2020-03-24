@@ -38,7 +38,7 @@ public class ConnectClientsRunnable  implements Runnable
                 System.out.println("Connected!");
                 objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 objectInputStream = new ObjectInputStream(socket.getInputStream());
-                Thread manageClientConnection = new Thread(new ManageClientAuthenticationRunnable(objectOutputStream, objectInputStream));
+                Thread manageClientConnection = new Thread(new ManageClientAppInteractionRunnable(objectOutputStream, objectInputStream));
                 manageClientConnection.start();
             }   
             catch (IOException ex)

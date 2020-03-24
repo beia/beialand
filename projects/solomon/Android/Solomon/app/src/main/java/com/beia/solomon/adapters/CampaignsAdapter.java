@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.beia.solomon.MainActivity;
 import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.Campaign;
 
@@ -60,6 +61,13 @@ public class CampaignsAdapter extends BaseAdapter {
         campaignEndDateTextView.setText(campaign.getEndDate());
         Bitmap bitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
         campaignImageView.setImageBitmap(bitmap);
+
+        campaignView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.tabLayout.getTabAt(1).select();
+            }
+        });
         return campaignView;
     }
 }

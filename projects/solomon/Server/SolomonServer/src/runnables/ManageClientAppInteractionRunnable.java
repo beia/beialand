@@ -13,12 +13,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static runnables.ConnectClientsRunnable.objectInputStream;
-
-import com.mysql.cj.xdevapi.JsonParser;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import solomonserver.SolomonServer;
@@ -33,22 +31,113 @@ public class ManageClientAppInteractionRunnable implements Runnable
     public String profilePicturePath = "ProfilePictures\\";
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
-    public boolean finishThread;
-    public ManageClientAppInteractionRunnable(int userId, ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream)
+    public ManageClientAppInteractionRunnable(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream)
     {
         this.userId = userId;
         this.objectOutputStream = objectOutputStream;
         this.objectInputStream = objectInputStream;
-        this.finishThread = false;
     }
     @Override
     public void run() {
         try
         {
             //wait for client location data
-            while(!finishThread)
+            while(true)
             {
                 Object networkPacket = this.objectInputStream.readObject();
+
+                //AUTHENTICATION DATA
+                if(networkPacket instanceof SignUpData)
+                {
+                    //check the instance of the object and convert the object to a SignUpData object
+                    SignUpData signUpData = (SignUpData)networkPacket;
+                    System.out.println(signUpData.toString());
+                    //get the user data from the database
+                    ResultSet resultSet = SolomonServer.getUserDataFromDatabase("users", signUpData.getUsername());
+                    //check if the username exists in the database
+                    if (!resultSet.isBeforeFirst() )
+                    {
+                        //the users isnt't in the database so we insert the user into the database
+                        SolomonServer.addUser(signUpData.getUsername(), signUpData.getPassword(), signUpData.getLastName(), signUpData.getFirstName(), signUpData.getAge());
+                        //send the user a feedback text that he was registered
+                        synchronized (objectOutputStream) {
+                            this.objectOutputStream.writeObject(new ServerFeedback("registered successfully"));
+                        }
+                        System.out.println("User registered successfully");
+                    }
+                    else
+                    {
+                        //send the user a message that the username is taken
+                        synchronized (objectOutputStream) {
+                            this.objectOutputStream.writeObject(new ServerFeedback("username is taken"));
+                        }
+                        System.out.println("Username is taken, can't register user");
+                    }
+                }
+                if(networkPacket instanceof SignInData)
+                {
+                    //check the instance of the object and convert the object to a SignInData object
+                    SignInData signInData = (SignInData)networkPacket;
+                    //check if the username and password match in the database and if not send a message to the user that the username or password are wrong
+                    //get the user data from the database
+                    ResultSet resultSet = SolomonServer.getUserDataFromDatabase("users", signInData.getUsername());
+                    //check if the username exists in the database
+                    if (!resultSet.isBeforeFirst() )
+                    {
+                        //the users isnt't in the database we send a message to the user that the username and password are wrong
+                        synchronized (objectOutputStream) {
+                            this.objectOutputStream.writeObject(new ServerFeedback("can't login user"));
+                        }
+                        System.out.println("Can't login user, user doesn't exist");
+                    }
+                    else
+                    {
+                        //the user is in the database
+                        resultSet.next();
+                        int userId = resultSet.getInt("idusers");
+                        String password = resultSet.getString("password");
+                        String username = resultSet.getString("username");
+                        String lastName = resultSet.getString("lastName");
+                        String firstName = resultSet.getString("firstName");
+                        int age = resultSet.getInt("age");
+
+                        //SIGN IN SUCCESSFUL
+                        if(signInData.getPassword().equals(password))
+                        {
+                            //username and password are correct login successful
+                            boolean isFirstLogin;
+                            ResultSet preferencesResultSet = SolomonServer.getPreferencesByUserId(userId);
+                            if(!preferencesResultSet.isBeforeFirst())
+                            {
+                                //user has no preferences so the first thing that he will do when he opens the app is to set his preferences
+                                isFirstLogin = true;
+                            }
+                            else
+                            {
+                                isFirstLogin = false;
+                            }
+                            synchronized (objectOutputStream) {
+                                this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, password, lastName, firstName, age, isFirstLogin));
+                            }
+                            System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
+                            this.userId = userId;
+                        }
+                        else
+                        {
+                            //password is wrong
+                            synchronized (objectOutputStream) {
+                                this.objectOutputStream.writeObject(new ServerFeedback("can't login user"));
+                            }
+                            System.out.println("Can't login user, password is wrong");
+                        }
+                    }
+                    //if the username and password match in the database log in the client and start a new thread
+                    System.out.println(signInData.toString());
+                }
+
+
+
+                //APP INTERACTION DATA
                 if(networkPacket instanceof LocationData)
                 {
                     //received a location information from the user
@@ -120,7 +209,9 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                     
                                         //create the ImageData object ad send it to the user
                                         ImageData imageData = new ImageData(imageBytes, userId);
-                                        objectOutputStream.writeObject(imageData);
+                                        synchronized (objectOutputStream) {
+                                            objectOutputStream.writeObject(imageData);
+                                        }
                                         fileInputStream.close();
                                     }
                                     catch (IOException ex)
@@ -131,10 +222,29 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             }           
                             break;
                         case "logOut":
-                            //manage client authentication and exit this thread thatmanages the client app interaction
-                            Thread manageClientAuthentication = new Thread(new ManageClientAuthenticationRunnable(objectOutputStream, objectInputStream));
-                            manageClientAuthentication.start();
-                            finishThread = true;
+                            userId = -1;
+                            break;
+                        case "getBeacons":
+                            //send the beacons data to the users
+                            if(SolomonServer.beacons != null)
+                            {
+                                System.out.println("Sent the beacons data to the user");
+                                synchronized (objectOutputStream) {
+                                    this.objectOutputStream.writeObject(new BeaconsData(SolomonServer.beacons));
+                                }
+                            }
+                            else
+                            {
+                                System.out.println("No beacons available to send");
+                            }
+                            //send the malls data to the users
+                            if(SolomonServer.malls != null)
+                            {
+                                System.out.println("Sent the malls data to the user");
+                                synchronized (objectOutputStream) {
+                                    this.objectOutputStream.writeObject(SolomonServer.malls);
+                                }
+                            }
                             break;
                         case "getCampaigns":
                             String companyName = (String)jsonObject.get("companyName");
@@ -143,7 +253,9 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             ArrayList<Campaign> storeCampaigns = SolomonServer.campaignsMapByCompanyName.get(companyName);
                             if(storeCampaigns != null)
                             {
-                                objectOutputStream.writeObject(SolomonServer.campaignsMapByCompanyName.get(companyName));
+                                synchronized (objectOutputStream) {
+                                    objectOutputStream.writeObject(SolomonServer.campaignsMapByCompanyName.get(companyName));
+                                }
                                 System.out.println("Campaigns sent, available campaigns: " + storeCampaigns.size());
                             }
                             else

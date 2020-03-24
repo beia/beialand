@@ -38,13 +38,19 @@ public class SendAuthenticationDataRunnable implements Runnable
             switch (actionLabel)
             {
                 case "sign in":
-                    objectOutputStream.writeObject(signInData);
+                    synchronized (objectOutputStream) {
+                        objectOutputStream.writeObject(signInData);
+                    }
                     break;
                 case "sign up":
-                    objectOutputStream.writeObject(signUpData);
+                    synchronized (objectOutputStream) {
+                        objectOutputStream.writeObject(signUpData);
+                    }
                     break;
                 case "log out":
-                    objectOutputStream.writeObject("{\"requestType\":\"logOut\"}");
+                    synchronized (objectOutputStream) {
+                        objectOutputStream.writeObject("{\"requestType\":\"logOut\"}");
+                    }
                     break;
                 default:
                     break;

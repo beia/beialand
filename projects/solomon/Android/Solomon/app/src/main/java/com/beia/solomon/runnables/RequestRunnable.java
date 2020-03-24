@@ -16,7 +16,9 @@ public class RequestRunnable implements Runnable
     public void run() {
         try
         {
-            this.objectOutputStream.writeObject(request);
+            synchronized (objectOutputStream) {
+                this.objectOutputStream.writeObject(request);
+            }
         }
         catch (IOException e)
         {

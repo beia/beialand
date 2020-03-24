@@ -3,6 +3,7 @@ package com.beia.solomon;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
@@ -18,7 +19,9 @@ import android.widget.TextView;
 import com.beia.solomon.comparators.DistanceComparator;
 import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.Mall;
+import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.runnables.RequestRunnable;
+import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 import com.beia.solomon.runnables.WaitForServerDataRunnable;
 import com.beia.solomon.trilateration.Point;
 import com.beia.solomon.trilateration.Trilateration;
@@ -63,6 +66,7 @@ import android.widget.Toast;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -73,6 +77,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.UUID;
@@ -100,11 +105,16 @@ public class MainActivity extends AppCompatActivity {
     //Kontakt variables
     public ProximityManager proximityManager;
 
+
+    public static volatile boolean active = false;
+
     //Communication variables
+    public static volatile Socket socket;
     public static volatile ObjectOutputStream objectOutputStream;
     public static volatile ObjectInputStream objectInputStream;
 
     //cache variables
+    public static SharedPreferences sharedPref;
     public static LruCache<String, Bitmap> picturesCache;
 
     //google map variables
@@ -112,15 +122,15 @@ public class MainActivity extends AppCompatActivity {
     public IndoorBuilding indoorBuilding;
 
 
-
     //Handlers
     public static MainActivityHandler mainActivityHandler;
+    public static boolean beaconsReceived = false;
 
     //UI variables
     //Main activity UI variables
-    public TabLayout tabLayout;
+    public static TabLayout tabLayout;
     public ViewPager viewPager;
-    public ViewPagerAdapter viewPagerAdapter;
+    public static ViewPagerAdapter viewPagerAdapter;
     public LinearLayout mainActivityLinearLayout;
     //user profile UI variables
     public TextView usernameTextView;
@@ -142,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
     public static Date currentTime;
     public static int userId;
     public static String username;
+    public static String password;
     public static String lastName;
     public static String firstName;
     public static int age;
@@ -157,8 +168,24 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
         mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
+        this.active = true;
 
-        Log.d("BEACONS", "onCreate: ");
+        //check if the user needs to sign in automatically
+        if(LoginActivity.sharedPref != null)
+            sharedPref = LoginActivity.sharedPref;
+        else
+            sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        username = sharedPref.getString("username", null);
+        password = sharedPref.getString("password", null);
+        if(username == null && password == null)
+        {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            active = false;
+            finish();
+            return;
+        }
+
 
         //create a local cache
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
@@ -186,35 +213,51 @@ public class MainActivity extends AppCompatActivity {
 
         initUI();
 
-        //getUserData
-        UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
-        userId = userData.getUserId();
-        username = userData.getUsername();
-        lastName = userData.getLastName();
-        firstName = userData.getFirstName();
-        age = userData.getAge();
-
-        //set communication streams
-        objectOutputStream = LoginActivity.objectOutputStream;
-        objectInputStream = LoginActivity.objectInputStream;
-
         //create handler
         mainActivityHandler = new MainActivityHandler(this);
-
         MainActivity.beaconsTextViews = new HashMap<>();
 
-
-        new Thread(new WaitForServerDataRunnable(objectInputStream)).start();
-        String request = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + "Pc Garage" + "\"}";
-        new Thread(new RequestRunnable(request, objectOutputStream)).start();
+        //getUserData
+        UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
+        if(userData != null) {//NORMAL LOGIN
+            MainActivity.objectOutputStream = LoginActivity.objectOutputStream;
+            MainActivity.objectInputStream = LoginActivity.objectInputStream;
+            userId = userData.getUserId();
+            username = userData.getUsername();
+            lastName = userData.getLastName();
+            firstName = userData.getFirstName();
+            age = userData.getAge();
+            if(beaconsReceived)
+            {
+                //initialize all the malls and set all the malls entered values to false
+                for (Map.Entry entry : MainActivity.beacons.entrySet())
+                {
+                    Beacon beacon = (Beacon) entry.getValue();
+                    if(MainActivity.mallsEntered.isEmpty())
+                    {
+                        MainActivity.mallsEntered.put(beacon.getMallId(), false);
+                    }
+                    else
+                    {
+                        if(MainActivity.mallsEntered.containsKey(beacon.getMallId()) == false)
+                        {
+                            MainActivity.mallsEntered.put(beacon.getMallId(), false);
+                        }
+                    }
+                }
+                // set Kontakt beacons
+                initKontaktBeacons();
+            }
+        }
+        else {//automatic login
+            new Thread(new WaitForServerDataRunnable()).start();
+        }
     }
-
 
     @Override
     public void onBackPressed() {
         //do nothing
     }
-
 
     //ESTIMOTE
     public void initEstimoteBeacons()
@@ -709,6 +752,7 @@ public class MainActivity extends AppCompatActivity {
             proximityManager.stopScanning();
         }
         super.onStop();
+        this.active = false;
     }
 
     @Override

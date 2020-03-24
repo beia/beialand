@@ -7,6 +7,9 @@ import android.widget.TextView;
 
 import com.beia.solomon.MainActivity;
 import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.SignInData;
+import com.beia.solomon.runnables.RequestRunnable;
+import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 
 import java.util.Map;
 
@@ -22,8 +25,7 @@ public class MainActivityHandler extends Handler
     {
         switch(msg.what)
         {
-            case 1:
-                //set the beacons textviews data section
+            case 1://RECEIVED THE BEACONS when inside the main activity
                 for (Map.Entry entry : MainActivity.beacons.entrySet())
                 {
                     Beacon beacon = (Beacon) entry.getValue();
@@ -43,7 +45,7 @@ public class MainActivityHandler extends Handler
                 // set Kontakt beacons
                 mainActivity.initKontaktBeacons();
                 break;
-            case 2:
+            case 2://RECEIVED A CAMPAIGN
                 //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
                 Log.d("CAMPAIGN", "handleMessage: ");
                 break;

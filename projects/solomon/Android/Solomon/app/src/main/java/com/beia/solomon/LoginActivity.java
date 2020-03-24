@@ -4,16 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.ColorInt;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
-import androidx.core.view.ViewCompat;
-import android.text.InputType;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -22,23 +19,19 @@ import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.SignUpData;
 import com.beia.solomon.networkPackets.UserData;
-import com.beia.solomon.runnables.AuthenticationRunnable;
 import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
+import com.beia.solomon.runnables.WaitForServerDataRunnable;
 
 import java.lang.reflect.Field;
 import java.net.*;
@@ -54,15 +47,16 @@ public class LoginActivity extends AppCompatActivity {
     public static Context context;
 
     //Threads
-    public static Thread connectClientThread;
-    public static Thread authenticateClient;
+    public static Thread waitForServerData;
 
     //networking variables
-    public static Socket socket;
-    public static ObjectOutputStream objectOutputStream;
-    public static ObjectInputStream objectInputStream;
+    public static volatile Socket socket;
+    public static volatile ObjectOutputStream objectOutputStream;
+    public static volatile ObjectInputStream objectInputStream;
     public static SharedPreferences sharedPref;
     public static SharedPreferences.Editor editor;
+
+    public static boolean active = false;
 
 
     //UI variables
@@ -155,6 +149,7 @@ public class LoginActivity extends AppCompatActivity {
                     UserData userData = (UserData) msg.obj;
 
                     //check if the user signed in before for automatic login
+                    editor = sharedPref.edit();
                     editor.putString("username", userData.getUsername());
                     editor.putString("password", userData.getPassword());
                     editor.commit();
@@ -199,69 +194,29 @@ public class LoginActivity extends AppCompatActivity {
 
         //initialize the cache
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
 
         //initialize variables
         r = getResources();
+        active = true;
         context = this.getApplicationContext();
         loginActivityInstance = this;
 
+        waitForServerData = new Thread(new WaitForServerDataRunnable());
+        waitForServerData.start();
+
         //initialize the UI
         initUI();
-
-        //check if the user needs to sign in automatically
-        String username, password;
-        username = sharedPref.getString("username", null);
-        password = sharedPref.getString("password", null);
-        //manual login
-        if(username == null || password == null) {
-            //set login layout
-            setLoginLayout();
-        }
-        else {
-            //automatic login
-            setAutomaticLogin();
-        }
-
-        if(objectOutputStream == null || objectInputStream == null) {
-            //connect to the server
-            connectToJavaServer();
-        }
-        //start the login thread - in the handler this method is bad
-        while(true)
-        {
-            if(objectInputStream != null && objectOutputStream != null) {
-                authenticateClient = new Thread(new AuthenticationRunnable(objectOutputStream, objectInputStream));
-                authenticateClient.start();
-                break;
-            }
-        }
-
-        if(username != null && password != null)
-        {
-            automaticSignIn(username, password);
-        }
+        setLoginLayout();
     }
-
-
-
-    //SERVER METHODS
-    public void connectToJavaServer()
-    {
-        connectClientThread = new Thread(new ConnectToJavaServerRunnable());
-        connectClientThread.start();
+    @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
     }
 
     //CLIENT COMMUNICATION METHODS
     public void sendSignInData(SignInData signInData)
     {
-        Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
-        sendSignInDataThread.start();
-    }
-    public void automaticSignIn(String username, String password)
-    {
-        //send the sign in data to the server
-        SignInData signInData = new SignInData(username, password);
         Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
         sendSignInDataThread.start();
     }
@@ -502,10 +457,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirmationSignUpCardView.setVisibility(View.VISIBLE);
         passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
         signUpButton.setVisibility(View.VISIBLE);
-    }
-    public void setAutomaticLogin()
-    {
-        mainLinearLayout.setVisibility(View.GONE);
     }
 
 
