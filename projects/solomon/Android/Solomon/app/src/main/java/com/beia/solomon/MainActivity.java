@@ -136,9 +136,6 @@ public class MainActivity extends AppCompatActivity {
     public TextView usernameTextView;
     public TextView passwordTextView;
     public TextView ageTextView;
-    public EditText usernameEditText;
-    public EditText passswordEditText;
-    public EditText ageEditText;
 
 
     //fragments
@@ -150,12 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Other variables
     public static Date currentTime;
-    public static int userId;
-    public static String username;
-    public static String password;
-    public static String lastName;
-    public static String firstName;
-    public static int age;
+    public static volatile UserData userData;
     public static Context context;
     public static MainActivity mainActivity;
 
@@ -163,43 +155,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //init variables
         context = getApplicationContext();
         mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
-        this.active = true;
-
-        //check if the user needs to sign in automatically
-        if(LoginActivity.sharedPref != null)
-            sharedPref = LoginActivity.sharedPref;
-        else
-            sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        username = sharedPref.getString("username", null);
-        password = sharedPref.getString("password", null);
-        if(username == null && password == null)
-        {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            active = false;
-            finish();
-            return;
-        }
-
-
-        //create a local cache
-        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 16;
-        MainActivity.picturesCache = new LruCache<String, Bitmap>(cacheSize) {
-            @Override
-            protected int sizeOf(String key, Bitmap bitmap) {
-                // The cache size will be measured in kilobytes rather than
-                // number of items.
-                return bitmap.getByteCount() / 1024;
-            }
-        };
-
-        //get the beacons data and initialize the beacons
+        MainActivity.active = true;
         beacons = new HashMap<>();
         regionsEntered = new HashMap<>();
         malls = new HashMap<>();
@@ -211,22 +175,29 @@ public class MainActivity extends AppCompatActivity {
         positionMarkers = new LinkedList<>();
         campaigns = new ArrayList<>();
 
-        initUI();
-
         //create handler
         mainActivityHandler = new MainActivityHandler(this);
-        MainActivity.beaconsTextViews = new HashMap<>();
+
+        //initialize the cache
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
 
         //getUserData
-        UserData userData = (UserData) getIntent().getSerializableExtra("UserData");
-        if(userData != null) {//NORMAL LOGIN
+        MainActivity.userData = (UserData) getIntent().getSerializableExtra("UserData");
+
+        if(userData != null)//NORMAL LOGIN
+        {
+            //save the data in the cache
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("username", userData.getUsername());
+            editor.putString("password", userData.getPassword());
+            editor.apply();
+
+            //get the communication variables from the login activity
             MainActivity.objectOutputStream = LoginActivity.objectOutputStream;
             MainActivity.objectInputStream = LoginActivity.objectInputStream;
-            userId = userData.getUserId();
-            username = userData.getUsername();
-            lastName = userData.getLastName();
-            firstName = userData.getFirstName();
-            age = userData.getAge();
+
+            //the data can be received before the main activity was created
+            //if it's not the code below will be executed in the main activity handler
             if(beaconsReceived)
             {
                 //initialize all the malls and set all the malls entered values to false
@@ -249,9 +220,32 @@ public class MainActivity extends AppCompatActivity {
                 initKontaktBeacons();
             }
         }
-        else {//automatic login
-            new Thread(new WaitForServerDataRunnable()).start();
+        else//AUTOMATIC LOGIN
+        {
+            MainActivity.userData = new UserData(sharedPref.getString("username", null), sharedPref.getString("password", null));
+            if(userData.getUsername() != null && userData.getPassword() != null)//SUCCESSFUL AUTOMATIC LOGIN
+                new Thread(new WaitForServerDataRunnable("MainActivity")).start();
+            else { //AUTOMATIC LOGIN FAILED
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                active = false;
+                finish();
+            }
         }
+
+        //create a local cache
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 16;
+        MainActivity.picturesCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+
+        initUI();
     }
 
     @Override
@@ -294,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
                             public Unit invoke(ProximityZoneContext context) {
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0, true, currentTime, objectOutputStream));
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0, true, currentTime, objectOutputStream));
                                 sendLocationDataThread.start();
                                 return null;
                             }
@@ -304,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                             public Unit invoke(ProximityZoneContext context) {
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0,  false, currentTime, objectOutputStream));
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0,  false, currentTime, objectOutputStream));
                                 sendLocationDataThread.start();
                                 return null;
                             }
@@ -558,7 +552,7 @@ public class MainActivity extends AppCompatActivity {
                             synchronized (objectOutputStream)
                             {
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
+                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
                                 sendLocationDataThread.start();
                             }
                         }
@@ -625,7 +619,7 @@ public class MainActivity extends AppCompatActivity {
                                     synchronized (objectOutputStream)
                                     {
                                         currentTime = Calendar.getInstance().getTime();
-                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
+                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
                                         sendLocationDataThread.start();
                                     }
                                 }
@@ -644,7 +638,7 @@ public class MainActivity extends AppCompatActivity {
                                     synchronized (objectOutputStream)
                                     {
                                         currentTime = Calendar.getInstance().getTime();
-                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), false, currentTime, objectOutputStream));
+                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), false, currentTime, objectOutputStream));
                                         sendLocationDataThread.start();
                                     }
                                 }
@@ -706,7 +700,7 @@ public class MainActivity extends AppCompatActivity {
                                 synchronized (objectOutputStream)
                                 {
                                     currentTime = Calendar.getInstance().getTime();
-                                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userId, iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
+                                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
                                     sendLocationDataThread.start();
                                 }
                             }
@@ -719,7 +713,7 @@ public class MainActivity extends AppCompatActivity {
             public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
             }
         });
-        start();
+        startScanning();
     }
 
 
@@ -732,7 +726,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
-            start();
+            startScanning();
         }
     }
 
@@ -742,7 +736,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
-            start();
+            startScanning();
         }
     }
 
@@ -757,13 +751,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        proximityManager.stopScanning();
-        proximityManager.disconnect();
-        proximityManager = null;
+        if(proximityManager != null) {
+            proximityManager.stopScanning();
+            proximityManager.disconnect();
+            proximityManager = null;
+        }
         super.onDestroy();
     }
 
-    protected void start() {
+    protected void startScanning() {
         proximityManager.connect(new OnServiceReadyListener() {
             @Override
             public void onServiceReady() {
@@ -781,13 +777,8 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mainActivityLinearLayout = findViewById(R.id.mainActivityLinearLayout);
 
-        Drawable backround = ContextCompat.getDrawable(context, R.drawable.cool_sky);
-        backround.setAlpha(120);
-        mainActivityLinearLayout.setBackground(backround);
-
-
         //set tabbed layout
-        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns);
+        storeAdvertisementFragment = new StoreAdvertisementFragment(MainActivity.campaigns);
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
@@ -817,9 +808,9 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         //set images instead of title text for each tab
-        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon);
-        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon);
-        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon);
+        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon).setText("SPECIAL OFFERS");
+        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon).setText("MAP");
+        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon).setText("SETTINGS");
 
 
         //set the user profile UFI variables

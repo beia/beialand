@@ -29,21 +29,25 @@ public class WaitForServerDataRunnable implements Runnable
     private Socket socket;
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;
+    private String currentActivity;
+    public WaitForServerDataRunnable(String activityName)
+    {
+        this.currentActivity = activityName;
+    }
     @Override
     public void run() {
         try
         {
             //CONNECT TO THE SERVER
-            if(LoginActivity.active) {
+            if(currentActivity.equals("LoginActivity")) {
                 socket = new Socket(ip, port);
                 objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 objectInputStream = new ObjectInputStream(socket.getInputStream());
                 LoginActivity.socket = socket;
                 LoginActivity.objectOutputStream = objectOutputStream;
                 LoginActivity.objectInputStream = objectInputStream;
-                Log.d("MUIE", "run: ");
             }
-            if(MainActivity.active)
+            if(currentActivity.equals("MainActivity"))
             {
                 socket = new Socket(ip, port);
                 objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -52,7 +56,7 @@ public class WaitForServerDataRunnable implements Runnable
                 MainActivity.objectOutputStream = objectOutputStream;
                 MainActivity.objectInputStream = objectInputStream;
                 //send the automatic login data
-                SignInData signInData = new SignInData(MainActivity.username, MainActivity.password);
+                SignInData signInData = new SignInData(MainActivity.userData.getUsername(), MainActivity.userData.getPassword());
                 objectOutputStream.writeObject(signInData);
             }
             while (true)
@@ -77,14 +81,24 @@ public class WaitForServerDataRunnable implements Runnable
                             message.sendToTarget();
                             break;
                         case "can't login user":
-                            message = LoginActivity.handler.obtainMessage(1);
-                            message.obj = "username or password are wrong";
-                            message.sendToTarget();
+                            if(currentActivity.equals("LoginActivity")) {
+                                message = LoginActivity.handler.obtainMessage(1);
+                                message.obj = "username or password are wrong";
+                                message.sendToTarget();
+                            }
                             break;
                         case "login successful":
-                            message = LoginActivity.handler.obtainMessage(2);
-                            message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
-                            message.sendToTarget();
+                            if(currentActivity.equals("LoginActivity")) {
+                                message = LoginActivity.handler.obtainMessage(2);
+                                message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
+                                message.sendToTarget();
+                            }
+                            else
+                            {
+                                message = MainActivity.mainActivityHandler.obtainMessage(3);
+                                message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
+                                message.sendToTarget();
+                            }
                             //request campaigns
                             String request1 = "{\"requestType\":\"getBeacons\"}";
                             objectOutputStream.writeObject(request1);
@@ -111,7 +125,7 @@ public class WaitForServerDataRunnable implements Runnable
                     HashMap<Integer, Mall> malls = (HashMap<Integer, Mall>) networkPacket;
                     MainActivity.malls = malls;
                     Log.d("BEACONS", "RECEIVED MALLS DATA");
-                    if(MainActivity.mainActivityHandler != null) {
+                    if(currentActivity.equals("MainActivity")) {
                         //send a message to the handler in the main ui thread that we can start detecting the beacons and sending data to the server regarding user position
                         Message message = MainActivity.mainActivityHandler.obtainMessage(1);
                         message.sendToTarget();
@@ -125,7 +139,13 @@ public class WaitForServerDataRunnable implements Runnable
                 //RECEIVED CAMPAIGNS FOR A STORE
                 if(networkPacket instanceof ArrayList)
                 {
-                    MainActivity.campaigns = (ArrayList<Campaign>)networkPacket;
+                    ArrayList<Campaign> campaigns = (ArrayList<Campaign>)networkPacket;
+                    for(Campaign campaign : campaigns)
+                        MainActivity.campaigns.add(campaign);
+                    if(currentActivity.equals("MainActivity")) {
+                        Message message = MainActivity.mainActivityHandler.obtainMessage(2);
+                        message.sendToTarget();
+                    }
                 }
 
                 //PROFILE PICTURE
@@ -146,5 +166,8 @@ public class WaitForServerDataRunnable implements Runnable
         catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    public void setCurrentActivity(String activityName) {
+        this.currentActivity = activityName;
     }
 }

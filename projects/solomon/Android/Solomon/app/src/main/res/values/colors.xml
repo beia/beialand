@@ -13,4 +13,6 @@
     <color name="gray">#e0e0e0</color>
     <color name="darkgray">#4d4d4d</color>
     <color name="red">#ff3d3d</color>
+    <color name="background">#F16667</color>
+    <color name="background_main">#f2f2f2</color>
 </resources>

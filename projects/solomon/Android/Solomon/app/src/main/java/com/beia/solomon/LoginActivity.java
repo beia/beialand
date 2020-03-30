@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,10 +54,8 @@ public class LoginActivity extends AppCompatActivity {
     public static volatile Socket socket;
     public static volatile ObjectOutputStream objectOutputStream;
     public static volatile ObjectInputStream objectInputStream;
-    public static SharedPreferences sharedPref;
-    public static SharedPreferences.Editor editor;
 
-    public static boolean active = false;
+    public static volatile boolean active = false;
 
 
     //UI variables
@@ -148,12 +147,6 @@ public class LoginActivity extends AppCompatActivity {
                     feedbackTextView.setTextColor(LoginActivity.context.getResources().getColor(R.color.greenAccent));
                     UserData userData = (UserData) msg.obj;
 
-                    //check if the user signed in before for automatic login
-                    editor = sharedPref.edit();
-                    editor.putString("username", userData.getUsername());
-                    editor.putString("password", userData.getPassword());
-                    editor.commit();
-
                     //check if it's the first login of the user so we can setup his preferences first
                     if(userData.isFirstLogin())
                     {
@@ -185,6 +178,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -192,16 +186,13 @@ public class LoginActivity extends AppCompatActivity {
         //request permission
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-        //initialize the cache
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-
         //initialize variables
         r = getResources();
         active = true;
         context = this.getApplicationContext();
         loginActivityInstance = this;
 
-        waitForServerData = new Thread(new WaitForServerDataRunnable());
+        waitForServerData = new Thread(new WaitForServerDataRunnable("LoginActivity"));
         waitForServerData.start();
 
         //initialize the UI
@@ -281,6 +272,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideKeyboard(LoginActivity.loginActivityInstance);
                 feedbackTextView.setVisibility(View.VISIBLE);
                 String username, password;
                 boolean correctLoginData = true;
@@ -484,6 +476,17 @@ public class LoginActivity extends AppCompatActivity {
             field.set(editor, drawables);
         } catch (Exception ignored) {
         }
+    }
+
+    public void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 }

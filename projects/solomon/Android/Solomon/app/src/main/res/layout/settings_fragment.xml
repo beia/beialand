@@ -36,11 +36,11 @@
                 android:id="@+id/profileSettingsCardView"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
-                android:layout_marginTop="100dp"
+                android:layout_marginTop="50dp"
                 android:layout_gravity="center"
                 card_view:cardCornerRadius="22dp"
                 card_view:cardElevation="0dp"
-                card_view:cardBackgroundColor="@color/redAccent">
+                card_view:cardBackgroundColor="@android:color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -91,7 +91,7 @@
                 android:layout_marginTop="30dp"
                 android:layout_height="65dp"
                 android:layout_gravity="center"
-                card_view:cardBackgroundColor="@color/redAccent"
+                card_view:cardBackgroundColor="@android:color/white"
                 card_view:cardElevation="0dp"
                 card_view:cardCornerRadius="22dp">
 
@@ -142,7 +142,7 @@
                 android:layout_marginTop="30dp"
                 android:layout_height="65dp"
                 android:layout_gravity="center"
-                card_view:cardBackgroundColor="@color/redAccent"
+                card_view:cardBackgroundColor="@android:color/white"
                 card_view:cardElevation="0dp"
                 card_view:cardCornerRadius="22dp">
 
@@ -193,7 +193,7 @@
                 android:layout_marginTop="30dp"
                 android:layout_height="65dp"
                 android:layout_gravity="center"
-                card_view:cardBackgroundColor="@color/redAccent"
+                card_view:cardBackgroundColor="@android:color/white"
                 card_view:cardElevation="0dp"
                 card_view:cardCornerRadius="22dp">
 
@@ -245,10 +245,7 @@
                 android:textSize="22sp"
                 android:textColor="@android:color/holo_red_light"
                 android:text="log out"/>
-
         </LinearLayout>
-
     </ScrollView>
-
 
 </LinearLayout>

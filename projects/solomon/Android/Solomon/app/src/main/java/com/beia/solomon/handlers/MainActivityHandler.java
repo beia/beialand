@@ -6,8 +6,10 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.beia.solomon.MainActivity;
+import com.beia.solomon.adapters.CampaignsAdapter;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.SignInData;
+import com.beia.solomon.networkPackets.UserData;
 import com.beia.solomon.runnables.RequestRunnable;
 import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 
@@ -47,7 +49,12 @@ public class MainActivityHandler extends Handler
                 break;
             case 2://RECEIVED A CAMPAIGN
                 //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
-                Log.d("CAMPAIGN", "handleMessage: ");
+                Log.d("CAMPAIGN", "handleMessage: " + MainActivity.campaigns.size());
+                break;
+            case 3://AUTOMATIC LOGIN SUCCESSFUL
+                //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
+                MainActivity.userData = (UserData) msg.obj;
+                Log.d("AUTOMATIC-LOGIN", "SUCCESS");
                 break;
             default:
                 break;

@@ -85,7 +85,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     {
                         //save the profile picture into the memory
                         String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
-                        String userImageString = imageString + " " + MainActivity.userId;
+                        String userImageString = imageString + " " + MainActivity.userData.getUserId();
                         userPrefs.putString("profilePicture", userImageString);
                         userPrefs.commit();
                         Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "Downloaded the profile picture", Toast.LENGTH_LONG).show();
@@ -241,7 +241,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
                 //send update data to the server if at least one field was modified
                 if(username != null || password != null || age != 0) {
-                    UpdateUserData updateUserData = new UpdateUserData(MainActivity.userId, username, password, age);
+                    UpdateUserData updateUserData = new UpdateUserData(MainActivity.userData.getUserId(), username, password, age);
                     Thread updateUserDataThread = new Thread(new SendUserUpdateData(MainActivity.objectOutputStream, updateUserData));
                     updateUserDataThread.start();
                     Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
@@ -249,13 +249,13 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
                 //change the user data
                 if(username != null) {
-                    usernameTextView.setText(MainActivity.username);
-                    MainActivity.username = username;
+                    usernameTextView.setText(MainActivity.userData.getUsername());
+                    MainActivity.userData.setUsername(username);
                     usernameTextView.setText(username);
                 }
                 if(age != 0) {
-                    ageTextView.setText(Integer.toString(MainActivity.age));
-                    MainActivity.age = age;
+                    ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
+                    MainActivity.userData.setAge(age);
                     ageTextView.setText(Integer.toString(age));
                 }
 
@@ -300,15 +300,10 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         cancelAgeChangesButton = findViewById(R.id.cancelAgeChangeButton);
         saveChangesButton = findViewById(R.id.saveChangesButton);
 
-        //set the linear layout backround texture
-        Drawable backround = ContextCompat.getDrawable(this.getApplicationContext(),R.drawable.cool_sky);
-        backround.setAlpha(120);
-        profileSettingsActivityLinearLayout.setBackground(backround);
-
         //set the UI based on user data
-        nameTextView.setText(MainActivity.lastName + " " + MainActivity.firstName);
-        usernameTextView.setText(MainActivity.username);
-        ageTextView.setText(Integer.toString(MainActivity.age));
+        nameTextView.setText(MainActivity.userData.getLastName() + " " + MainActivity.userData.getFirstName());
+        usernameTextView.setText(MainActivity.userData.getUsername());
+        ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
 
         //if we can't find the profile picture in the cache we check in the users prefs or we get it from the server
         if(MainActivity.picturesCache == null || MainActivity.picturesCache.get("profilePicture") == null)
@@ -327,7 +322,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     String[] data = userImageString.split(" ");
                     String imageString = data[0];
                     int userId = Integer.parseInt(data[1]);
-                    if(userId == MainActivity.userId) {
+                    if(userId == MainActivity.userData.getUserId()) {
                         Bitmap imageBitmap = decodeBase64(imageString);
                         ProfileSettingsActivity.profilePicture.setImageBitmap(imageBitmap);
                         //save the picture into cache memory
@@ -396,7 +391,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         //compress the bitmap data and save it into a byte array
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] imageContent = baos.toByteArray();
-                        int userId = MainActivity.userId;
+                        int userId = MainActivity.userData.getUserId();
                         ImageData imageData = new ImageData(imageContent, userId);
                         baos.close();
 
@@ -416,7 +411,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         SharedPreferences.Editor userPrefs = myPrefs.edit();
                         //save the profile picture into the memory
                         String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
-                        String userImageString = imageString + " " + MainActivity.userId;
+                        String userImageString = imageString + " " + MainActivity.userData.getUserId();
                         userPrefs.putString("profilePicture", userImageString);
                         userPrefs.commit();
                     } catch (IOException e) {
@@ -426,8 +421,6 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             }
         }
     }
-
-
 
     public Bitmap getCorrectBitmap(String photoPath, Bitmap bitmap) throws IOException
     {

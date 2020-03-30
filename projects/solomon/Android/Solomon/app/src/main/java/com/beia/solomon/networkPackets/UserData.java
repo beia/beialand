@@ -22,6 +22,12 @@ public class UserData implements Serializable
         this.isFirstLogin = isFirstLogin;
     }
 
+    public UserData(String username, String password)
+    {
+        this.username = username;
+        this.password = password;
+    }
+
     public int getUserId() {
         return userId;
     }
@@ -31,4 +37,9 @@ public class UserData implements Serializable
     public String getFirstName() { return this.firstName; }
     public int getAge() { return this.age; }
     public boolean isFirstLogin() { return this.isFirstLogin; }
+    public void setUsername(String username) { this.username = username; }
+    public void setPassword(String password) { this.password = password; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public void setAge(int age) { this.age = age; }
 }

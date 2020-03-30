@@ -49,6 +49,7 @@
 
         <activity
             android:name=".LoginActivity"
+            android:theme="@style/AppThemeLogo"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
         </activity>
@@ -61,11 +62,11 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation"
+            android:theme="@style/AppThemeLogo"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

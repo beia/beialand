@@ -1,6 +1,7 @@
 package com.beia.solomon;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,9 +40,10 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //delete the user automatic login data from the cache
-                LoginActivity.editor.putString("username", null);
-                LoginActivity.editor.putString("password", null);
-                LoginActivity.editor.commit();
+                SharedPreferences.Editor editor = MainActivity.sharedPref.edit();
+                editor.putString("username", null);
+                editor.putString("password", null);
+                editor.apply();
                 //send a message to the server to logout the user and wait for authentication data
                 Thread logoutThread = new Thread(new SendAuthenticationDataRunnable("log out", MainActivity.objectOutputStream));
                 logoutThread.start();

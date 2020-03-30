@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/cool_sky"
+    android:background="@color/background_main"
     tools:context=".MainActivity">
 
 
     <androidx.viewpager.widget.ViewPager
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="92"
         android:background="@color/transparentColor"
         android:id="@+id/viewPagerId">
     </androidx.viewpager.widget.ViewPager>
@@ -21,11 +21,13 @@
 
     <com.google.android.material.tabs.TabLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="8"
         app:tabGravity="fill"
         app:tabMode="fixed"
         android:id="@+id/tabLayoutId"
-        app:tabTextColor="@color/greenAccent"
-        app:tabIndicatorColor="@color/colorPrimary"
+        app:tabTextColor="@color/darkgray"
+        app:tabIndicatorColor="@color/darkgray"
+        app:tabBackground="@android:color/white"
         android:background="@color/transparentColor"/>
 </LinearLayout>
