@@ -263,6 +263,11 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 System.out.println("No campaigns available");
                             }
                             break;
+                        case "getNotifications":
+                            int userId = (Integer)jsonObject.get("userId");
+                            System.out.println("User with id: " + userId + " requested notifications");
+                            objectOutputStream.writeObject("{\"responseType\":\"normalNotification\", \"message\":\"test notification\"}");
+                            break;
                         default:
                             break;
                     }

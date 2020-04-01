@@ -1,8 +1,7 @@
 package com.beia.solomon.runnables;
 import android.os.Message;
-import android.util.Log;
 import android.widget.LinearLayout;
-import com.beia.solomon.PreferencesActivity;
+import com.beia.solomon.activities.PreferencesActivity;
 
 import java.util.Random;
 

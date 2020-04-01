@@ -1,26 +1,21 @@
-package com.beia.solomon;
+package com.beia.solomon.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Path;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.PathInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.UserData;
 import com.beia.solomon.networkPackets.UserPreferences;
 import com.beia.solomon.runnables.SendPreferencesRunnable;
@@ -29,7 +24,6 @@ import com.beia.solomon.runnables.UpdateImageLocationRunnable;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 

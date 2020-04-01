@@ -1,4 +1,4 @@
-package com.beia.solomon;
+package com.beia.solomon.fragments;
 
 import android.os.Bundle;
 

@@ -1,7 +1,6 @@
 package com.beia.solomon.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -12,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.beia.solomon.MainActivity;
+import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.Campaign;
 

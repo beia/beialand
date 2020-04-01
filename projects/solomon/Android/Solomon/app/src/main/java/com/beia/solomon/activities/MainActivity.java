@@ -1,30 +1,30 @@
-package com.beia.solomon;
+package com.beia.solomon.activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.beia.solomon.comparators.DistanceComparator;
+import com.beia.solomon.fragments.MapFragment;
+import com.beia.solomon.R;
+import com.beia.solomon.fragments.SettingsFragment;
+import com.beia.solomon.fragments.StoreAdvertisementFragment;
+import com.beia.solomon.adapters.ViewPagerAdapter;
 import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.Mall;
-import com.beia.solomon.networkPackets.SignInData;
+import com.beia.solomon.receivers.NotificationReceiver;
 import com.beia.solomon.runnables.RequestRunnable;
-import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 import com.beia.solomon.runnables.WaitForServerDataRunnable;
-import com.beia.solomon.trilateration.Point;
-import com.beia.solomon.trilateration.Trilateration;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
@@ -40,7 +40,6 @@ import com.beia.solomon.networkPackets.KontaktBeacon;
 import com.beia.solomon.networkPackets.UserData;
 import com.beia.solomon.runnables.SendLocationDataRunnable;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
@@ -67,11 +66,11 @@ import android.widget.Toast;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -151,7 +150,9 @@ public class MainActivity extends AppCompatActivity {
     public static Context context;
     public static MainActivity mainActivity;
 
-
+    //NOTIFICATIONS BACKGROUND PROCESS
+    private PendingIntent pendingIntent;
+    private AlarmManager alarmManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,6 +187,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(userData != null)//NORMAL LOGIN
         {
+            //start the notifications background process
+            NotificationReceiver.userId = userData.getUserId();
+            setupBackgroundProcess();
+
             //save the data in the cache
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("username", userData.getUsername());
@@ -252,6 +257,19 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         //do nothing
     }
+
+
+    //NOTIFICATIONS
+    public void setupBackgroundProcess()
+    {
+        Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
+        Log.d("ALARM", "started");
+    }
+
+
 
     //ESTIMOTE
     public void initEstimoteBeacons()

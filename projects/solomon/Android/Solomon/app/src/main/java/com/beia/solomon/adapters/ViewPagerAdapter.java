@@ -1,4 +1,4 @@
-package com.beia.solomon;
+package com.beia.solomon.adapters;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;

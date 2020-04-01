@@ -1,4 +1,4 @@
-package com.beia.solomon;
+package com.beia.solomon.fragments;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -12,6 +12,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.beia.solomon.R;
 import com.beia.solomon.adapters.CampaignsAdapter;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.Campaign;

@@ -1,9 +1,8 @@
-package com.beia.solomon;
+package com.beia.solomon.activities;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.os.Message;
@@ -28,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.SignUpData;
 import com.beia.solomon.networkPackets.UserData;

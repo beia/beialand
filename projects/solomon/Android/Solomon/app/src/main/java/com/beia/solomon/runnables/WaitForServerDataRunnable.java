@@ -1,12 +1,11 @@
 package com.beia.solomon.runnables;
 
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.beia.solomon.LoginActivity;
-import com.beia.solomon.MainActivity;
-import com.beia.solomon.ProfileSettingsActivity;
+import com.beia.solomon.activities.LoginActivity;
+import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.activities.ProfileSettingsActivity;
 import com.beia.solomon.networkPackets.BeaconsData;
 import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.ImageData;
@@ -24,8 +23,8 @@ import java.util.HashMap;
 
 public class WaitForServerDataRunnable implements Runnable
 {
-    private static final String ip = "192.168.0.45";
-    private static final int port = 7000;
+    public static final String ip = "192.168.0.45";
+    public static final int port = 7000;
     private Socket socket;
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;

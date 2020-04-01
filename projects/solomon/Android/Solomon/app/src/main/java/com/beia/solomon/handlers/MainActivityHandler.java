@@ -3,15 +3,10 @@ package com.beia.solomon.handlers;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.TextView;
 
-import com.beia.solomon.MainActivity;
-import com.beia.solomon.adapters.CampaignsAdapter;
+import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.networkPackets.Beacon;
-import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.UserData;
-import com.beia.solomon.runnables.RequestRunnable;
-import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 
 import java.util.Map;
 

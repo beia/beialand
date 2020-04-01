@@ -1,4 +1,4 @@
-package com.beia.solomon;
+package com.beia.solomon.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.beia.solomon.R;
+import com.beia.solomon.activities.LoginActivity;
+import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.activities.ProfileSettingsActivity;
 import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 
 import java.util.ArrayList;

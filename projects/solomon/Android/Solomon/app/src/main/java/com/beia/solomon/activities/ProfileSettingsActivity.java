@@ -1,4 +1,4 @@
-package com.beia.solomon;
+package com.beia.solomon.activities;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -16,7 +15,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -28,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.UpdateUserData;
 import com.beia.solomon.runnables.SendImageRunable;

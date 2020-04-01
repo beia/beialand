@@ -15,4 +15,7 @@
     <color name="red">#ff3d3d</color>
     <color name="background">#F16667</color>
     <color name="background_main">#f2f2f2</color>
+
+    <color name="mallAlertsColor">#ff3d40</color>
+    <color name="normalNotificationsColor">#4f9eff</color>
 </resources>
