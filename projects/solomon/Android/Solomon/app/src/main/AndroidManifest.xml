@@ -49,7 +49,7 @@
             android:name="kontakt.io.API_KEY"
             android:value="@string/kontakt_io_api_key" />
 
-        <receiver android:name=".receivers.NotificationReceiver"></receiver>
+        <receiver android:name=".receivers.NotificationReceiver"/>
 
         <activity
             android:name=".activities.LoginActivity"

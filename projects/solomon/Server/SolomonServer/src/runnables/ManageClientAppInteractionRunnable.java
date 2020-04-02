@@ -17,6 +17,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import data.Notification;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import solomonserver.SolomonServer;
@@ -264,9 +266,17 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             }
                             break;
                         case "getNotifications":
-                            int userId = (Integer)jsonObject.get("userId");
-                            System.out.println("User with id: " + userId + " requested notifications");
-                            objectOutputStream.writeObject("{\"responseType\":\"normalNotification\", \"message\":\"test notification\"}");
+                            int id = (int)(long) jsonObject.get("userId");
+                            System.out.println("User with id: " + id + " requested notifications");
+                            String response;
+                            if(SolomonServer.notificationsMap.containsKey(id) && !SolomonServer.notificationsMap.get(id).isEmpty()) {
+                                Notification notification = SolomonServer.notificationsMap.get(id).poll();
+                                response = "{\"responseType\":\"" + notification.getNotificationType() + "\", \"message\":\"" + notification.getMessage() + "\"}";
+                            }
+                            else {
+                                response = "{\"responseType\":\"null\"}";
+                            }
+                            objectOutputStream.writeObject(response);
                             break;
                         default:
                             break;

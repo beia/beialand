@@ -188,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
         if(userData != null)//NORMAL LOGIN
         {
             //start the notifications background process
-            NotificationReceiver.userId = userData.getUserId();
             setupBackgroundProcess();
 
             //save the data in the cache
@@ -263,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
     public void setupBackgroundProcess()
     {
         Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+        alarmIntent.putExtra("idUser", userData.getUserId());
         pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
         alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);

@@ -24,9 +24,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import data.Notification;
 import runnables.*;
 
 /**
@@ -44,6 +46,7 @@ public class SolomonServer {
     public static volatile HashMap<String, String> companiesMap;//key:id value:name
     public static volatile HashMap<String, Campaign> campaignsMapById;//key:id value:campaign
     public static volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName;//key:companyName value:array of campaigns
+    public static volatile HashMap<Integer, Queue<Notification>> notificationsMap;//key:userId value:notifications
     
     //Solomon partners variables
     public static ServerSocket partnersServerSocket;
@@ -82,16 +85,21 @@ public class SolomonServer {
         companiesMap = new HashMap<>();
         campaignsMapById = new HashMap<>();
         campaignsMapByCompanyName = new HashMap<>();
+        notificationsMap = new HashMap<>();
         webClientsTokensMap = new HashMap<>();
-        
+
         //connect to a mySql database
         connectToDatabase();
 
         //get the data from the database
         getCompanies();
         getCampaigns();
+
+        //update campaigns
         new Thread(new UpdateCampaignsForUsersRunnable(companiesMap, campaignsMapById, campaignsMapByCompanyName)).start();
 
+        //update notifications
+        new Thread(new UpdateNotificationsRunnable(notificationsMap)).start();
         
         //create a tcp server socket and wait for client connections
         serverSocket = new ServerSocket(7000);

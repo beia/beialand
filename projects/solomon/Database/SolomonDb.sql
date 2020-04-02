@@ -76,7 +76,7 @@ CREATE TABLE `campaigns` (
 
 LOCK TABLES `campaigns` WRITE;
 /*!40000 ALTER TABLE `campaigns` DISABLE KEYS */;
-INSERT INTO `campaigns` VALUES ('1','New_User','','Autumn Collection','10/01/2019 - 11/29/2019','','C:\\Users\\beia\\campainsPhotos\\autumn.jpg'),('4','New_User_2','','Spring Collection','04/10/2019 - 05/29/2019','','C:\\Users\\beia\\campainsPhotos\\spring.jpg'),('5','New_User_2','','Winter Collection','04/11/2019 - 12/29/2019','','C:\\Users\\beia\\campainsPhotos\\winter.jpg'),('testCampaign','pcgarage','Monitor Lenovo Gaming 884,99 RON','Monitor LED Lenovo Gaming Legion Y25f-10 24.5 inch 1ms FreeSync 144Hz','2020/03/20 12:00:00','2020/03/30 12:00:00','CampaignsPictures/testCampaign.jpg');
+INSERT INTO `campaigns` VALUES ('1','New_User','','Autumn Collection','10/01/2019 - 11/29/2019','','C:\\Users\\beia\\campainsPhotos\\autumn.jpg'),('4','New_User_2','','Spring Collection','04/10/2019 - 05/29/2019','','C:\\Users\\beia\\campainsPhotos\\spring.jpg'),('5','New_User_2','','Winter Collection','04/11/2019 - 12/29/2019','','C:\\Users\\beia\\campainsPhotos\\winter.jpg'),('testCampaign','pcgarage','Monitor Lenovo Gaming 884,99 RON','Monitor LED Lenovo Gaming Legion Y25f-10 24.5 inch 1ms FreeSync 144Hz','2020/03/20 12:00:00','2020/04/30 12:00:00','CampaignsPictures/testCampaign.jpg');
 /*!40000 ALTER TABLE `campaigns` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -127,7 +127,7 @@ CREATE TABLE `companies` (
 
 LOCK TABLES `companies` WRITE;
 /*!40000 ALTER TABLE `companies` DISABLE KEYS */;
-INSERT INTO `companies` VALUES ('mega','1234','Mega Image'),('New_User','1234','BEIA'),('New_User_2','1234','Random_Company'),('pcgarage','1234','Pc Garage');
+INSERT INTO `companies` VALUES ('mega','1234','Mega Image'),('New_User','1234','BEIA'),('New_User_2','1234','Random_Company'),('pcgarage','1234','Pc Garage'),('pcgarage2','1234','Pc Garage2');
 /*!40000 ALTER TABLE `companies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -155,6 +155,31 @@ LOCK TABLES `malls` WRITE;
 /*!40000 ALTER TABLE `malls` DISABLE KEYS */;
 INSERT INTO `malls` VALUES (1,'VirtualMall',0,0),(2,'Beia',0,0);
 /*!40000 ALTER TABLE `malls` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `notifications`
+--
+
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notifications` (
+  `idNotification` int NOT NULL AUTO_INCREMENT,
+  `type` varchar(45) NOT NULL,
+  `message` varchar(45) NOT NULL,
+  PRIMARY KEY (`idNotification`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notifications`
+--
+
+LOCK TABLES `notifications` WRITE;
+/*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
+INSERT INTO `notifications` VALUES (1,'mallAlert','incendiu'),(3,'normalNotification','reducere 50% la multe produse'),(4,'mallAlert','corona'),(5,'mallAlert','bomba');
+/*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -358,7 +383,7 @@ CREATE TABLE `userbeacontime` (
 
 LOCK TABLES `userbeacontime` WRITE;
 /*!40000 ALTER TABLE `userbeacontime` DISABLE KEYS */;
-INSERT INTO `userbeacontime` VALUES (381,15,'MTFa','Starbucks',2,6972),(382,15,'tZF7','Stairs 1',2,3486),(383,15,'aaai','McDonald\'s',2,0),(384,15,'R4JH','Carturesti',2,2241),(385,15,'g0MK','Altex',2,0),(386,15,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(387,15,'LKhV','Media Galaxy',2,34226346),(388,15,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(389,15,'zbCe','Pull&Bear',2,6723),(390,15,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(391,15,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(392,15,'0Qq2','Zara',2,9445),(393,15,'y0PY','Gloria',2,0),(394,15,'ygmN','Entrance',2,0),(395,15,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(396,15,'v7mz','Stairs 2',2,1494),(397,15,'lZyt','Diverta',2,0),(398,15,'PcNy','Auchan',2,0),(399,15,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(400,15,'rrZd','Florarie',2,0),(401,16,'LKhV','Media Galaxy',2,1246998),(402,16,'tZF7','Stairs 1',2,0),(403,16,'aaai','McDonald\'s',2,0),(404,16,'R4JH','Carturesti',2,0),(405,16,'MTFa','Starbucks',2,0),(406,16,'g0MK','Altex',2,0),(407,16,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(408,16,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(409,16,'zbCe','Pull&Bear',2,0),(410,16,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(411,16,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(412,16,'0Qq2','Zara',2,0),(413,16,'y0PY','Gloria',2,0),(414,16,'ygmN','Entrance',2,0),(415,16,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(416,16,'v7mz','Stairs 2',2,0),(417,16,'lZyt','Diverta',2,0),(418,16,'PcNy','Auchan',2,0),(419,16,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(420,16,'rrZd','Florarie',2,0),(421,17,'MTFa','Starbucks',2,747),(422,17,'tZF7','Stairs 1',2,0),(423,17,'aaai','McDonald\'s',2,0),(424,17,'R4JH','Carturesti',2,20088),(425,17,'g0MK','Altex',2,0),(426,17,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(427,17,'LKhV','Media Galaxy',2,0),(428,17,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(429,17,'zbCe','Pull&Bear',2,0),(430,17,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(431,17,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(432,17,'0Qq2','Zara',2,0),(433,17,'y0PY','Gloria',2,0),(434,17,'ygmN','Entrance',2,0),(435,17,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(436,17,'v7mz','Stairs 2',2,1743),(437,17,'lZyt','Diverta',2,0),(438,17,'PcNy','Auchan',2,0),(439,17,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(440,17,'rrZd','Florarie',2,39993),(441,18,'rrZd','Florarie',2,12163),(442,18,'tZF7','Stairs 1',2,14136),(443,18,'aaai','McDonald\'s',2,0),(444,18,'R4JH','Carturesti',2,0),(445,18,'MTFa','Starbucks',2,0),(446,18,'g0MK','Altex',2,23070),(447,18,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(448,18,'LKhV','Media Galaxy',2,0),(449,18,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(450,18,'zbCe','Pull&Bear',2,0),(451,18,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(452,18,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(453,18,'0Qq2','Zara',2,0),(454,18,'y0PY','Gloria',2,4483),(455,18,'ygmN','Entrance',2,67961),(456,18,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(457,18,'v7mz','Stairs 2',2,0),(458,18,'lZyt','Diverta',2,0),(459,18,'PcNy','Auchan',2,0),(460,18,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(461,19,'LKhV','Media Galaxy',2,98502),(462,19,'tZF7','Stairs 1',2,0),(463,19,'aaai','McDonald\'s',2,0),(464,19,'R4JH','Carturesti',2,0),(465,19,'MTFa','Starbucks',2,0),(466,19,'g0MK','Altex',2,0),(467,19,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(468,19,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(469,19,'zbCe','Pull&Bear',2,0),(470,19,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(471,19,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(472,19,'0Qq2','Zara',2,0),(473,19,'y0PY','Gloria',2,0),(474,19,'ygmN','Entrance',2,0),(475,19,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(476,19,'v7mz','Stairs 2',2,0),(477,19,'lZyt','Diverta',2,0),(478,19,'PcNy','Auchan',2,0),(479,19,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(480,19,'rrZd','Florarie',2,0);
+INSERT INTO `userbeacontime` VALUES (381,15,'MTFa','Starbucks',2,7784),(382,15,'tZF7','Stairs 1',2,3892),(383,15,'aaai','McDonald\'s',2,0),(384,15,'R4JH','Carturesti',2,2502),(385,15,'g0MK','Altex',2,0),(386,15,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(387,15,'LKhV','Media Galaxy',2,38294814),(388,15,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(389,15,'zbCe','Pull&Bear',2,7506),(390,15,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(391,15,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(392,15,'0Qq2','Zara',2,10547),(393,15,'y0PY','Gloria',2,0),(394,15,'ygmN','Entrance',2,0),(395,15,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(396,15,'v7mz','Stairs 2',2,1668),(397,15,'lZyt','Diverta',2,0),(398,15,'PcNy','Auchan',2,0),(399,15,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(400,15,'rrZd','Florarie',2,0),(401,16,'LKhV','Media Galaxy',2,1392810),(402,16,'tZF7','Stairs 1',2,0),(403,16,'aaai','McDonald\'s',2,0),(404,16,'R4JH','Carturesti',2,0),(405,16,'MTFa','Starbucks',2,0),(406,16,'g0MK','Altex',2,0),(407,16,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(408,16,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(409,16,'zbCe','Pull&Bear',2,0),(410,16,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(411,16,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(412,16,'0Qq2','Zara',2,0),(413,16,'y0PY','Gloria',2,0),(414,16,'ygmN','Entrance',2,0),(415,16,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(416,16,'v7mz','Stairs 2',2,0),(417,16,'lZyt','Diverta',2,0),(418,16,'PcNy','Auchan',2,0),(419,16,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(420,16,'rrZd','Florarie',2,0),(421,17,'MTFa','Starbucks',2,834),(422,17,'tZF7','Stairs 1',2,0),(423,17,'aaai','McDonald\'s',2,0),(424,17,'R4JH','Carturesti',2,22437),(425,17,'g0MK','Altex',2,0),(426,17,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(427,17,'LKhV','Media Galaxy',2,0),(428,17,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(429,17,'zbCe','Pull&Bear',2,0),(430,17,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(431,17,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(432,17,'0Qq2','Zara',2,0),(433,17,'y0PY','Gloria',2,0),(434,17,'ygmN','Entrance',2,0),(435,17,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(436,17,'v7mz','Stairs 2',2,1946),(437,17,'lZyt','Diverta',2,0),(438,17,'PcNy','Auchan',2,0),(439,17,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(440,17,'rrZd','Florarie',2,44662),(441,18,'rrZd','Florarie',2,13584),(442,18,'tZF7','Stairs 1',2,15789),(443,18,'aaai','McDonald\'s',2,0),(444,18,'R4JH','Carturesti',2,0),(445,18,'MTFa','Starbucks',2,0),(446,18,'g0MK','Altex',2,25767),(447,18,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(448,18,'LKhV','Media Galaxy',2,0),(449,18,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(450,18,'zbCe','Pull&Bear',2,0),(451,18,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(452,18,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(453,18,'0Qq2','Zara',2,0),(454,18,'y0PY','Gloria',2,5005),(455,18,'ygmN','Entrance',2,75907),(456,18,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(457,18,'v7mz','Stairs 2',2,0),(458,18,'lZyt','Diverta',2,0),(459,18,'PcNy','Auchan',2,0),(460,18,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(461,19,'LKhV','Media Galaxy',2,110015),(462,19,'tZF7','Stairs 1',2,0),(463,19,'aaai','McDonald\'s',2,0),(464,19,'R4JH','Carturesti',2,0),(465,19,'MTFa','Starbucks',2,0),(466,19,'g0MK','Altex',2,0),(467,19,'ee4d538a36c2bbac622980b351ba9a0a','Room3',1,0),(468,19,'580a946d72a0aea856aa9e0dd4beda37','Room6',1,0),(469,19,'zbCe','Pull&Bear',2,0),(470,19,'44cf736f23ac5add5e8d15b021600d03','Room4',1,0),(471,19,'01d1b1ded3ea74f01f464d076f2f8138','Room1',1,0),(472,19,'0Qq2','Zara',2,0),(473,19,'y0PY','Gloria',2,0),(474,19,'ygmN','Entrance',2,0),(475,19,'2c49b20fa9a9a4c9ee5d64b884811b34','Room5',1,0),(476,19,'v7mz','Stairs 2',2,0),(477,19,'lZyt','Diverta',2,0),(478,19,'PcNy','Auchan',2,0),(479,19,'716cb1ae9008d60e5e40499ec67a772f','Room2',1,0),(480,19,'rrZd','Florarie',2,0);
 /*!40000 ALTER TABLE `userbeacontime` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -411,7 +436,7 @@ CREATE TABLE `userpreferences` (
   PRIMARY KEY (`iduserPreferences`),
   KEY `idUser_idx` (`idUser`),
   CONSTRAINT `idUser` FOREIGN KEY (`idUser`) REFERENCES `users` (`idusers`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -420,7 +445,7 @@ CREATE TABLE `userpreferences` (
 
 LOCK TABLES `userpreferences` WRITE;
 /*!40000 ALTER TABLE `userpreferences` DISABLE KEYS */;
-INSERT INTO `userpreferences` VALUES (64,15,'electronics'),(65,15,'clothes'),(66,15,'food'),(67,16,'cofee'),(68,16,'food'),(69,16,'clothes'),(70,17,'cofee'),(71,17,'clothes'),(72,17,'food'),(73,18,'electronics'),(74,18,'sports'),(75,18,'food'),(76,19,'shoes'),(77,19,'food'),(78,19,'clothes'),(79,21,'electronics'),(80,21,'shoes'),(81,21,'cofee'),(82,21,'electronics'),(83,21,'shoes'),(84,21,'cofee'),(85,22,'sports'),(86,22,'clothes'),(87,22,'food');
+INSERT INTO `userpreferences` VALUES (64,15,'electronics'),(65,15,'clothes'),(66,15,'food'),(67,16,'cofee'),(68,16,'food'),(69,16,'clothes'),(70,17,'cofee'),(71,17,'clothes'),(72,17,'food'),(73,18,'electronics'),(74,18,'sports'),(75,18,'food'),(76,19,'shoes'),(77,19,'food'),(78,19,'clothes'),(79,21,'electronics'),(80,21,'shoes'),(81,21,'cofee'),(82,21,'electronics'),(83,21,'shoes'),(84,21,'cofee'),(85,22,'sports'),(86,22,'clothes'),(87,22,'food'),(88,23,'electronics'),(89,23,'cofee'),(90,23,'shoes');
 /*!40000 ALTER TABLE `userpreferences` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -440,7 +465,7 @@ CREATE TABLE `users` (
   `age` varchar(45) NOT NULL,
   `picture` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`idusers`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -449,7 +474,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (15,'bala','1234','Balanean','Cristian','22','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\15.jpg'),(16,'apasat','beia','Pasat','Adrian','32','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\16.jpg'),(17,'IoanaP95','beiasolomon1','Petre','Ioana','24','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\17.jpg'),(18,'Cris','beia','Istrate','Cristiana','23',NULL),(19,'deni06','deni1997','Deni','Botezatu','22','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\19.jpg'),(20,'Stefans\n','totaltelecom','Stefanescu','Stefan','60',NULL),(21,'Stefant','totaltelecom1','Stefanescu','Stefan','60',NULL),(22,'cristian','�gB��\\v��U�g�6#ȳ��E��x��F�','Balanean','Cristian','23',NULL);
+INSERT INTO `users` VALUES (15,'bala','1234','Balanean','Cristian','22','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\15.jpg'),(16,'apasat','beia','Pasat','Adrian','32','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\16.jpg'),(17,'IoanaP95','beiasolomon1','Petre','Ioana','24','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\17.jpg'),(18,'Cris','beia','Istrate','Cristiana','23',NULL),(19,'deni06','deni1997','Deni','Botezatu','22','C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\19.jpg'),(20,'Stefans\n','totaltelecom','Stefanescu','Stefan','60',NULL),(21,'Stefant','totaltelecom1','Stefanescu','Stefan','60',NULL),(22,'cristian','�gB��\\v��U�g�6#ȳ��E��x��F�','Balanean','Cristian','23','ProfilePictures\\22.jpg'),(23,'random','�gB��\\v��U�g�6#ȳ��E��x��F�','User','Random','20',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -462,4 +487,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-23 18:29:41
+-- Dump completed on 2020-04-02 17:33:54

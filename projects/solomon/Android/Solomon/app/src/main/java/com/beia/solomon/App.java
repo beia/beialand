@@ -2,6 +2,7 @@ package com.beia.solomon;
 
 import android.app.AlarmManager;
 import android.app.Application;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,7 +23,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         createNotificationChannels();
     }
 
@@ -34,6 +34,7 @@ public class App extends Application {
                     NotificationManager.IMPORTANCE_HIGH
             );
             mallAlertsChannel.setDescription("MALL ALERTS");
+            mallAlertsChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             mallAlertsChannel.setVibrationPattern(new long[]{1000, 0, 1000, 0, 1000});
             mallAlertsChannel.enableLights(true);
 
