@@ -41,9 +41,7 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <service
-            android:name="com.kontakt.sdk.android.ble.service.ProximityService"
-            android:exported="false" />
+        <service android:name="com.kontakt.sdk.android.ble.service.ProximityService" android:exported="false"/>
 
         <meta-data
             android:name="kontakt.io.API_KEY"

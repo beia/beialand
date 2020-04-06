@@ -1,5 +1,6 @@
 package com.beia.solomon.activities;
 
+import android.animation.TimeAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -88,6 +89,7 @@ import kotlin.jvm.functions.Function1;
 public class MainActivity extends AppCompatActivity {
 
     //beacon variables
+    public static final int roomDimension = 4;//meters
     public static volatile HashMap<String, Beacon> beacons;//change to public not static
     public static volatile HashMap<String, Boolean> regionsEntered;
     public static volatile HashMap<Integer, Mall> malls;
@@ -248,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
                 return bitmap.getByteCount() / 1024;
             }
         };
-
         initUI();
     }
 
@@ -388,6 +389,7 @@ public class MainActivity extends AppCompatActivity {
         {
             if(beacon instanceof KontaktBeacon)
             {
+                Log.d("BEACONS", "initKontaktBeacons: " + beacon.getLabel());
                 KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
                 IBeaconRegion kontaktRegion = new BeaconRegion.Builder()
                         .identifier(kontaktBeacon.getLabel())
@@ -399,7 +401,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
         //manage the regions
         proximityManager.spaces().iBeaconRegions(beaconRegions);
 
@@ -408,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
             {
-                //check if the mall changed
+                //CHECK IF THE MALL CHANGED
                 if(MainActivity.mallsEntered.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId()) == false)
                 {
                     //update the map based on the beacon mallId
@@ -427,9 +428,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     */
 
-
                     if(indoorBuilding == null)
                         Log.d("NULL BUILDING", "onIBeaconDiscovered: ");
+
+                    //SET THE INDOOR LEVELS
                     if(indoorBuilding != null)
                     {
                         List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
@@ -508,16 +510,15 @@ public class MainActivity extends AppCompatActivity {
                 {
                     KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeaconDevice.getUniqueId());
                     double distance = iBeaconDevice.getDistance();
-                    if(distance < 15)//request the campaigns from the store only if the distance is smaller that 15 metres
-                    {
-                        String request = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.COMPANY + "\"}";
-                        new Thread(new RequestRunnable(request, objectOutputStream)).start();
-                    }
+
+                    //send the distance to the users
+                    String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"beaconLabel\":\"" + kontaktBeacon.getLabel() + "\"}";
+                    new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
                     {
-                        if(distance < 3.5)
+                        if(distance < roomDimension * 0.5)
                         {
                             //check if the map loaded and initialize variables
                             if(indoorBuilding == null)
@@ -583,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
                             if(!inZone)
                             {
                                 //user is inside the region
-                                if(distance < 3.5)
+                                if(distance < roomDimension * 0.5)
                                 {
                                     //check if the map loaded and initialize variables
                                     if(indoorBuilding == null)
@@ -645,7 +646,7 @@ public class MainActivity extends AppCompatActivity {
                             else
                             {
                                 //user is outside the region
-                                if(distance > 6)
+                                if(distance > roomDimension)
                                 {
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), false);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -664,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else
                         {
-                            if(distance < 3.5)
+                            if(distance < roomDimension * 0.5)
                             {
                                 //check if the map loaded and initialize variables
                                 if(indoorBuilding == null)
@@ -726,7 +727,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
             @Override
             public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
             }
@@ -735,13 +735,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     @Override
     protected void onStart() {
         super.onStart();
-
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
             startScanning();
@@ -782,6 +778,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onServiceReady() {
                 proximityManager.startScanning();
+                Toast.makeText(context, "scanning for beacons...", Toast.LENGTH_SHORT).show();
             }
         });
     }

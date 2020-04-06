@@ -7,11 +7,7 @@ package runnables;
 
 import com.beia.solomon.networkPackets.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -33,11 +29,26 @@ public class ManageClientAppInteractionRunnable implements Runnable
     public String profilePicturePath = "ProfilePictures\\";
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
-    public ManageClientAppInteractionRunnable(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream)
-    {
+
+    public ArrayList<Double> valuesBeacon0, valuesBeacon1, valuesBeacon2, valuesBeacon3;
+    public File file0, file1, file2, file3;
+    public FileWriter fileWriter0, fileWriter1, fileWriter2, fileWriter3;
+    public ManageClientAppInteractionRunnable(ObjectOutputStream objectOutputStream, ObjectInputStream objectInputStream) throws IOException {
         this.userId = userId;
         this.objectOutputStream = objectOutputStream;
         this.objectInputStream = objectInputStream;
+        valuesBeacon0 = new ArrayList<>();
+        valuesBeacon1 = new ArrayList<>();
+        valuesBeacon2 = new ArrayList<>();
+        valuesBeacon3 = new ArrayList<>();
+        file0 = new File("DistanceData\\file0.txt");
+        file1 = new File("DistanceData\\file1.txt");
+        file2 = new File("DistanceData\\file2.txt");
+        file3 = new File("DistanceData\\file3.txt");
+        fileWriter0 = new FileWriter(file0);
+        fileWriter1 = new FileWriter(file1);
+        fileWriter2 = new FileWriter(file2);
+        fileWriter3 = new FileWriter(file3);
     }
     @Override
     public void run() {
@@ -179,13 +190,13 @@ public class ManageClientAppInteractionRunnable implements Runnable
                 if(networkPacket instanceof String)
                 {
                     String requestString = (String)networkPacket;
+                    System.out.println(requestString);
                     JSONParser parser = new JSONParser();
                     JSONObject jsonObject = (JSONObject) parser.parse(requestString.trim());
                     String requestType = (String)jsonObject.get("requestType");
                     switch(requestType)
                     {
                         case "profilePicture":
-                            System.out.println("User with id: "+ userId + " requested an image");
                             String imagePath = SolomonServer.getUserProfilePicturePath(userId);
                             if(imagePath == null)
                             {
@@ -250,7 +261,6 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             break;
                         case "getCampaigns":
                             String companyName = (String)jsonObject.get("companyName");
-                            System.out.println("Client requested campaigns for store '" + companyName + "'");
                             System.out.println(SolomonServer.campaignsMapByCompanyName.size());
                             ArrayList<Campaign> storeCampaigns = SolomonServer.campaignsMapByCompanyName.get(companyName);
                             if(storeCampaigns != null)
@@ -267,7 +277,6 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             break;
                         case "getNotifications":
                             int id = (int)(long) jsonObject.get("userId");
-                            System.out.println("User with id: " + id + " requested notifications");
                             String response;
                             if(SolomonServer.notificationsMap.containsKey(id) && !SolomonServer.notificationsMap.get(id).isEmpty()) {
                                 Notification notification = SolomonServer.notificationsMap.get(id).poll();
@@ -277,6 +286,63 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 response = "{\"responseType\":\"null\"}";
                             }
                             objectOutputStream.writeObject(response);
+                            break;
+                        case "saveDistance":
+                            double distance = (double)jsonObject.get("distance");
+                            String beaconLabel = (String)jsonObject.get("beaconLabel");
+                            switch (beaconLabel)
+                            {
+                                case "0":
+                                    valuesBeacon0.add(distance);
+                                    if (valuesBeacon0.size() > 20) {
+                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file0, true));
+                                        for(Double value : valuesBeacon0) {
+                                            writer.write(value + "");
+                                            writer.newLine();
+                                        }
+                                        writer.close();
+                                        valuesBeacon0.clear();
+                                    }
+                                    break;
+                                case "1":
+                                    valuesBeacon1.add(distance);
+                                    if (valuesBeacon1.size() > 20) {
+                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file1, true));
+                                        for(Double value : valuesBeacon1) {
+                                            writer.write(value + "");
+                                            writer.newLine();
+                                        }
+                                        writer.close();
+                                        valuesBeacon1.clear();
+                                    }
+                                    break;
+                                case "2":
+                                    valuesBeacon2.add(distance);
+                                    if (valuesBeacon2.size() > 20) {
+                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file2, true));
+                                        for(Double value : valuesBeacon2) {
+                                            writer.write(value + "");
+                                            writer.newLine();
+                                        }
+                                        writer.close();
+                                        valuesBeacon2.clear();
+                                    }
+                                    break;
+                                case "3":
+                                    valuesBeacon3.add(distance);
+                                    if (valuesBeacon3.size() > 20) {
+                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file3, true));
+                                        for(Double value : valuesBeacon3) {
+                                            writer.write(value + "");
+                                            writer.newLine();
+                                        }
+                                        writer.close();
+                                        valuesBeacon3.clear();
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
                             break;
                         default:
                             break;

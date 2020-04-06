@@ -44,11 +44,11 @@ public class NotificationReceiver extends BroadcastReceiver
                         switch (responseType) {
                             case "mallAlert":
                                 String messageAlert = jsonResponse.get("message").getAsString();
-                                sendOnMallAlertsChannel(context, "Solomon", messageAlert);
+                                sendOnMallAlertsChannel(context, "MALL ALERT", messageAlert);
                                 break;
                             case "normalNotification":
                                 String messageNotification = jsonResponse.get("message").getAsString();
-                                sendOnNormalNotificationsChannel(context, "Solomon", messageNotification);
+                                sendOnNormalNotificationsChannel(context, "SOLOMON", messageNotification);
                                 break;
                             default:
                                 break;

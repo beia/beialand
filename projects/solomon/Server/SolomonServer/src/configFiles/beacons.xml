@@ -62,7 +62,7 @@
    </beacon>
    
    <beacon id = "LKhV">
-   <label>Media Galaxy</label>
+   <label>3</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>41302</major>
@@ -74,7 +74,7 @@
    </beacon>
    
    <beacon id = "rrZd">
-   <label>Florarie</label>
+   <label>0</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>39824</major>
@@ -98,7 +98,7 @@
    </beacon>
    
    <beacon id = "zbCe">
-   <label>Pull&amp;Bear</label>
+   <label>1</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>60181</major>
@@ -110,7 +110,7 @@
    </beacon>
    
    <beacon id = "R4JH">
-   <label>Carturesti</label>
+   <label>2</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>24334</major>
