@@ -10,18 +10,21 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.beia.solomon.data.Point;
 import com.beia.solomon.fragments.MapFragment;
 import com.beia.solomon.R;
 import com.beia.solomon.fragments.SettingsFragment;
 import com.beia.solomon.fragments.StoreAdvertisementFragment;
 import com.beia.solomon.adapters.ViewPagerAdapter;
 import com.beia.solomon.networkPackets.Campaign;
+import com.beia.solomon.networkPackets.Coordinates;
 import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.receivers.NotificationReceiver;
 import com.beia.solomon.runnables.RequestRunnable;
@@ -89,7 +92,7 @@ import kotlin.jvm.functions.Function1;
 public class MainActivity extends AppCompatActivity {
 
     //beacon variables
-    public static final int roomDimension = 4;//meters
+    public static final int roomDimension = 2;//meters
     public static volatile HashMap<String, Beacon> beacons;//change to public not static
     public static volatile HashMap<String, Boolean> regionsEntered;
     public static volatile HashMap<Integer, Mall> malls;
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
     public IBeaconDevice[] closestBeacons;
+    public Point[] closestBeaconsCoordinates;
     //Estimote variables
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
@@ -174,7 +178,8 @@ public class MainActivity extends AppCompatActivity {
         levels = new ArrayList<>();
         levelsActivated = new ArrayList<>();
         ibeaconsSet = new HashSet<>();
-        closestBeacons = new IBeaconDevice[3];
+        closestBeacons = new IBeaconDevice[4];
+        closestBeaconsCoordinates = new Point[4];
         positionMarkers = new LinkedList<>();
         campaigns = new ArrayList<>();
 
@@ -464,53 +469,95 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region)
             {
-                //trilateration algorithm for finding the position of the user using three beacons that are closest to the user
-                //this is used for giving the user a good shopping experience in the store by provinding a good indoor localization
-                /*
-                for(IBeaconDevice iBeaconDevice : iBeacons)
-                    ibeaconsSet.add(iBeaconDevice);
-                 */
-                /*
-                if(ibeaconsSet.size() >= 3) {
-                    ArrayList<IBeaconDevice> iBeaconDevices = new ArrayList<>();
-                    for (IBeaconDevice iBeaconDevice : ibeaconsSet)
-                        iBeaconDevices.add(iBeaconDevice);
-                    //Collections.sort(iBeaconDevices, new DistanceComparator());
-                    double x1, y1, x2, y2, x3, y3, r1, r2, r3, x, y, A, B, C, D, E, F;
-                    KontaktBeacon kontaktBeacon1 = (KontaktBeacon) beacons.get(iBeaconDevices.get(0).getUniqueId());
-                    KontaktBeacon kontaktBeacon2 = (KontaktBeacon) beacons.get(iBeaconDevices.get(1).getUniqueId());
-                    KontaktBeacon kontaktBeacon3 = (KontaktBeacon) beacons.get(iBeaconDevices.get(2).getUniqueId());
-                    r1 = iBeaconDevices.get(0).getDistance() / 1000;
-                    r2 = iBeaconDevices.get(0).getDistance() / 1000;
-                    r3 = iBeaconDevices.get(0).getDistance() / 1000;
-
-                    Point p1=new Point(kontaktBeacon1.getCoordinates().getLatitude(),kontaktBeacon1.getCoordinates().getLongitude(), r1);
-                    Point p2=new Point(kontaktBeacon2.getCoordinates().getLatitude(), kontaktBeacon2.getCoordinates().getLongitude(), r2);
-                    Point p3=new Point(kontaktBeacon3.getCoordinates().getLatitude(), kontaktBeacon3.getCoordinates().getLongitude(), r3);
-                    double[] userPos = Trilateration.Compute(p1,p2,p3);
-
-                    //display a marker on the map
-                    if(userPos != null)
-                    {
-                        LatLng userCoordinates = new LatLng(userPos[0], userPos[1]);
-                        mapFragment.googleMap.addMarker(new MarkerOptions().position(userCoordinates).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    }
-
-                    ibeaconsSet.clear();
-                }
-                else
-                {
-                    Log.d("IBEACONS", "too few beacons for trilateration");
-                }
-                //end of trilateration algorithm
-                */
-
+                int radius = 6371000;//Earth radius in meters
                 //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                 {
                     KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeaconDevice.getUniqueId());
                     double distance = iBeaconDevice.getDistance();
+                    double x = getXCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
+                    double y = getYCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
+                    double z = getZCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
+                    Log.d("LABEL: " + kontaktBeacon.getLabel(), "x:" + x + " y:" + y + " z: " + z);
 
+                    switch (kontaktBeacon.getLabel()) {
+                        case "0":
+                            closestBeacons[0] = iBeaconDevice;
+                            closestBeaconsCoordinates[0] = new Point(x, y, z);
+                            break;
+                        case "1":
+                            closestBeacons[1] = iBeaconDevice;
+                            closestBeaconsCoordinates[1] = new Point(x, y, z);
+                        break;
+                        case "2":
+                            closestBeacons[2] = iBeaconDevice;
+                            closestBeaconsCoordinates[2] = new Point(x, y, z);
+                            break;
+                        case "3":
+                            closestBeacons[3] = iBeaconDevice;
+                            closestBeaconsCoordinates[3] = new Point(x, y, z);
+                            break;
+                        default:
+                            break;
+                    }
+                    boolean roomDetected = true;
+                    for(Point beaconLocation : closestBeaconsCoordinates)
+                        if(beaconLocation == null) {
+                            roomDetected = false;
+                            break;
+                        }
+                    if(roomDetected)
+                    {
+                        double minError = 9999;
+                        double bestX = 0;
+                        double bestY = 0;
+                        double bestZ = 0;
+                        for(x = closestBeaconsCoordinates[0].getX(); x < closestBeaconsCoordinates[1].getX(); x+=0.2)
+                            for(y = closestBeaconsCoordinates[0].getY(); y > closestBeaconsCoordinates[3].getY(); y-=0.2)
+                                for(z = closestBeaconsCoordinates[1].getZ(); z < closestBeaconsCoordinates[3].getZ(); z+=0.2){
+                                //compute error
+                                double beacon0Distance = closestBeacons[0].getDistance();
+                                double beacon0X = closestBeaconsCoordinates[0].getX();
+                                double beacon0Y = closestBeaconsCoordinates[0].getY();
+                                double beacon0Z = closestBeaconsCoordinates[0].getZ();
+                                double beacon0Error = Math.abs(Math.sqrt(Math.pow(x - beacon0X, 2) + Math.pow(y - beacon0Y, 2) + Math.pow(z - beacon0Z, 2)) - beacon0Distance);
+                                double beacon1Distance = closestBeacons[1].getDistance();
+                                double beacon1X = closestBeaconsCoordinates[1].getX();
+                                double beacon1Y = closestBeaconsCoordinates[1].getY();
+                                double beacon1Z = closestBeaconsCoordinates[1].getZ();
+                                double beacon1Error = Math.abs(Math.sqrt(Math.pow(x - beacon1X, 2) + Math.pow(y - beacon1Y, 2) + Math.pow(z - beacon1Z, 2)) - beacon1Distance);
+                                double beacon2Distance = closestBeacons[2].getDistance();
+                                double beacon2X = closestBeaconsCoordinates[2].getX();
+                                double beacon2Y = closestBeaconsCoordinates[2].getY();
+                                double beacon2Z = closestBeaconsCoordinates[2].getZ();
+                                double beacon2Error = Math.abs(Math.sqrt(Math.pow(x - beacon2X, 2) + Math.pow(y - beacon2Y, 2) + Math.pow(z - beacon2Z, 2)) - beacon2Distance);
+                                double beacon3Distance = closestBeacons[3].getDistance();
+                                double beacon3X = closestBeaconsCoordinates[3].getX();
+                                double beacon3Y = closestBeaconsCoordinates[3].getY();
+                                double beacon3Z = closestBeaconsCoordinates[3].getZ();
+                                double beacon3Error = Math.abs(Math.sqrt(Math.pow(x - beacon3X, 2) + Math.pow(y - beacon3Y, 2) + Math.pow(z - beacon3Z, 2)) - beacon3Distance);
+                                double error = beacon0Error + beacon1Error + beacon2Error + beacon3Error;
+                                if(error < minError) {
+                                    minError = error;
+                                    bestX = x;
+                                    bestY = y;
+                                    bestZ = z;
+                                }
+                            }
+                        Log.d("BEST: ", "x:" + bestX + " y:" + bestY + " z:" + bestZ);
+
+                        double bestLatitude = getLatitude(bestX, bestY, bestZ);
+                        double bestLongitude = getLongitude(bestX, bestY, bestZ);
+                        Log.d("BEST:", "lat:" + bestLatitude + " lon:" + bestLongitude);
+                        LatLng coordinates = new LatLng(bestLatitude, bestLongitude);
+                        mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+                        Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
+                        positionMarkers.add(positionMarker);
+                        if(positionMarkers.size() > 1)
+                        {
+                            positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+                        }
+                    }
                     //send the distance to the users
                     String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"beaconLabel\":\"" + kontaktBeacon.getLabel() + "\"}";
                     new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
@@ -555,14 +602,6 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             //put the user on the map(not the exact location)
-                            LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
-                            mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
-                            Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
-                            positionMarkers.add(positionMarker);
-                            if(positionMarkers.size() > 1)
-                            {
-                                positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
-                            }
 
                             regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                             Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
@@ -621,14 +660,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     }
                                     //put the user on the map(not the exact location)
-                                    LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
-                                    mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
-                                    Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
-                                    positionMarkers.add(positionMarker);
-                                    if(positionMarkers.size() > 1)
-                                    {
-                                        positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
-                                    }
+
 
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -702,15 +734,6 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                                 //put the user on the map(not the exact location)
-                                LatLng coordinates = new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude());
-                                mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 18.0f));
-                                Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
-                                positionMarkers.add(positionMarker);
-                                if(positionMarkers.size() > 1)
-                                {
-                                    positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
-                                }
-
 
                                 regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
@@ -833,5 +856,20 @@ public class MainActivity extends AppCompatActivity {
         passwordTextView = findViewById(R.id.passwordTexView);
         ageTextView = findViewById(R.id.ageTextView);
         Log.d("BEACONS", "LAYOUT");
+    }
+    public double getXCoordinate(double lat, double lon, int radius) {
+        return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.cos(lon * 2 * Math.PI / 360);
+    }
+    public double getYCoordinate(double lat, double lon, int radius) {
+        return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.sin(lon * 2 * Math.PI / 360);
+    }
+    public double getZCoordinate(double lat, double lon, int radius) {
+        return radius * Math.sin(lat * 2 * Math.PI / 360);
+    }
+    public double getLatitude(double x, double y, double z) {
+        return 360 / (2 * Math.PI) * Math.asin(z / 6371000);
+    }
+    public double getLongitude(double x, double y, double z) {
+        return 360 / (2 * Math.PI) * Math.atan2(y, x);
     }
 }
