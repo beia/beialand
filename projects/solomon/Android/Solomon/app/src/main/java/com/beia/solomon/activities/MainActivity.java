@@ -27,6 +27,7 @@ import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.Coordinates;
 import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.receivers.NotificationReceiver;
+import com.beia.solomon.runnables.ComputePositionRunnable;
 import com.beia.solomon.runnables.RequestRunnable;
 import com.beia.solomon.runnables.WaitForServerDataRunnable;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
     public static LruCache<String, Bitmap> picturesCache;
 
     //google map variables
-    public Queue<Marker> positionMarkers;
+    public static volatile Queue<Marker> positionMarkers;
     public IndoorBuilding indoorBuilding;
 
 
@@ -478,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
                     double x = getXCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double y = getYCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double z = getZCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
-                    Log.d("LABEL: " + kontaktBeacon.getLabel(), "x:" + x + " y:" + y + " z: " + z);
+                    Log.d("LABEL: " + kontaktBeacon.getLabel(), "distance:" + distance + "x:" + x + " y:" + y + " z: " + z);
 
                     switch (kontaktBeacon.getLabel()) {
                         case "0":
@@ -500,64 +501,7 @@ public class MainActivity extends AppCompatActivity {
                         default:
                             break;
                     }
-                    boolean roomDetected = true;
-                    for(Point beaconLocation : closestBeaconsCoordinates)
-                        if(beaconLocation == null) {
-                            roomDetected = false;
-                            break;
-                        }
-                    if(roomDetected)
-                    {
-                        double minError = 9999;
-                        double bestX = 0;
-                        double bestY = 0;
-                        double bestZ = 0;
-                        for(x = closestBeaconsCoordinates[0].getX(); x < closestBeaconsCoordinates[1].getX(); x+=0.2)
-                            for(y = closestBeaconsCoordinates[0].getY(); y > closestBeaconsCoordinates[3].getY(); y-=0.2)
-                                for(z = closestBeaconsCoordinates[1].getZ(); z < closestBeaconsCoordinates[3].getZ(); z+=0.2){
-                                //compute error
-                                double beacon0Distance = closestBeacons[0].getDistance();
-                                double beacon0X = closestBeaconsCoordinates[0].getX();
-                                double beacon0Y = closestBeaconsCoordinates[0].getY();
-                                double beacon0Z = closestBeaconsCoordinates[0].getZ();
-                                double beacon0Error = Math.abs(Math.sqrt(Math.pow(x - beacon0X, 2) + Math.pow(y - beacon0Y, 2) + Math.pow(z - beacon0Z, 2)) - beacon0Distance);
-                                double beacon1Distance = closestBeacons[1].getDistance();
-                                double beacon1X = closestBeaconsCoordinates[1].getX();
-                                double beacon1Y = closestBeaconsCoordinates[1].getY();
-                                double beacon1Z = closestBeaconsCoordinates[1].getZ();
-                                double beacon1Error = Math.abs(Math.sqrt(Math.pow(x - beacon1X, 2) + Math.pow(y - beacon1Y, 2) + Math.pow(z - beacon1Z, 2)) - beacon1Distance);
-                                double beacon2Distance = closestBeacons[2].getDistance();
-                                double beacon2X = closestBeaconsCoordinates[2].getX();
-                                double beacon2Y = closestBeaconsCoordinates[2].getY();
-                                double beacon2Z = closestBeaconsCoordinates[2].getZ();
-                                double beacon2Error = Math.abs(Math.sqrt(Math.pow(x - beacon2X, 2) + Math.pow(y - beacon2Y, 2) + Math.pow(z - beacon2Z, 2)) - beacon2Distance);
-                                double beacon3Distance = closestBeacons[3].getDistance();
-                                double beacon3X = closestBeaconsCoordinates[3].getX();
-                                double beacon3Y = closestBeaconsCoordinates[3].getY();
-                                double beacon3Z = closestBeaconsCoordinates[3].getZ();
-                                double beacon3Error = Math.abs(Math.sqrt(Math.pow(x - beacon3X, 2) + Math.pow(y - beacon3Y, 2) + Math.pow(z - beacon3Z, 2)) - beacon3Distance);
-                                double error = beacon0Error + beacon1Error + beacon2Error + beacon3Error;
-                                if(error < minError) {
-                                    minError = error;
-                                    bestX = x;
-                                    bestY = y;
-                                    bestZ = z;
-                                }
-                            }
-                        Log.d("BEST: ", "x:" + bestX + " y:" + bestY + " z:" + bestZ);
 
-                        double bestLatitude = getLatitude(bestX, bestY, bestZ);
-                        double bestLongitude = getLongitude(bestX, bestY, bestZ);
-                        Log.d("BEST:", "lat:" + bestLatitude + " lon:" + bestLongitude);
-                        LatLng coordinates = new LatLng(bestLatitude, bestLongitude);
-                        mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
-                        Marker positionMarker = mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).title(kontaktBeacon.getLabel()));
-                        positionMarkers.add(positionMarker);
-                        if(positionMarkers.size() > 1)
-                        {
-                            positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
-                        }
-                    }
                     //send the distance to the users
                     String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"beaconLabel\":\"" + kontaktBeacon.getLabel() + "\"}";
                     new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
@@ -748,6 +692,19 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
+                }
+
+                //INDOOR POSITION
+                //check if an area can be formed from the beacons and compute the position of the user
+                boolean roomDetected = true;
+                for(Point beaconLocation : closestBeaconsCoordinates)
+                    if(beaconLocation == null) {
+                        roomDetected = false;
+                        break;
+                    }
+                if(roomDetected)
+                {
+                    new Thread(new ComputePositionRunnable(closestBeacons, closestBeaconsCoordinates)).start();
                 }
             }
             @Override

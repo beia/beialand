@@ -7,6 +7,10 @@ import android.util.Log;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.UserData;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Map;
 
@@ -50,6 +54,17 @@ public class MainActivityHandler extends Handler
                 //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
                 MainActivity.userData = (UserData) msg.obj;
                 Log.d("AUTOMATIC-LOGIN", "SUCCESS");
+                break;
+            case 4:
+                LatLng latLng = (LatLng) msg.obj;
+                LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
+                MainActivity.mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+                Marker positionMarker = MainActivity.mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates));
+                MainActivity.positionMarkers.add(positionMarker);
+                if(MainActivity.positionMarkers.size() > 1)
+                {
+                    MainActivity.positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+                }
                 break;
             default:
                 break;
