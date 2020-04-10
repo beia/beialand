@@ -4,6 +4,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.beia.solomon.R;
+import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.adapters.CampaignsAdapter;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.Campaign;
@@ -48,6 +51,7 @@ public class StoreAdvertisementFragment extends Fragment {
     public void initUI(View view)
     {
         campaignsGridView = view.findViewById(R.id.campaignsGridView);
+        campaignsGridView.setColumnWidth((int)(MainActivity.displayWidth / 2.1f));
         campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns);
         campaignsGridView.setAdapter(campaignsAdapter);
     }

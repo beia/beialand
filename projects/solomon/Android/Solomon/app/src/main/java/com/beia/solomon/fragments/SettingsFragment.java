@@ -16,9 +16,11 @@ import com.beia.solomon.R;
 import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
+import com.beia.solomon.activities.StatsActivity;
 import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class SettingsFragment extends Fragment {
 
@@ -37,7 +39,7 @@ public class SettingsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.settings_fragment, container, false);
         initUI(view);
         logoutTextView.setOnClickListener(new View.OnClickListener() {
@@ -63,6 +65,18 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), ProfileSettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        statsCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), StatsActivity.class);
+                for(Map.Entry<Integer, Boolean> entry : MainActivity.mallsEntered.entrySet())
+                    if(entry.getValue()){
+                        intent.putExtra("mallId", entry.getKey());
+                    }
                 startActivity(intent);
             }
         });

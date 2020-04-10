@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.UserData;
@@ -49,6 +52,12 @@ public class MainActivityHandler extends Handler
             case 2://RECEIVED A CAMPAIGN
                 //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();
                 Log.d("CAMPAIGN", "handleMessage: " + MainActivity.campaigns.size());
+                // Reload current fragment
+                Fragment frg = MainActivity.viewPagerAdapter.getItem(0);
+                final FragmentTransaction ft = MainActivity.mainActivity.getSupportFragmentManager().beginTransaction();
+                ft.detach(frg);
+                ft.attach(frg);
+                ft.commit();
                 break;
             case 3://AUTOMATIC LOGIN SUCCESSFUL
                 //MainActivity.storeAdvertisementFragment.campaignsAdapter.notifyDataSetChanged();

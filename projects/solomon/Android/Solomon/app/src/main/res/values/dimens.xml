@@ -52,4 +52,17 @@
     <dimen name="dimen250dp">250dp</dimen>
     <dimen name="dimen300dp">300dp</dimen>
     <dimen name="dimen350dp">350dp</dimen>
+
+
+    <dimen name="dimen1sp">1sp</dimen>
+    <dimen name="dimen2sp">2sp</dimen>
+    <dimen name="dimen2_8sp">2.8sp</dimen>
+    <dimen name="dimen3sp">3sp</dimen>
+    <dimen name="dimen4sp">4sp</dimen>
+    <dimen name="dimen5sp">5sp</dimen>
+    <dimen name="dimen6sp">6sp</dimen>
+    <dimen name="dimen7sp">7sp</dimen>
+    <dimen name="dimen8sp">8sp</dimen>
+    <dimen name="dimen9sp">9sp</dimen>
+    <dimen name="dimen10sp">10sp</dimen>
 </resources>

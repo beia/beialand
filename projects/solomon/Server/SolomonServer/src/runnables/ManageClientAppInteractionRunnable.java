@@ -149,7 +149,6 @@ public class ManageClientAppInteractionRunnable implements Runnable
                 }
 
 
-
                 //APP INTERACTION DATA
                 if(networkPacket instanceof LocationData)
                 {
@@ -286,6 +285,15 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 response = "{\"responseType\":\"null\"}";
                             }
                             objectOutputStream.writeObject(response);
+                            break;
+                        case "getParkingStats":
+                            int mallId = (int)(long)jsonObject.get("mallId");
+                            String responseParking;
+                            if(SolomonServer.parkingSpacesAvailableMap.containsKey(mallId))
+                                responseParking = "{\"responseType\":\"parkingStats\",\"freeSpacesPercentage\":"+ SolomonServer.parkingSpacesAvailableMap.get(mallId) +"}";
+                            else
+                                responseParking = "{\"responseType\":\"parkingStats\", \"freeSpacesPercentage\":-1}";
+                            objectOutputStream.writeObject(responseParking);
                             break;
                         case "saveDistance":
                             double distance = (double)jsonObject.get("distance");

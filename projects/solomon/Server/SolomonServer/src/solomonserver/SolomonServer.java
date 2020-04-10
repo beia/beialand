@@ -47,6 +47,7 @@ public class SolomonServer {
     public static volatile HashMap<String, Campaign> campaignsMapById;//key:id value:campaign
     public static volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName;//key:companyName value:array of campaigns
     public static volatile HashMap<Integer, Queue<Notification>> notificationsMap;//key:userId value:notifications
+    public static volatile HashMap<Integer, Integer> parkingSpacesAvailableMap;//key:mallId value:free parking spaces percentage
     
     //Solomon partners variables
     public static ServerSocket partnersServerSocket;
@@ -87,6 +88,8 @@ public class SolomonServer {
         campaignsMapByCompanyName = new HashMap<>();
         notificationsMap = new HashMap<>();
         webClientsTokensMap = new HashMap<>();
+        parkingSpacesAvailableMap = new HashMap<>();
+        parkingSpacesAvailableMap.put(2, 30);
 
         //connect to a mySql database
         connectToDatabase();

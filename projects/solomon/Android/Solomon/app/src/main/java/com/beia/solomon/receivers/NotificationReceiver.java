@@ -2,6 +2,7 @@ package com.beia.solomon.receivers;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -82,6 +83,10 @@ public class NotificationReceiver extends BroadcastReceiver
     //NOTIFICATIONS
     public static void sendOnMallAlertsChannel(Context context, String title, String message) {
 
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        resultIntent.putExtra("notification", true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.solomon_notification_icon)
                 .setColor(context.getResources().getColor(R.color.mallAlertsColor))
@@ -89,16 +94,23 @@ public class NotificationReceiver extends BroadcastReceiver
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
                 .build();
 
-        //wake up screen
         App.notificationManager.notify(1, notification);
+
+        //wake up screen
         PowerManager powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"solomon:wakelock");
         wakeLock.acquire(2000);
     }
 
     public static void sendOnNormalNotificationsChannel(Context context, String title, String message) {
+
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        resultIntent.putExtra("notification", true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_2_ID)
                 .setSmallIcon(R.drawable.solomon_notification_icon)
@@ -107,6 +119,8 @@ public class NotificationReceiver extends BroadcastReceiver
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
                 .build();
 
         App.notificationManager.notify(2, notification);

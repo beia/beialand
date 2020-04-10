@@ -6,6 +6,7 @@ import android.util.Log;
 import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
+import com.beia.solomon.activities.StatsActivity;
 import com.beia.solomon.networkPackets.BeaconsData;
 import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.ImageData;
@@ -13,6 +14,8 @@ import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.networkPackets.ServerFeedback;
 import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.UserData;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -21,6 +24,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@SuppressWarnings("unchecked")
 public class WaitForServerDataRunnable implements Runnable
 {
     public static final String ip = "192.168.0.45";
@@ -101,9 +105,6 @@ public class WaitForServerDataRunnable implements Runnable
                             //request campaigns
                             String request1 = "{\"requestType\":\"getBeacons\"}";
                             objectOutputStream.writeObject(request1);
-                            //request campaigns
-                            String request2 = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + "Pc Garage" + "\"}";
-                            objectOutputStream.writeObject(request2);
                             break;
                         default:
                             break;
@@ -138,6 +139,7 @@ public class WaitForServerDataRunnable implements Runnable
                 //RECEIVED CAMPAIGNS FOR A STORE
                 if(networkPacket instanceof ArrayList)
                 {
+                    MainActivity.campaigns.clear();
                     ArrayList<Campaign> campaigns = (ArrayList<Campaign>)networkPacket;
                     for(Campaign campaign : campaigns)
                         MainActivity.campaigns.add(campaign);
@@ -156,6 +158,26 @@ public class WaitForServerDataRunnable implements Runnable
                     message.what = 1;
                     message.obj = imageData;
                     message.sendToTarget();
+                }
+
+                if(networkPacket instanceof String) {
+                    String response = (String)networkPacket;
+                    Log.d("RESPONSE", "run: " + response);
+                    //parse response
+                    Gson gson = new Gson();
+                    JsonObject jsonResponse = gson.fromJson(response, JsonObject.class);
+                    String responseType = jsonResponse.get("responseType").getAsString();
+                    switch(responseType) {
+                        case "parkingStats":
+                            int availableParkingSpacesPercentage = jsonResponse.get("freeSpacesPercentage").getAsInt();
+                            Message message = StatsActivity.handler.obtainMessage();
+                            message.what = 1;
+                            message.obj = availableParkingSpacesPercentage;
+                            message.sendToTarget();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }

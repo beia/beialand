@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.LinearLayout;
@@ -92,6 +93,10 @@ import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
+    //display variables
+    public static int displayWidth;
+    public static int displayHeight;
+
     //beacon variables
     public static final int roomDimension = 2;//meters
     public static volatile HashMap<String, Beacon> beacons;//change to public not static
@@ -160,12 +165,19 @@ public class MainActivity extends AppCompatActivity {
     //NOTIFICATIONS BACKGROUND PROCESS
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
+    public static boolean notification = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //get the screen dimensions
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        displayWidth = displayMetrics.widthPixels;
+        displayHeight = displayMetrics.heightPixels;
 
         //init variables
         context = getApplicationContext();
@@ -192,6 +204,9 @@ public class MainActivity extends AppCompatActivity {
 
         //getUserData
         MainActivity.userData = (UserData) getIntent().getSerializableExtra("UserData");
+
+        //check if the activity started from a notification
+        notification = getIntent().getBooleanExtra("notification", false);
 
         if(userData != null)//NORMAL LOGIN
         {
@@ -502,9 +517,11 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
 
-                    //send the distance to the users
+                    /*
+                    //send the distance to the server
                     String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"beaconLabel\":\"" + kontaktBeacon.getLabel() + "\"}";
                     new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
+                     */
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
@@ -545,7 +562,14 @@ public class MainActivity extends AppCompatActivity {
                                     levels.get(kontaktBeacon.getFloor()).activate();
                                 }
                             }
+
+                            //request campaigns
+                            String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.getLabel() + "\"}";
+                            new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
+
                             //put the user on the map(not the exact location)
+                            setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
+
 
                             regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                             Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
@@ -603,8 +627,13 @@ public class MainActivity extends AppCompatActivity {
                                             levels.get(kontaktBeacon.getFloor()).activate();
                                         }
                                     }
-                                    //put the user on the map(not the exact location)
 
+                                    //request campaigns
+                                    String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.getLabel() + "\"}";
+                                    new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
+
+                                    //put the user on the map(not the exact location)
+                                    setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
 
                                     regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
@@ -677,7 +706,13 @@ public class MainActivity extends AppCompatActivity {
                                         levels.get(kontaktBeacon.getFloor()).activate();
                                     }
                                 }
+
+                                //request campaigns
+                                String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.getLabel() + "\"}";
+                                new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
+
                                 //put the user on the map(not the exact location)
+                                setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
 
                                 regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
@@ -696,6 +731,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //INDOOR POSITION
                 //check if an area can be formed from the beacons and compute the position of the user
+                /*
                 boolean roomDetected = true;
                 for(Point beaconLocation : closestBeaconsCoordinates)
                     if(beaconLocation == null) {
@@ -706,6 +742,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     new Thread(new ComputePositionRunnable(closestBeacons, closestBeaconsCoordinates)).start();
                 }
+                 */
             }
             @Override
             public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
@@ -807,6 +844,11 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon).setText("MAP");
         tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon).setText("SETTINGS");
 
+        //select the initial tab that the user sees
+        if(!MainActivity.notification)
+            tabLayout.getTabAt(1).select();
+        else
+            tabLayout.getTabAt(0).select();
 
         //set the user profile UFI variables
         usernameTextView = findViewById(R.id.usernameTextView);
@@ -814,6 +856,18 @@ public class MainActivity extends AppCompatActivity {
         ageTextView = findViewById(R.id.ageTextView);
         Log.d("BEACONS", "LAYOUT");
     }
+
+    public static void setUserPosition(LatLng latLng) {
+        LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
+        MainActivity.mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+        Marker positionMarker = MainActivity.mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates));
+        MainActivity.positionMarkers.add(positionMarker);
+        if(MainActivity.positionMarkers.size() > 1)
+        {
+            MainActivity.positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+        }
+    }
+
     public double getXCoordinate(double lat, double lon, int radius) {
         return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.cos(lon * 2 * Math.PI / 360);
     }
