@@ -65,4 +65,8 @@
     <dimen name="dimen8sp">8sp</dimen>
     <dimen name="dimen9sp">9sp</dimen>
     <dimen name="dimen10sp">10sp</dimen>
+    <dimen name="dimen11sp">11sp</dimen>
+    <dimen name="dimen12sp">12sp</dimen>
+    <dimen name="dimen13sp">13sp</dimen>
+    <dimen name="dimen14sp">14sp</dimen>
 </resources>

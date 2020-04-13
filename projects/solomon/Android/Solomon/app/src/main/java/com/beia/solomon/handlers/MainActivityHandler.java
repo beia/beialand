@@ -30,7 +30,7 @@ public class MainActivityHandler extends Handler
         switch(msg.what)
         {
             case 1://RECEIVED THE BEACONS when inside the main activity
-                for (Map.Entry entry : MainActivity.beacons.entrySet())
+                for (Map.Entry entry : MainActivity.beaconsMap.entrySet())
                 {
                     Beacon beacon = (Beacon) entry.getValue();
                     //initialize all the malls and set all the malls entered values to false

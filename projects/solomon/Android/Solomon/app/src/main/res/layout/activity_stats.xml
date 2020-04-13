@@ -4,10 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.StatsActivity">
-    <com.github.mikephil.charting.charts.PieChart
-        android:id="@+id/parkingPieChart"
+    android:orientation="vertical"
+    tools:context=".activities.StatsActivity"
+    android:background="@color/lightGray">
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dimen105dp">
-    </com.github.mikephil.charting.charts.PieChart>
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:layout_marginTop="@dimen/dimen5dp"
+        android:gravity="center"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/dimen14sp"
+        android:text="Malls"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4"/>
+    <ListView
+        android:id="@+id/mallsListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="88"
+        android:divider="@null"/>
 </LinearLayout>

@@ -51,4 +51,19 @@
 	<dimen name="dimen110dp">220dp</dimen>
 	<dimen name="dimen105dp">210dp</dimen>
 	<dimen name="dimen102dp">204dp</dimen>
+	<dimen name="dimen10sp">20sp</dimen>
+	<dimen name="dimen8sp">16sp</dimen>
+	<dimen name="dimen9sp">18sp</dimen>
+	<dimen name="dimen6sp">12sp</dimen>
+	<dimen name="dimen7sp">14sp</dimen>
+	<dimen name="dimen4sp">8sp</dimen>
+	<dimen name="dimen5sp">10sp</dimen>
+	<dimen name="dimen2sp">4sp</dimen>
+	<dimen name="dimen3sp">6sp</dimen>
+	<dimen name="dimen1sp">2sp</dimen>
+	<dimen name="dimen2_8sp">5.6sp</dimen>
+	<dimen name="dimen13sp">26sp</dimen>
+	<dimen name="dimen14sp">28sp</dimen>
+	<dimen name="dimen11sp">22sp</dimen>
+	<dimen name="dimen12sp">24sp</dimen>
 </resources>

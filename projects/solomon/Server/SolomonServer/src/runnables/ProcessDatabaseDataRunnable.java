@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.mysql.cj.protocol.Resultset;
 import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -155,27 +157,27 @@ public class ProcessDatabaseDataRunnable implements Runnable
             System.out.println("------------------------------------------------------------");
             //end of beacon configuration
             
-            //MALLS CONFIG
-            File file = new File("src/configFiles/mallsCoordinates");
-            Scanner scan = new Scanner(file);
+            //STORES
             //get stores from the database
             ArrayList<Store> stores = new ArrayList<>();
             ResultSet storesResultSet = SolomonServer.getTableData("stores");
-            while(storesResultSet.next())
-            {
+            while(storesResultSet.next()) {
                 int idStore = storesResultSet.getInt("idStores");
                 String name = storesResultSet.getString("name");
                 String idEntranceBeacon = storesResultSet.getString("idBeacon");
                 int idMall = storesResultSet.getInt("idMall");
                 stores.add(new Store(idStore, name, idMall, SolomonServer.beacons.get(idEntranceBeacon)));
             }
-            while(scan.hasNextLine())
+            //MALLS
+            //get malls from the database
+            ResultSet mallsResultSet = SolomonServer.getTableData("malls");
+            while(mallsResultSet.next())
             {
-                String[] data = scan.nextLine().split(" ");
-                int mallId = Integer.parseInt(data[0]);
-                String mallName = data[1];
-                double latitude = Double.parseDouble(data[2]);
-                double longitude = Double.parseDouble(data[3]);
+                int mallId = mallsResultSet.getInt("idMalls");
+                String name = mallsResultSet.getString("name");
+                String photoPath = "MallPictures\\" + mallId + ".jpg";
+                double latitude = mallsResultSet.getDouble("latitude");
+                double longitude = mallsResultSet.getDouble("longitude");
                 ArrayList<Store> storesFromMall = new ArrayList<>();
                 for(Store store : stores)
                 {
@@ -184,9 +186,9 @@ public class ProcessDatabaseDataRunnable implements Runnable
                         storesFromMall.add(store);
                     }
                 }
-                Mall mall = new Mall(mallId, storesFromMall, new Coordinates(latitude, longitude));
+                Mall mall = new Mall(mallId, name, getImageFromDisk(photoPath), storesFromMall, new Coordinates(latitude, longitude));
                 SolomonServer.malls.put(mallId, mall);
-                System.out.println("Created mall with id: " + mall.getMallId() + " and name: " + mallName);
+                System.out.println("Created mall with id: " + mall.getMallId() + " and name: " + name);
             }
             
             
@@ -449,5 +451,21 @@ public class ProcessDatabaseDataRunnable implements Runnable
         System.out.println("Finished the image conversion");
         return result;
     }
-    
+    public static byte[] getImageFromDisk(String path)
+    {
+        File file = new File(path);
+        byte[] imageBytes = new byte[(int) file.length()];
+        try
+        {
+            //read file into bytes[]
+            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream.read(imageBytes);
+            fileInputStream.close();
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+        return imageBytes;
+    }
 }

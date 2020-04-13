@@ -73,10 +73,6 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), StatsActivity.class);
-                for(Map.Entry<Integer, Boolean> entry : MainActivity.mallsEntered.entrySet())
-                    if(entry.getValue()){
-                        intent.putExtra("mallId", entry.getKey());
-                    }
                 startActivity(intent);
             }
         });

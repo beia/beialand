@@ -1,6 +1,5 @@
 package com.beia.solomon.activities;
 
-import android.animation.TimeAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -63,11 +62,9 @@ import com.kontakt.sdk.android.ble.spec.EddystoneFrameType;
 import com.kontakt.sdk.android.common.KontaktSDK;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
-
 import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
 import android.widget.Toast;
-
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -99,9 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
     //beacon variables
     public static final int roomDimension = 2;//meters
-    public static volatile HashMap<String, Beacon> beacons;//change to public not static
+    public static volatile HashMap<String, Beacon> beaconsMap;//change to public not static
     public static volatile HashMap<String, Boolean> regionsEntered;
-    public static volatile HashMap<Integer, Mall> malls;
+    public static volatile HashMap<Integer, Mall> mallsMap;//key:mallId value:mall
+    public static volatile ArrayList<Mall> malls;
     public static volatile HashMap<Integer, Boolean> mallsEntered;
     public static volatile ArrayList<Campaign> campaigns;
     public static List<IndoorLevel> levels;
@@ -184,9 +182,10 @@ public class MainActivity extends AppCompatActivity {
         mainActivity = this;
         currentTime = Calendar.getInstance().getTime();
         MainActivity.active = true;
-        beacons = new HashMap<>();
+        beaconsMap = new HashMap<>();
         regionsEntered = new HashMap<>();
-        malls = new HashMap<>();
+        mallsMap = new HashMap<>();
+        malls = new ArrayList<>();
         mallsEntered = new HashMap<>();
         levels = new ArrayList<>();
         levelsActivated = new ArrayList<>();
@@ -228,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
             if(beaconsReceived)
             {
                 //initialize all the malls and set all the malls entered values to false
-                for (Map.Entry entry : MainActivity.beacons.entrySet())
+                for (Map.Entry entry : MainActivity.beaconsMap.entrySet())
                 {
                     Beacon beacon = (Beacon) entry.getValue();
                     if(MainActivity.mallsEntered.isEmpty())
@@ -314,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
 
         //create the proximity zones based on the beacons
         estimoteProximityZones = new ArrayList<>();
-        for(Beacon beacon : beacons.values())
+        for(Beacon beacon : beaconsMap.values())
         {
             if(beacon instanceof EstimoteBeacon)
             {
@@ -406,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
 
         //configure the regions
         final Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
-        for(Beacon beacon: beacons.values())
+        for(Beacon beacon: beaconsMap.values())
         {
             if(beacon instanceof KontaktBeacon)
             {
@@ -431,10 +430,10 @@ public class MainActivity extends AppCompatActivity {
             public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
             {
                 //CHECK IF THE MALL CHANGED
-                if(MainActivity.mallsEntered.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId()) == false)
+                if(MainActivity.mallsEntered.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId()) == false)
                 {
                     //update the map based on the beacon mallId
-                    Mall mall = MainActivity.malls.get(MainActivity.beacons.get(iBeacon.getUniqueId()).getMallId());
+                    Mall mall = MainActivity.mallsMap.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId());
                     Log.d("MALL", mall.getMallCoordinates().getLatitude() + " " + mall.getMallCoordinates().getLongitude());
                     LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
                     mapFragment.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
@@ -470,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     //the user just entered the mall we change the map and we make all the other values in the mallEntered map as false
-                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeacon.getUniqueId());
+                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beaconsMap.get(iBeacon.getUniqueId());
                     mallsEntered.put(kontaktBeacon.getMallId(),true);
                     for(Integer mallId : mallsEntered.keySet())
                     {
@@ -489,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                 //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                 {
-                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beacons.get(iBeaconDevice.getUniqueId());
+                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beaconsMap.get(iBeaconDevice.getUniqueId());
                     double distance = iBeaconDevice.getDistance();
                     double x = getXCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double y = getYCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);

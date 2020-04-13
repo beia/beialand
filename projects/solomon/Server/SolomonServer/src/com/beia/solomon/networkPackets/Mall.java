@@ -15,11 +15,15 @@ import java.util.ArrayList;
 public class Mall implements Serializable
 {
     private int mallId;
+    private String mallName;
+    private byte[] image;
     private ArrayList<Store> stores;
     private Coordinates mallCoordinates;
-    public Mall(int mallId, ArrayList<Store> stores, Coordinates mallCoordinates)
+    public Mall(int mallId, String mallName, byte[] image, ArrayList<Store> stores, Coordinates mallCoordinates)
     {
         this.mallId = mallId;
+        this.mallName = mallName;
+        this.image = image;
         this.stores = stores;
         this.mallCoordinates = mallCoordinates;
     }
@@ -27,6 +31,8 @@ public class Mall implements Serializable
     {
         return this.mallId;
     }
+    public String getName() { return this.mallName; }
+    public byte[] getImage() { return this.image; }
     public ArrayList<Store> getStores()
     {
         return this.stores;

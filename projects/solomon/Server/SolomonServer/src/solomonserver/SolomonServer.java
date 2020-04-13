@@ -89,7 +89,12 @@ public class SolomonServer {
         notificationsMap = new HashMap<>();
         webClientsTokensMap = new HashMap<>();
         parkingSpacesAvailableMap = new HashMap<>();
+        parkingSpacesAvailableMap.put(1, 20);//20 percent free parking spaces
         parkingSpacesAvailableMap.put(2, 30);
+        parkingSpacesAvailableMap.put(3, 50);
+        parkingSpacesAvailableMap.put(4, 40);
+        parkingSpacesAvailableMap.put(5, 70);
+
 
         //connect to a mySql database
         connectToDatabase();

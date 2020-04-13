@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.activities.MallStats;
 import com.beia.solomon.activities.ProfileSettingsActivity;
 import com.beia.solomon.activities.StatsActivity;
 import com.beia.solomon.networkPackets.BeaconsData;
@@ -115,16 +116,17 @@ public class WaitForServerDataRunnable implements Runnable
                 if(networkPacket instanceof BeaconsData)
                 {
                     BeaconsData beaconsData = (BeaconsData) networkPacket;
-                    MainActivity.beacons = beaconsData.getBeaconsData();//change .. make beacons not static
+                    MainActivity.beaconsMap = beaconsData.getBeaconsData();//change .. make beacons not static
                     Log.d("BEACONS", "RECEIVED BEACON DATA");
                 }
 
                 //RECEIVED MALLS DATA
                 if(networkPacket instanceof HashMap)
                 {
-                    HashMap<Integer, Mall> malls = (HashMap<Integer, Mall>) networkPacket;
-                    MainActivity.malls = malls;
-                    Log.d("BEACONS", "RECEIVED MALLS DATA");
+                    HashMap<Integer, Mall> mallsMap = (HashMap<Integer, Mall>) networkPacket;
+                    MainActivity.mallsMap = mallsMap;
+                    MainActivity.malls.addAll(mallsMap.values());
+
                     if(currentActivity.equals("MainActivity")) {
                         //send a message to the handler in the main ui thread that we can start detecting the beacons and sending data to the server regarding user position
                         Message message = MainActivity.mainActivityHandler.obtainMessage(1);
@@ -170,7 +172,7 @@ public class WaitForServerDataRunnable implements Runnable
                     switch(responseType) {
                         case "parkingStats":
                             int availableParkingSpacesPercentage = jsonResponse.get("freeSpacesPercentage").getAsInt();
-                            Message message = StatsActivity.handler.obtainMessage();
+                            Message message = MallStats.handler.obtainMessage();
                             message.what = 1;
                             message.obj = availableParkingSpacesPercentage;
                             message.sendToTarget();
