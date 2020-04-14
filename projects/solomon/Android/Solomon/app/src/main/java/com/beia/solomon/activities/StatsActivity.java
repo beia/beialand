@@ -1,36 +1,25 @@
 package com.beia.solomon.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.graphics.Typeface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.widget.ListView;
 
 import com.beia.solomon.R;
-import com.beia.solomon.adapters.MallStatsAdapter;
-import com.beia.solomon.runnables.RequestRunnable;
-import com.github.mikephil.charting.animation.Easing;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.MPPointF;
+import com.beia.solomon.managers.StatsLinearLayoutManager;
+import com.beia.solomon.adapters.StatsRecyclerViewAdapter;
+import com.beia.solomon.networkPackets.Mall;
 
 import java.util.ArrayList;
 
 public class StatsActivity extends AppCompatActivity {
 
     //UI
-    public static ListView mallsListView;
-    public static MallStatsAdapter mallStatsAdapter;
+    public static RecyclerView statsRecyclerview;
+    public static StatsRecyclerViewAdapter statsRecyclerViewAdapter;
+    public static StatsLinearLayoutManager statsLinearLayoutManager;
 
 
     @Override
@@ -41,9 +30,21 @@ public class StatsActivity extends AppCompatActivity {
         initUI();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     public void initUI() {
-        mallsListView = findViewById(R.id.mallsListView);
-        mallStatsAdapter = new MallStatsAdapter(getApplicationContext(), MainActivity.malls);
-        mallsListView.setAdapter(mallStatsAdapter);
+        statsRecyclerview = findViewById(R.id.statsRecyclerView);
+        ArrayList<Mall> malls = MainActivity.malls;
+        ArrayList<Bitmap> bitmaps = new ArrayList<>();
+        for(Mall mall : malls)
+            bitmaps.add(Bitmap.createBitmap(BitmapFactory.decodeByteArray(mall.getImage(), 0, mall.getImage().length)));
+        statsRecyclerViewAdapter = new StatsRecyclerViewAdapter(getApplicationContext(), malls, bitmaps);
+        statsRecyclerview.setAdapter(statsRecyclerViewAdapter);
+        statsLinearLayoutManager = new StatsLinearLayoutManager(getApplicationContext());
+        statsLinearLayoutManager.setScrollEnabled(true);
+        statsRecyclerview.setLayoutManager(statsLinearLayoutManager);
     }
 }

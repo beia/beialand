@@ -46,9 +46,9 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     private TextView usernameTextView;
     private TextView passwordTextView;
     private TextView ageTextView;
-    private ImageView usernameEditButton;//imageview used like a button
-    private ImageView passwordEditButton;//imageview used like a button
-    private ImageView ageEditButton;//imageview used like a button
+    private ImageView usernameEditButton;
+    private ImageView passwordEditButton;
+    private ImageView ageEditButton;
     private Button cancelUsernameChangesButton;
     private Button cancelPasswordChangesButton;
     private Button cancelAgeChangesButton;
@@ -63,40 +63,6 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     //other variables
     public static Context profileSettingsContext;
     public static ProfileSettingsActivity profileSettingsActivity;
-    public static SharedPreferences myPrefs;
-
-    //handlers
-    public static Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg)
-        {
-            switch(msg.what)
-            {
-                case 1:
-                    //change the profile picture
-                    ImageData imageData = (ImageData) msg.obj;
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(imageData.getImageBytes(), 0, imageData.getImageBytes().length);
-                    ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
-                    //get preferences
-                    SharedPreferences.Editor userPrefs = myPrefs.edit();
-                    //save the profile picture into the memory
-                    try
-                    {
-                        //save the profile picture into the memory
-                        String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
-                        String userImageString = imageString + " " + MainActivity.userData.getUserId();
-                        userPrefs.putString("profilePicture", userImageString);
-                        userPrefs.commit();
-                        Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "Downloaded the profile picture", Toast.LENGTH_LONG).show();
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -104,9 +70,6 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_settings);
         profileSettingsContext = getApplicationContext();
         profileSettingsActivity = this;
-
-        //get preferences
-        myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
 
         initUI();
 
@@ -310,12 +273,11 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             //we check for the profile picture in the memory and if we find it we check if the same user is logged in as the one who's picture is saved
             //if that's the case we get it from the memory(the picture is saved as a String and then it's concatenated with the user id with a space in between)
             //if it's not the case then we download it from the server
-            if (myPrefs.contains("profilePicture"))
+            if (MainActivity.sharedPref.contains("profilePicture"))
             {
                 String userImageString = "";
-                myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
                 //get the image string from the disk
-                userImageString = myPrefs.getString("profilePicture", "noImage");
+                userImageString = MainActivity.sharedPref.getString("profilePicture", "noImage");
                 if(!userImageString.equals("noImage"))
                 {
                     String[] data = userImageString.split(" ");
@@ -326,35 +288,16 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         ProfileSettingsActivity.profilePicture.setImageBitmap(imageBitmap);
                         //save the picture into cache memory
                         MainActivity.picturesCache.put("profilePicture", imageBitmap);
-                        Toast.makeText(this, "Extracted profile picture from the disk", Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
             }
-
-
-            //get the image from the server
-                Thread requestProfilePictureThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            synchronized (MainActivity.objectOutputStream) {
-                                //send the photo request
-                                MainActivity.objectOutputStream.writeObject("{\"requestType\":\"profilePicture\"}");
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                requestProfilePictureThread.start();
         }
         else
         {
             //get the picture from cache
             Bitmap bitmap = MainActivity.picturesCache.get("profilePicture");
             ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
-            Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "Got profile picture from cache", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -406,13 +349,12 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                         //save the picture into cache memory
                         MainActivity.picturesCache.put("profilePicture", bitmap);
                         //get preferences
-                        myPrefs = getSharedPreferences("profilePrefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor userPrefs = myPrefs.edit();
+                        SharedPreferences.Editor userPrefs = MainActivity.sharedPref.edit();
                         //save the profile picture into the memory
                         String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
                         String userImageString = imageString + " " + MainActivity.userData.getUserId();
                         userPrefs.putString("profilePicture", userImageString);
-                        userPrefs.commit();
+                        userPrefs.apply();
                     } catch (IOException e) {
                         Toast.makeText(this, "Image format error", Toast.LENGTH_LONG).show();
                         e.printStackTrace();

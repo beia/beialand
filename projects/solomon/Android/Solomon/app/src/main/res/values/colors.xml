@@ -17,6 +17,10 @@
     <color name="background">#F16667</color>
     <color name="background_main">#f2f2f2</color>
 
+    <color name="mall_stats_text">#E6E6E6</color>
+    <color name="mall_stats_text_background">#AAa3a3a3</color>
+
+
     <color name="mallAlertsColor">#ff3d40</color>
     <color name="normalNotificationsColor">#4f9eff</color>
 </resources>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/lightGray">
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -20,8 +20,7 @@
                 android:id="@+id/mallImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@drawable/amd_rizen_2600"/>
+                android:layout_centerInParent="true"/>
             <TextView
                 android:id="@+id/mallName"
                 android:layout_width="match_parent"
@@ -29,7 +28,8 @@
                 android:gravity="center"
                 android:textSize="@dimen/dimen14sp"
                 android:fontFamily="@font/open_sans_regular"
-                android:textColor="@color/lightGray"
+                android:textColor="@color/mall_stats_text"
+                android:background="@color/mall_stats_text_background"
                 android:layout_alignParentTop="true"
                 android:text="Test"/>
         </RelativeLayout>

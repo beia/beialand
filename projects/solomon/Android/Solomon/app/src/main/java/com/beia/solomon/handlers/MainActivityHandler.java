@@ -1,20 +1,27 @@
 package com.beia.solomon.handlers;
 
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.activities.ProfileSettingsActivity;
 import com.beia.solomon.networkPackets.Beacon;
+import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.UserData;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class MainActivityHandler extends Handler
@@ -73,6 +80,27 @@ public class MainActivityHandler extends Handler
                 if(MainActivity.positionMarkers.size() > 1)
                 {
                     MainActivity.positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+                }
+                break;
+            case 5://profile picture
+                ImageData imageData = (ImageData) msg.obj;
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageData.getImageBytes(), 0, imageData.getImageBytes().length);
+                MainActivity.settingsFragment.profilePicture.setImageBitmap(bitmap);
+
+                //get preferences
+                SharedPreferences.Editor editor = MainActivity.sharedPref.edit();
+                //save the profile picture into the memory
+                try
+                {
+                    //save the profile picture into the memory
+                    String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
+                    String userImageString = imageString + " " + MainActivity.userData.getUserId();
+                    editor.putString("profilePicture", userImageString);
+                    editor.apply();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
                 }
                 break;
             default:

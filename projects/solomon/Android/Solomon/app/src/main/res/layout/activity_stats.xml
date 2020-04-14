@@ -10,21 +10,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="8"
+        android:layout_weight="7"
         android:layout_marginTop="@dimen/dimen5dp"
         android:gravity="center"
-        android:fontFamily="@font/open_sans_bold"
+        android:fontFamily="@font/open_sans_regular"
         android:textColor="@android:color/black"
-        android:textSize="@dimen/dimen14sp"
-        android:text="Malls"/>
-    <View
+        android:textSize="@dimen/dimen10sp"
+        android:text="Mall stats"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/statsRecyclerView"
+        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"/>
-    <ListView
-        android:id="@+id/mallsListView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="88"
-        android:divider="@null"/>
+        android:layout_weight="88"/>
 </LinearLayout>

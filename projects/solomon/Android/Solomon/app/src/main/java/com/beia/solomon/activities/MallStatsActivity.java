@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.beia.solomon.R;
-import com.beia.solomon.adapters.MallStatsAdapter;
 import com.beia.solomon.runnables.RequestRunnable;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -21,7 +20,7 @@ import com.github.mikephil.charting.utils.MPPointF;
 
 import java.util.ArrayList;
 
-public class MallStats extends AppCompatActivity {
+public class MallStatsActivity extends AppCompatActivity {
     //MALL STATS VARIABLES
     public static volatile int parkingSpacesAvailablePercentage;
     public int mallId;

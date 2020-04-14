@@ -5,9 +5,8 @@ import android.util.Log;
 
 import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
-import com.beia.solomon.activities.MallStats;
+import com.beia.solomon.activities.MallStatsActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
-import com.beia.solomon.activities.StatsActivity;
 import com.beia.solomon.networkPackets.BeaconsData;
 import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.ImageData;
@@ -156,8 +155,8 @@ public class WaitForServerDataRunnable implements Runnable
                 {
                     ImageData imageData = (ImageData) networkPacket;
                     //Send a message to the ProfileSettings activity handler with the imagedata so we can change the profile picture
-                    Message message = Message.obtain(ProfileSettingsActivity.handler);
-                    message.what = 1;
+                    Message message = Message.obtain(MainActivity.mainActivityHandler);
+                    message.what = 5;
                     message.obj = imageData;
                     message.sendToTarget();
                 }
@@ -172,7 +171,7 @@ public class WaitForServerDataRunnable implements Runnable
                     switch(responseType) {
                         case "parkingStats":
                             int availableParkingSpacesPercentage = jsonResponse.get("freeSpacesPercentage").getAsInt();
-                            Message message = MallStats.handler.obtainMessage();
+                            Message message = MallStatsActivity.handler.obtainMessage();
                             message.what = 1;
                             message.obj = availableParkingSpacesPercentage;
                             message.sendToTarget();
