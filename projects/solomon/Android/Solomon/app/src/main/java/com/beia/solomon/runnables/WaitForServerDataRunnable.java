@@ -7,6 +7,7 @@ import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.activities.MallStatsActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
+import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.BeaconsData;
 import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.ImageData;
@@ -116,6 +117,9 @@ public class WaitForServerDataRunnable implements Runnable
                 {
                     BeaconsData beaconsData = (BeaconsData) networkPacket;
                     MainActivity.beaconsMap = beaconsData.getBeaconsData();//change .. make beacons not static
+                    for(Beacon beacon : beaconsData.getBeaconsData().values()) {
+                        MainActivity.beaconsMapByCompanyName.put(beacon.getLabel(), beacon);
+                    }
                     Log.d("BEACONS", "RECEIVED BEACON DATA");
                 }
 
@@ -142,8 +146,12 @@ public class WaitForServerDataRunnable implements Runnable
                 {
                     MainActivity.campaigns.clear();
                     ArrayList<Campaign> campaigns = (ArrayList<Campaign>)networkPacket;
-                    for(Campaign campaign : campaigns)
+                    for(Campaign campaign : campaigns) {
+                        byte[] companyImage = MainActivity.beaconsMapByCompanyName.get(campaign.getCompanyName()).getImage();
+                        if(companyImage != null)
+                            campaign.setCompanyImage(companyImage);
                         MainActivity.campaigns.add(campaign);
+                    }
                     if(currentActivity.equals("MainActivity")) {
                         Message message = MainActivity.mainActivityHandler.obtainMessage(2);
                         message.sendToTarget();

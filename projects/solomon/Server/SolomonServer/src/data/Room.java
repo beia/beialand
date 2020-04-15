@@ -43,10 +43,15 @@ public class Room extends Beacon
     }
     
     @Override
-    public Coordinates getCoordinates()
-    {
+    public Coordinates getCoordinates() {
         return this.coordinates;
     }
+
+    @Override
+    public byte[] getImage() { return this.image; }
+
+    @Override
+    public void setImage(byte[] image) { this.image = image;}
     
     @Override
     public int getLayer()

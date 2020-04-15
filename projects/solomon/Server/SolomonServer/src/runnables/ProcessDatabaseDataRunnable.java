@@ -6,8 +6,8 @@
 package runnables;
 
 import com.beia.solomon.networkPackets.LocationData;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +35,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -366,6 +363,7 @@ public class ProcessDatabaseDataRunnable implements Runnable
     {
         //get the beacons data from a XML configuration file
         File inputFile = new File("src/configFiles/beacons.xml");
+        String beaconImages = "BeaconsPictures\\";
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         Document doc = (Document) dBuilder.parse(inputFile);
@@ -404,12 +402,22 @@ public class ProcessDatabaseDataRunnable implements Runnable
                 switch(company)
                 {
                     case "Estimote":
-                        beacons.put(id , new EstimoteBeacon(id, label, mallId, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude)), layer, floor));
+                        EstimoteBeacon estimoteBeacon = new EstimoteBeacon(id, label, mallId, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude)), layer, floor);
+                        try {
+                            estimoteBeacon.setImage(getImageFromDisk(beaconImages + id + ".jpg"));
+                        }
+                        catch (Exception ex) {}
+                        beacons.put(id , estimoteBeacon);
                         break;
                     case "Kontakt":
                         String major = eElement.getElementsByTagName("major").item(0).getTextContent();
                         String minor = eElement.getElementsByTagName("minor").item(0).getTextContent();
-                        beacons.put(id, new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude)), layer, floor));
+                        KontaktBeacon kontaktBeacon = new KontaktBeacon(id, label, mallId, major, minor, new Coordinates(Double.parseDouble(latitude), Double.parseDouble(longitude)), layer, floor);
+                        try {
+                        kontaktBeacon.setImage(getImageFromDisk(beaconImages + id + ".jpg"));
+                        }
+                        catch (Exception ex) {}
+                        beacons.put(id, kontaktBeacon);
                         break;
                     default:
                         break;

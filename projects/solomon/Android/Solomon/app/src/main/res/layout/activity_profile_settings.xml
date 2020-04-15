@@ -11,10 +11,10 @@
 
     <ImageView
         android:id="@+id/profileSettingsBackButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="@dimen/dimen16dp"
+        android:layout_height="@dimen/dimen16dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
         android:src="@drawable/back_button"/>
 
 
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="70dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginRight="10dp">
         <LinearLayout
             android:layout_width="0dp"
@@ -57,8 +57,8 @@
             android:gravity="center_vertical"
             android:layout_marginRight="40dp">
             <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="@dimen/dimen25dp"
+                android:layout_height="@dimen/dimen25dp"
                 android:src="@drawable/id_icon"/>
             <TextView
                 android:id="@+id/usernameTextView"
@@ -87,8 +87,8 @@
             android:gravity="center">
             <ImageView
                 android:id="@+id/editUsernameButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/dimen12dp"
+                android:layout_height="@dimen/dimen12dp"
                 android:src="@drawable/pen_icon" />
             <Button
                 android:id="@+id/cancelUsernameChangeButton"
@@ -107,7 +107,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp">
             <LinearLayout
                 android:layout_width="0dp"
@@ -117,8 +117,8 @@
                 android:gravity="center_vertical"
                 android:layout_marginRight="40dp">
                 <ImageView
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="@dimen/dimen25dp"
+                    android:layout_height="@dimen/dimen25dp"
                     android:src="@drawable/password_icon"/>
                 <TextView
                     android:id="@+id/passwordTexView"
@@ -147,8 +147,8 @@
                 android:gravity="center">
                 <ImageView
                     android:id="@+id/editPasswordButton"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="@dimen/dimen12dp"
+                    android:layout_height="@dimen/dimen12dp"
                     android:src="@drawable/pen_icon" />
                 <Button
                     android:id="@+id/cancelPasswordChangeButton"
@@ -167,7 +167,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginRight="10dp">
         <LinearLayout
             android:layout_width="0dp"
@@ -178,7 +178,7 @@
             android:layout_marginRight="40dp">
             <ImageView
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="@dimen/dimen25dp"
                 android:layout_weight="25"
                 android:src="@drawable/age_icon"/>
             <TextView
@@ -208,8 +208,8 @@
             android:gravity="center">
             <ImageView
                 android:id="@+id/editAgeButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/dimen12dp"
+                android:layout_height="@dimen/dimen12dp"
                 android:visibility="visible"
                 android:src="@drawable/pen_icon" />
             <Button

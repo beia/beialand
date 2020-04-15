@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.Campaign;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -61,7 +62,20 @@ public class CampaignsAdapter extends BaseAdapter {
         campaignStartDateTextView.setText(campaign.getStartDate());
         campaignEndDateTextView.setText(campaign.getEndDate());
         Bitmap bitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
-        campaignImageView.setImageBitmap(bitmap);
+        Glide.with(context)
+                .asBitmap()
+                .load(bitmap)
+                .into(campaignImageView);
+
+        //load the company image
+        if(campaign.getCompanyImage() != null) {
+            ImageView companyImageView = campaignView.findViewById(R.id.companyImage);
+            Bitmap companyImageBitmap = BitmapFactory.decodeByteArray(campaign.getCompanyImage(), 0, campaign.getCompanyImage().length);
+            Glide.with(context).
+                    asBitmap().
+                    load(companyImageBitmap).
+                    into(companyImageView);
+        }
 
         campaignView.setOnClickListener(new View.OnClickListener() {
             @Override

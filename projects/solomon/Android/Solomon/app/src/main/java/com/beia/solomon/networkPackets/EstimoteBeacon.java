@@ -51,4 +51,10 @@ public class EstimoteBeacon extends Beacon
     {
         return this.floor;
     }
+
+    @Override
+    public byte[] getImage() { return this.image; }
+
+    @Override
+    public void setImage(byte[] image) { this.image = image;}
 }

@@ -9,7 +9,7 @@ public class KontaktBeacon extends Beacon
     public final String COMPANY = "Kontakt";
     private String major;
     private String minor;
-    
+
     public KontaktBeacon(String id, String label, int mallId, String major, String minor, Coordinates coordinates, int layer, int floor)
     {
         this.id = id;
@@ -32,39 +32,44 @@ public class KontaktBeacon extends Beacon
     {
         return this.label;
     }
-    
+
     @Override
     public int getMallId()
     {
         return this.mallId;
     }
-    
+
     @Override
     public Coordinates getCoordinates()
     {
         return this.coordinates;
     }
-    
+
     @Override
     public int getLayer()
     {
         return this.layer;
     }
-    
+
     @Override
     public int getFloor()
     {
         return this.floor;
     }
-    
+
+    @Override
+    public byte[] getImage() { return this.image; }
+
+    @Override
+    public void setImage(byte[] image) { this.image = image;}
+
     public String getMajor()
     {
         return this.major;
     }
-    
+
     public String getMinor()
     {
         return this.minor;
-    } 
+    }
 }
-

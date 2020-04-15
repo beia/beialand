@@ -57,6 +57,12 @@ public class KontaktBeacon extends Beacon
         return this.floor;
     }
 
+    @Override
+    public byte[] getImage() { return this.image; }
+
+    @Override
+    public void setImage(byte[] image) { this.image = image;}
+
     public String getMajor()
     {
         return this.major;

@@ -1,6 +1,7 @@
 package com.beia.solomon.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,12 +9,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,6 +41,7 @@ import com.beia.solomon.receivers.NotificationReceiver;
 import com.beia.solomon.runnables.ComputePositionRunnable;
 import com.beia.solomon.runnables.RequestRunnable;
 import com.beia.solomon.runnables.WaitForServerDataRunnable;
+import com.bumptech.glide.Glide;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
@@ -63,6 +75,8 @@ import com.kontakt.sdk.android.common.KontaktSDK;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.google.android.material.tabs.TabLayout;
+import com.mikhaellopez.circularimageview.CircularImageView;
+
 import androidx.viewpager.widget.ViewPager;
 import android.widget.Toast;
 
@@ -84,6 +98,7 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.UUID;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
@@ -96,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
     //beacon variables
     public static final int roomDimension = 2;//meters
-    public static volatile HashMap<String, Beacon> beaconsMap;//change to public not static
+    public static volatile HashMap<String, Beacon> beaconsMap;//key:id value:beacon
+    public static volatile HashMap<String, Beacon> beaconsMapByCompanyName;//key:name value:beacon
     public static volatile HashMap<String, Boolean> regionsEntered;
     public static volatile HashMap<Integer, Mall> mallsMap;//key:mallId value:mall
     public static volatile ArrayList<Mall> malls;
@@ -183,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         currentTime = Calendar.getInstance().getTime();
         MainActivity.active = true;
         beaconsMap = new HashMap<>();
+        beaconsMapByCompanyName = new HashMap<>();
         regionsEntered = new HashMap<>();
         mallsMap = new HashMap<>();
         malls = new ArrayList<>();
@@ -854,6 +871,28 @@ public class MainActivity extends AppCompatActivity {
         passwordTextView = findViewById(R.id.passwordTexView);
         ageTextView = findViewById(R.id.ageTextView);
         Log.d("BEACONS", "LAYOUT");
+    }
+
+    public static Bitmap createStoreMarker(Context context, Bitmap bitmap) {
+
+        View marker = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.store_marker, null);
+
+        CircleImageView markerImageView = marker.findViewById(R.id.profile_image);
+        markerImageView.setImageBitmap(bitmap);
+
+        marker.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        marker.layout(0, 0, (int)(marker.getMeasuredWidth() * 0.6), (int)(marker.getMeasuredHeight() * 0.6)) ;
+        marker.buildDrawingCache();
+        Bitmap returnedBitmap = Bitmap.createBitmap((int)(marker.getMeasuredWidth() * 0.6), (int)(marker.getMeasuredHeight() * 0.6),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        Drawable drawable = marker.getBackground();
+        if (drawable != null)
+            drawable.draw(canvas);
+        marker.draw(canvas);
+
+        return returnedBitmap;
     }
 
     public static void setUserPosition(LatLng latLng) {

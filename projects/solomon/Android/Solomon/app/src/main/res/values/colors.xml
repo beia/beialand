@@ -20,6 +20,9 @@
     <color name="mall_stats_text">#E6E6E6</color>
     <color name="mall_stats_text_background">#AAa3a3a3</color>
 
+    <color name="campaigns_text">#E6E6E6</color>
+    <color name="campaign_text_background">#AAa3a3a3</color>
+
 
     <color name="mallAlertsColor">#ff3d40</color>
     <color name="normalNotificationsColor">#4f9eff</color>

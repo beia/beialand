@@ -274,7 +274,7 @@
             <ImageView
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:src="@drawable/stats_icon"
+                android:src="@drawable/logout"
                 android:layout_gravity="center"
                 android:background="@color/transparentColor"
                 android:layout_marginLeft="20dp"/>

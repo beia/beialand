@@ -62,7 +62,7 @@
    </beacon>
    
    <beacon id = "LKhV">
-   <label>3</label>
+   <label>Starbucks</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>41302</major>
@@ -74,7 +74,7 @@
    </beacon>
    
    <beacon id = "rrZd">
-   <label>0</label>
+   <label>McDonald's</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>39824</major>
@@ -86,7 +86,7 @@
    </beacon>
    
    <beacon id = "0Qq2">
-   <label>Zara</label>
+   <label>Cora</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>33233</major>
@@ -98,7 +98,7 @@
    </beacon>
    
    <beacon id = "zbCe">
-   <label>1</label>
+   <label>Altex</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>60181</major>
@@ -110,7 +110,7 @@
    </beacon>
    
    <beacon id = "R4JH">
-   <label>2</label>
+   <label>Zara</label>
    <idMall>2</idMall>
    <company>Kontakt</company>
    <major>24334</major>

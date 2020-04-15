@@ -7,7 +7,7 @@ package com.beia.solomon.networkPackets;
 public class EstimoteBeacon extends Beacon
 {
     public static String COMPANY = "Estimote";
-    
+
     public EstimoteBeacon(String id, String label, int mallId, Coordinates coordinates, int layer, int floor)
     {
         this.id = id;
@@ -27,28 +27,34 @@ public class EstimoteBeacon extends Beacon
     public String getLabel() {
         return this.label;
     }
-    
+
     @Override
     public int getMallId()
     {
         return this.mallId;
     }
-    
+
     @Override
     public Coordinates getCoordinates()
     {
         return this.coordinates;
     }
-    
+
     @Override
     public int getLayer()
     {
         return this.layer;
     }
-    
+
     @Override
     public int getFloor()
     {
         return this.floor;
     }
+
+    @Override
+    public byte[] getImage() { return this.image; }
+
+    @Override
+    public void setImage(byte[] image) { this.image = image;}
 }
