@@ -55,7 +55,6 @@ import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.EstimoteBeacon;
 import com.beia.solomon.networkPackets.KontaktBeacon;
 import com.beia.solomon.networkPackets.UserData;
-import com.beia.solomon.runnables.SendLocationDataRunnable;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.IndoorLevel;
@@ -75,7 +74,6 @@ import com.kontakt.sdk.android.common.KontaktSDK;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.google.android.material.tabs.TabLayout;
-import com.mikhaellopez.circularimageview.CircularImageView;
 
 import androidx.viewpager.widget.ViewPager;
 import android.widget.Toast;
@@ -83,7 +81,6 @@ import android.widget.Toast;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.security.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -344,8 +341,7 @@ public class MainActivity extends AppCompatActivity {
                             public Unit invoke(ProximityZoneContext context) {
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0, true, currentTime, objectOutputStream));
-                                sendLocationDataThread.start();
+                                //LOCATION DATA
                                 return null;
                             }
                         })
@@ -354,8 +350,7 @@ public class MainActivity extends AppCompatActivity {
                             public Unit invoke(ProximityZoneContext context) {
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), estimoteBeacon.getId(), estimoteBeacon.getLabel(), 0,  false, currentTime, objectOutputStream));
-                                sendLocationDataThread.start();
+                                //LOCATION DATA
                                 return null;
                             }
                         })
@@ -590,13 +585,7 @@ public class MainActivity extends AppCompatActivity {
                             regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                             Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                             toast.show();
-                            //send the location data to the server
-                            synchronized (objectOutputStream)
-                            {
-                                currentTime = Calendar.getInstance().getTime();
-                                Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
-                                sendLocationDataThread.start();
-                            }
+                            //LOCATION DATA
                         }
                     }
                     else
@@ -655,13 +644,7 @@ public class MainActivity extends AppCompatActivity {
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
                                     Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                     toast.show();
-                                    //send the location data to the server
-                                    synchronized (objectOutputStream)
-                                    {
-                                        currentTime = Calendar.getInstance().getTime();
-                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
-                                        sendLocationDataThread.start();
-                                    }
+                                    //LOCATION DATA
                                 }
                             }
                             else
@@ -673,14 +656,7 @@ public class MainActivity extends AppCompatActivity {
                                     //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
                                     Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                     toast.show();
-
-                                    //send the location data to the server
-                                    synchronized (objectOutputStream)
-                                    {
-                                        currentTime = Calendar.getInstance().getTime();
-                                        Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), false, currentTime, objectOutputStream));
-                                        sendLocationDataThread.start();
-                                    }
+                                    //LOCATION DATA
                                 }
                             }
                         }
@@ -733,13 +709,7 @@ public class MainActivity extends AppCompatActivity {
                                 regionsEntered.put(iBeaconDevice.getUniqueId(), true);
                                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                 toast.show();
-                                //send the location data to the server
-                                synchronized (objectOutputStream)
-                                {
-                                    currentTime = Calendar.getInstance().getTime();
-                                    Thread sendLocationDataThread = new Thread(new SendLocationDataRunnable(userData.getUserId(), iBeaconDevice.getUniqueId(), region.getIdentifier(), kontaktBeacon.getMallId(), true, currentTime, objectOutputStream));
-                                    sendLocationDataThread.start();
-                                }
+                                //LOCATION DATA
                             }
                         }
                     }

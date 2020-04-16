@@ -148,31 +148,6 @@ public class ManageClientAppInteractionRunnable implements Runnable
                     System.out.println(signInData.toString());
                 }
 
-
-                //APP INTERACTION DATA
-                if(networkPacket instanceof LocationData)
-                {
-                    //received a location information from the user
-                    LocationData userLocationData = (LocationData)networkPacket;
-                    SolomonServer.addLocationData(userLocationData.getUserId(), userLocationData.getBeaconId(), userLocationData.getBeaconLabel(), userLocationData.getMallId(), userLocationData.getZoneEntered(), userLocationData.getTime());
-                }
-                if(networkPacket instanceof UpdateUserData)
-                {
-                    //received some personal info from the user to be updated
-                    UpdateUserData updateUserData = (UpdateUserData)networkPacket;
-                    if(updateUserData.getUsername() != null)
-                    {
-                        SolomonServer.updateUsername(updateUserData.getId(), updateUserData.getUsername());
-                    }
-                    if(updateUserData.getPassword() != null)
-                    {
-                        SolomonServer.updatePassword(updateUserData.getId(), updateUserData.getPassword());
-                    }
-                    if(updateUserData.getAge() != 0)
-                    {
-                        SolomonServer.updateAge(updateUserData.getId(), updateUserData.getAge());
-                    }
-                }
                 if(networkPacket instanceof ImageData)
                 {
                     //received the picture bytes from the user
@@ -238,11 +213,11 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             break;
                         case "getBeacons":
                             //send the beacons data to the users
-                            if(SolomonServer.beacons != null)
+                            if(SolomonServer.beaconsMap != null)
                             {
                                 System.out.println("Sent the beacons data to the user");
                                 synchronized (objectOutputStream) {
-                                    this.objectOutputStream.writeObject(new BeaconsData(SolomonServer.beacons));
+                                    this.objectOutputStream.writeObject(new BeaconsData(SolomonServer.beaconsMap));
                                 }
                             }
                             else
@@ -250,11 +225,11 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 System.out.println("No beacons available to send");
                             }
                             //send the malls data to the users
-                            if(SolomonServer.malls != null)
+                            if(SolomonServer.mallsMap != null)
                             {
                                 System.out.println("Sent the malls data to the user");
                                 synchronized (objectOutputStream) {
-                                    this.objectOutputStream.writeObject(SolomonServer.malls);
+                                    this.objectOutputStream.writeObject(SolomonServer.mallsMap);
                                 }
                             }
                             break;

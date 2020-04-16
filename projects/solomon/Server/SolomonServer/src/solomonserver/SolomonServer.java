@@ -5,16 +5,12 @@
  */
 package solomonserver;
 
-import SolomonPartnersNetworkObjects.Mall;
-import SolomonPartnersNetworkObjects.User;
-import SolomonPartnersNetworkObjects.UserStoreTime;
 import com.beia.solomon.networkPackets.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,7 +19,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,49 +35,31 @@ public class SolomonServer {
     //solomon server variables 
     public static ServerSocket serverSocket;
     public static Thread connectClients;
-    public static Thread processDatabaseData;
-    public static HashMap<String, Beacon> beacons;
-    public static HashMap<Integer, com.beia.solomon.networkPackets.Mall> malls;
-    public static volatile HashMap<String, String> companiesMap;//key:id value:name
+    public static HashMap<String, Beacon> beaconsMap;
+    public static HashMap<Integer, HashMap<String, BeaconTime>> usersBeaconTimeMap;//key:userId value:hashmap:key:beaconId value:beaconTime
+    public static HashMap<Integer, Mall> mallsMap;
+    public static volatile HashMap<String, String> companiesMap;//key:id value:name(by company name)
     public static volatile HashMap<String, Campaign> campaignsMapById;//key:id value:campaign
     public static volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName;//key:companyName value:array of campaigns
     public static volatile HashMap<Integer, Queue<Notification>> notificationsMap;//key:userId value:notifications
     public static volatile HashMap<Integer, Integer> parkingSpacesAvailableMap;//key:mallId value:free parking spaces percentage
-    
-    //Solomon partners variables
-    public static ServerSocket partnersServerSocket;
-    public static volatile ArrayList<User> partnersDataUsers;
-    public static volatile ArrayList<UserStoreTime> partnersDataUsersStoreTime;
-    public static volatile ArrayList<Mall> partnersDataMalls;    
-    public static Thread manageDataTransferedToSolomonPartners;
-    public static Thread waitForPartnersHttpRequests;
     
     //Solomon web platform variables
     public static ServerSocket webPlatformServerSocket;
     public static Thread waitForSolomonWebClientsRequests;
     public static HashMap<String, String> webClientsTokensMap;//key: token, value: username
     
-    //unity demo server variables
-    public static ServerSocket unityDemoServerSocket;
-    public static Socket unityDemoSocket;
-    public static Thread connectToUnityDemoThread;
-    
     //sql server variables
     public static String error;
     public static Connection con;
-    
-    //data processing variables
-    public static volatile int lastLocationEntryId = 1;
-    
+
     
     public static void main(String[] args) throws IOException, SQLException, Exception
     {
         //init variables
-        beacons = new HashMap<>();
-        malls = new HashMap<>();
-        partnersDataUsers = new ArrayList<>();
-        partnersDataUsersStoreTime = new ArrayList<>();
-        partnersDataMalls = new ArrayList<>();
+        beaconsMap = new HashMap<>();
+        usersBeaconTimeMap = new HashMap<>();
+        mallsMap = new HashMap<>();
         companiesMap = new HashMap<>();
         campaignsMapById = new HashMap<>();
         campaignsMapByCompanyName = new HashMap<>();
@@ -95,11 +72,13 @@ public class SolomonServer {
         parkingSpacesAvailableMap.put(4, 40);
         parkingSpacesAvailableMap.put(5, 70);
 
-
         //connect to a mySql database
         connectToDatabase();
 
         //get the data from the database
+        getBeacons();
+        getUserBeaconTime();
+        getMalls();
         getCompanies();
         getCampaigns();
 
@@ -118,24 +97,6 @@ public class SolomonServer {
         webPlatformServerSocket = new ServerSocket(8000);
         waitForSolomonWebClientsRequests = new Thread(new WaitForWebPlatformClientsRequestsRunnable(webPlatformServerSocket));
         waitForSolomonWebClientsRequests.start();
-        
-        //create a tcp server socket and wait for Solomon partners connection
-        partnersServerSocket = new ServerSocket(9000);
-        waitForPartnersHttpRequests = new Thread(new WaitForPartnersConnectionRunnable(partnersServerSocket));
-        waitForPartnersHttpRequests.start();
-        
-        //create the Unity tcp server socket and wait for client connections
-        unityDemoServerSocket = new ServerSocket(10000);
-        connectToUnityDemoThread = new Thread(new ConnectToUnityDemoRunnable(unityDemoServerSocket));
-        connectToUnityDemoThread.start();
-        
-        //extract user location data from the database and process it at a fixed amount of time
-        processDatabaseData = new Thread(new ProcessDatabaseDataRunnable());
-        processDatabaseData.start();
-        
-        //get the data to be shared with the Solomon partners from the database
-        manageDataTransferedToSolomonPartners = new Thread(new ManageDataTransferedToSolomonPartnersRunnable(partnersDataUsers, partnersDataUsersStoreTime, partnersDataMalls));
-        manageDataTransferedToSolomonPartners.start();
     }
     
     public static void connectToDatabase() throws ClassNotFoundException, SQLException, Exception 
@@ -850,7 +811,7 @@ public class SolomonServer {
         }
         return null;
     }
-    public byte[] getImageFromDisk(String path)
+    public static byte[] getImageFromDisk(String path) throws Exception
     {
         File file = new File(path);
         byte[] imageBytes = new byte[(int) file.length()];
@@ -867,6 +828,81 @@ public class SolomonServer {
         }
         return imageBytes;
     }
+
+    public static void getBeacons() throws Exception {
+        String beaconImagePath = "BeaconsPictures\\";
+        ResultSet beaconsResultSet = SolomonServer.getTableData("beacons");
+        if(beaconsResultSet.isBeforeFirst())
+        {
+            while (beaconsResultSet.next()) {
+                String beaconId = beaconsResultSet.getString("id");
+                String label = beaconsResultSet.getString("label");
+                Integer idMall = beaconsResultSet.getInt("idMall");
+                String idCompany = beaconsResultSet.getString("IdCompany");
+                String major = beaconsResultSet.getString("major");
+                String minor = beaconsResultSet.getString("minor");
+                Double latitude = beaconsResultSet.getDouble("latitude");
+                Double longitude = beaconsResultSet.getDouble("longitude");
+                Integer layer = beaconsResultSet.getInt("layer");
+                Integer floor = beaconsResultSet.getInt("floor");
+                String manufacturer = beaconsResultSet.getString("manufacturer");
+                switch (manufacturer) {
+                    case "Estimote":
+                        EstimoteBeacon estimoteBeacon = new EstimoteBeacon(beaconId, label, idMall, new Coordinates(latitude, longitude), layer, floor);
+                        try {
+                            estimoteBeacon.setImage(getImageFromDisk(beaconImagePath + beaconId + ".jpg"));
+                        }
+                        catch(Exception ex) {}
+
+                        SolomonServer.beaconsMap.put(beaconId, estimoteBeacon);
+                        break;
+                    case "Kontakt":
+                        KontaktBeacon kontaktBeacon = new KontaktBeacon(beaconId, label, idMall, major, minor, new Coordinates(latitude, longitude), layer, floor);
+                        try {
+                            kontaktBeacon.setImage(getImageFromDisk(beaconImagePath + beaconId + ".jpg"));
+                        }
+                        catch (Exception ex){}
+
+                        SolomonServer.beaconsMap.put(beaconId, kontaktBeacon);
+                        break;
+                }
+            }
+        }
+    }
+
+    public static void getUserBeaconTime() throws Exception {
+        ResultSet beaconTimeResultSet = getTableData("userbeacontime");
+        if(beaconTimeResultSet.isBeforeFirst())
+        {
+            while (beaconTimeResultSet.next()) {
+                Integer idUser = beaconTimeResultSet.getInt("idUser");
+                String idBeacon = beaconTimeResultSet.getString("idBeacon");
+                Long timeSeconds = beaconTimeResultSet.getLong("timeSeconds");
+                if (usersBeaconTimeMap.get(idUser) == null)
+                    usersBeaconTimeMap.put(idUser, new HashMap<>());
+                if (beaconsMap.get(idBeacon) != null)
+                    usersBeaconTimeMap.get(idUser).put(idBeacon, new BeaconTime(idUser, beaconsMap.get(idBeacon), timeSeconds));
+            }
+        }
+    }
+
+    public static void getMalls() throws Exception {
+        //MALLS
+        //get malls from the database
+        ResultSet mallsResultSet = SolomonServer.getTableData("malls");
+        while(mallsResultSet.next())
+        {
+            int mallId = mallsResultSet.getInt("idMalls");
+            String name = mallsResultSet.getString("name");
+            String photoPath = "MallPictures\\" + mallId + ".jpg";
+            double latitude = mallsResultSet.getDouble("latitude");
+            double longitude = mallsResultSet.getDouble("longitude");
+            Mall mall = new Mall(mallId, name, getImageFromDisk(photoPath), new Coordinates(latitude, longitude));
+            SolomonServer.mallsMap.put(mallId, mall);
+            System.out.println("Created mall with id: " + mall.getMallId() + " and name: " + name);
+        }
+    }
+
 
     public static void getCompanies() throws Exception {
         ResultSet companiesResultSet = SolomonServer.getTableData("companies");
