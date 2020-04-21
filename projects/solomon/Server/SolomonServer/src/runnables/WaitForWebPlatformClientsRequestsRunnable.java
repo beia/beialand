@@ -5,15 +5,7 @@
  */
 package runnables;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -22,13 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,11 +32,11 @@ import javax.xml.transform.Result;
  * @author beia
  */
 public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
-    
+
     private ServerSocket serverSocket;
     private final int TOKEN_DIMENSION = 14;
     private String campaignsPhotoPath = "CampaignsPictures\\";
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
     Calendar cal = Calendar.getInstance();
     public WaitForWebPlatformClientsRequestsRunnable(ServerSocket serverSocket)
     {
@@ -58,18 +44,18 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
     }
     @Override
     public void run() {
-            Socket socket = null;
-            String authToken, campaignId;
-            while(true)
-            {
-                try { 
+        Socket socket = null;
+        String authToken, campaignId;
+        while(true)
+        {
+            try {
                 socket = serverSocket.accept();
                 //REQUEST
                 OutputStream outputStream = socket.getOutputStream();
                 InputStream inputStream = socket.getInputStream();
                 System.out.println("Waiting for web plaform clients http requests...");
                 StringBuilder content;
-                String body = ""; 
+                String body = "";
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 int nRead;
                 byte[] data = new byte[1024];
@@ -89,13 +75,81 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             dataReceived = true;
                             break;
                         }
+
+//                        if(line.startsWith("OPTION")){
+//                            System.out.println("CORS Check Request");
+//                            writeCorsResponse(outputStream);
+//                            dataReceived = true;
+//                            body = "{\"requestType\":\"CORSCheckRequest\"}";
+//                            break;
+//                        }
+
+                        String [] lineSplit = line.split(" ");
+                        if(lineSplit[0].equals("GET") && lineSplit[1].equals("/register")){
+                            String tokenVal = checkAuthToken(lineSplit[1]);
+                            System.out.println("Register Page Request");
+                            writePageResponse("register", body, outputStream, tokenVal);
+                            dataReceived = true;
+                            body = "{\"requestType\":\"GETRequestPage\"}";
+                            break;
+                        }
+                        if(lineSplit[0].equals("GET") && lineSplit[1].equals("/login")){
+                            String tokenVal = checkAuthToken(lineSplit[1]);
+                            System.out.println("LogIN Page Request");
+                            writePageResponse("login", body, outputStream, tokenVal);
+                            dataReceived = true;
+                            body = "{\"requestType\":\"GETLoginPage\"}";
+                            break;
+                        }
+                        if(lineSplit[0].equals("GET") && lineSplit[1].startsWith("/solomon")){
+                            String tokenVal = checkAuthToken(lineSplit[1]);
+                            if(tokenVal == null){
+                                System.out.println("Invalid authToken - Redirect");
+                                writeRedirectResponse(outputStream);
+                            } else {
+                                System.out.println("Main Page Request");
+                                writePageResponse("dashboard", body, outputStream, tokenVal);
+                            }
+                            dataReceived = true;
+                            body = "{\"requestType\":\"GETMainPage\"}";
+                            break;
+                        }
+
+                        if(lineSplit[0].equals("GET") && lineSplit[1].startsWith("/contact")){
+                            String tokenVal = checkAuthToken(lineSplit[1]);
+                            if(tokenVal == null){
+                                System.out.println("Invalid authToken - Redirect");
+                                writeRedirectResponse(outputStream);
+                            } else {
+                                System.out.println("Contact Page Request");
+                                writePageResponse("contact", body, outputStream, tokenVal);
+                            }
+                            dataReceived = true;
+                            body = "{\"requestType\":\"GETContactPage\"}";
+                            break;
+                        }
+
+                        if(lineSplit[0].equals("GET") && lineSplit[1].startsWith("/history")){
+                            String tokenVal = checkAuthToken(lineSplit[1]);
+                            if(tokenVal == null){
+                                System.out.println("Invalid authToken - Redirect");
+                                writeRedirectResponse(outputStream);
+                            } else {
+                                System.out.println("History Page Request");
+                                writePageResponse("history", body, outputStream, tokenVal);
+                            }
+                            dataReceived = true;
+                            body = "{\"requestType\":\"GETHistoryPage\"}";
+                            break;
+                        }
+
                     }
                     if(dataReceived == true)
                         break;
                 }
                 //System.out.println(body);
                 buffer.flush();
-                
+
                 //PARSE JSON
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObject = (JSONObject) parser.parse(body.trim());
@@ -185,7 +239,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                     case "campaigns"://send the active campains
                         String response = null;
                         authToken = (String)jsonObject.get("authToken");
-                        if(!SolomonServer.webClientsTokensMap.containsKey(authToken))//bad auth token
+                        if(!SolomonServer.webClientsTokensMap.containsKey(authToken))
                         {
                             response = "{\"success\":false,\"campaigns\":null}";
                             writeResponse(response, outputStream);
@@ -198,14 +252,14 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         else//campains available
                         {
-                            response = "{\"success\":true,\"campaigns\":[";
+                            response = "{\"success\":true,\"campaigns\":\"";
                             int validCampains = 0;
                             while(campainsResultSet.next())
                             {
                                 String startDate = campainsResultSet.getString("startDate");
                                 String endDate = campainsResultSet.getString("endDate");
                                 String currentDate = dateFormat.format(cal.getTime());
-                                if(currentDate.compareTo(startDate) >= 0 && currentDate.compareTo(endDate) <= 0) //the campain is still active
+                                if(currentDate.compareTo(endDate) <= 0) //the campain is still active
                                 {
                                     validCampains++;
                                     if(validCampains > 1) response += ',';
@@ -215,14 +269,14 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             if(validCampains == 0)
                                 response = "{\"success\":true,\"campaigns\":null}";
                             else
-                                response += "]}";
+                                response += "\"}";
                         }
                         writeResponse(response, outputStream);
                         break;
                     case "oldCampaigns"://send the active campains
                         String responseOldCampains = null;
                         String authTokenOldCampains = (String)jsonObject.get("authToken");
-                        if(!SolomonServer.webClientsTokensMap.containsKey(authTokenOldCampains))//bad auth token
+                        if(!SolomonServer.webClientsTokensMap.containsKey(authTokenOldCampains))
                         {
                             responseOldCampains = "{\"success\":false,\"oldCampaigns\":null}";
                             writeResponse(responseOldCampains, outputStream);
@@ -235,14 +289,14 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         else//campains available
                         {
-                            responseOldCampains = "{\"success\":true,\"oldCampaigns\":[";
+                            responseOldCampains = "{\"success\":true,\"oldCampaigns\":\"";
                             int oldCampains = 0;
                             while(oldCampainsResultSet.next())
                             {
                                 String startDate = oldCampainsResultSet.getString("startDate");
                                 String endDate = oldCampainsResultSet.getString("endDate");
                                 String currentDate = dateFormat.format(cal.getTime());
-                                if(currentDate.compareTo(startDate) > 0 && currentDate.compareTo(endDate) > 0) //the campain is still active
+                                if(currentDate.compareTo(endDate) > 0) //the campain is still active
                                 {
                                     oldCampains++;
                                     if(oldCampains > 1) responseOldCampains += ',';
@@ -252,16 +306,17 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             if(oldCampains == 0)
                                 responseOldCampains = "{\"success\":true,\"oldCampaigns\":null}";
                             else
-                                responseOldCampains += "]}";
+                                responseOldCampains += "\"}";
                         }
                         writeResponse(responseOldCampains, outputStream);
-                    break;
+                        break;
                     case "addCampaign":
                         String authTokenAddCampaign = (String)jsonObject.get("authToken");
                         String responseAddCampaign;
                         if(SolomonServer.webClientsTokensMap.containsKey(authTokenAddCampaign))
                         {
                             String title = (String)jsonObject.get("title");
+                            String category = (String)jsonObject.get("category");
                             String description = (String)jsonObject.get("description");
                             String startDate = (String)jsonObject.get("startDate");
                             String endDate = (String)jsonObject.get("endDate");
@@ -271,12 +326,12 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                                 idCampain = getAlphaNumericString(10);
                             String idCompany = SolomonServer.webClientsTokensMap.get(authTokenAddCampaign);
                             String path = campaignsPhotoPath + idCampain + ".jpg";
-                            SolomonServer.addCampain(idCampain, idCompany, title, description, startDate, endDate, path);
-                            SolomonServer.campaignsMapById.put(idCampain, new Campaign(idCampain, idCompany, title, description, startDate, endDate, path));
+                            SolomonServer.addCampain(idCampain, idCompany, title, category, description, startDate, endDate, path);
+                            SolomonServer.campaignsMapById.put(idCampain, new Campaign(idCampain, idCompany, SolomonServer.companiesMap.get(idCompany), title, category, description, startDate, endDate, path));
                             System.out.println("Company '" + idCompany + " inserted campaign with id " + idCampain);
-                            responseAddCampaign = "{\"success\":true}";
+                            responseAddCampaign = "{\"success\":true, \"campaignID\":\"" + idCampain + "\"}";
                             writeResponse(responseAddCampaign, outputStream);
-                            
+
                             //save the photo on the disk(ideally a new thread)
                             File file = new File(path);
                             Files.write(file.toPath(), imageBytes);
@@ -297,12 +352,14 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             if(SolomonServer.campaignsMapById.containsKey(campaignId))
                             {
                                 Campaign campaign = SolomonServer.campaignsMapById.get(campaignId);
-                                responseGetCampaign = "{\"campaignID\":\"" + campaignId 
-                                                        + ",\"title\":\"" + campaign.getTitle() 
-                                                        + ",\"description\":\"" + campaign.getDescription() 
-                                                        + ",\"startDate\":\"" + campaign.getStartDate() 
-                                                        + ",\"endDate\":\"" + campaign.getEndDate() 
-                                                        + ",\"image\":\"" + Base64.getEncoder().encodeToString(getImageFromDisk(campaign.getPhotoPath())) + "\"}";
+                                System.out.println(campaign.getPhotoPath());
+                                responseGetCampaign = "{\"campaignID\":\"" + campaignId
+                                        + "\",\"title\":\"" + campaign.getTitle()
+                                        + "\",\"category\":\"" + campaign.getCategory()
+                                        + "\",\"description\":\"" + campaign.getDescription()
+                                        + "\",\"startDate\":\"" + campaign.getStartDate()
+                                        + "\",\"endDate\":\"" + campaign.getEndDate()
+                                        + "\",\"image\":\"" + Base64.getEncoder().encodeToString(getImageFromDisk(campaign.getPhotoPath())) + "\"}";
                             }
                             else
                             {
@@ -322,15 +379,16 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         {
                             String campaignID = (String)jsonObject.get("campaignID");
                             String title = (String)jsonObject.get("title");
+                            String category = (String)jsonObject.get("category");
                             String description = (String)jsonObject.get("description");
                             String startDate = (String)jsonObject.get("startDate");
                             String endDate = (String)jsonObject.get("endDate");
                             byte[] imageBytes = Base64.getDecoder().decode((String)jsonObject.get("image"));
                             String idCompany = SolomonServer.webClientsTokensMap.get(authTokenUpdateCampaign);
                             String path = campaignsPhotoPath + campaignID + ".jpg";
-                            SolomonServer.updateCampain(campaignID, title, description, startDate, endDate);
+                            SolomonServer.updateCampain(campaignID, title, category, description, startDate, endDate);
                             Campaign campaign = SolomonServer.campaignsMapById.get(campaignID);
-                            campaign.update(title, description, startDate, endDate);
+                            campaign.update(title, category, description, startDate, endDate);
                             System.out.println("Company '" + idCompany + " updated campaign with id " + campaignID);
                             responseAddCampaign = "{\"success\":true}";
                             writeResponse(responseAddCampaign, outputStream);
@@ -370,20 +428,93 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         break;
                 }
                 System.out.println("SOCKET CLOSED");
-           }
-                catch (IOException ex) {
-                    ex.printStackTrace();
-        } catch (ParseException ex) {
-            ex.printStackTrace();
-            
-        }   catch (SQLException ex) {
+            }
+            catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+
+            }   catch (SQLException ex) {
                 ex.printStackTrace();
             }
             catch (Exception ex) {
                 ex.printStackTrace();
             }
-        } 
+        }
     }
+    //    public void writeCorsResponse(OutputStream outputStream)
+//    {
+//        //write the response
+//        PrintWriter out = new PrintWriter(outputStream);
+//        out.print("HTTP/1.1 200 \r\n"); // Version & status cod
+//        out.print("Access-Control-Allow-Origin: http://localhost:8080\r\n");
+//        out.print("Access-Control-Allow-Methods: GET,POST\r\n");
+//        out.print("Access-Control-Allow-Headers: Content-Type\r\n");
+//        out.print("Connection: Keep-Alive\r\n"); // Will close stream
+//        out.print("\r\n"); // End of headers
+//        //write the body of the response
+//        out.close();
+//    }
+    public String checkAuthToken(String url){
+        String [] parts = url.split("\\?");
+        if(parts.length > 1){
+            String[] parameters = parts[1].split("&");
+            for(String p:parameters){
+                if(p.startsWith("authToken")){
+                    String tokenValue = p.split("=")[1];
+                    if(SolomonServer.webClientsTokensMap.containsKey(tokenValue)){
+                        return tokenValue;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void writeRedirectResponse(OutputStream outputStream){
+        PrintWriter out = new PrintWriter(outputStream);
+        out.print("HTTP/1.1 303 \r\n"); // Redirect Status
+        out.print("Location: /login\r\n"); // Redirect location
+        out.print("Connection: close\r\n"); // Will close stream
+        out.print("\r\n"); // End of headers
+        out.close();
+    }
+
+    public void writePageResponse(String page, String requestBody, OutputStream outputStream, String authToken) throws FileNotFoundException {
+        // Get Host from request
+        String host = null;
+        Scanner bsc = new Scanner(requestBody);
+        while(bsc.hasNextLine()){
+            String line = bsc.nextLine();
+            if(line.startsWith("Host:")){
+                String[] elems = line.split(" ");
+                host = "http://" + elems[1].substring(0, elems[1].length() - 2) + "80";
+            }
+        }
+
+        String name = "";
+        if(authToken != null){
+            String idCompany = SolomonServer.webClientsTokensMap.get(authToken);
+            name = SolomonServer.companiesMap.get(idCompany);
+        }
+
+
+        //write the response
+        PrintWriter out = new PrintWriter(outputStream);
+        out.print("HTTP/1.1 200 \r\n"); // Version & status code
+        out.print("Connection: close\r\n"); // Will close stream
+        out.print("\r\n"); // End of headers
+
+        File file  =  new File("C:\\Users\\Tehnic\\Desktop\\beialand\\projects\\solomon\\webapp\\templates\\" + page +".html");
+        Scanner sc = new Scanner(file);
+        while(sc.hasNextLine()){
+            out.println(sc.nextLine().replace("<$host$>",host).replace("<$name$>", name));
+        }
+        out.close();
+    }
+
     public void writeResponse(String response, OutputStream outputStream)
     {
         //write the response
@@ -396,29 +527,29 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
         out.print(response);
         out.close();
     }
-    public String getAlphaNumericString(int n) 
+    public String getAlphaNumericString(int n)
     {
-        // chose a Character random from this String 
+        // chose a Character random from this String
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                    + "0123456789"
-                                    + "abcdefghijklmnopqrstuvxyz"; 
-  
-        // create StringBuffer size of AlphaNumericString 
-        StringBuilder sb = new StringBuilder(n); 
-  
-        for (int i = 0; i < n; i++) { 
-  
-            // generate a random number between 
-            // 0 to AlphaNumericString variable length 
-            int index 
-                = (int)(AlphaNumericString.length() 
-                        * Math.random()); 
-  
-            // add Character one by one in end of sb 
-            sb.append(AlphaNumericString 
-                          .charAt(index)); 
-        } 
-        return sb.toString(); 
+                + "0123456789"
+                + "abcdefghijklmnopqrstuvxyz";
+
+        // create StringBuffer size of AlphaNumericString
+        StringBuilder sb = new StringBuilder(n);
+
+        for (int i = 0; i < n; i++) {
+
+            // generate a random number between
+            // 0 to AlphaNumericString variable length
+            int index
+                    = (int)(AlphaNumericString.length()
+                    * Math.random());
+
+            // add Character one by one in end of sb
+            sb.append(AlphaNumericString
+                    .charAt(index));
+        }
+        return sb.toString();
     }
     public static byte[] getImageFromDisk(String path)
     {

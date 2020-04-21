@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="<$host$>/static/images/solomon_favicon.png"/>
+    <title>SOLOMON LogIN</title>
+
+    <script src="<$host$>/static/scripts/jquery-3.3.1.js"></script>
+    <script src="<$host$>/static/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="<$host$>/static/scripts/SemanticUI/semantic.min.css">
+
+    <script src="<$host$>/static/scripts/Custom/login.js"></script>
+    <link rel="stylesheet" href="<$host$>/static/styles/style.css">
+  </head>
+  <body>
+
+    <div class="ui middle aligned center aligned grid" style="padding-left:25%; padding-right:25%;">
+      <div class="column">
+
+        <img src="<$host$>/static/images/solomon.png" style="width:100%;" class="image">
+        <form class="ui form" id="login-form" action="/solomon">
+          <div class="ui stacked segment">
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="user icon" style="color: #f16667;"></i>
+                <input type="text" id="nameField" name="name"  placeholder="User Name">
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="lock icon" style="color: #f16667;"></i>
+                <input type="password" id="passField" name="password" placeholder="Password">
+              </div>
+            </div>
+            <div onclick="submitForm()" class="ui fluid teal submit button" style="background-color:#f16667;">
+              Login
+            </div>
+          </div>
+        </form>
+
+        <div id="messageDiv"></div>
+
+        <div class="ui message" style="color: #f16667; background: #f166673b;">
+          Not registered yet? <a href="/register">Join Now</a>
+        </div>
+      </div>
+    </div>
+
+    
+    <script type="text/javascript">
+      var host = "<$host$>";
+    </script>
+  </body>
+</html>

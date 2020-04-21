@@ -42,13 +42,13 @@ public class UpdateCampaignsForUsersRunnable implements Runnable
                         if(!campaignsMapByCompanyId.containsKey(campaign.getIdCompany()))
                         {
                             ArrayList<Campaign> storeCampaigns = new ArrayList<>();
-                            Campaign campaignForUser = new Campaign(campaign.getId(), campaign.getIdCompany(), companiesMap.get(campaign.getIdCompany()), campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath()));
+                            Campaign campaignForUser = new Campaign(campaign.getId(), campaign.getIdCompany(), companiesMap.get(campaign.getIdCompany()), campaign.getTitle(), campaign.getCategory(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath()));
                             storeCampaigns.add(campaignForUser);
                             campaignsMapByCompanyId.put(campaign.getIdCompany(), storeCampaigns);
                         }
                         else
                         {
-                            campaignsMapByCompanyId.get(campaign.getIdCompany()).add(new Campaign(campaign.getId(), campaign.getIdCompany(), companiesMap.get(campaign.getIdCompany()), campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath())));
+                            campaignsMapByCompanyId.get(campaign.getIdCompany()).add(new Campaign(campaign.getId(), campaign.getIdCompany(), companiesMap.get(campaign.getIdCompany()), campaign.getTitle(), campaign.getCategory(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath())));
                         }
                     }
                 }

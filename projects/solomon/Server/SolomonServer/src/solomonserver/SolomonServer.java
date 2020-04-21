@@ -104,7 +104,7 @@ public class SolomonServer {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "root"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "beiatapi"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
             System.out.println("Successfully connected to the database!");
         }
         catch (ClassNotFoundException cnfe)
@@ -544,30 +544,32 @@ public class SolomonServer {
         }
     }
     
-    public static void addCampain(String idCampain, String idCompany, String title, String description, String startDate, String endDate, String photoPath) throws SQLException
+    public static void addCampain(String idCampain, String idCompany, String title, String category, String description, String startDate, String endDate, String photoPath) throws SQLException
     {
-        String statementString = "INSERT INTO campaigns(idCampaign, idCompany, title, description, startDate, endDate, photoPath) VALUES(?,?,?,?,?,?,?)";
+        String statementString = "INSERT INTO campaigns(idCampaign, idCompany, title, category, description, startDate, endDate, photoPath) VALUES(?,?,?,?,?,?,?,?)";
         PreparedStatement statement = con.prepareStatement(statementString);
         statement.setString(1, idCampain);
         statement.setString(2, idCompany);
         statement.setString(3, title);
-        statement.setString(4, description);
-        statement.setString(5, startDate);
-        statement.setString(6, endDate);
-        statement.setString(7, photoPath);
+        statement.setString(4, category);
+        statement.setString(5, description);
+        statement.setString(6, startDate);
+        statement.setString(7, endDate);
+        statement.setString(8, photoPath);
         statement.executeUpdate();
     }
 
-    public static void updateCampain(String idCampain, String title, String description, String startDate, String endDate) throws SQLException
+    public static void updateCampain(String idCampain, String title, String category, String description, String startDate, String endDate) throws SQLException
     {
         if(con != null) {
-            String statementString = "UPDATE campaigns SET title = ?, description = ?, startDate = ?, endDate = ? WHERE idCampaign = ?;";
+            String statementString = "UPDATE campaigns SET title = ?, category = ?,  description = ?, startDate = ?, endDate = ? WHERE idCampaign = ?;";
             PreparedStatement statement = con.prepareStatement(statementString);
             statement.setString(1, title);
-            statement.setString(2, description);
-            statement.setString(3, startDate);
-            statement.setString(4, endDate);
-            statement.setString(5, idCampain);
+            statement.setString(2, category);
+            statement.setString(3, description);
+            statement.setString(4, startDate);
+            statement.setString(5, endDate);
+            statement.setString(6, idCampain);
             statement.executeUpdate();
         }
     }
@@ -575,7 +577,7 @@ public class SolomonServer {
     public static void removeCampaign(String idCampain) throws SQLException
     {
         if(con != null) {
-            String statementString = "DELETE FROM campaigns WHERE idCampain = ?;";
+            String statementString = "DELETE FROM campaigns WHERE idCampaign = ?;";
             PreparedStatement statement = con.prepareStatement(statementString);
             statement.setString(1, idCampain);
             statement.executeUpdate();
@@ -733,11 +735,12 @@ public class SolomonServer {
                 String idCampaign = campaignsResultSet.getString("campaigns.idCampaign");
                 String idCompany = campaignsResultSet.getString("campaigns.idCompany");
                 String title = campaignsResultSet.getString("campaigns.title");
+                String category = campaignsResultSet.getString("campaigns.category");
                 String description = campaignsResultSet.getString("campaigns.description");
                 String startDate = campaignsResultSet.getString("campaigns.startDate");
                 String endDate = campaignsResultSet.getString("campaigns.endDate");
                 String photoPath = campaignsResultSet.getString("campaigns.photoPath");
-                campaignsMapById.put(idCampaign, new Campaign(idCampaign, idCompany, companiesMap.get(idCompany), title, description, startDate, endDate, photoPath));
+                campaignsMapById.put(idCampaign, new Campaign(idCampaign, idCompany, companiesMap.get(idCompany), title, category, description, startDate, endDate, photoPath));
             }
         }
     }
