@@ -118,9 +118,9 @@ public class WaitForServerDataRunnable implements Runnable
                     BeaconsData beaconsData = (BeaconsData) networkPacket;
                     MainActivity.beaconsMap = beaconsData.getBeaconsData();//change .. make beacons not static
                     for(Beacon beacon : beaconsData.getBeaconsData().values()) {
-                        MainActivity.beaconsMapByCompanyName.put(beacon.getLabel(), beacon);
+                        MainActivity.beaconsMapByCompanyId.put(beacon.getCompanyId(), beacon);
                     }
-                    Log.d("BEACONS", "RECEIVED BEACON DATA");
+                    Log.d("BEACONS", "RECEIVED BEACON DATA " + beaconsData.getBeaconsData().size());
                 }
 
                 //RECEIVED MALLS DATA
@@ -147,7 +147,8 @@ public class WaitForServerDataRunnable implements Runnable
                     MainActivity.campaigns.clear();
                     ArrayList<Campaign> campaigns = (ArrayList<Campaign>)networkPacket;
                     for(Campaign campaign : campaigns) {
-                        byte[] companyImage = MainActivity.beaconsMapByCompanyName.get(campaign.getCompanyName()).getImage();
+                        Log.d("CAMPAIGN", campaign.getIdCompany() + " " + campaign.getCompanyName());
+                        byte[] companyImage = MainActivity.beaconsMapByCompanyId.get(campaign.getIdCompany()).getImage();
                         if(companyImage != null)
                             campaign.setCompanyImage(companyImage);
                         MainActivity.campaigns.add(campaign);

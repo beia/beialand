@@ -7,6 +7,7 @@ public abstract class Beacon implements Serializable
     protected String id;
     protected String label;
     protected int mallId;
+    protected String companyId;
     protected Coordinates coordinates;
     protected int layer;
     protected int floor;
@@ -15,6 +16,7 @@ public abstract class Beacon implements Serializable
     public abstract String getId();
     public abstract String getLabel();
     public abstract int getMallId();
+    public abstract String getCompanyId();
     public abstract Coordinates getCoordinates();
     public abstract int getLayer();
     public abstract int getFloor();

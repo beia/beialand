@@ -17,14 +17,14 @@ public class UpdateCampaignsForUsersRunnable implements Runnable
 {
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     Calendar cal = Calendar.getInstance();
-    public volatile HashMap<String, String> companiesMap;
+    public volatile HashMap<String, String> companiesMap;//key:id value:companyName
     public volatile HashMap<String, Campaign> campaignsMapById;
-    public volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName;
-    public UpdateCampaignsForUsersRunnable(HashMap<String, String> companiesMap, HashMap<String, Campaign> campaignsMapById, HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName)
+    public volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyId;
+    public UpdateCampaignsForUsersRunnable(HashMap<String, String> companiesMap, HashMap<String, Campaign> campaignsMapById, HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyId)
     {
         this.companiesMap = companiesMap;
         this.campaignsMapById = campaignsMapById;
-        this.campaignsMapByCompanyName = campaignsMapByCompanyName;
+        this.campaignsMapByCompanyId = campaignsMapByCompanyId;
     }
     @Override
     public void run() {
@@ -33,25 +33,22 @@ public class UpdateCampaignsForUsersRunnable implements Runnable
             try
             {
                 String currentDate = dateFormat.format(cal.getTime());
-                campaignsMapByCompanyName.clear();
+                campaignsMapByCompanyId.clear();
                 //check for valid campaigns
                 for(Campaign campaign : campaignsMapById.values())
                 {
                     if(currentDate.compareTo(campaign.getStartDate()) >= 0 && currentDate.compareTo(campaign.getEndDate()) <= 0)
                     {
-                        String companyName = companiesMap.get(campaign.getIdCompany());
-                        System.out.println(companyName + "valid \n\n\n\n");
-                        if(!campaignsMapByCompanyName.containsKey(companyName))
+                        if(!campaignsMapByCompanyId.containsKey(campaign.getIdCompany()))
                         {
                             ArrayList<Campaign> storeCampaigns = new ArrayList<>();
-                            Campaign campaignForUser = new Campaign(campaign.getId(), companyName, campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath()));
+                            Campaign campaignForUser = new Campaign(campaign.getId(), campaign.getIdCompany(), companiesMap.get(campaign.getIdCompany()), campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath()));
                             storeCampaigns.add(campaignForUser);
-                            campaignsMapByCompanyName.put(companyName, storeCampaigns);
-                            System.out.println("Added campaign");
+                            campaignsMapByCompanyId.put(campaign.getIdCompany(), storeCampaigns);
                         }
                         else
                         {
-                            campaignsMapByCompanyName.get(companyName).add(new Campaign(campaign.getId(), companyName, campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath())));
+                            campaignsMapByCompanyId.get(campaign.getIdCompany()).add(new Campaign(campaign.getId(), campaign.getIdCompany(), companiesMap.get(campaign.getIdCompany()), campaign.getTitle(), campaign.getDescription(), campaign.getStartDate(), campaign.getEndDate(), getImageFromDisk(campaign.getPhotoPath())));
                         }
                     }
                 }

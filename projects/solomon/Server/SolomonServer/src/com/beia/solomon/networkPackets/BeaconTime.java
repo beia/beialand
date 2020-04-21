@@ -22,4 +22,7 @@ public class BeaconTime implements Serializable {
     public long getTimeSeconds() {
         return this.timeSeconds;
     }
+    public void setTimeSeconds(long timeSeconds) {
+        this.timeSeconds = timeSeconds;
+    }
 }

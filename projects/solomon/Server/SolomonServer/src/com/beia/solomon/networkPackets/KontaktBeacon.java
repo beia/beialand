@@ -6,15 +6,16 @@ package com.beia.solomon.networkPackets;
  */
 public class KontaktBeacon extends Beacon
 {
-    public final String COMPANY = "Kontakt";
+    public final String MANUFACTURER = "Kontakt";
     private String major;
     private String minor;
 
-    public KontaktBeacon(String id, String label, int mallId, String major, String minor, Coordinates coordinates, int layer, int floor)
+    public KontaktBeacon(String id, String label, int mallId, String companyId, String major, String minor, Coordinates coordinates, int layer, int floor)
     {
         this.id = id;
         this.label = label;
         this.mallId = mallId;
+        this.companyId = companyId;
         this.major = major;
         this.minor = minor;
         this.coordinates = coordinates;
@@ -38,6 +39,9 @@ public class KontaktBeacon extends Beacon
     {
         return this.mallId;
     }
+
+    @Override
+    public String getCompanyId() { return this.companyId; }
 
     @Override
     public Coordinates getCoordinates()

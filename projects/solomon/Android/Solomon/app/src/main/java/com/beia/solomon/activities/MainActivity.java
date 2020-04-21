@@ -39,6 +39,7 @@ import com.beia.solomon.networkPackets.Coordinates;
 import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.receivers.NotificationReceiver;
 import com.beia.solomon.runnables.ComputePositionRunnable;
+import com.beia.solomon.runnables.PostRunnable;
 import com.beia.solomon.runnables.RequestRunnable;
 import com.beia.solomon.runnables.WaitForServerDataRunnable;
 import com.bumptech.glide.Glide;
@@ -109,8 +110,9 @@ public class MainActivity extends AppCompatActivity {
     //beacon variables
     public static final int roomDimension = 2;//meters
     public static volatile HashMap<String, Beacon> beaconsMap;//key:id value:beacon
-    public static volatile HashMap<String, Beacon> beaconsMapByCompanyName;//key:name value:beacon
-    public static volatile HashMap<String, Boolean> regionsEntered;
+    public static volatile HashMap<String, Beacon> beaconsMapByCompanyId;//key:id value:beacon
+    public static volatile HashMap<String, Boolean> regionsEntered;//key:idBeacon value:boolean
+    public static volatile HashMap<String, Long> timeMap;//key:idBeacon value:current time ms when the user entered the beacon area
     public static volatile HashMap<Integer, Mall> mallsMap;//key:mallId value:mall
     public static volatile ArrayList<Mall> malls;
     public static volatile HashMap<Integer, Boolean> mallsEntered;
@@ -165,8 +167,6 @@ public class MainActivity extends AppCompatActivity {
     public static MapFragment mapFragment;
     public static SettingsFragment settingsFragment;
 
-    public static volatile HashMap<String, TextView> beaconsTextViews;
-
     //Other variables
     public static Date currentTime;
     public static volatile UserData userData;
@@ -196,8 +196,9 @@ public class MainActivity extends AppCompatActivity {
         currentTime = Calendar.getInstance().getTime();
         MainActivity.active = true;
         beaconsMap = new HashMap<>();
-        beaconsMapByCompanyName = new HashMap<>();
+        beaconsMapByCompanyId = new HashMap<>();
         regionsEntered = new HashMap<>();
+        timeMap = new HashMap<>();
         mallsMap = new HashMap<>();
         malls = new ArrayList<>();
         mallsEntered = new HashMap<>();
@@ -342,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
                                 //LOCATION DATA
+                                timeMap.put(estimoteBeacon.getId(), System.currentTimeMillis());
                                 return null;
                             }
                         })
@@ -351,6 +353,9 @@ public class MainActivity extends AppCompatActivity {
                                 //get current time
                                 currentTime = Calendar.getInstance().getTime();
                                 //LOCATION DATA
+                                long timeSeconds = (System.currentTimeMillis() - timeMap.get(estimoteBeacon.getId())) / 1000;
+                                String requestString = "{\"requestType\":\"postBeaconTime\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"idBeacon\":\"" + estimoteBeacon.getId() + "\", \"timeSeconds\":" + timeSeconds + "}";
+                                new Thread(new PostRunnable(requestString, objectOutputStream)).start();
                                 return null;
                             }
                         })
@@ -575,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             //request campaigns
-                            String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.getLabel() + "\"}";
+                            String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
                             new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
 
                             //put the user on the map(not the exact location)
@@ -586,6 +591,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                             toast.show();
                             //LOCATION DATA
+                            timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
                         }
                     }
                     else
@@ -634,7 +640,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                     //request campaigns
-                                    String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.getLabel() + "\"}";
+                                    String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
                                     new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
 
                                     //put the user on the map(not the exact location)
@@ -645,6 +651,7 @@ public class MainActivity extends AppCompatActivity {
                                     Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                     toast.show();
                                     //LOCATION DATA
+                                    timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
                                 }
                             }
                             else
@@ -657,6 +664,9 @@ public class MainActivity extends AppCompatActivity {
                                     Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                     toast.show();
                                     //LOCATION DATA
+                                    long timeSeconds = (System.currentTimeMillis() - timeMap.get(iBeaconDevice.getUniqueId())) / 1000;
+                                    String requestString = "{\"requestType\":\"postBeaconTime\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"idBeacon\":\"" + iBeaconDevice.getUniqueId() + "\", \"timeSeconds\":" + timeSeconds + "}";
+                                    new Thread(new PostRunnable(requestString, objectOutputStream)).start();
                                 }
                             }
                         }
@@ -700,7 +710,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
 
                                 //request campaigns
-                                String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"companyName\":\"" + kontaktBeacon.getLabel() + "\"}";
+                                String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
                                 new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
 
                                 //put the user on the map(not the exact location)
@@ -710,6 +720,7 @@ public class MainActivity extends AppCompatActivity {
                                 Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
                                 toast.show();
                                 //LOCATION DATA
+                                timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
                             }
                         }
                     }

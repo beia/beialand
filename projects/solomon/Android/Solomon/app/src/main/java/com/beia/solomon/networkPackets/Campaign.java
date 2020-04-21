@@ -15,9 +15,10 @@ public class Campaign implements Serializable
     private String photoPath;
     private byte[] image;
 
-    public Campaign(String idCampaign, String companyName, String title, String description, String startDate, String endDate, byte[] image)
+    public Campaign(String idCampaign, String idCompany, String companyName, String title, String description, String startDate, String endDate, byte[] image)
     {
         this.idCampaign = idCampaign;
+        this.idCompany = idCompany;
         this.companyName = companyName;
         this.title = title;
         this.description = description;
@@ -26,20 +27,22 @@ public class Campaign implements Serializable
         this.image = image;
     }
     //constructor for campaigns data sent to users
-    public Campaign(String idCampaign, String companyName, String title, String description, String startDate, String endDate)
+    public Campaign(String idCampaign, String idCompany, String companyName, String title, String description, String startDate, String endDate)
     {
         this.idCampaign = idCampaign;
+        this.idCompany = idCompany;
         this.companyName = companyName;
         this.title = title;
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
     }
-    //constructor for server campaigns
-    public Campaign(String idCampaign, String idCompany, String title, String description, String startDate, String endDate, String photoPath)
+    //constructor for campaigns data sent to users
+    public Campaign(String idCampaign, String idCompany, String companyName, String title, String description, String startDate, String endDate, String photoPath)
     {
         this.idCampaign = idCampaign;
         this.idCompany = idCompany;
+        this.companyName = companyName;
         this.title = title;
         this.description = description;
         this.startDate = startDate;

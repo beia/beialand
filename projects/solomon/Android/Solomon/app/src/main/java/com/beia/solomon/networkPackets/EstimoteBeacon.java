@@ -6,13 +6,14 @@ package com.beia.solomon.networkPackets;
  */
 public class EstimoteBeacon extends Beacon
 {
-    public static String COMPANY = "Estimote";
+    public static String MANUFACTURER = "Estimote";
 
-    public EstimoteBeacon(String id, String label, int mallId, Coordinates coordinates, int layer, int floor)
+    public EstimoteBeacon(String id, String label, int mallId, String companyId, Coordinates coordinates, int layer, int floor)
     {
         this.id = id;
         this.label = label;
         this.mallId = mallId;
+        this.companyId = companyId;
         this.coordinates = coordinates;
         this.layer = layer;
         this.floor = floor;
@@ -33,6 +34,9 @@ public class EstimoteBeacon extends Beacon
     {
         return this.mallId;
     }
+
+    @Override
+    public String getCompanyId() { return this.companyId; }
 
     @Override
     public Coordinates getCoordinates()

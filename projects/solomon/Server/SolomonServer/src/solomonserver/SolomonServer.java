@@ -38,9 +38,9 @@ public class SolomonServer {
     public static HashMap<String, Beacon> beaconsMap;
     public static HashMap<Integer, HashMap<String, BeaconTime>> usersBeaconTimeMap;//key:userId value:hashmap:key:beaconId value:beaconTime
     public static HashMap<Integer, Mall> mallsMap;
-    public static volatile HashMap<String, String> companiesMap;//key:id value:name(by company name)
+    public static volatile HashMap<String, String> companiesMap;//key:id value:companyName
     public static volatile HashMap<String, Campaign> campaignsMapById;//key:id value:campaign
-    public static volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyName;//key:companyName value:array of campaigns
+    public static volatile HashMap<String, ArrayList<Campaign>> campaignsMapByCompanyId;//key:companyId value:array of campaigns
     public static volatile HashMap<Integer, Queue<Notification>> notificationsMap;//key:userId value:notifications
     public static volatile HashMap<Integer, Integer> parkingSpacesAvailableMap;//key:mallId value:free parking spaces percentage
     
@@ -62,7 +62,7 @@ public class SolomonServer {
         mallsMap = new HashMap<>();
         companiesMap = new HashMap<>();
         campaignsMapById = new HashMap<>();
-        campaignsMapByCompanyName = new HashMap<>();
+        campaignsMapByCompanyId = new HashMap<>();
         notificationsMap = new HashMap<>();
         webClientsTokensMap = new HashMap<>();
         parkingSpacesAvailableMap = new HashMap<>();
@@ -83,7 +83,7 @@ public class SolomonServer {
         getCampaigns();
 
         //update campaigns
-        new Thread(new UpdateCampaignsForUsersRunnable(companiesMap, campaignsMapById, campaignsMapByCompanyName)).start();
+        new Thread(new UpdateCampaignsForUsersRunnable(companiesMap, campaignsMapById, campaignsMapByCompanyId)).start();
 
         //update notifications
         new Thread(new UpdateNotificationsRunnable(notificationsMap)).start();
@@ -309,54 +309,41 @@ public class SolomonServer {
     
     
     
-    public static void addBeaconTimeData(int idUser, String beaconId, String beaconLabel, int idMall, long timeSeconds) throws SQLException, Exception
-    {
-        if (con != null)
-        {
-            try
-            {
-                // create a prepared SQL statement
-                String statementString = "insert into userbeacontime(idUser, idBeacon, beaconLabel, idMall, timeSeconds) values(?, ?, ?, ?, ?)";
-                PreparedStatement addZoneTimeStatement = con.prepareStatement(statementString);
-                addZoneTimeStatement.setInt(1, idUser);
-                addZoneTimeStatement.setString(2, beaconId);
-                addZoneTimeStatement.setString(3, beaconLabel);
-                addZoneTimeStatement.setInt(4, idMall);
-                addZoneTimeStatement.setLong(5, timeSeconds);
-                addZoneTimeStatement.executeUpdate();
-                System.out.println("Inserted user room time into the database\n idUser: " + idUser + "\nbeacon id: " + beaconId + "\nbeaconLabel: " + beaconLabel + "\nidMall: " + idMall + "\ntimeSeconds: " + timeSeconds + "\n\n");
+    public static void dbInsertBeaconTime(int idUser, String idBeacon, long timeSeconds) throws SQLException, Exception {
+        if (con != null) {
+            try {
+                String stmtString = "INSERT INTO userbeacontime(idUser, idBeacon, timeSeconds) VALUES(?, ?, ?)";
+                PreparedStatement preparedStatement = con.prepareStatement(stmtString);
+                preparedStatement.setInt(1, idUser);
+                preparedStatement.setString(2, idBeacon);
+                preparedStatement.setLong(3, timeSeconds);
+                preparedStatement.executeUpdate();
             }
-            catch (SQLException sqle)
-            {
+            catch (SQLException sqle) {
                 sqle.printStackTrace();
             }
         } 
-        else
-        {
+        else {
             error = "Exception : Database connection was lost.";
             throw new Exception(error);
         }
     }
-    
-    
-    public static void updateBeaconTimeData(int idUser, String beaconLabel, int mallId, long timeSeconds) throws SQLException, Exception
-    {
-        if (con != null)
-        {
-            try
-            {
-                // create a prepared SQL statement
-                Statement updateStatement = con.createStatement();
-                String userRoomTimeUpdateStatement = "update userbeacontime set timeSeconds = '" + timeSeconds + "' where idUser = '" + idUser + "' and beaconLabel = '" + beaconLabel + "' and idMall = '" + mallId + "';";
-                updateStatement.executeUpdate(userRoomTimeUpdateStatement);
+
+    public static void dbUpdateBeaconTimeData(int idUser, String idBeacon, long timeSeconds) throws SQLException, Exception {
+        if (con != null) {
+            try {
+                String stmtString = "UPDATE userbeacontime SET timeSeconds = ? WHERE idUser = ? AND idBeacon = ?;";
+                PreparedStatement preparedStatement = con.prepareStatement(stmtString);
+                preparedStatement.setLong(1, timeSeconds);
+                preparedStatement.setInt(2, idUser);
+                preparedStatement.setString(3, idBeacon);
+                preparedStatement.executeUpdate();
             }
-            catch (SQLException sqle)
-            {
+            catch (SQLException sqle) {
                 sqle.printStackTrace();
             }
         } 
-        else
-        {
+        else {
             error = "Exception : Database connection was lost.";
             throw new Exception(error);
         }
@@ -386,56 +373,6 @@ public class SolomonServer {
         }
         return rs;
     }
-    
-    
-    public static ResultSet getBeaconTimeByUserId(int idUser, String idBeacon, int idMall) throws SQLException, Exception
-    {
-        ResultSet rs = null;
-        try
-        {
-            // Execute query
-            String queryString = ("select * from userbeacontime where idUser = '" + idUser + "' and idBeacon = '" + idBeacon + "' and  idMall = '" + idMall + "';");
-            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery(queryString); //sql exception
-        } 
-        catch (SQLException sqle)
-        {
-            error = "SQLException: Query was not possible.";
-            sqle.printStackTrace();
-            throw new SQLException(error);
-        }
-        catch (Exception e)
-        {
-            error = "Exception occured when we extracted the data.";
-            throw new Exception(error);
-        }
-        return rs;
-    }
-    
-    public static ResultSet getBeaconsTimeByUserId(int idUser, int idMall) throws SQLException, Exception
-    {
-        ResultSet rs = null;
-        try
-        {
-            // Execute query
-            String queryString = ("select * from userbeacontime where idUser = '" + idUser + "' and  idMall = '" + idMall + "';");
-            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery(queryString); //sql exception
-        } 
-        catch (SQLException sqle)
-        {
-            error = "SQLException: Query was not possible.";
-            sqle.printStackTrace();
-            throw new SQLException(error);
-        }
-        catch (Exception e)
-        {
-            error = "Exception occured when we extracted the data.";
-            throw new Exception(error);
-        }
-        return rs;
-    }
-    
     
     public static ResultSet getTableData(String tabelName) throws SQLException, Exception
     {
@@ -484,92 +421,6 @@ public class SolomonServer {
         return resultSet;
     }
     
-    public static ResultSet getTableDataById(String tableName, String idColumnName, int id)
-    {
-        ResultSet resultSet = null;
-        if(con != null)
-        {
-            try
-            {
-                String queryString = "select * from " + tableName + " where " + idColumnName + " = '" + id + "';";
-                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                resultSet = stmt.executeQuery(queryString);
-            }
-            catch(SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        return resultSet;
-    }
-    public static ResultSet getTableDataByIds(String tableName, String[] idsColumnName, int[] ids)
-    {
-        ResultSet resultSet = null;
-        if(con != null)
-        {
-            try
-            {
-                String queryString = "select * from " + tableName + " where ";
-                for(int i = 0; i < idsColumnName.length - 1; i++)
-                {
-                    queryString += idsColumnName[i] + " = '" + ids[i] + "' AND ";
-                }
-                queryString += idsColumnName[idsColumnName.length - 1] + " = '" + ids[ids.length - 1] + "';";
-                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                resultSet = stmt.executeQuery(queryString);
-            }
-            catch(SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        return resultSet;
-    }
-    
-    
-    public static ResultSet getNewLocationData(String tabelName, String idName, int lastId) throws SQLException, Exception
-    {
-        ResultSet rs = null;
-        try
-        {
-            // Execute query
-            String queryString = ("select * from "+ tabelName + " where " + idName + " > " + lastId);
-            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery(queryString); //sql exception
-        } 
-        catch (SQLException sqle)
-        {
-            error = "SQLException: Query was not possible.";
-            sqle.printStackTrace();
-            throw new SQLException(error);
-        }
-        catch (Exception e)
-        {
-            error = "Exception occured when we extracted the data.";
-            throw new Exception(error);
-        }
-        return rs;
-    }
-    
-    public static ResultSet getStoreTimeByUserId(int idUser)
-    {
-        ResultSet resultSet= null;
-        if(con != null)
-        {
-            try
-            {
-                String queryString = "SELECT a.idMall idMall, a.idStores idStore, a.name storeName, b.timeseconds timeseconds FROM stores a, userbeacontime b WHERE b.idUser = '" + idUser + "' AND a.idBeacon = b.idBeacon;";
-                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                resultSet = stmt.executeQuery(queryString); //sql exception
-            }
-            catch(SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        return resultSet;
-    }
-    
     public static ResultSet getPreferencesByUserId(int idUser) throws Exception
     {
         ResultSet resultSet = null;
@@ -592,51 +443,6 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return resultSet;
-    }
-    
-    public static void deleteTableData(String tableName) throws SQLException, Exception
-    {
-        if (con != null)
-        {
-            try
-            {
-                Statement deleteStatement = con.createStatement();
-                String statementString = "delete from " + tableName;
-                deleteStatement.executeUpdate(statementString);
-            }
-            catch (SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        } 
-        else
-        {
-            error = "Exception : Database connection was lost.";
-            throw new Exception(error);
-        }
-    }
-    
-    public static void deleteBeacon(String label) throws SQLException, Exception
-    {
-        if (con != null)
-        {
-            try
-            {
-                Statement deleteStatement = con.createStatement();
-                String statementString = "delete from beacons where label = '" + label + "'";
-                deleteStatement.executeUpdate(statementString);
-                System.out.println("Removed beacon '" + label + "' from the database");
-            }
-            catch (SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        } 
-        else
-        {
-            error = "Exception : Database connection was lost.";
-            throw new Exception(error);
-        }
     }
     
     public static void updateUsername(int id, String username) throws SQLException, Exception
@@ -838,7 +644,7 @@ public class SolomonServer {
                 String beaconId = beaconsResultSet.getString("id");
                 String label = beaconsResultSet.getString("label");
                 Integer idMall = beaconsResultSet.getInt("idMall");
-                String idCompany = beaconsResultSet.getString("IdCompany");
+                String idCompany = beaconsResultSet.getString("idCompany");
                 String major = beaconsResultSet.getString("major");
                 String minor = beaconsResultSet.getString("minor");
                 Double latitude = beaconsResultSet.getDouble("latitude");
@@ -848,7 +654,7 @@ public class SolomonServer {
                 String manufacturer = beaconsResultSet.getString("manufacturer");
                 switch (manufacturer) {
                     case "Estimote":
-                        EstimoteBeacon estimoteBeacon = new EstimoteBeacon(beaconId, label, idMall, new Coordinates(latitude, longitude), layer, floor);
+                        EstimoteBeacon estimoteBeacon = new EstimoteBeacon(beaconId, label, idMall, idCompany, new Coordinates(latitude, longitude), layer, floor);
                         try {
                             estimoteBeacon.setImage(getImageFromDisk(beaconImagePath + beaconId + ".jpg"));
                         }
@@ -857,7 +663,7 @@ public class SolomonServer {
                         SolomonServer.beaconsMap.put(beaconId, estimoteBeacon);
                         break;
                     case "Kontakt":
-                        KontaktBeacon kontaktBeacon = new KontaktBeacon(beaconId, label, idMall, major, minor, new Coordinates(latitude, longitude), layer, floor);
+                        KontaktBeacon kontaktBeacon = new KontaktBeacon(beaconId, label, idMall, idCompany, major, minor, new Coordinates(latitude, longitude), layer, floor);
                         try {
                             kontaktBeacon.setImage(getImageFromDisk(beaconImagePath + beaconId + ".jpg"));
                         }
@@ -931,7 +737,7 @@ public class SolomonServer {
                 String startDate = campaignsResultSet.getString("campaigns.startDate");
                 String endDate = campaignsResultSet.getString("campaigns.endDate");
                 String photoPath = campaignsResultSet.getString("campaigns.photoPath");
-                campaignsMapById.put(idCampaign, new Campaign(idCampaign, idCompany, title, description, startDate, endDate, photoPath));
+                campaignsMapById.put(idCampaign, new Campaign(idCampaign, idCompany, companiesMap.get(idCompany), title, description, startDate, endDate, photoPath));
             }
         }
     }

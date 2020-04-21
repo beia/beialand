@@ -185,7 +185,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                     case "campaigns"://send the active campains
                         String response = null;
                         authToken = (String)jsonObject.get("authToken");
-                        if(!SolomonServer.webClientsTokensMap.containsKey(authToken))
+                        if(!SolomonServer.webClientsTokensMap.containsKey(authToken))//bad auth token
                         {
                             response = "{\"success\":false,\"campaigns\":null}";
                             writeResponse(response, outputStream);
@@ -222,7 +222,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                     case "oldCampaigns"://send the active campains
                         String responseOldCampains = null;
                         String authTokenOldCampains = (String)jsonObject.get("authToken");
-                        if(!SolomonServer.webClientsTokensMap.containsKey(authTokenOldCampains))
+                        if(!SolomonServer.webClientsTokensMap.containsKey(authTokenOldCampains))//bad auth token
                         {
                             responseOldCampains = "{\"success\":false,\"oldCampaigns\":null}";
                             writeResponse(responseOldCampains, outputStream);

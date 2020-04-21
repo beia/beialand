@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -234,13 +235,13 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             }
                             break;
                         case "getCampaigns":
-                            String companyName = (String)jsonObject.get("companyName");
-                            System.out.println(SolomonServer.campaignsMapByCompanyName.size());
-                            ArrayList<Campaign> storeCampaigns = SolomonServer.campaignsMapByCompanyName.get(companyName);
+                            String beaconId = (String)jsonObject.get("beaconId");
+                            System.out.println(SolomonServer.campaignsMapByCompanyId.size());
+                            ArrayList<Campaign> storeCampaigns = SolomonServer.campaignsMapByCompanyId.get(SolomonServer.beaconsMap.get(beaconId).getCompanyId());
                             if(storeCampaigns != null)
                             {
                                 synchronized (objectOutputStream) {
-                                    objectOutputStream.writeObject(SolomonServer.campaignsMapByCompanyName.get(companyName));
+                                    objectOutputStream.writeObject(storeCampaigns);
                                 }
                                 System.out.println("Campaigns sent, available campaigns: " + storeCampaigns.size());
                             }
@@ -325,6 +326,31 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                     break;
                                 default:
                                     break;
+                            }
+                            break;
+                        case "postBeaconTime":
+                            int idUser = (int)(long) jsonObject.get("idUser");
+                            String idBeacon = (String) jsonObject.get("idBeacon");
+                            long timeSeconds = (long) jsonObject.get("timeSeconds");
+                            BeaconTime beaconTime = new BeaconTime(idUser, SolomonServer.beaconsMap.get(idBeacon), timeSeconds);
+                            if(SolomonServer.usersBeaconTimeMap.containsKey(idUser)) {
+                                if(SolomonServer.usersBeaconTimeMap.get(idUser).containsKey(idBeacon)) { //add the time to the existing one
+                                    long previousTimeSeconds = SolomonServer.usersBeaconTimeMap.get(idUser).get(idBeacon).getTimeSeconds();
+                                    SolomonServer.usersBeaconTimeMap.get(idUser).get(idBeacon).setTimeSeconds(previousTimeSeconds + timeSeconds);
+                                    //update time in the database
+                                    SolomonServer.dbUpdateBeaconTimeData(idUser, idBeacon, previousTimeSeconds + timeSeconds);
+                                }
+                                else {
+                                    SolomonServer.usersBeaconTimeMap.get(idUser).put(idBeacon, beaconTime);
+                                    //insert the user beacon time in the database
+                                    SolomonServer.dbInsertBeaconTime(idUser, idBeacon, timeSeconds);
+                                }
+                            }
+                            else { //the user never entered the range of a beacon
+                                SolomonServer.usersBeaconTimeMap.put(idUser, new HashMap<>());
+                                SolomonServer.usersBeaconTimeMap.get(idUser).put(idBeacon, beaconTime);
+                                //insert the user beacon time in the database
+                                SolomonServer.dbInsertBeaconTime(idUser, idBeacon, timeSeconds);
                             }
                             break;
                         default:
