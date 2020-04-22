@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int roomDimension = 2;//meters
     public static volatile HashMap<String, Beacon> beaconsMap;//key:id value:beacon
     public static volatile HashMap<String, Beacon> beaconsMapByCompanyId;//key:id value:beacon
+    public static volatile HashMap<String, Long> beaconsTimeMap;//key:id value:total beacon time spent by all users
     public static volatile HashMap<String, Boolean> regionsEntered;//key:idBeacon value:boolean
     public static volatile HashMap<String, Long> timeMap;//key:idBeacon value:current time ms when the user entered the beacon area
     public static volatile HashMap<Integer, Mall> mallsMap;//key:mallId value:mall

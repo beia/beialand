@@ -15,17 +15,12 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.beia.solomon.networkPackets.Campaign;
-import com.mysql.cj.protocol.Resultset;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import solomonserver.SolomonServer;
-
-import javax.xml.transform.Result;
 
 /**
  *
@@ -151,14 +146,14 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                 buffer.flush();
 
                 //PARSE JSON
-                JSONParser parser = new JSONParser();
-                JSONObject jsonObject = (JSONObject) parser.parse(body.trim());
-                String requestType = (String)jsonObject.get("requestType");
+                Gson gson = new Gson();
+                JsonObject jsonObject = gson.fromJson(body.trim(), JsonObject.class);
+                String requestType = jsonObject.get("requestType").getAsString();
                 switch(requestType)
                 {
                     case "login":
-                        String usernameLogin = (String)jsonObject.get("username");
-                        String passwordLogin = (String)jsonObject.get("password");
+                        String usernameLogin = jsonObject.get("username").getAsString();
+                        String passwordLogin = jsonObject.get("password").getAsString();
                         ResultSet resultSetLogin = SolomonServer.getUserDataFromDatabase("companies", usernameLogin);
                         if(!resultSetLogin.isBeforeFirst())//the user isn't in the database
                         {
@@ -200,7 +195,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         break;
                     case "logout":
-                        String token = (String)jsonObject.get("authToken");
+                        String token = jsonObject.get("authToken").getAsString();
                         if(SolomonServer.webClientsTokensMap.containsKey(token))//user logged in
                         {
                             String username = SolomonServer.webClientsTokensMap.get(token);
@@ -217,9 +212,9 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         break;
                     case "register":
-                        String usernameRegister = (String)jsonObject.get("username");
-                        String passwordRegister = (String)jsonObject.get("password");
-                        String nameRegister = (String)jsonObject.get("name");
+                        String usernameRegister = jsonObject.get("username").getAsString();
+                        String passwordRegister = jsonObject.get("password").getAsString();
+                        String nameRegister = jsonObject.get("name").getAsString();
                         ResultSet resultSetRegister = SolomonServer.getUserDataFromDatabase("companies", usernameRegister);
                         if(!resultSetRegister.isBeforeFirst())//the user isn't in the database
                         {
@@ -238,7 +233,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         break;
                     case "campaigns"://send the active campains
                         String response = null;
-                        authToken = (String)jsonObject.get("authToken");
+                        authToken = jsonObject.get("authToken").getAsString();
                         if(!SolomonServer.webClientsTokensMap.containsKey(authToken))
                         {
                             response = "{\"success\":false,\"campaigns\":null}";
@@ -275,7 +270,7 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         break;
                     case "oldCampaigns"://send the active campains
                         String responseOldCampains = null;
-                        String authTokenOldCampains = (String)jsonObject.get("authToken");
+                        String authTokenOldCampains = jsonObject.get("authToken").getAsString();
                         if(!SolomonServer.webClientsTokensMap.containsKey(authTokenOldCampains))
                         {
                             responseOldCampains = "{\"success\":false,\"oldCampaigns\":null}";
@@ -311,16 +306,16 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         writeResponse(responseOldCampains, outputStream);
                         break;
                     case "addCampaign":
-                        String authTokenAddCampaign = (String)jsonObject.get("authToken");
+                        String authTokenAddCampaign = jsonObject.get("authToken").getAsString();
                         String responseAddCampaign;
                         if(SolomonServer.webClientsTokensMap.containsKey(authTokenAddCampaign))
                         {
-                            String title = (String)jsonObject.get("title");
-                            String category = (String)jsonObject.get("category");
-                            String description = (String)jsonObject.get("description");
-                            String startDate = (String)jsonObject.get("startDate");
-                            String endDate = (String)jsonObject.get("endDate");
-                            byte[] imageBytes = Base64.getDecoder().decode((String)jsonObject.get("image"));
+                            String title = jsonObject.get("title").getAsString();
+                            String category = jsonObject.get("category").getAsString();
+                            String description = jsonObject.get("description").getAsString();
+                            String startDate = jsonObject.get("startDate").getAsString();
+                            String endDate = jsonObject.get("endDate").getAsString();
+                            byte[] imageBytes = Base64.getDecoder().decode(jsonObject.get("image").getAsString());
                             String idCampain = getAlphaNumericString(10);
                             while(SolomonServer.campaignsMapById.containsKey(idCampain))
                                 idCampain = getAlphaNumericString(10);
@@ -344,8 +339,8 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         break;
                     case "getCampaign":
-                        authToken = (String)jsonObject.get("authToken");
-                        campaignId = (String)jsonObject.get("campaignID");
+                        authToken = jsonObject.get("authToken").getAsString();
+                        campaignId = jsonObject.get("campaignID").getAsString();
                         String responseGetCampaign;
                         if(SolomonServer.webClientsTokensMap.containsKey(authToken))
                         {
@@ -373,17 +368,17 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         writeResponse(responseGetCampaign, outputStream);
                         break;
                     case "updateCampaign":
-                        String authTokenUpdateCampaign = (String)jsonObject.get("authToken");
+                        String authTokenUpdateCampaign = jsonObject.get("authToken").getAsString();
                         String responseUpdateCampaign;
                         if(SolomonServer.webClientsTokensMap.containsKey(authTokenUpdateCampaign))
                         {
-                            String campaignID = (String)jsonObject.get("campaignID");
-                            String title = (String)jsonObject.get("title");
-                            String category = (String)jsonObject.get("category");
-                            String description = (String)jsonObject.get("description");
-                            String startDate = (String)jsonObject.get("startDate");
-                            String endDate = (String)jsonObject.get("endDate");
-                            byte[] imageBytes = Base64.getDecoder().decode((String)jsonObject.get("image"));
+                            String campaignID = jsonObject.get("campaignID").getAsString();
+                            String title = jsonObject.get("title").getAsString();
+                            String category = jsonObject.get("category").getAsString();
+                            String description = jsonObject.get("description").getAsString();
+                            String startDate = jsonObject.get("startDate").getAsString();
+                            String endDate = jsonObject.get("endDate").getAsString();
+                            byte[] imageBytes = Base64.getDecoder().decode(jsonObject.get("image").getAsString());
                             String idCompany = SolomonServer.webClientsTokensMap.get(authTokenUpdateCampaign);
                             String path = campaignsPhotoPath + campaignID + ".jpg";
                             SolomonServer.updateCampain(campaignID, title, category, description, startDate, endDate);
@@ -405,11 +400,11 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                         }
                         break;
                     case "removeCampaign":
-                        String authTokenRemoveCampaign = (String)jsonObject.get("authToken");
+                        String authTokenRemoveCampaign = jsonObject.get("authToken").getAsString();
                         String responseRemoveCampaign;
                         if(SolomonServer.webClientsTokensMap.containsKey(authTokenRemoveCampaign))
                         {
-                            String campaignID = (String)jsonObject.get("campaignID");
+                            String campaignID = jsonObject.get("campaignID").getAsString();
                             SolomonServer.removeCampaign(campaignID);
                             SolomonServer.campaignsMapById.remove(campaignID);
                             responseAddCampaign = "{\"success\":true}";
@@ -431,10 +426,8 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
             }
             catch (IOException ex) {
                 ex.printStackTrace();
-            } catch (ParseException ex) {
-                ex.printStackTrace();
-
-            }   catch (SQLException ex) {
+            }
+            catch (SQLException ex) {
                 ex.printStackTrace();
             }
             catch (Exception ex) {

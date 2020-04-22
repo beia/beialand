@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import data.Notification;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import solomonserver.SolomonServer;
 
 /**
@@ -59,6 +59,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
             while(true)
             {
                 Object networkPacket = this.objectInputStream.readObject();
+                String response = "";
 
                 //AUTHENTICATION DATA
                 if(networkPacket instanceof SignUpData)
@@ -166,9 +167,9 @@ public class ManageClientAppInteractionRunnable implements Runnable
                 {
                     String requestString = (String)networkPacket;
                     System.out.println(requestString);
-                    JSONParser parser = new JSONParser();
-                    JSONObject jsonObject = (JSONObject) parser.parse(requestString.trim());
-                    String requestType = (String)jsonObject.get("requestType");
+                    Gson gson = new Gson();
+                    JsonObject jsonObject = gson.fromJson(requestString, JsonObject.class);
+                    String requestType = jsonObject.get("requestType").getAsString();
                     switch(requestType)
                     {
                         case "profilePicture":
@@ -234,8 +235,15 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 }
                             }
                             break;
+                        case "getBeaconsTime":
+                            response = "{\"responseType\":\"beaconsTime\",\"beaconsTimeMap\":";
+                            response += gson.toJson(SolomonServer.totalBeaconTime) + "}";
+                            synchronized (objectOutputStream) {
+                                this.objectOutputStream.writeObject(response);
+                            }
+                            break;
                         case "getCampaigns":
-                            String beaconId = (String)jsonObject.get("beaconId");
+                            String beaconId = jsonObject.get("beaconId").getAsString();
                             System.out.println(SolomonServer.campaignsMapByCompanyId.size());
                             ArrayList<Campaign> storeCampaigns = SolomonServer.campaignsMapByCompanyId.get(SolomonServer.beaconsMap.get(beaconId).getCompanyId());
                             if(storeCampaigns != null)
@@ -251,8 +259,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             }
                             break;
                         case "getNotifications":
-                            int id = (int)(long) jsonObject.get("userId");
-                            String response;
+                            int id = (int)jsonObject.get("userId").getAsLong();
                             if(SolomonServer.notificationsMap.containsKey(id) && !SolomonServer.notificationsMap.get(id).isEmpty()) {
                                 Notification notification = SolomonServer.notificationsMap.get(id).poll();
                                 response = "{\"responseType\":\"" + notification.getNotificationType() + "\", \"message\":\"" + notification.getMessage() + "\"}";
@@ -263,7 +270,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             objectOutputStream.writeObject(response);
                             break;
                         case "getParkingStats":
-                            int mallId = (int)(long)jsonObject.get("mallId");
+                            int mallId = (int)jsonObject.get("mallId").getAsLong();
                             String responseParking;
                             if(SolomonServer.parkingSpacesAvailableMap.containsKey(mallId))
                                 responseParking = "{\"responseType\":\"parkingStats\",\"freeSpacesPercentage\":"+ SolomonServer.parkingSpacesAvailableMap.get(mallId) +"}";
@@ -272,8 +279,8 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             objectOutputStream.writeObject(responseParking);
                             break;
                         case "saveDistance":
-                            double distance = (double)jsonObject.get("distance");
-                            String beaconLabel = (String)jsonObject.get("beaconLabel");
+                            double distance = jsonObject.get("distance").getAsDouble();
+                            String beaconLabel = jsonObject.get("beaconLabel").getAsString();
                             switch (beaconLabel)
                             {
                                 case "0":
@@ -329,9 +336,9 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             }
                             break;
                         case "postBeaconTime":
-                            int idUser = (int)(long) jsonObject.get("idUser");
-                            String idBeacon = (String) jsonObject.get("idBeacon");
-                            long timeSeconds = (long) jsonObject.get("timeSeconds");
+                            int idUser = (int) jsonObject.get("idUser").getAsLong();
+                            String idBeacon = jsonObject.get("idBeacon").getAsString();
+                            long timeSeconds = jsonObject.get("timeSeconds").getAsLong();
                             BeaconTime beaconTime = new BeaconTime(idUser, SolomonServer.beaconsMap.get(idBeacon), timeSeconds);
                             if(SolomonServer.usersBeaconTimeMap.containsKey(idUser)) {
                                 if(SolomonServer.usersBeaconTimeMap.get(idUser).containsKey(idBeacon)) { //add the time to the existing one
@@ -351,6 +358,13 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 SolomonServer.usersBeaconTimeMap.get(idUser).put(idBeacon, beaconTime);
                                 //insert the user beacon time in the database
                                 SolomonServer.dbInsertBeaconTime(idUser, idBeacon, timeSeconds);
+                            }
+
+                            synchronized (SolomonServer.totalBeaconTime) {
+                                if(SolomonServer.totalBeaconTime.containsKey(idBeacon))
+                                    SolomonServer.totalBeaconTime.put(idBeacon, SolomonServer.totalBeaconTime.get(idBeacon) + timeSeconds);
+                                else
+                                    SolomonServer.totalBeaconTime.put(idBeacon, timeSeconds);
                             }
                             break;
                         default:

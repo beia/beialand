@@ -37,6 +37,7 @@ public class SolomonServer {
     public static Thread connectClients;
     public static HashMap<String, Beacon> beaconsMap;
     public static HashMap<Integer, HashMap<String, BeaconTime>> usersBeaconTimeMap;//key:userId value:hashmap:key:beaconId value:beaconTime
+    public static volatile HashMap<String, Long> totalBeaconTime;//key:beaconId value:beaconTime
     public static HashMap<Integer, Mall> mallsMap;
     public static volatile HashMap<String, String> companiesMap;//key:id value:companyName
     public static volatile HashMap<String, Campaign> campaignsMapById;//key:id value:campaign
@@ -59,6 +60,7 @@ public class SolomonServer {
         //init variables
         beaconsMap = new HashMap<>();
         usersBeaconTimeMap = new HashMap<>();
+        totalBeaconTime = new HashMap<>();
         mallsMap = new HashMap<>();
         companiesMap = new HashMap<>();
         campaignsMapById = new HashMap<>();
@@ -104,7 +106,7 @@ public class SolomonServer {
         try
         {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "beiatapi"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/solomondb?autoReconnect=true&useJDBCCompliantTimezoneShift=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&useSSL=false", "root", "root"); // nu uitati sa puneti parola corecta de root pe care o aveti setata pe serverul vostru de MySql.
             System.out.println("Successfully connected to the database!");
         }
         catch (ClassNotFoundException cnfe)
@@ -686,10 +688,16 @@ public class SolomonServer {
                 Integer idUser = beaconTimeResultSet.getInt("idUser");
                 String idBeacon = beaconTimeResultSet.getString("idBeacon");
                 Long timeSeconds = beaconTimeResultSet.getLong("timeSeconds");
-                if (usersBeaconTimeMap.get(idUser) == null)
+                if (!usersBeaconTimeMap.containsKey(idUser))
                     usersBeaconTimeMap.put(idUser, new HashMap<>());
-                if (beaconsMap.get(idBeacon) != null)
+                else
                     usersBeaconTimeMap.get(idUser).put(idBeacon, new BeaconTime(idUser, beaconsMap.get(idBeacon), timeSeconds));
+
+                //add the time to the total beacon time
+                if(!totalBeaconTime.containsKey(idBeacon))
+                    totalBeaconTime.put(idBeacon, timeSeconds);
+                else
+                    totalBeaconTime.put(idBeacon, totalBeaconTime.get(idBeacon) + timeSeconds);
             }
         }
     }

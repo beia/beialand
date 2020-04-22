@@ -17,13 +17,16 @@ import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.UserData;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class WaitForServerDataRunnable implements Runnable
@@ -103,9 +106,11 @@ public class WaitForServerDataRunnable implements Runnable
                                 message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
                                 message.sendToTarget();
                             }
-                            //request campaigns
+                            //request beacons
                             String request1 = "{\"requestType\":\"getBeacons\"}";
                             objectOutputStream.writeObject(request1);
+                            String request2 = "{\"requestType\":\"getBeaconsTime\"}";
+                            objectOutputStream.writeObject(request2);
                             break;
                         default:
                             break;
@@ -184,6 +189,14 @@ public class WaitForServerDataRunnable implements Runnable
                             message.what = 1;
                             message.obj = availableParkingSpacesPercentage;
                             message.sendToTarget();
+                            break;
+                        case "beaconsTime":
+                            Type type = new TypeToken<HashMap<String, Long>>(){}.getType();
+                            MainActivity.beaconsTimeMap = gson.fromJson(jsonResponse.get("beaconsTimeMap"), type);
+                            Log.d("BEACON", "beaconsTimeMap size: " + MainActivity.beaconsTimeMap.size());
+                            Message msg = MainActivity.mainActivityHandler.obtainMessage();
+                            msg.what = 6;
+                            msg.sendToTarget();
                             break;
                         default:
                             break;
