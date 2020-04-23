@@ -10,13 +10,14 @@ public class ServerFeedback implements Serializable
     private String password;
     private String lastName;
     private String firstName;
+    private String gender;
     private int age;
     private boolean firstLogin;
     public ServerFeedback(String feedbackMessage)
     {
         this.feedbackMessage = feedbackMessage;
     }
-    public ServerFeedback(String feedbackMessage, int userId, String username, String password, String lastName, String firstName, int age, boolean firstLogin)
+    public ServerFeedback(String feedbackMessage, int userId, String username, String password, String lastName, String firstName, String gender, int age, boolean firstLogin)
     {
         this.feedbackMessage = feedbackMessage;
         this.userId = userId;
@@ -24,6 +25,7 @@ public class ServerFeedback implements Serializable
         this.password = password;
         this.lastName = lastName;
         this.firstName = firstName;
+        this.gender = gender;
         this.age = age;
         this.firstLogin = firstLogin;
     }
@@ -48,6 +50,7 @@ public class ServerFeedback implements Serializable
     {
         return this.firstName;
     }
+    public String getGender() { return this.gender; }
     public int getAge()
     {
         return this.age;

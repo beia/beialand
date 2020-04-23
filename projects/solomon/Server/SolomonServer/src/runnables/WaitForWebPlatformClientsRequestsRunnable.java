@@ -20,6 +20,7 @@ import com.beia.solomon.networkPackets.Campaign;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import data.CampaignReaction;
 import solomonserver.SolomonServer;
 
 /**
@@ -416,6 +417,29 @@ public class WaitForWebPlatformClientsRequestsRunnable implements Runnable {
                             System.out.println("wrong token");
                             responseAddCampaign = "{\"success\":false}";
                             writeResponse(responseAddCampaign, outputStream);
+                        }
+                        break;
+                    case "getViewStats":
+                        String authTokenGetViewStats = jsonObject.get("authToken").getAsString();
+                        String responseGetViewStats = "";
+                        if(SolomonServer.webClientsTokensMap.containsKey(authTokenGetViewStats))
+                        {
+                            responseGetViewStats = "{\"success:\":true, \"campaignViews\":";
+                            String campaignID = jsonObject.get("campaignID").getAsString();
+                            if(SolomonServer.campaignReactionsMap.containsKey(campaignID)) {
+                                ArrayList<CampaignReaction> campaignReactions = SolomonServer.campaignReactionsMap.get(campaignID);
+                                responseGetViewStats += gson.toJson(campaignReactions) + "}";
+                            }
+                            else
+                                responseGetViewStats += "null}";
+                            writeResponse(responseGetViewStats, outputStream);
+                            System.out.println("Company '" + SolomonServer.webClientsTokensMap.get(authTokenGetViewStats) + " requested campaign views for campaign: " + campaignID);
+                        }
+                        else//wrong auth token
+                        {
+                            System.out.println("wrong token");
+                            responseGetViewStats = "{\"success\":false}";
+                            writeResponse(responseGetViewStats, outputStream);
                         }
                         break;
                     default:

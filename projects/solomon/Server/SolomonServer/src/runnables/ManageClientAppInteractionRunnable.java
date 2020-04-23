@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import data.CampaignReaction;
 import data.Notification;
 import solomonserver.SolomonServer;
 
@@ -73,7 +74,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                     if (!resultSet.isBeforeFirst() )
                     {
                         //the users isnt't in the database so we insert the user into the database
-                        SolomonServer.addUser(signUpData.getUsername(), signUpData.getPassword(), signUpData.getLastName(), signUpData.getFirstName(), signUpData.getAge());
+                        SolomonServer.addUser(signUpData.getUsername(), signUpData.getPassword(), signUpData.getLastName(), signUpData.getFirstName(), signUpData.getGender(), signUpData.getAge());
                         //send the user a feedback text that he was registered
                         synchronized (objectOutputStream) {
                             this.objectOutputStream.writeObject(new ServerFeedback("registered successfully"));
@@ -114,6 +115,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                         String username = resultSet.getString("username");
                         String lastName = resultSet.getString("lastName");
                         String firstName = resultSet.getString("firstName");
+                        String gender = resultSet.getString("gender");
                         int age = resultSet.getInt("age");
 
                         //SIGN IN SUCCESSFUL
@@ -132,7 +134,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 isFirstLogin = false;
                             }
                             synchronized (objectOutputStream) {
-                                this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, password, lastName, firstName, age, isFirstLogin));
+                                this.objectOutputStream.writeObject(new ServerFeedback("login successful", userId, username, password, lastName, firstName, gender, age, isFirstLogin));
                             }
                             System.out.println("User: " + signInData.getUsername() + " logged in successfully!");
                             this.userId = userId;
@@ -279,61 +281,9 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             objectOutputStream.writeObject(responseParking);
                             break;
                         case "saveDistance":
+                            String idBeaconDistance = jsonObject.get("idBeacon").getAsString();
                             double distance = jsonObject.get("distance").getAsDouble();
-                            String beaconLabel = jsonObject.get("beaconLabel").getAsString();
-                            switch (beaconLabel)
-                            {
-                                case "0":
-                                    valuesBeacon0.add(distance);
-                                    if (valuesBeacon0.size() > 20) {
-                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file0, true));
-                                        for(Double value : valuesBeacon0) {
-                                            writer.write(value + "");
-                                            writer.newLine();
-                                        }
-                                        writer.close();
-                                        valuesBeacon0.clear();
-                                    }
-                                    break;
-                                case "1":
-                                    valuesBeacon1.add(distance);
-                                    if (valuesBeacon1.size() > 20) {
-                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file1, true));
-                                        for(Double value : valuesBeacon1) {
-                                            writer.write(value + "");
-                                            writer.newLine();
-                                        }
-                                        writer.close();
-                                        valuesBeacon1.clear();
-                                    }
-                                    break;
-                                case "2":
-                                    valuesBeacon2.add(distance);
-                                    if (valuesBeacon2.size() > 20) {
-                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file2, true));
-                                        for(Double value : valuesBeacon2) {
-                                            writer.write(value + "");
-                                            writer.newLine();
-                                        }
-                                        writer.close();
-                                        valuesBeacon2.clear();
-                                    }
-                                    break;
-                                case "3":
-                                    valuesBeacon3.add(distance);
-                                    if (valuesBeacon3.size() > 20) {
-                                        BufferedWriter writer = new BufferedWriter(new FileWriter(file3, true));
-                                        for(Double value : valuesBeacon3) {
-                                            writer.write(value + "");
-                                            writer.newLine();
-                                        }
-                                        writer.close();
-                                        valuesBeacon3.clear();
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
+                            SolomonServer.dbAddBeaconDistance(idBeaconDistance, distance);
                             break;
                         case "postBeaconTime":
                             int idUser = (int) jsonObject.get("idUser").getAsLong();
@@ -366,6 +316,23 @@ public class ManageClientAppInteractionRunnable implements Runnable
                                 else
                                     SolomonServer.totalBeaconTime.put(idBeacon, timeSeconds);
                             }
+                            break;
+                        case "postCampaignReaction":
+                            String idCampaign = jsonObject.get("idCampaign").getAsString();
+                            Integer idUserCampaignsReaction = jsonObject.get("idUser").getAsInt();
+                            String gender = jsonObject.get("gender").getAsString();
+                            Integer age = jsonObject.get("age").getAsInt();
+                            String viewDate = jsonObject.get("viewDate").getAsString();
+                            CampaignReaction campaignReaction = new CampaignReaction(idCampaign, idUserCampaignsReaction, gender, age, viewDate);
+                            if(SolomonServer.campaignReactionsMap.containsKey(idCampaign)) {
+                                SolomonServer.campaignReactionsMap.get(idCampaign).add(campaignReaction);
+                            }
+                            else {
+                                ArrayList<CampaignReaction> campaignReactions = new ArrayList<>();
+                                campaignReactions.add(campaignReaction);
+                                SolomonServer.campaignReactionsMap.put(idCampaign, campaignReactions);
+                            }
+                            SolomonServer.dbAddCampaignReaction(idCampaign, idUserCampaignsReaction, viewDate);
                             break;
                         default:
                             break;

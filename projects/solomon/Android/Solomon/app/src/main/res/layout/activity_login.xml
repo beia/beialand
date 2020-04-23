@@ -156,7 +156,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:text="first name not valid"/>
 
@@ -185,9 +185,35 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:text="last name not valid"/>
+
+    <androidx.cardview.widget.CardView
+        android:visibility="gone"
+        android:id="@+id/genderSignUpCardView"
+        android:layout_width="@dimen/dimen80dp"
+        android:layout_height="@dimen/dimen18dp"
+        android:layout_marginTop="@dimen/dimen5dp"
+        android:layout_gravity="center"
+        app:cardCornerRadius="@dimen/dimen5dp">
+        <Spinner
+            android:id="@+id/genderSignUpSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"/>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/genderFeedbackText"
+        android:layout_width="@dimen/dimen70dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimen2dp"
+        android:layout_gravity="center"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:text="age not valid"/>
 
     <androidx.cardview.widget.CardView
         android:visibility="gone"
@@ -214,7 +240,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:text="age not valid"/>
 
@@ -243,7 +269,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:text="username not valid"/>
 
@@ -272,7 +298,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:text="password not valid"/>
 
@@ -302,7 +328,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dimen2dp"
         android:layout_gravity="center"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:text="passwords don't match"/>
 

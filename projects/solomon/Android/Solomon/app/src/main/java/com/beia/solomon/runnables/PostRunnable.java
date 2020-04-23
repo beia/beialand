@@ -13,7 +13,9 @@ public class PostRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            objectOutputStream.writeObject(postString);
+            synchronized (objectOutputStream) {
+                objectOutputStream.writeObject(postString);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

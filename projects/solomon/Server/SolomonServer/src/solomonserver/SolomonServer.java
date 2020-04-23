@@ -11,20 +11,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import data.CampaignReaction;
 import data.Notification;
 import runnables.*;
+
+import javax.swing.plaf.nimbus.State;
 
 /**
  *
@@ -49,6 +47,7 @@ public class SolomonServer {
     public static ServerSocket webPlatformServerSocket;
     public static Thread waitForSolomonWebClientsRequests;
     public static HashMap<String, String> webClientsTokensMap;//key: token, value: username
+    public static HashMap<String, ArrayList<CampaignReaction>> campaignReactionsMap;
     
     //sql server variables
     public static String error;
@@ -68,6 +67,7 @@ public class SolomonServer {
         notificationsMap = new HashMap<>();
         webClientsTokensMap = new HashMap<>();
         parkingSpacesAvailableMap = new HashMap<>();
+        campaignReactionsMap = new HashMap<>();
         parkingSpacesAvailableMap.put(1, 20);//20 percent free parking spaces
         parkingSpacesAvailableMap.put(2, 30);
         parkingSpacesAvailableMap.put(3, 50);
@@ -83,6 +83,7 @@ public class SolomonServer {
         getMalls();
         getCompanies();
         getCampaigns();
+        getCampaignsReactions();
 
         //update campaigns
         new Thread(new UpdateCampaignsForUsersRunnable(companiesMap, campaignsMapById, campaignsMapByCompanyId)).start();
@@ -127,22 +128,23 @@ public class SolomonServer {
         }
     }
     
-    public static void addUser(String username, String password, String lastName, String firstName, int age) throws SQLException, Exception
+    public static void addUser(String username, String password, String lastName, String firstName, String gender, int age) throws SQLException, Exception
     {
         if (con != null)
         {
             try
             {
                 // create a prepared SQL statement
-                String userInsertionStatement = "insert into users(username, password, lastName, firstName, age) values(?,?,?,?,?)";
+                String userInsertionStatement = "insert into users(username, password, lastName, firstName, gender, age) values(?,?,?,?,?,?)";
                 PreparedStatement updateUsers = con.prepareStatement(userInsertionStatement);
                 updateUsers.setString(1, username);
                 updateUsers.setString(2, password);
                 updateUsers.setString(3, lastName);
                 updateUsers.setString(4, firstName);
-                updateUsers.setInt(5, age);
+                updateUsers.setString(5, gender);
+                updateUsers.setInt(6, age);
                 updateUsers.executeUpdate();
-                System.out.println("Inserted user '" + username + "'\n password: " + password + "\nlast name: " + lastName + "\nfirst name: " + firstName + "\nage: " + age + " into the database\n\n");
+                System.out.println("Inserted user '" + username + "'\n password: " + password + "\nlast name: " + lastName + "\nfirst name: " + firstName + "\ngender: " + gender + "\nage: " + age + " into the database\n\n");
             }
             catch (SQLException sqle)
             {
@@ -399,7 +401,28 @@ public class SolomonServer {
         }
         return rs;
     }
-    
+
+    public static ResultSet dbGetCampaignsReactions() {
+        ResultSet resultSet = null;
+        try {
+            if(con != null) {
+                String stmtString = "SELECT campaignsreactions.idCampaign, campaignsReactions.idUser, users.gender, users.age, campaignsreactions.viewDate " +
+                        "FROM campaignsreactions INNER JOIN users ON(campaignsreactions.idUser = users.idusers);";
+                Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                resultSet = stmt.executeQuery(stmtString);
+            }
+        }
+        catch(SQLException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return resultSet;
+    }
+
     public static ResultSet getCampains(String idCompany)
     {
         ResultSet resultSet = null;
@@ -436,7 +459,7 @@ public class SolomonServer {
             }
             catch(SQLException sqle)
             {
-                
+                sqle.printStackTrace();
             }
         }
         else
@@ -559,6 +582,37 @@ public class SolomonServer {
         statement.setString(7, endDate);
         statement.setString(8, photoPath);
         statement.executeUpdate();
+    }
+
+    public static void dbAddCampaignReaction(String idCampaign, Integer idUser, String viewDate) {
+        ResultSet resultSet = null;
+        try {
+            if(con != null) {
+                String stmtString = "INSERT INTO campaignsreactions(idCampaign, idUser, viewDate) VALUES(?,?,?);";
+                PreparedStatement preparedStatement = con.prepareStatement(stmtString);
+                preparedStatement.setString(1, idCampaign);
+                preparedStatement.setInt(2, idUser);
+                preparedStatement.setString(3, viewDate);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void dbAddBeaconDistance(String idBeacon, Double distance) {
+        ResultSet resultSet = null;
+        try {
+            if(con != null) {
+                String stmtString = "INSERT INTO beaconDistances(idBeacon, distance) VALUES(?,?);";
+                PreparedStatement preparedStatement = con.prepareStatement(stmtString);
+                preparedStatement.setString(1, idBeacon);
+                preparedStatement.setDouble(2, distance);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void updateCampain(String idCampain, String title, String category, String description, String startDate, String endDate) throws SQLException
@@ -749,6 +803,26 @@ public class SolomonServer {
                 String endDate = campaignsResultSet.getString("campaigns.endDate");
                 String photoPath = campaignsResultSet.getString("campaigns.photoPath");
                 campaignsMapById.put(idCampaign, new Campaign(idCampaign, idCompany, companiesMap.get(idCompany), title, category, description, startDate, endDate, photoPath));
+            }
+        }
+    }
+    public static void getCampaignsReactions() throws Exception {
+        ResultSet resultSet = SolomonServer.dbGetCampaignsReactions();
+        if(resultSet.isBeforeFirst()) {
+            while(resultSet.next()) {
+                String idCampaign = resultSet.getString("campaignsreactions.idCampaign");
+                Integer idUser = resultSet.getInt("campaignsreactions.idUser");
+                String gender = resultSet.getString("users.gender");
+                Integer age = resultSet.getInt("users.age");
+                String viewDate = resultSet.getString("campaignsreactions.viewDate");
+                CampaignReaction campaignReaction = new CampaignReaction(idCampaign, idUser, gender, age, viewDate);
+                if (campaignReactionsMap.containsKey(idCampaign)) {
+                    campaignReactionsMap.get(idCampaign).add(campaignReaction);
+                } else {
+                    ArrayList<CampaignReaction> campaignReactions = new ArrayList<>();
+                    campaignReactions.add(campaignReaction);
+                    campaignReactionsMap.put(idCampaign, campaignReactions);
+                }
             }
         }
     }

@@ -534,11 +534,9 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
 
-                    /*
                     //send the distance to the server
-                    String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"beaconLabel\":\"" + kontaktBeacon.getLabel() + "\"}";
+                    String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"idBeacon\":\"" + kontaktBeacon.getId() + "\"}";
                     new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
-                     */
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())

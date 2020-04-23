@@ -14,14 +14,19 @@ import android.widget.TextView;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.Campaign;
+import com.beia.solomon.runnables.RequestRunnable;
 import com.bumptech.glide.Glide;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class CampaignsAdapter extends BaseAdapter {
 
     public Context context;
     public ArrayList<Campaign> campaigns;
+    public DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     public CampaignsAdapter(Context context, ArrayList<Campaign> campaigns)
     {
         this.context = context;
@@ -48,7 +53,7 @@ public class CampaignsAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, final View convertView, ViewGroup parent) {
-        Campaign campaign = campaigns.get(position);
+        final Campaign campaign = campaigns.get(position);
         View campaignView = LayoutInflater.from(context).inflate(R.layout.campaign_layout, parent, false);
         TextView companyNameTextView = campaignView.findViewById(R.id.companyName);
         ImageView campaignImageView = campaignView.findViewById(R.id.campaignImage);
@@ -81,6 +86,11 @@ public class CampaignsAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 MainActivity.tabLayout.getTabAt(1).select();
+                //send the campaigns reaction to the server
+                Calendar calendar = Calendar.getInstance();
+                String currentTime = dateFormat.format(calendar.getTime());
+                String request = "{\"requestType\":\"postCampaignReaction\", \"idCampaign\":\"" + campaign.getId() + "\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"gender\":\"" + MainActivity.userData.getGender() + "\", \"age\":" + MainActivity.userData.getAge() + ", \"viewDate\":\"" + currentTime + "\"}";
+                new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
             }
         });
         return campaignView;

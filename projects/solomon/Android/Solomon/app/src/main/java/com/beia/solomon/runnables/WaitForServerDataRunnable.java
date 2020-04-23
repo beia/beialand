@@ -64,7 +64,9 @@ public class WaitForServerDataRunnable implements Runnable
                 MainActivity.objectInputStream = objectInputStream;
                 //send the automatic login data
                 SignInData signInData = new SignInData(MainActivity.userData.getUsername(), MainActivity.userData.getPassword());
-                objectOutputStream.writeObject(signInData);
+                synchronized (objectOutputStream) {
+                    objectOutputStream.writeObject(signInData);
+                }
             }
             while (true)
             {
@@ -97,20 +99,24 @@ public class WaitForServerDataRunnable implements Runnable
                         case "login successful":
                             if(currentActivity.equals("LoginActivity")) {
                                 message = LoginActivity.handler.obtainMessage(2);
-                                message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
+                                message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getGender(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
                                 message.sendToTarget();
                             }
                             else
                             {
                                 message = MainActivity.mainActivityHandler.obtainMessage(3);
-                                message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
+                                message.obj = new UserData(serverFeedback.getUserId(), serverFeedback.getUsername(), serverFeedback.getPassword(), serverFeedback.getLastName(), serverFeedback.getFirstName(), serverFeedback.getGender(), serverFeedback.getAge(), serverFeedback.isFirstLogin());
                                 message.sendToTarget();
                             }
                             //request beacons
                             String request1 = "{\"requestType\":\"getBeacons\"}";
-                            objectOutputStream.writeObject(request1);
+                            synchronized (objectOutputStream) {
+                                objectOutputStream.writeObject(request1);
+                            }
                             String request2 = "{\"requestType\":\"getBeaconsTime\"}";
-                            objectOutputStream.writeObject(request2);
+                            synchronized (objectOutputStream) {
+                                objectOutputStream.writeObject(request2);
+                            }
                             break;
                         default:
                             break;

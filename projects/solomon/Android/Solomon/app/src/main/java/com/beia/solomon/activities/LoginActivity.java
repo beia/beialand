@@ -21,9 +21,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,6 +84,10 @@ public class LoginActivity extends AppCompatActivity {
     public static CardView lastNameSignUpCardView;
     public static EditText lastNameSignUpEditText;
     public static TextView lastNameFeedbackText;
+    public static CardView genderSignUpCardView;
+    public static Spinner genderSignUpSpinner;
+    public static String genderSelected;
+    public static TextView genderFeedbackTextView;
     public static CardView ageSignUpCardView;
     public static EditText ageSignUpEditText;
     public static TextView ageFeedbackText;
@@ -245,6 +252,34 @@ public class LoginActivity extends AppCompatActivity {
         ageSignUpCardView = findViewById(R.id.ageSignUpCardView);
         ageSignUpEditText = findViewById(R.id.ageSignUpEditText);
         ageFeedbackText = findViewById(R.id.ageFeedbackText);
+        genderSignUpCardView = findViewById(R.id.genderSignUpCardView);
+        genderSignUpSpinner = findViewById(R.id.genderSignUpSpinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.gender_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        genderSignUpSpinner.setAdapter(adapter);
+        genderSignUpSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                switch (position) {
+                    case 1://MALE SELECTED
+                        genderSelected = (String) adapterView.getItemAtPosition(1);
+                        break;
+                    case 2://FEMALE SELECTED
+                        genderSelected = (String) adapterView.getItemAtPosition(2);
+                        break;
+                    default:
+                        genderSelected = null;
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                genderSelected = null;
+            }
+        });
+        genderFeedbackTextView = findViewById(R.id.genderFeedbackText);
         usernameSignUpCardView = findViewById(R.id.usernameSignUpCardView);
         usernameSignUpEditText = findViewById(R.id.usernameSignUpEditText);
         usernameFeedbackText = findViewById(R.id.usernameFeedbackText);
@@ -310,15 +345,16 @@ public class LoginActivity extends AppCompatActivity {
                 firstNameFeedbackText.setVisibility(View.INVISIBLE);
                 lastNameFeedbackText.setVisibility(View.INVISIBLE);
                 ageFeedbackText.setVisibility(View.INVISIBLE);
+                genderFeedbackTextView.setVisibility(View.INVISIBLE);
                 usernameFeedbackText.setVisibility(View.INVISIBLE);
                 passwordFeedbackText.setVisibility(View.INVISIBLE);
                 passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
                 //get the sign up data
-                String firstName, lastName, username, password, passwordConfirmation;
-                int age;
+                String firstName, lastName, username, password, passwordConfirmation, ageString;
+                int age = 0;
                 firstName = firstNameSignUpEditText.getText().toString().trim();
                 lastName = lastNameSignUpEditText.getText().toString().trim();
-                age = Integer.parseInt(ageSignUpEditText.getText().toString().trim());
+                ageString = ageSignUpEditText.getText().toString().trim();
                 username = usernameSignUpEditText.getText().toString().trim();
                 password = passwordSignUpEditText.getText().toString().trim();
                 passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString().trim();
@@ -330,6 +366,9 @@ public class LoginActivity extends AppCompatActivity {
                     firstNameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
+                else {
+                    firstNameFeedbackText.setVisibility(View.INVISIBLE);
+                }
                 if(lastName.equals(""))
                 {
                     lastNameFeedbackText.setText("last name not filled");
@@ -337,15 +376,22 @@ public class LoginActivity extends AppCompatActivity {
                     lastNameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
-                if(age < 0 || age > 120)
-                {
-                    ageFeedbackText.setText("age not possible");
-                    ageFeedbackText.setVisibility(View.VISIBLE);
-                    ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                if(genderSelected == null) {
+                    genderFeedbackTextView.setText("gender not selected");
+                    genderFeedbackTextView.setVisibility(View.VISIBLE);
+                    genderSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
-                if(Integer.toString(age).equals(""))
-                {
+                if(!ageString.equals("")) {
+                    age = Integer.parseInt(ageString);
+                    if(age < 0 || age > 120) {
+                        ageFeedbackText.setText("age not possible");
+                        ageFeedbackText.setVisibility(View.VISIBLE);
+                        ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                        correctSignUpData = false;
+                    }
+                }
+                else {
                     ageFeedbackText.setText("age not filled");
                     ageFeedbackText.setVisibility(View.VISIBLE);
                     ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
@@ -367,7 +413,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 if(passwordConfirmation.equals(""))
                 {
-                    passwordConfirmationFeedbackText.setText("password confirmation not filled");
+                    passwordConfirmationFeedbackText.setText("password not filled");
                     passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
                     passwordConfirmationSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
@@ -390,13 +436,14 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     if(encryptedPassword != null)
-                        sendSignUpData(new SignUpData(lastName, firstName, age, username, encryptedPassword, encryptedPassword));
+                        sendSignUpData(new SignUpData(lastName, firstName, genderSelected, age, username, encryptedPassword, encryptedPassword));
                     else
                         Log.d("LOGIN", "error: can't encrypt password");
                 }
             }
         });
     }
+
     public static void setLoginLayout()
     {
         //hide the sign up views
@@ -406,6 +453,8 @@ public class LoginActivity extends AppCompatActivity {
         firstNameFeedbackText.setVisibility(View.INVISIBLE);
         lastNameSignUpCardView.setVisibility(View.GONE);
         lastNameFeedbackText.setVisibility(View.INVISIBLE);
+        genderSignUpCardView.setVisibility(View.GONE);
+        genderFeedbackTextView.setVisibility(View.INVISIBLE);
         ageSignUpCardView.setVisibility(View.GONE);
         ageFeedbackText.setVisibility(View.INVISIBLE);
         usernameSignUpCardView.setVisibility(View.GONE);
@@ -440,6 +489,9 @@ public class LoginActivity extends AppCompatActivity {
         firstNameFeedbackText.setVisibility(View.INVISIBLE);
         lastNameSignUpCardView.setVisibility(View.VISIBLE);
         lastNameFeedbackText.setVisibility(View.INVISIBLE);
+        genderSignUpCardView.setVisibility(View.VISIBLE);
+        genderSignUpSpinner.setVisibility(View.VISIBLE);
+        genderFeedbackTextView.setVisibility(View.INVISIBLE);
         ageSignUpCardView.setVisibility(View.VISIBLE);
         ageFeedbackText.setVisibility(View.INVISIBLE);
         usernameSignUpCardView.setVisibility(View.VISIBLE);

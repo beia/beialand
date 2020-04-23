@@ -6,14 +6,16 @@ public class SignUpData implements Serializable
 {
     private final String lastName;
     private final String firstName;
+    private final String gender;
     private final int age;
     private final String username;
     private final String password;
     private final String passwordConfirmation;
-    public SignUpData(String lastName, String firstName, int age, String username, String password, String passwordConfirmation)
+    public SignUpData(String lastName, String firstName, String gender, int age, String username, String password, String passwordConfirmation)
     {
         this.lastName = lastName;
         this.firstName = firstName;
+        this.gender = gender;
         this.age = age;
         this.username = username;
         this.password = password;
@@ -39,6 +41,7 @@ public class SignUpData implements Serializable
     {
         return this.firstName;
     }
+    public String getGender() { return this.gender; }
     public int getAge()
     {
         return this.age;
@@ -46,6 +49,6 @@ public class SignUpData implements Serializable
     @Override
     public String toString()
     {
-        return "Sign up data received:\n" + "Username: " + this.username + "\nPassword: " + this.password + "\nLast name: " + this.lastName + "\nFirst name: " + this.firstName + "\nAge: " + this.age;
+        return "Sign up data received:\n" + "Username: " + this.username + "\nPassword: " + this.password + "\nLast name: " + this.lastName + "\nFirst name: " + this.firstName + "\nGender: " + gender +  "\nAge: " + this.age;
     }
 }
