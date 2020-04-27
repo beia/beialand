@@ -12,9 +12,15 @@
     <script src="<$host$>/static/scripts/FormanticUI/semantic.min.js"></script>
     <link rel="stylesheet" href="<$host$>/static/scripts/FormanticUI/semantic.min.css"/>
 
+
+    <script src="<$host$>/static/scripts/ChartJS/Chart.min.js"></script>
+    <link rel="stylesheet" href="<$host$>/static/scripts/ChartJS/Chart.min.css"/>
+
     <script src="<$host$>/static/scripts/Custom/dashboard.js"></script>
+    <script src="<$host$>/static/scripts/Custom/statistics.js"></script>
     <link rel="stylesheet" href="<$host$>/static/styles/topMenu.css"/>
     <link rel="stylesheet" href="<$host$>/static/styles/dashboard.css"/>
+    <link rel="stylesheet" href="<$host$>/static/styles/statistics.css"/>
   </head>
   <body>
 
@@ -60,6 +66,21 @@
 
         </div>
         <div class="twelve wide column right-section">
+            <div id="buttonsDiv" hidden>
+              <button id="editBtn" class="ui basic button">
+                <i class="edit icon"></i>
+                Edit
+              </button>
+
+              <button id="removeBtn" class="ui basic button">
+                <i class="close icon"></i>
+                Remove
+              </button>
+
+              <input id="itemID" type="hidden"/>
+            </div>
+            <br>
+
             <table class="right-section-table">
               <tr>
                 <td class="small-row"> <h3 id="rightTitle"> </h3> </td>
@@ -87,19 +108,30 @@
               </tr>
             </table>
 
-            <div id="buttonsDiv" hidden>
-              <button id="editBtn" class="ui basic button">
-                <i class="edit icon"></i>
-                Edit
-              </button>
 
-              <button id="removeBtn" class="ui basic button">
-                <i class="close icon"></i>
-                Remove
-              </button>
 
-              <input id="itemID" type="hidden"/>
-            </div>
+
+
+            <table style="width:100%;" id="viewStatisticsTable" hidden="true">
+          		<tr>
+          			<td id="viewsNumCell"  colspan="2"></td>
+
+          		</tr>
+
+          		<tr>
+          			<td id="ageDistributionCell" style="width:50%;"> <canvas id="ageDistributionCanvas"></canvas></td>
+          			<td id="genderDistributionCell" style="width:50%;"> <canvas id="genderDistributionCanvas"></canvas></td> </td>
+          		</tr>
+
+          		<tr>
+          			<td id="perDayViewsCell" colspan="2"><canvas id="perDayViewsCanvas"></canvas></td>
+          		</tr>
+
+          	</table>
+
+
+
+
 
         </div>
       </div>
