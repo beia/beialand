@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `solomondb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `solomondb`;
 -- MySQL dump 10.13  Distrib 8.0.19, for Win64 (x86_64)
 --
 -- Host: localhost    Database: solomondb
@@ -307,12 +305,12 @@ DROP TABLE IF EXISTS `userbeacontime`;
 CREATE TABLE `userbeacontime` (
   `idBeaconTime` int NOT NULL AUTO_INCREMENT,
   `idUser` int NOT NULL,
-  `idBeacon` varchar(45) NOT NULL,
+  `idBeacon` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `timeSeconds` bigint NOT NULL,
   PRIMARY KEY (`idBeaconTime`),
   KEY `idUser_idx` (`idUser`),
   KEY `beaconLabel2_idx` (`idBeacon`),
-  CONSTRAINT `idBeacon2` FOREIGN KEY (`idBeacon`) REFERENCES `beacons` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `idBeacon2` FOREIGN KEY (`idBeacon`) REFERENCES `beacons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `idUser2` FOREIGN KEY (`idUser`) REFERENCES `users` (`idusers`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=510 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -394,4 +392,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-27 10:59:25
+-- Dump completed on 2020-04-27 11:06:51
