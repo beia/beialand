@@ -17,6 +17,7 @@ import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.UserData;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -72,10 +73,11 @@ public class MainActivityHandler extends Handler
                 Log.d("AUTOMATIC-LOGIN", "SUCCESS");
                 break;
             case 4:
+                Log.d("POSITION", "handleMessage: ");
                 LatLng latLng = (LatLng) msg.obj;
                 LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
                 MainActivity.mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
-                Marker positionMarker = MainActivity.mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates));
+                Marker positionMarker = MainActivity.mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 MainActivity.positionMarkers.add(positionMarker);
                 if(MainActivity.positionMarkers.size() > 1)
                 {

@@ -123,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
     public HashSet<IBeaconDevice> ibeaconsSet;
     public IBeaconDevice[] closestBeacons;
     public Point[] closestBeaconsCoordinates;
+    public Queue[] distancesQueues;
+    public double[] beaconDistances;
     //Estimote variables
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
@@ -208,6 +210,8 @@ public class MainActivity extends AppCompatActivity {
         ibeaconsSet = new HashSet<>();
         closestBeacons = new IBeaconDevice[4];
         closestBeaconsCoordinates = new Point[4];
+        distancesQueues = new Queue[4];//a distance queue for each beacon in the room
+        beaconDistances = new double[4];//the distances after the mean
         positionMarkers = new LinkedList<>();
         campaigns = new ArrayList<>();
 
@@ -511,32 +515,46 @@ public class MainActivity extends AppCompatActivity {
                     double x = getXCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double y = getYCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double z = getZCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
-                    Log.d("LABEL: " + kontaktBeacon.getLabel(), "distance:" + distance + "x:" + x + " y:" + y + " z: " + z);
+                    //Log.d("LABEL: " + kontaktBeacon.getLabel(), "distance:" + distance + "x:" + x + " y:" + y + " z: " + z);
 
                     switch (kontaktBeacon.getLabel()) {
-                        case "0":
+                        case "McDonald's":
                             closestBeacons[0] = iBeaconDevice;
+                            if(distancesQueues[0] == null)
+                                distancesQueues[0] = new LinkedList<Double>();
+                            distancesQueues[0].add(iBeaconDevice.getDistance());
                             closestBeaconsCoordinates[0] = new Point(x, y, z);
                             break;
-                        case "1":
+                        case "Altex":
                             closestBeacons[1] = iBeaconDevice;
+                            if(distancesQueues[1] == null)
+                                distancesQueues[1] = new LinkedList();
+                            distancesQueues[1].add(iBeaconDevice.getDistance());
                             closestBeaconsCoordinates[1] = new Point(x, y, z);
                         break;
-                        case "2":
+                        case "Zara":
                             closestBeacons[2] = iBeaconDevice;
+                            if(distancesQueues[2] == null)
+                                distancesQueues[2] = new LinkedList();
+                            distancesQueues[2].add(iBeaconDevice.getDistance());
                             closestBeaconsCoordinates[2] = new Point(x, y, z);
                             break;
-                        case "3":
+                        case "Starbucks":
                             closestBeacons[3] = iBeaconDevice;
+                            if(distancesQueues[3] == null)
+                                distancesQueues[3] = new LinkedList();
+                            distancesQueues[3].add(iBeaconDevice.getDistance());
                             closestBeaconsCoordinates[3] = new Point(x, y, z);
                             break;
                         default:
                             break;
                     }
 
+                    /*
                     //send the distance to the server
                     String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"idBeacon\":\"" + kontaktBeacon.getId() + "\"}";
                     new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
+                     */
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
@@ -727,7 +745,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //INDOOR POSITION
                 //check if an area can be formed from the beacons and compute the position of the user
-                /*
+
                 boolean roomDetected = true;
                 for(Point beaconLocation : closestBeaconsCoordinates)
                     if(beaconLocation == null) {
@@ -736,9 +754,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                 if(roomDetected)
                 {
-                    new Thread(new ComputePositionRunnable(closestBeacons, closestBeaconsCoordinates)).start();
+                    //check if there are enough values in the distances queues
+                    boolean enoughValues = true;
+                    for(int i = 0; i < distancesQueues.length; i++) {//iterate through the distances queue of each beacon
+                        if (distancesQueues[i].size() < 2) {
+                            enoughValues = false;
+                            break;
+                        }
+                        else {
+                            LinkedList<Double> distances = (LinkedList<Double>)distancesQueues[i];
+                            double meanDistance = 0, distancesNr = 0;
+                            distancesNr = distances.size();
+                            while(!distances.isEmpty())
+                                meanDistance += distances.poll();
+                            meanDistance /= distancesNr;
+                            beaconDistances[i] = meanDistance;
+                        }
+                    }
+                    if(enoughValues) {
+                        new Thread(new ComputePositionRunnable(beaconDistances, closestBeaconsCoordinates)).start();
+                    }
                 }
-                 */
             }
             @Override
             public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
@@ -887,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public double getXCoordinate(double lat, double lon, int radius) {
-        return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.cos(lon * 2 * Math.PI / 360);
+        return radius * Math.cos(lon * 2 * Math.PI / 360) * Math.cos(lat * 2 * Math.PI / 360);//cos because the latitude starts from 90 degrees instead of 0
     }
     public double getYCoordinate(double lat, double lon, int radius) {
         return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.sin(lon * 2 * Math.PI / 360);

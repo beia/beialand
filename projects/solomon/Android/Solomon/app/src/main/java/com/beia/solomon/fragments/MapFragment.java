@@ -57,6 +57,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap)
     {
         this.googleMap = googleMap;
+        googleMap.setMyLocationEnabled(true);
 
         //create markers for all the beacons
         if(!MainActivity.beaconsMap.isEmpty()) {
