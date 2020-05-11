@@ -277,6 +277,7 @@ function drawRightSide(campaignID){
 
   document.getElementById("buttonsDiv").hidden = false;
 
+  getStatistics();
 }
 
 function drawList(){
