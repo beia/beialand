@@ -8,6 +8,7 @@ package runnables;
 import com.beia.solomon.networkPackets.*;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -17,8 +18,11 @@ import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import data.CampaignReaction;
+import data.Location;
 import data.Notification;
+import data.Point;
 import solomonserver.SolomonServer;
 
 /**
@@ -31,6 +35,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
     public String profilePicturePath = "ProfilePictures\\";
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
+    public volatile Location[] partialLocations = new Location[64];
 
     public ArrayList<Double> valuesBeacon0, valuesBeacon1, valuesBeacon2, valuesBeacon3;
     public File file0, file1, file2, file3;
@@ -334,6 +339,20 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             }
                             SolomonServer.dbAddCampaignReaction(idCampaign, idUserCampaignsReaction, viewDate);
                             break;
+                        case "computeLocation":
+                            Double[] beaconDistances = new Double[4];
+                            Point[] beaconCoordinates = new Point[4];
+                            Type type1 = new TypeToken<Double[]>(){}.getType(), type2 = new TypeToken<Point[]>(){}.getType();
+                            beaconDistances = gson.fromJson(jsonObject.get("beaconDistances"), type1);
+                            beaconCoordinates = gson.fromJson(jsonObject.get("beaconCoordinates"), type2);
+                            //COMPUTE LOCATION - PARALLELIZATION
+                            Location location = computeLocation(beaconDistances, beaconCoordinates, 4);
+                            //SEND THE LOCATION TO THE USER
+                            response = "{\"responseType\":\"location\", \"lat\":" + location.getLatitude() + ", \"lng\":" + location.getLongitude() + "}";
+                            synchronized (objectOutputStream) {
+                                objectOutputStream.writeObject(response);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -357,5 +376,27 @@ public class ManageClientAppInteractionRunnable implements Runnable
         }
         
     }
-    
+
+    public Location computeLocation(Double[] beaconDistances, Point[] closestBeaconsCoordinates, int nrCores) throws InterruptedException {
+        Location bestLocation = null;
+        Thread[] threads = new Thread[nrCores];
+        //start nrCores threads that will compute partial best coordinates
+        //the x values for will be parallelized, only nrXValues * nrYValues & nrZValues / nrCores iterations are executed per thread
+        for(int i = 0; i < nrCores; i++) {
+            threads[i] = new Thread(new ComputeLocationRunnable(beaconDistances, closestBeaconsCoordinates, partialLocations, i));
+            threads[i].start();
+        }
+        //wait for all the threads to finish computing the partial best locations
+        for(int i = 0; i < nrCores; i++)
+            threads[i].join();
+        //get the best location from the partial locations
+        double minError = 999999;
+        for(int i = 0; i < nrCores; i++) {
+            if(partialLocations[i].localizationError < minError) {
+                minError = partialLocations[i].localizationError;
+                bestLocation = partialLocations[i];
+            }
+        }
+        return bestLocation;
+    }
 }

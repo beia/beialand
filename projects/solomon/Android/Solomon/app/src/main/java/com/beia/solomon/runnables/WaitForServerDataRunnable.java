@@ -15,6 +15,7 @@ import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.networkPackets.ServerFeedback;
 import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.UserData;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -204,6 +205,14 @@ public class WaitForServerDataRunnable implements Runnable
                             Message msg = MainActivity.mainActivityHandler.obtainMessage();
                             msg.what = 6;
                             msg.sendToTarget();
+                            break;
+                        case "location":
+                            double lat = jsonResponse.get("lat").getAsDouble();
+                            double lng = jsonResponse.get("lng").getAsDouble();
+                            Message locationMessage = MainActivity.mainActivityHandler.obtainMessage();
+                            locationMessage.what = 4;
+                            locationMessage.obj = new LatLng(lat, lng);
+                            locationMessage.sendToTarget();
                             break;
                         default:
                             break;

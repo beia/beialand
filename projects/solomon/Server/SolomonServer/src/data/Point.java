@@ -1,4 +1,4 @@
-package com.beia.solomon.data;
+package data;
 
 public class Point {
     private double x;

@@ -62,6 +62,7 @@ import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
@@ -107,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
     public static int displayWidth;
     public static int displayHeight;
 
-    //beacon variables
     public static final int roomDimension = 2;//meters
     public static volatile HashMap<String, Beacon> beaconsMap;//key:id value:beacon
     public static volatile HashMap<String, Beacon> beaconsMapByCompanyId;//key:id value:beacon
@@ -122,55 +122,56 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
     public IBeaconDevice[] closestBeacons;
+
+    //LOCATION
     public Point[] closestBeaconsCoordinates;
     public Queue[] distancesQueues;
     public double[] beaconDistances;
-    //Estimote variables
+
+    //ESTIMOTE
     public EstimoteCloudCredentials cloudCredentials;
     public ProximityObserver proximityObserver;
     public  ArrayList<ProximityZone> estimoteProximityZones;
-    //Kontakt variables
-    public ProximityManager proximityManager;
 
+    //KONTAKT
+    public ProximityManager proximityManager;
 
     public static volatile boolean active = false;
 
-    //Communication variables
+    //COMMUNICATION
     public static volatile Socket socket;
     public static volatile ObjectOutputStream objectOutputStream;
     public static volatile ObjectInputStream objectInputStream;
 
-    //cache variables
+    //CACHE
     public static SharedPreferences sharedPref;
     public static LruCache<String, Bitmap> picturesCache;
 
-    //google map variables
+    //GOOGLE MAP
     public static volatile Queue<Marker> positionMarkers;
     public IndoorBuilding indoorBuilding;
 
 
-    //Handlers
+    //HANDLERS
     public static MainActivityHandler mainActivityHandler;
     public static boolean beaconsReceived = false;
 
-    //UI variables
-    //Main activity UI variables
+    //UI
     public static TabLayout tabLayout;
     public ViewPager viewPager;
     public static ViewPagerAdapter viewPagerAdapter;
     public LinearLayout mainActivityLinearLayout;
-    //user profile UI variables
+
+    //USER PROFILE
     public TextView usernameTextView;
     public TextView passwordTextView;
     public TextView ageTextView;
 
-
-    //fragments
+    //FRAGMENTS
     public static StoreAdvertisementFragment storeAdvertisementFragment;
     public static MapFragment mapFragment;
     public static SettingsFragment settingsFragment;
 
-    //Other variables
     public static Date currentTime;
     public static volatile UserData userData;
     public static Context context;
@@ -503,6 +504,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            //DETECTED BEACONS
             @Override
             public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region)
             {
@@ -745,7 +747,6 @@ public class MainActivity extends AppCompatActivity {
 
                 //INDOOR POSITION
                 //check if an area can be formed from the beacons and compute the position of the user
-
                 boolean roomDetected = true;
                 for(Point beaconLocation : closestBeaconsCoordinates)
                     if(beaconLocation == null) {
@@ -771,8 +772,18 @@ public class MainActivity extends AppCompatActivity {
                             beaconDistances[i] = meanDistance;
                         }
                     }
+                    //COMPUTE LOCATION
                     if(enoughValues) {
-                        new Thread(new ComputePositionRunnable(beaconDistances, closestBeaconsCoordinates)).start();
+                        //send location data to the server
+                        Gson gson = new Gson();
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("{\"requestType\":\"computeLocation\",\"beaconDistances\":");
+                        stringBuilder.append(gson.toJson(beaconDistances));
+                        stringBuilder.append(",\"beaconCoordinates\":");
+                        stringBuilder.append(gson.toJson(closestBeaconsCoordinates));
+                        stringBuilder.append("}");
+                        String request = stringBuilder.toString();
+                        new Thread(new RequestRunnable(request, objectOutputStream)).start();
                     }
                 }
             }

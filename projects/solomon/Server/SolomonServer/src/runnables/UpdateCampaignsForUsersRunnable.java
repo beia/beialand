@@ -1,7 +1,6 @@
 package runnables;
 
 import com.beia.solomon.networkPackets.Campaign;
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 
 import java.io.File;
 import java.io.FileInputStream;
