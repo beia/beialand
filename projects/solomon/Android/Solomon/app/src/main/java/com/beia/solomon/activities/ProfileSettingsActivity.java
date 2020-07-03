@@ -29,12 +29,16 @@ import android.widget.Toast;
 import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.ImageData;
 import com.beia.solomon.networkPackets.UpdateUserData;
+import com.beia.solomon.runnables.RequestRunnable;
 import com.beia.solomon.runnables.SendImageRunable;
 import com.beia.solomon.runnables.SendUserUpdateData;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class ProfileSettingsActivity extends AppCompatActivity {
 
@@ -171,51 +175,42 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             public void onClick(View v)
             {
                 //get the data from the UI
-                String username = null, password = null;
-                int age = 0;
-                if(usernameEditText.getVisibility() == View.VISIBLE)
-                {
+                String username = MainActivity.userData.getUsername(), password = null;
+                int age = MainActivity.userData.getAge();
+                if(usernameEditText.getVisibility() == View.VISIBLE && !usernameEditText.getText().toString().equals(""))
                     username = usernameEditText.getText().toString().trim();
-                    if(username.equals("")) {
-                        username = null;
-                    }
-                }
-                if(passwordEditText.getVisibility() == View.VISIBLE)
-                {
+                if(passwordEditText.getVisibility() == View.VISIBLE && !passwordEditText.getText().toString().equals(""))
                     password = passwordEditText.getText().toString().trim();
-                    if(password.equals(""))
-                        password = null;
-                }
-                if(ageEditText.getVisibility() == View.VISIBLE)
-                {
-                    try
-                    {
+                if(ageEditText.getVisibility() == View.VISIBLE && !ageEditText.getText().toString().equals("")) {
+                    try {
                         age = Integer.parseInt(ageEditText.getText().toString().trim());
-                        if(age < 0) {
-                            age = 0;
-                        }
                     }
-                    catch (NumberFormatException ex)
-                    {
-                        age = 0;
+                    catch (NumberFormatException ex) {
+                        age = MainActivity.userData.getAge();
+                    }
+                }
+                if(password != null) {//encrypt the password
+                    try {
+                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+                        password = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
+                    }
+                    catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
                     }
                 }
 
-                //send update data to the server if at least one field was modified
-                if(username != null || password != null || age != 0) {
-                    UpdateUserData updateUserData = new UpdateUserData(MainActivity.userData.getUserId(), username, password, age);
-                    Thread updateUserDataThread = new Thread(new SendUserUpdateData(MainActivity.objectOutputStream, updateUserData));
-                    updateUserDataThread.start();
-                    Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
-                }
+                //send the update request to the server
+                String request = "{\"requestType\":\"updateUserData\", \"userID\":" + MainActivity.userData.getUserId() + ", \"username\":\"" + username + "\", \"password\":\"" + password + "\", \"age\":" + age + "}";
+                new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
+                Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
 
                 //change the user data
-                if(username != null) {
+                if(!username.equals(MainActivity.userData.getUsername())) {
                     usernameTextView.setText(MainActivity.userData.getUsername());
                     MainActivity.userData.setUsername(username);
                     usernameTextView.setText(username);
                 }
-                if(age != 0) {
+                if(age != MainActivity.userData.getAge()) {
                     ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
                     MainActivity.userData.setAge(age);
                     ageTextView.setText(Integer.toString(age));

@@ -280,7 +280,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     {
                         if(!shoesSelected && preferencesSet.size() < 3) {
                             shoesSelected = true;
-                            preferencesSet.add("shoes");
+                            preferencesSet.add("Shoes");
                             updateShoesImageLocation.interrupt();
                             synchronized (shoesLayout)
                             {
@@ -296,7 +296,7 @@ public class PreferencesActivity extends AppCompatActivity {
                         else {
                             if(shoesSelected) {
                                 shoesSelected = false;
-                                preferencesSet.remove("shoes");
+                                preferencesSet.remove("Shoes");
                                 shoppingCartSize--;
                                 //set a new random position for the shoes preference
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
@@ -338,7 +338,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         if(!electronicsSelected && preferencesSet.size() < 3) {
                             electronicsSelected = true;
-                            preferencesSet.add("electronics");
+                            preferencesSet.add("Electronics");
                             updateElectronicsImageLocation.interrupt();
                             synchronized (electronicsLayout)
                             {
@@ -354,7 +354,7 @@ public class PreferencesActivity extends AppCompatActivity {
                         else {
                             if(electronicsSelected) {
                                 electronicsSelected = false;
-                                preferencesSet.remove("electronics");
+                                preferencesSet.remove("Electronics");
                                 shoppingCartSize--;
                                 //set a new random position for the electronics preference
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
@@ -394,7 +394,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         if(!clothesSelected && preferencesSet.size() < 3) {
                             clothesSelected = true;
-                            preferencesSet.add("clothes");
+                            preferencesSet.add("Clothes");
                             updateClothesImageLocation.interrupt();
                             synchronized (clothesLayout)
                             {
@@ -410,7 +410,7 @@ public class PreferencesActivity extends AppCompatActivity {
                         else {
                             if(clothesSelected) {
                                 clothesSelected = false;
-                                preferencesSet.remove("clothes");
+                                preferencesSet.remove("Clothes");
                                 shoppingCartSize--;
                                 //set a new random position for the clothes preference
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
@@ -450,7 +450,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         if(!foodSelected && preferencesSet.size() < 3) {
                             foodSelected = true;
-                            preferencesSet.add("food");
+                            preferencesSet.add("Food");
                             updateFoodImageLocation.interrupt();
                             synchronized (foodLayout)
                             {
@@ -466,7 +466,7 @@ public class PreferencesActivity extends AppCompatActivity {
                         else {
                             if(foodSelected) {
                                 foodSelected = false;
-                                preferencesSet.remove("food");
+                                preferencesSet.remove("Food");
                                 shoppingCartSize--;
                                 //set a new random position for the food preference
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
@@ -506,7 +506,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         if(!cofeeSelected && preferencesSet.size() < 3) {
                             cofeeSelected = true;
-                            preferencesSet.add("cofee");
+                            preferencesSet.add("Coffee");
                             updateCofeeImageLocation.interrupt();
                             synchronized (cofeeLayout)
                             {
@@ -522,7 +522,7 @@ public class PreferencesActivity extends AppCompatActivity {
                         else {
                             if(cofeeSelected) {
                                 cofeeSelected = false;
-                                preferencesSet.remove("cofee");
+                                preferencesSet.remove("Coffee");
                                 shoppingCartSize--;
                                 //set a new random position for the cofee preference
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT
@@ -562,7 +562,7 @@ public class PreferencesActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         if(!sportsSelected && preferencesSet.size() < 3) {
                             sportsSelected = true;
-                            preferencesSet.add("sports");
+                            preferencesSet.add("Sports");
                             updateSportsImageLocation.interrupt();
                             synchronized (sportsLayout)
                             {
@@ -578,7 +578,7 @@ public class PreferencesActivity extends AppCompatActivity {
                         else {
                             if(sportsSelected) {
                                 sportsSelected = false;
-                                preferencesSet.remove("sports");
+                                preferencesSet.remove("Sports");
                                 shoppingCartSize--;
                                 //set a new random position for the sports preference
                                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT); //WRAP_CONTENT param can be FILL_PARENT

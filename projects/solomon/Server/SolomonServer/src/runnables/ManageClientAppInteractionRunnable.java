@@ -35,7 +35,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
     public String profilePicturePath = "ProfilePictures\\";
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
-    public volatile Location[] partialLocations = new Location[64];
+    public volatile Location[] partialLocations;
 
     public ArrayList<Double> valuesBeacon0, valuesBeacon1, valuesBeacon2, valuesBeacon3;
     public File file0, file1, file2, file3;
@@ -347,11 +347,19 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             beaconCoordinates = gson.fromJson(jsonObject.get("beaconCoordinates"), type2);
                             //COMPUTE LOCATION - PARALLELIZATION
                             Location location = computeLocation(beaconDistances, beaconCoordinates, 4);
+                            System.out.println("lat: " + location.getLatitude() + " lng: " + location.getLongitude());
                             //SEND THE LOCATION TO THE USER
                             response = "{\"responseType\":\"location\", \"lat\":" + location.getLatitude() + ", \"lng\":" + location.getLongitude() + "}";
                             synchronized (objectOutputStream) {
                                 objectOutputStream.writeObject(response);
                             }
+                            break;
+                        case "updateUserData":
+                            Integer userID = jsonObject.get("userID").getAsInt();
+                            String username = jsonObject.get("username").getAsString();
+                            String password = jsonObject.get("password").getAsString();
+                            Integer _age = jsonObject.get("age").getAsInt();
+                            SolomonServer.dbUpdateUserData(userID, username, password, _age);
                             break;
                         default:
                             break;
@@ -365,6 +373,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                     ArrayList<String> preferences = userPreferences.getPreferences();
                     for(String preference : preferences)
                     {
+                        System.out.println(userPreferences.getUserId() + " " + preference);
                         SolomonServer.addUserPreference(userPreferences.getUserId(), preference);
                     }
                 }
@@ -379,9 +388,10 @@ public class ManageClientAppInteractionRunnable implements Runnable
 
     public Location computeLocation(Double[] beaconDistances, Point[] closestBeaconsCoordinates, int nrCores) throws InterruptedException {
         Location bestLocation = null;
+        partialLocations = new Location[nrCores];
         Thread[] threads = new Thread[nrCores];
         //start nrCores threads that will compute partial best coordinates
-        //the x values for will be parallelized, only nrXValues * nrYValues & nrZValues / nrCores iterations are executed per thread
+        //the x values for will be parallelized, only nrXValues * nrYValues * nrZValues / nrCores iterations are executed per thread
         for(int i = 0; i < nrCores; i++) {
             threads[i] = new Thread(new ComputeLocationRunnable(beaconDistances, closestBeaconsCoordinates, partialLocations, i));
             threads[i].start();

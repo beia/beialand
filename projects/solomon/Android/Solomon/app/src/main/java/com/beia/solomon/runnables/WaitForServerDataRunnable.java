@@ -27,13 +27,12 @@ import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class WaitForServerDataRunnable implements Runnable
 {
     //solomon-beacon.beia-consult.ro
-    public static final String ip = "192.168.0.45";
+    public static final String ip = "172.20.10.11";
     public static final int port = 7000;
     private Socket socket;
     private ObjectOutputStream objectOutputStream;

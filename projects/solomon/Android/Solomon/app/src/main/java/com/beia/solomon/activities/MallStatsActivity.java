@@ -36,8 +36,8 @@ public class MallStatsActivity extends AppCompatActivity {
                     parkingSpacesAvailablePercentage = (Integer) msg.obj;
                     //update the chart
                     ArrayList<PieEntry> pieEntries = new ArrayList<>();
-                    pieEntries.add(new PieEntry(parkingSpacesAvailablePercentage, "free parking spaces"));
-                    pieEntries.add(new PieEntry(100 - parkingSpacesAvailablePercentage, "occupied parking spaces"));
+                    pieEntries.add(new PieEntry(parkingSpacesAvailablePercentage, "free"));
+                    pieEntries.add(new PieEntry(100 - parkingSpacesAvailablePercentage, "occupied"));
 
                     PieDataSet dataSet = new PieDataSet(pieEntries, "");
                     dataSet.setDrawIcons(false);
@@ -70,9 +70,9 @@ public class MallStatsActivity extends AppCompatActivity {
 
                     Legend legend = parkingStatsPieChart.getLegend();
                     legend.setTextSize(13);
-                    legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-                    legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-                    legend.setOrientation(Legend.LegendOrientation.VERTICAL);
+                    legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+                    legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+                    legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
 
                     parkingStatsPieChart.setDrawEntryLabels(false);
                     parkingStatsPieChart.getDescription().setEnabled(false);

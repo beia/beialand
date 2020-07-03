@@ -1,6 +1,7 @@
 package com.beia.solomon.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -102,9 +103,12 @@ public class LoginActivity extends AppCompatActivity {
     public static TextView passwordConfirmationFeedbackText;
     public static CardView signUpButton;
 
+    public static WaitForServerDataRunnable waitForServerDataRunnable;
+
     public static Activity loginActivityInstance;
 
 
+    @SuppressLint("HandlerLeak")
     public static Handler handler = new Handler() {
 
         @Override
@@ -120,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                         case "username is taken":
                             usernameFeedbackText.setText("username is taken");
                             usernameFeedbackText.setVisibility(View.VISIBLE);
-                            usernameSignInCardView.setBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
+                            usernameSignInCardView.setCardBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
                             break;
                         case "registered successfully":
                             firstNameFeedbackText.setVisibility(View.INVISIBLE);
@@ -139,8 +143,8 @@ public class LoginActivity extends AppCompatActivity {
                             break;
                         case "username or password are wrong":
                             //set the login fields red
-                            usernameSignInCardView.setBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
-                            passwordSignInCardView.setBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
+                            usernameSignInCardView.setCardBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
+                            passwordSignInCardView.setCardBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
                             feedbackTextView.setVisibility(View.INVISIBLE);
                             Toast.makeText(context, "username or password are wrong", Toast.LENGTH_SHORT).show();
                             break;
@@ -199,7 +203,8 @@ public class LoginActivity extends AppCompatActivity {
         context = this.getApplicationContext();
         loginActivityInstance = this;
 
-        waitForServerData = new Thread(new WaitForServerDataRunnable("LoginActivity"));
+        waitForServerDataRunnable = new WaitForServerDataRunnable("LoginActivity");
+        waitForServerData = new Thread(waitForServerDataRunnable);
         waitForServerData.start();
 
         //initialize the UI
@@ -314,11 +319,11 @@ public class LoginActivity extends AppCompatActivity {
                 username = usernameSignInEditText.getText().toString();
                 password = passwordSignInEditText.getText().toString();
                 if(username.trim().equals("")) {
-                    usernameSignInCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    usernameSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctLoginData = false;
                 }
                 if(password.trim().equals("")) {
-                    passwordSignInCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    passwordSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctLoginData = false;
                 }
                 if(correctLoginData) {
@@ -363,7 +368,7 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     firstNameFeedbackText.setText("first name not filled");
                     firstNameFeedbackText.setVisibility(View.VISIBLE);
-                    firstNameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    firstNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 else {
@@ -373,13 +378,13 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     lastNameFeedbackText.setText("last name not filled");
                     lastNameFeedbackText.setVisibility(View.VISIBLE);
-                    lastNameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    lastNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(genderSelected == null) {
                     genderFeedbackTextView.setText("gender not selected");
                     genderFeedbackTextView.setVisibility(View.VISIBLE);
-                    genderSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    genderSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(!ageString.equals("")) {
@@ -387,43 +392,43 @@ public class LoginActivity extends AppCompatActivity {
                     if(age < 0 || age > 120) {
                         ageFeedbackText.setText("age not possible");
                         ageFeedbackText.setVisibility(View.VISIBLE);
-                        ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                        ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                         correctSignUpData = false;
                     }
                 }
                 else {
                     ageFeedbackText.setText("age not filled");
                     ageFeedbackText.setVisibility(View.VISIBLE);
-                    ageSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(username.equals(""))
                 {
                     usernameFeedbackText.setText("username not filled");
                     usernameFeedbackText.setVisibility(View.VISIBLE);
-                    usernameSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    usernameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(password.equals(""))
                 {
                     passwordFeedbackText.setText("password not filled");
                     passwordFeedbackText.setVisibility(View.VISIBLE);
-                    passwordSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(passwordConfirmation.equals(""))
                 {
                     passwordConfirmationFeedbackText.setText("password not filled");
                     passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
-                    passwordConfirmationSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(!password.equals(passwordConfirmation))
                 {
                     passwordConfirmationFeedbackText.setText("passwords don't match");
                     passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
-                    passwordSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
-                    passwordConfirmationSignUpCardView.setBackgroundColor(getResources().getColor(R.color.red));
+                    passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                    passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
                 if(correctSignUpData)

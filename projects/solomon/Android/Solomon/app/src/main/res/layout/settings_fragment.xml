@@ -28,6 +28,7 @@
                 android:layout_gravity="center"
                 android:background="@color/transparentColor"
                 android:layout_marginLeft="17dp"
+                android:src="@drawable/no_profile_picture"
                 app:civ_border_color="#FF222222"
                 app:civ_border_width="2dp"
                 app:civ_shadow="true"

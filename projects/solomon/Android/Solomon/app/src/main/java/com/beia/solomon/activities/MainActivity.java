@@ -35,14 +35,11 @@ import com.beia.solomon.fragments.SettingsFragment;
 import com.beia.solomon.fragments.StoreAdvertisementFragment;
 import com.beia.solomon.adapters.ViewPagerAdapter;
 import com.beia.solomon.networkPackets.Campaign;
-import com.beia.solomon.networkPackets.Coordinates;
 import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.receivers.NotificationReceiver;
-import com.beia.solomon.runnables.ComputePositionRunnable;
 import com.beia.solomon.runnables.PostRunnable;
 import com.beia.solomon.runnables.RequestRunnable;
 import com.beia.solomon.runnables.WaitForServerDataRunnable;
-import com.bumptech.glide.Glide;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
 import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
@@ -77,6 +74,8 @@ import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 import android.widget.Toast;
 
@@ -122,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
     public IBeaconDevice[] closestBeacons;
+
+    //RUNNABLES
+    public static WaitForServerDataRunnable waitForServerRunnable;
 
     //LOCATION
     public Point[] closestBeaconsCoordinates;
@@ -230,6 +232,17 @@ public class MainActivity extends AppCompatActivity {
 
         if(userData != null)//NORMAL LOGIN
         {
+            //get the communication variables from the login activity
+            MainActivity.objectOutputStream = LoginActivity.objectOutputStream;
+            MainActivity.objectInputStream = LoginActivity.objectInputStream;
+            MainActivity.waitForServerRunnable = LoginActivity.waitForServerDataRunnable;
+            MainActivity.waitForServerRunnable.setCurrentActivity("MainActivity");
+
+            //request the beacons and beacon times
+            String request1 = "{\"requestType\":\"getBeacons\"}";
+            new Thread(new RequestRunnable(request1, objectOutputStream)).start();
+            String request2 = "{\"requestType\":\"getBeaconsTime\"}";
+            new Thread(new RequestRunnable(request2, objectOutputStream)).start();
             //start the notifications background process
             setupBackgroundProcess();
 
@@ -239,13 +252,9 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("password", userData.getPassword());
             editor.apply();
 
-            //get the communication variables from the login activity
-            MainActivity.objectOutputStream = LoginActivity.objectOutputStream;
-            MainActivity.objectInputStream = LoginActivity.objectInputStream;
-
             //the data can be received before the main activity was created
             //if it's not the code below will be executed in the main activity handler
-            if(beaconsReceived)
+            if(!MainActivity.beaconsMap.isEmpty())
             {
                 //initialize all the malls and set all the malls entered values to false
                 for (Map.Entry entry : MainActivity.beaconsMap.entrySet())
@@ -270,8 +279,10 @@ public class MainActivity extends AppCompatActivity {
         else//AUTOMATIC LOGIN
         {
             MainActivity.userData = new UserData(sharedPref.getString("username", null), sharedPref.getString("password", null));
-            if(userData.getUsername() != null && userData.getPassword() != null)//SUCCESSFUL AUTOMATIC LOGIN
-                new Thread(new WaitForServerDataRunnable("MainActivity")).start();
+            if(userData.getUsername() != null && userData.getPassword() != null) { //SUCCESSFUL AUTOMATIC LOGIN
+                waitForServerRunnable = new WaitForServerDataRunnable("MainActivity");
+                new Thread(waitForServerRunnable).start();
+            }
             else { //AUTOMATIC LOGIN FAILED
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);
@@ -453,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
             public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
             {
                 //CHECK IF THE MALL CHANGED
-                if(MainActivity.mallsEntered.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId()) == false)
+                if(MainActivity.beaconsMap.containsKey(iBeacon.getUniqueId()) && MainActivity.mallsEntered.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId()) == false)
                 {
                     //update the map based on the beacon mallId
                     Mall mall = MainActivity.mallsMap.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId());
@@ -512,14 +523,42 @@ public class MainActivity extends AppCompatActivity {
                 //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
                 for(IBeaconDevice iBeaconDevice : iBeacons)
                 {
+                    Log.d("TEST", "onIBeaconsUpdated: " + beaconsMap.size());
                     KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beaconsMap.get(iBeaconDevice.getUniqueId());
                     double distance = iBeaconDevice.getDistance();
                     double x = getXCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double y = getYCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
                     double z = getZCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
-                    //Log.d("LABEL: " + kontaktBeacon.getLabel(), "distance:" + distance + "x:" + x + " y:" + y + " z: " + z);
 
                     switch (kontaktBeacon.getLabel()) {
+                        case "Emag":
+                            closestBeacons[0] = iBeaconDevice;
+                            if(distancesQueues[0] == null)
+                                distancesQueues[0] = new LinkedList<Double>();
+                            distancesQueues[0].add(iBeaconDevice.getDistance());
+                            closestBeaconsCoordinates[0] = new Point(x, y, z);
+                            break;
+                        case "Nike":
+                            closestBeacons[1] = iBeaconDevice;
+                            if(distancesQueues[1] == null)
+                                distancesQueues[1] = new LinkedList();
+                            distancesQueues[1].add(iBeaconDevice.getDistance());
+                            closestBeaconsCoordinates[1] = new Point(x, y, z);
+                            break;
+                        case "Taco Bell":
+                            closestBeacons[2] = iBeaconDevice;
+                            if(distancesQueues[2] == null)
+                                distancesQueues[2] = new LinkedList();
+                            distancesQueues[2].add(iBeaconDevice.getDistance());
+                            closestBeaconsCoordinates[2] = new Point(x, y, z);
+                            break;
+                        case "Bershka":
+                            closestBeacons[3] = iBeaconDevice;
+                            if(distancesQueues[3] == null)
+                                distancesQueues[3] = new LinkedList();
+                            distancesQueues[3].add(iBeaconDevice.getDistance());
+                            closestBeaconsCoordinates[3] = new Point(x, y, z);
+                            break;
                         case "McDonald's":
                             closestBeacons[0] = iBeaconDevice;
                             if(distancesQueues[0] == null)
@@ -772,6 +811,7 @@ public class MainActivity extends AppCompatActivity {
                             beaconDistances[i] = meanDistance;
                         }
                     }
+
                     //COMPUTE LOCATION
                     if(enoughValues) {
                         //send location data to the server
@@ -811,6 +851,10 @@ public class MainActivity extends AppCompatActivity {
         if(proximityManager != null) {
             //restart scanning for the Kontakt beacons
             startScanning();
+            if(settingsFragment.profilePicture != null)
+                settingsFragment.profilePicture.setImageBitmap(MainActivity.picturesCache.get("profilePicture"));
+            if(settingsFragment.nameTextView != null)
+                settingsFragment.nameTextView.setText(userData.getLastName() + " " + userData.getFirstName());
         }
     }
 
@@ -924,7 +968,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void setUserPosition(LatLng latLng) {
         LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
-        MainActivity.mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+        MainActivity.mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 19.4f));
         Marker positionMarker = MainActivity.mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates));
         MainActivity.positionMarkers.add(positionMarker);
         if(MainActivity.positionMarkers.size() > 1)

@@ -310,10 +310,35 @@ public class SolomonServer {
             throw new Exception(error);
         }
     }
+
+    public static void dbUpdateUserData(Integer userID, String username, String password, Integer age) {
+        if(con != null) {
+            try {
+                String stmtString = null;
+                PreparedStatement preparedStatement = null;
+                if(!password.equals("null")) {
+                    stmtString = "UPDATE users SET username = ?, password = ?, age = ? WHERE idusers = " + userID + ";";
+                    preparedStatement = con.prepareStatement(stmtString);
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setString(2, password);
+                    preparedStatement.setInt(3, age);
+                }
+                else {
+                    stmtString = "UPDATE users SET username = ?, age = ? WHERE idusers = " + userID + ";";
+                    preparedStatement = con.prepareStatement(stmtString);
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setInt(2, age);
+                }
+                preparedStatement.executeUpdate();
+            }
+            catch(SQLException sqle) {
+                sqle.printStackTrace();
+            }
+        }
+    }
     
     
-    
-    public static void dbInsertBeaconTime(int idUser, String idBeacon, long timeSeconds) throws SQLException, Exception {
+    public static void dbInsertBeaconTime(int idUser, String idBeacon, long timeSeconds) throws Exception {
         if (con != null) {
             try {
                 String stmtString = "INSERT INTO userbeacontime(idUser, idBeacon, timeSeconds) VALUES(?, ?, ?)";
@@ -333,7 +358,7 @@ public class SolomonServer {
         }
     }
 
-    public static void dbUpdateBeaconTimeData(int idUser, String idBeacon, long timeSeconds) throws SQLException, Exception {
+    public static void dbUpdateBeaconTimeData(int idUser, String idBeacon, long timeSeconds) throws Exception {
         if (con != null) {
             try {
                 String stmtString = "UPDATE userbeacontime SET timeSeconds = ? WHERE idUser = ? AND idBeacon = ?;";
@@ -378,26 +403,15 @@ public class SolomonServer {
         return rs;
     }
     
-    public static ResultSet getTableData(String tabelName) throws SQLException, Exception
-    {
+    public static ResultSet getTableData(String tabelName) {
         ResultSet rs = null;
-        try
-        {
-            // Execute query
+        try {
             String queryString = ("select * from " + tabelName + ";");
             Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = stmt.executeQuery(queryString); //sql exception
-        } 
-        catch (SQLException sqle)
-        {
-            error = "SQLException: Query was not possible.";
-            sqle.printStackTrace();
-            throw new SQLException(error);
+            rs = stmt.executeQuery(queryString);
         }
-        catch (Exception e)
-        {
-            error = "Exception occured when we extracted the data.";
-            throw new Exception(error);
+        catch (Exception ex) {
+            ex.printStackTrace();
         }
         return rs;
     }
@@ -412,12 +426,7 @@ public class SolomonServer {
                 resultSet = stmt.executeQuery(stmtString);
             }
         }
-        catch(SQLException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch(Exception ex)
-        {
+        catch(Exception ex) {
             ex.printStackTrace();
         }
         return resultSet;
@@ -468,78 +477,6 @@ public class SolomonServer {
             throw new Exception(error);
         }
         return resultSet;
-    }
-    
-    public static void updateUsername(int id, String username) throws SQLException, Exception
-    {
-        if(con != null)
-        {
-            try
-            {
-                // create a prepared SQL statement
-                Statement usernameUpdateStatement = con.createStatement();
-                String updateStatementString = "update users set username = '" + username + "' where idusers = '" + id +"';";
-                usernameUpdateStatement.executeUpdate(updateStatementString);
-                System.out.println("------------------------------\nUpdated username:\n userId: " + id + "\nusername: " + username + "\n------------------------------");
-            }
-            catch (SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        else
-        {
-            error = "Exception : Database connection was lost.";
-            throw new Exception(error);
-        }
-    }
-    
-    public static void updatePassword(int id, String password) throws SQLException, Exception
-    {
-        if(con != null)
-        {
-            try
-            {
-                // create a prepared SQL statement
-                Statement usernameUpdateStatement = con.createStatement();
-                String updateStatementString = "update users set password = '" + password + "' where idusers = '" + id +"';";
-                usernameUpdateStatement.executeUpdate(updateStatementString);
-                System.out.println("------------------------------\nUpdated password:\n userId: " + id + "\npassword: " + password + "\n------------------------------");
-            }
-            catch (SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        else
-        {
-            error = "Exception : Database connection was lost.";
-            throw new Exception(error);
-        }
-    }
-    
-    public static void updateAge(int id, int age) throws SQLException, Exception
-    {
-        if(con != null)
-        {
-            try
-            {
-                // create a  SQL statement
-                Statement usernameUpdateStatement = con.createStatement();
-                String updateStatementString = "update users set age = '" + age + "' where idusers = '" + id +"';";
-                usernameUpdateStatement.executeUpdate(updateStatementString);
-                System.out.println("------------------------------\nUpdated age:\n userId: " + id + "\nage: " + age + "\n------------------------------");
-            }
-            catch (SQLException sqle)
-            {
-                sqle.printStackTrace();
-            }
-        }
-        else
-        {
-            error = "Exception : Database connection was lost.";
-            throw new Exception(error);
-        }
     }
     
     public static void saveImagePath(String picturePath, int userId) throws SQLException, Exception

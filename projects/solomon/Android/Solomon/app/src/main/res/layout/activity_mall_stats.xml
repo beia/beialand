@@ -28,7 +28,8 @@
                 android:id="@+id/parkingPieChart"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dimen105dp"
-                android:layout_marginTop="@dimen/dimen5dp">
+                android:layout_marginTop="@dimen/dimen5dp"
+                android:layout_marginBottom="@dimen/dimen5dp">
             </com.github.mikephil.charting.charts.PieChart>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -23,9 +23,29 @@ public class ComputeLocationRunnable implements Runnable {
         double bestX = 0;
         double bestY = 0;
         double bestZ = 0;
-        for(double x = closestBeaconsCoordinates[0].getX() + 2 * threadID; x < closestBeaconsCoordinates[2].getX(); x+=2*partialLocations.length)//partialLocations.length - nrThreads
-            for(double y = closestBeaconsCoordinates[3].getY(); y < closestBeaconsCoordinates[1].getY(); y+=2)
-                for(double z = closestBeaconsCoordinates[1].getZ(); z < closestBeaconsCoordinates[3].getZ(); z+=2){
+
+        //find the lowest x,y,z values and the highest x,y,z values for the beaacons
+        double min_x = 9999999, min_y = 9999999, min_z = 9999999;//minimum coordinates values
+        double max_x = -99999, max_y = -99999, max_z = -99999;//maximum coordinates values
+        for (int i = 0; i < closestBeaconsCoordinates.length; i++) {
+            if(closestBeaconsCoordinates[i].getX() < min_x)
+                min_x = closestBeaconsCoordinates[i].getX();
+            if(closestBeaconsCoordinates[i].getY() < min_y)
+                min_y = closestBeaconsCoordinates[i].getY();
+            if(closestBeaconsCoordinates[i].getZ() < min_z)
+                min_z = closestBeaconsCoordinates[i].getZ();
+            if(closestBeaconsCoordinates[i].getX() > max_x)
+                max_x = closestBeaconsCoordinates[i].getX();
+            if(closestBeaconsCoordinates[i].getY() > max_y)
+                max_y = closestBeaconsCoordinates[i].getY();
+            if(closestBeaconsCoordinates[i].getZ() > max_z)
+                max_z = closestBeaconsCoordinates[i].getZ();
+        }
+
+        //compute the partial locations
+        for(double x = min_x + threadID; x < max_x; x+=partialLocations.length)//partialLocations.length - nrThreads
+            for(double y = min_y; y < max_y; y++)
+                for(double z = min_z; z < max_z; z++){
                     //compute error
                     double beacon0Distance = beaconDistances[0];
                     double beacon0X = closestBeaconsCoordinates[0].getX();
@@ -56,10 +76,10 @@ public class ComputeLocationRunnable implements Runnable {
                     }
                 }
 
-        System.out.println("BEST CARTESIAN LOCATION - threadID: " + threadID + "\nerror: " + minError + " x:" + bestX + " y:" + bestY + " z:" + bestZ);
+        //System.out.println("BEST CARTESIAN LOCATION - threadID: " + threadID + "\nerror: " + minError + " x:" + bestX + " y:" + bestY + " z:" + bestZ);
         double bestLatitude = getLatitude(bestX, bestY, bestZ);
         double bestLongitude = getLongitude(bestX, bestY, bestZ);
-        System.out.println("BEST LAT-LNG POSITION - threadID: " + threadID + "\nlat:" + bestLatitude + " lon:" + bestLongitude);
+        //System.out.println("BEST LAT-LNG POSITION - threadID: " + threadID + "\nlat:" + bestLatitude + " lon:" + bestLongitude);
         partialLocations[threadID] = new Location(bestLatitude, bestLongitude, minError);
     }
 

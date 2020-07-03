@@ -37,7 +37,7 @@ public class MainActivityHandler extends Handler
     {
         switch(msg.what)
         {
-            case 1://RECEIVED THE BEACONS when inside the main activity
+            case 1://RECEIVED THE BEACONS
                 for (Map.Entry entry : MainActivity.beaconsMap.entrySet())
                 {
                     Beacon beacon = (Beacon) entry.getValue();
@@ -48,13 +48,12 @@ public class MainActivityHandler extends Handler
                     }
                     else
                     {
-                        if(MainActivity.mallsEntered.containsKey(beacon.getMallId()) == false)
+                        if(!MainActivity.mallsEntered.containsKey(beacon.getMallId()))
                         {
                             MainActivity.mallsEntered.put(beacon.getMallId(), false);
                         }
                     }
                 }
-                // set Kontakt beacons
                 mainActivity.initKontaktBeacons();
                 break;
             case 2://RECEIVED A CAMPAIGN
