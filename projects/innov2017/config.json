@@ -52,6 +52,11 @@
 			"db_name": "sarws_db"
 		},
 		{
+			"name": "pimeoai",
+			"virtual_hosts": ["pimeo-ai.beia-consult.ro"],
+			"db_name": "pimeoai_db"
+		},
+		{
 			"name": "sensystar",
 			"virtual_hosts": ["sensystar.beia-consult.ro"],
 			"db_name": "sensystar_db"
