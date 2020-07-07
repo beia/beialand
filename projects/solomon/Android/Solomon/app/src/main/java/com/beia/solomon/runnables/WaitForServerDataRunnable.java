@@ -32,7 +32,7 @@ import java.util.HashMap;
 public class WaitForServerDataRunnable implements Runnable
 {
     //solomon-beacon.beia-consult.ro
-    public static final String ip = "172.20.10.11";
+    public static final String ip = "solomon-beacon.beia-consult.ro";
     public static final int port = 7000;
     private Socket socket;
     private ObjectOutputStream objectOutputStream;

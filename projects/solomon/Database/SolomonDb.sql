@@ -75,7 +75,7 @@ CREATE TABLE `beacons` (
 
 LOCK TABLES `beacons` WRITE;
 /*!40000 ALTER TABLE `beacons` DISABLE KEYS */;
-INSERT INTO `beacons` VALUES ('01d1b1ded3ea74f01f464d076f2f8138','EstimoteBeacon1',5,'0','0','0',0,0,0,0,'Estimote'),('2c49b20fa9a9a4c9ee5d64b884811b34','EstimoteBeacon5',5,'0','0','0',0,0,0,0,'Estimote'),('44cf736f23ac5add5e8d15b021600d03','EstimoteBeacon4',5,'0','0','0',0,0,0,0,'Estimote'),('580a946d72a0aea856aa9e0dd4beda37','EstimoteBeacon6',5,'0','0','0',0,0,0,0,'Estimote'),('716cb1ae9008d60e5e40499ec67a772f','EstimoteBeacon2',5,'0','0','0',0,0,0,0,'Estimote'),('LKhV','Starbucks',1,'3','41302','22282',44.4364283,26.0868782,1,1,'Kontakt'),('R4JH','Zara',1,'2','24334','57021',44.4363632,26.0868611,1,1,'Kontakt'),('ee4d538a36c2bbac622980b351ba9a0a','EstimoteBeacon3',5,'0','0','0',0,0,0,0,'Estimote'),('rrZd','McDonald\'s',1,'0','39824','22135',44.4364185,26.0869449,1,1,'Kontakt'),('zbCe','Altex',1,'1','60181','7706',44.4363572,26.0869305,1,1,'Kontakt');
+INSERT INTO `beacons` VALUES ('01d1b1ded3ea74f01f464d076f2f8138','EstimoteBeacon1',5,'0','0','0',0,0,0,0,'Estimote'),('2c49b20fa9a9a4c9ee5d64b884811b34','EstimoteBeacon5',5,'0','0','0',0,0,0,0,'Estimote'),('44cf736f23ac5add5e8d15b021600d03','EstimoteBeacon4',5,'0','0','0',0,0,0,0,'Estimote'),('580a946d72a0aea856aa9e0dd4beda37','EstimoteBeacon6',5,'0','0','0',0,0,0,0,'Estimote'),('716cb1ae9008d60e5e40499ec67a772f','EstimoteBeacon2',5,'0','0','0',0,0,0,0,'Estimote'),('LKhV','Starbucks',1,'3','41302','22282',44.4364283,26.0868782,1,1,'Kontakt'),('MTFa','Taco Bell',2,'6','59730','3532',44.395706,26.10266,2,1,'Kontakt'),('PcNy','Nike',2,'5','58450','19566',44.3957388,26.1027663,2,1,'Kontakt'),('R4JH','Zara',1,'2','24334','57021',44.4363632,26.0868611,1,1,'Kontakt'),('ee4d538a36c2bbac622980b351ba9a0a','EstimoteBeacon3',5,'0','0','0',0,0,0,0,'Estimote'),('rrZd','McDonald\'s',1,'0','39824','22135',44.4364185,26.0869449,1,1,'Kontakt'),('tZF7','Emag',2,'4','3204','63655',44.3956626,26.1026764,2,1,'Kontakt'),('v7mz','Bershka',2,'7','25098','4628',44.3956943,26.1027958,2,1,'Kontakt'),('zbCe','Altex',1,'1','60181','7706',44.4363572,26.0869305,1,1,'Kontakt');
 /*!40000 ALTER TABLE `beacons` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -109,7 +109,7 @@ CREATE TABLE `campaigns` (
 
 LOCK TABLES `campaigns` WRITE;
 /*!40000 ALTER TABLE `campaigns` DISABLE KEYS */;
-INSERT INTO `campaigns` VALUES ('00','0','McPuişor 3.8 lei','1 felie de carne de pui, învelită într-un strat crocant de pesmet auriu, prăjită timp de 2 minute în ulei vegetal (un amestec de ulei de rapiţă şi floarea soarelui), însoţită de sos McPuişor, castraveţi muraţi, chiflă.','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/mc_puisor.jpg'),('01','0','Crispy Chicken McWrap','McWrap cu bucăţi crocante din piept de pui picant. Savurează-l în orice moment al zilei!','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/mc_wrap.jpg'),('10','1','Monitor Lenovo Gaming pret 970 lei','cel mai jmeker monitor','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/testCampaign.jpg'),('11','1','Placa de baza GIGABYTE B450M DS3H pret 340 lei','cea mai jmekera placa de baza','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/b450m-ds3h-8589e788ddd6308b521f30a90ddf386e.jpg'),('20','2','Jacheta Casual 90 lei','Jachetă casual-sport, cu croi confortabil, guler ridicat și buzunare stil marsupiu. Model cu dosul moale şi flauşat.','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/jacheta_casual_neagra.jpg'),('30','2','Bluză Casual 65 lei ','Un item ultra tineresc cu o lungime până în talie şi o cromatică sport interesantă.','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/bluza_casual_fete.jpg'),('31','3','Caramel Macchiato 14 lei','Laptele proaspăt aburit cu sirop aromat de vanilie marcat cu espresso și completat cu caramel pentru un finisaj atât de dulce.','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/caramel_macchiato.jpg'),('32','3','Ciocolata Calda 12 lei','Un mix magic de cacao si lapte.','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/hot_chocolate.jpg'),('33','3','Ceai de fructe 14 lei','Un ceai minunat de fructe cu arome incredibile.','Books','2020/03/18 12:00:00','2020/04/30 12:00:00','CampaignsPictures/tea.jpg'),('testCampaign','pcgarage','Monitor Lenovo Gaming 884,99 RON','Monitor LED Lenovo Gaming Legion Y25f-10 24.5 inch 1ms FreeSync 144Hz','Books','2020/03/20 12:00:00','2020/04/30 12:00:00','CampaignsPictures/testCampaign.jpg');
+INSERT INTO `campaigns` VALUES ('00','0','McPuişor 3.8 lei','1 felie de carne de pui, învelită într-un strat crocant de pesmet auriu, prăjită timp de 2 minute în ulei vegetal (un amestec de ulei de rapiţă şi floarea soarelui), însoţită de sos McPuişor, castraveţi muraţi, chiflă.','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/mc_puisor.jpg'),('01','0','Crispy Chicken McWrap','McWrap cu bucăţi crocante din piept de pui picant. Savurează-l în orice moment al zilei!','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/mc_wrap.jpg'),('10','1','Monitor Lenovo Gaming pret 970 lei','monitor','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/testCampaign.jpg'),('11','1','Placa de baza GIGABYTE B450M DS3H pret 340 lei','placa de baza','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/b450m-ds3h-8589e788ddd6308b521f30a90ddf386e.jpg'),('20','2','Jacheta Casual 90 lei','Jachetă casual-sport, cu croi confortabil, guler ridicat și buzunare stil marsupiu. Model cu dosul moale şi flauşat.','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/jacheta_casual_neagra.jpg'),('30','2','Bluză Casual 65 lei ','Un item ultra tineresc cu o lungime până în talie şi o cromatică sport interesantă.','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/bluza_casual_fete.jpg'),('31','3','Caramel Macchiato 14 lei','Laptele proaspăt aburit cu sirop aromat de vanilie marcat cu espresso și completat cu caramel pentru un finisaj atât de dulce.','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/caramel_macchiato.jpg'),('32','3','Ciocolata Calda 12 lei','Un mix magic de cacao si lapte.','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/hot_chocolate.jpg'),('33','3','Ceai de fructe 14 lei','Un ceai minunat de fructe cu arome incredibile.','Books','2020/03/18 12:00:00','2020/07/30 12:00:00','CampaignsPictures/tea.jpg'),('34','4','Iphone 11 Pro 5.229 Lei','Telefon mobil Apple iPhone 11 Pro, 64GB, Silver','Electronics','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/Iphone11Pro.PNG'),('35','4','Televizor LED curbat Smart Samsung 1.999 lei','Televizor LED curbat Smart Samsung, 123 cm, 49RU7302, 4K Ultra HD','Electronics','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/televizor.PNG'),('36','5','Adidași Nike 650 lei','Adisași Nike Air 2090','Shoes','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/adidasiNike.PNG'),('37','5','Șapcă Nike 127 lei','Meriti sa ai un look de invidiat! Sapca Nike Air Pro Classic este accesoriul perfect daca vrei sa atragi privirile celor din jurul tau! ','Clothes','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/șapcaNike.PNG'),('38','6','Meniu pentru 2 32 lei','4 Tacos 2 Porții Nachos 2 pahare de suc','Food','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/tacoBellMeniu1.PNG'),('39','7','Tricou cu deschizături laterale ','Foarte interesant acest tricou','Clothes','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/tricou.PNG'),('testCampaign','pcgarage','Monitor Lenovo Gaming 884,99 RON','Monitor LED Lenovo Gaming Legion Y25f-10 24.5 inch 1ms FreeSync 144Hz','Books','2020/03/20 12:00:00','2020/07/30 12:00:00','CampaignsPictures/testCampaign.jpg');
 /*!40000 ALTER TABLE `campaigns` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -128,9 +128,9 @@ CREATE TABLE `campaignsreactions` (
   PRIMARY KEY (`idcampainsReactions`),
   KEY `fk_idCampaign_campaigns_reactions_idx` (`idCampaign`),
   KEY `fk_campaignsReactions_Users_idx` (`idUser`),
-  CONSTRAINT `fk_campaignsReactions_Users` FOREIGN KEY (`idUser`) REFERENCES `users` (`idusers`),
+  CONSTRAINT `fk_campaignsReactions_Users` FOREIGN KEY (`idUser`) REFERENCES `users` (`idusers`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_idCampaign_campaigns_reactions` FOREIGN KEY (`idCampaign`) REFERENCES `campaigns` (`idCampaign`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -139,7 +139,6 @@ CREATE TABLE `campaignsreactions` (
 
 LOCK TABLES `campaignsreactions` WRITE;
 /*!40000 ALTER TABLE `campaignsreactions` DISABLE KEYS */;
-INSERT INTO `campaignsreactions` VALUES (10,'30',24,'2020/04/23 19:05:46'),(11,'20',24,'2020/04/23 19:05:52'),(12,'30',24,'2020/04/23 19:05:55'),(13,'20',24,'2020/04/23 19:05:59');
 /*!40000 ALTER TABLE `campaignsreactions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -187,7 +186,7 @@ CREATE TABLE `companies` (
 
 LOCK TABLES `companies` WRITE;
 /*!40000 ALTER TABLE `companies` DISABLE KEYS */;
-INSERT INTO `companies` VALUES ('0','0','McDonald\'s'),('1','1','Altex'),('2','2','Zara'),('3','3','Starbucks'),('mega','1234','Mega Image'),('New_User','1234','BEIA'),('New_User_2','1234','Random_Company'),('pcgarage','1234','Pc Garage'),('pcgarage2','1234','Pc Garage2');
+INSERT INTO `companies` VALUES ('0','0','McDonald\'s'),('1','1','Altex'),('2','2','Zara'),('3','3','Starbucks'),('4','4','Emag'),('5','5','Nike'),('6','6','Taco Bell'),('7','7','Bershka'),('mega','1234','Mega Image'),('New_User','1234','BEIA'),('New_User_2','1234','Random_Company'),('pcgarage','1234','Pc Garage'),('pcgarage2','1234','Pc Garage2');
 /*!40000 ALTER TABLE `companies` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -213,7 +212,7 @@ CREATE TABLE `malls` (
 
 LOCK TABLES `malls` WRITE;
 /*!40000 ALTER TABLE `malls` DISABLE KEYS */;
-INSERT INTO `malls` VALUES (1,'Conaque le\' Balà',44.436242,26.086765),(2,'Afi Palace Cotroceni',44.43068,26.051923),(3,'Baneasa Shopping City',44.508874,26.087669),(4,'Veranda Mall',44.452251,26.130569),(5,'Promenada Mall',44.478531,26.102645);
+INSERT INTO `malls` VALUES (1,'Izvor',44.436242,26.086765),(2,'Beia Consult International',44.3957038,26.1027026),(3,'Baneasa Shopping City',44.508874,26.087669),(4,'Veranda Mall',44.452251,26.130569),(5,'Promenada Mall',44.478531,26.102645);
 /*!40000 ALTER TABLE `malls` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -312,7 +311,7 @@ CREATE TABLE `userbeacontime` (
   KEY `beaconLabel2_idx` (`idBeacon`),
   CONSTRAINT `idBeacon2` FOREIGN KEY (`idBeacon`) REFERENCES `beacons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `idUser2` FOREIGN KEY (`idUser`) REFERENCES `users` (`idusers`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=510 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=535 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -321,7 +320,7 @@ CREATE TABLE `userbeacontime` (
 
 LOCK TABLES `userbeacontime` WRITE;
 /*!40000 ALTER TABLE `userbeacontime` DISABLE KEYS */;
-INSERT INTO `userbeacontime` VALUES (501,22,'R4JH',163),(502,22,'zbCe',116),(503,22,'rrZd',167),(504,22,'LKhV',67),(505,22,'R4JH',163),(506,24,'R4JH',2457),(507,24,'R4JH',2457),(508,24,'zbCe',878),(509,24,'rrZd',50);
+INSERT INTO `userbeacontime` VALUES (522,45,'R4JH',13),(523,45,'LKhV',12),(526,45,'tZF7',176),(527,45,'MTFa',36),(528,45,'v7mz',37),(529,45,'PcNy',40),(530,46,'tZF7',150),(531,46,'MTFa',15),(532,46,'PcNy',28),(533,46,'v7mz',21),(534,46,'tZF7',27);
 /*!40000 ALTER TABLE `userbeacontime` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -341,7 +340,7 @@ CREATE TABLE `userpreferences` (
   KEY `fk_users_categories_idx` (`category`),
   CONSTRAINT `fk_users_categories` FOREIGN KEY (`category`) REFERENCES `categories` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `idUser` FOREIGN KEY (`idUser`) REFERENCES `users` (`idusers`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -350,6 +349,7 @@ CREATE TABLE `userpreferences` (
 
 LOCK TABLES `userpreferences` WRITE;
 /*!40000 ALTER TABLE `userpreferences` DISABLE KEYS */;
+INSERT INTO `userpreferences` VALUES (128,45,'Electronics'),(129,45,'Coffee'),(130,45,'Food'),(131,46,'Clothes'),(132,46,'Electronics'),(133,46,'Sports');
 /*!40000 ALTER TABLE `userpreferences` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -370,7 +370,7 @@ CREATE TABLE `users` (
   `age` int NOT NULL,
   `picture` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`idusers`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -379,7 +379,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (15,'bala','1234','Balanean','Cristian','',22,'C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\15.jpg'),(16,'apasat','beia','Pasat','Adrian','',32,'C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\16.jpg'),(17,'IoanaP95','beiasolomon1','Petre','Ioana','',24,'C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\17.jpg'),(18,'Cris','beia','Istrate','Cristiana','',23,NULL),(19,'deni06','deni1997','Deni','Botezatu','',22,'C:\\Users\\Tehnic\\Desktop\\SolomonProfilePictures\\19.jpg'),(20,'Stefans\n','totaltelecom','Stefanescu','Stefan','',60,NULL),(21,'Stefant','totaltelecom1','Stefanescu','Stefan','',60,NULL),(22,'cristian','�gB��\\v��U�g�6#ȳ��E��x��F�','Balanean','Cristian','',23,'ProfilePictures\\22.jpg'),(23,'random','�gB��\\v��U�g�6#ȳ��E��x��F�','User','Random','',20,NULL),(24,'johndoe','�gB��\\v��U�g�6#ȳ��E��x��F�','Doe','John','Male',23,NULL);
+INSERT INTO `users` VALUES (45,'test2','Y�G\Z�*�AY��t�����Y����s���','2020','Licenta','Male',22,'ProfilePictures\\45.jpg'),(46,'bala','�gB��\\v��U�g�6#ȳ��E��x��F�','Balanean','Cristian','Male',23,'ProfilePictures\\46.jpg');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -392,4 +392,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-04-27 11:06:51
+-- Dump completed on 2020-07-07 14:50:41
