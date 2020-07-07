@@ -33,7 +33,7 @@ public class WaitForServerDataRunnable implements Runnable
 {
     //solomon-beacon.beia-consult.ro
     public static final String ip = "solomon-beacon.beia-consult.ro";
-    public static final int port = 7000;
+    public static final int port = 48000;
     private Socket socket;
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;
