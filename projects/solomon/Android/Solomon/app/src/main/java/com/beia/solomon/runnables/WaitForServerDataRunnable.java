@@ -7,6 +7,7 @@ import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.activities.MallStatsActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
+import com.beia.solomon.data.Location;
 import com.beia.solomon.networkPackets.Beacon;
 import com.beia.solomon.networkPackets.BeaconsData;
 import com.beia.solomon.networkPackets.Campaign;
@@ -27,13 +28,14 @@ import java.lang.reflect.Type;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 public class WaitForServerDataRunnable implements Runnable
 {
     //solomon-beacon.beia-consult.ro
-    public static final String ip = "solomon-beacon.beia-consult.ro";
-    public static final int port = 48000;
+    public static final String ip = "192.168.1.184";
+    public static final int port = 7000;//48000
     private Socket socket;
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;
@@ -117,6 +119,10 @@ public class WaitForServerDataRunnable implements Runnable
                             String request2 = "{\"requestType\":\"getBeaconsTime\"}";
                             synchronized (objectOutputStream) {
                                 objectOutputStream.writeObject(request2);
+                            }
+                            String request3 = "{\"requestType\":\"getUserLocations\"}";
+                            synchronized (objectOutputStream) {
+                                objectOutputStream.writeObject(request3);
                             }
                             break;
                         default:
@@ -202,7 +208,7 @@ public class WaitForServerDataRunnable implements Runnable
                             MainActivity.beaconsTimeMap = gson.fromJson(jsonResponse.get("beaconsTimeMap"), type);
                             Log.d("BEACON", "beaconsTimeMap size: " + MainActivity.beaconsTimeMap.size());
                             Message msg = MainActivity.mainActivityHandler.obtainMessage();
-                            msg.what = 6;
+                            msg.what = 7;
                             msg.sendToTarget();
                             break;
                         case "location":
@@ -212,6 +218,13 @@ public class WaitForServerDataRunnable implements Runnable
                             locationMessage.what = 4;
                             locationMessage.obj = new LatLng(lat, lng);
                             locationMessage.sendToTarget();
+                            break;
+                        case "userLocations":
+                            Type type2 = new TypeToken<List<Location>>(){}.getType();
+                            MainActivity.userLocations = gson.fromJson(jsonResponse.get("userLocationsLast24h"), type2);
+                            Message msg2 = MainActivity.mainActivityHandler.obtainMessage();
+                            msg2.what = 6;
+                            msg2.sendToTarget();
                             break;
                         default:
                             break;

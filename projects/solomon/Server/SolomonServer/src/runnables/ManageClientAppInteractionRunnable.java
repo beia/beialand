@@ -11,8 +11,10 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -350,6 +352,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             System.out.println("lat: " + location.getLatitude() + " lng: " + location.getLongitude());
                             //SEND THE LOCATION TO THE USER
                             response = "{\"responseType\":\"location\", \"lat\":" + location.getLatitude() + ", \"lng\":" + location.getLongitude() + "}";
+                            SolomonServer.dbAddLocation(userId, location.getLatitude(), location.getLongitude(), System.currentTimeMillis() / 1000);
                             synchronized (objectOutputStream) {
                                 objectOutputStream.writeObject(response);
                             }
@@ -360,6 +363,13 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             String password = jsonObject.get("password").getAsString();
                             Integer _age = jsonObject.get("age").getAsInt();
                             SolomonServer.dbUpdateUserData(userID, username, password, _age);
+                            break;
+                        case "getUserLocations":
+                            response = "{\"responseType\":\"userLocations\", \"userLocationsLast24h\":"
+                                        + gson.toJson(getUserLocations(SolomonServer.dbGetUserLocations())) + "}";
+                            synchronized (objectOutputStream) {
+                                objectOutputStream.writeObject(response);
+                            }
                             break;
                         default:
                             break;
@@ -408,5 +418,17 @@ public class ManageClientAppInteractionRunnable implements Runnable
             }
         }
         return bestLocation;
+    }
+
+    public List<Location> getUserLocations(ResultSet resultSet) throws SQLException {
+        List<Location> userLocations = new ArrayList<>();
+        if(resultSet.isBeforeFirst()) {
+            while (resultSet.next()) {
+                userLocations.add(new Location(
+                                    resultSet.getDouble(1),
+                                    resultSet.getDouble(2)));
+            }
+        }
+        return userLocations;
     }
 }

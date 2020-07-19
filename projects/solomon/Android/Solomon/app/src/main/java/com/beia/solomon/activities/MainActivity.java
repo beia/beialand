@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.beia.solomon.data.Location;
 import com.beia.solomon.data.Point;
 import com.beia.solomon.fragments.MapFragment;
 import com.beia.solomon.R;
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     public static volatile HashMap<String, Boolean> regionsEntered;//key:idBeacon value:boolean
     public static volatile HashMap<String, Long> timeMap;//key:idBeacon value:current time ms when the user entered the beacon area
     public static volatile HashMap<Integer, Mall> mallsMap;//key:mallId value:mall
+    public static volatile List<Location> userLocations;//contains all the user locations in the last 24h
     public static volatile ArrayList<Mall> malls;
     public static volatile HashMap<Integer, Boolean> mallsEntered;
     public static volatile ArrayList<Campaign> campaigns;

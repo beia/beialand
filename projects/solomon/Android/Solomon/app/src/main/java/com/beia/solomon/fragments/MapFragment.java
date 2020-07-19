@@ -7,10 +7,12 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.data.Location;
 import com.beia.solomon.networkPackets.Beacon;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +29,7 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback{
 
@@ -70,34 +73,17 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                                     MainActivity.createStoreMarker(MainActivity.context, storeImageBitmap)))).setTitle(beacon.getLabel());
                 }
             }
-            if(!MainActivity.beaconsMap.isEmpty() && MainActivity.beaconsTimeMap != null)
-                addHeatMap(MainActivity.beaconsMap, MainActivity.beaconsTimeMap);
+            if(MainActivity.userLocations != null)
+                addHeatMap(MainActivity.userLocations);
         }
     }
-    private void addHeatMap(HashMap<String, Beacon> beacons, HashMap<String, Long> beaconTimesMap) {
-        List<WeightedLatLng> beaconsLatLngs = new ArrayList<>();
-        //compute the sum of all the beacon times
-        long totalTimeSum = 0;
-        for(Long timeSeconds : beaconTimesMap.values())
-            totalTimeSum += timeSeconds;
-
-        for(Beacon beacon : beacons.values()) { //add weighted latlng objects that contain latitude longitude and a normalized value from 0 - 100 that represents the weight of the time spent near a beacon
-            if(beaconTimesMap.containsKey(beacon.getId()))
-                beaconsLatLngs.add(new WeightedLatLng(
-                            new LatLng(beacon.getCoordinates().getLatitude(), beacon.getCoordinates().getLongitude()),
-                            (float) beaconTimesMap.get(beacon.getId()) / totalTimeSum * 100));
-            else
-                beaconsLatLngs.add(new WeightedLatLng(
-                        new LatLng(beacon.getCoordinates().getLatitude(), beacon.getCoordinates().getLongitude()),
-                        0));
-        }
-
-        //Create a heat map tile provider, passing it the latlngs of the beacons
+    private void addHeatMap(List<Location> userLocations) {
+        Log.d("HEAT_MAP", "addHeatMap: " + userLocations.size() + " locations");
         heatMapTileProvider = new HeatmapTileProvider.Builder()
-                .weightedData(beaconsLatLngs)
-                .radius(30)
+                .data(userLocations.stream()
+                        .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
+                        .collect(Collectors.toList()))
                 .build();
-        //Add a tile overlay to the map, using the heat map tile provider
         heatmapOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatMapTileProvider));
     }
 }

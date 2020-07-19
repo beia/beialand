@@ -17,8 +17,11 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import data.CampaignReaction;
+import data.Location;
 import data.Notification;
 import runnables.*;
 
@@ -90,7 +93,9 @@ public class SolomonServer {
 
         //update notifications
         new Thread(new UpdateNotificationsRunnable(notificationsMap)).start();
-        
+
+        generateUserLocations(1000);
+
         //create a tcp server socket and wait for client connections
         serverSocket = new ServerSocket(7000);
         connectClients = new Thread(new ConnectClientsRunnable(serverSocket));
@@ -101,7 +106,16 @@ public class SolomonServer {
         waitForSolomonWebClientsRequests = new Thread(new WaitForWebPlatformClientsRequestsRunnable(webPlatformServerSocket));
         waitForSolomonWebClientsRequests.start();
     }
-    
+
+    public static void generateUserLocations(int locationsNr) {
+        Stream.generate(() -> new Location(44 + Math.random() * 2, 22 + Math.random() * 2))
+                .limit(locationsNr)
+                .forEach(location -> SolomonServer.dbAddLocation(46,
+                                                                    location.getLatitude(),
+                                                                    location.getLongitude(),
+                                                       System.currentTimeMillis() / 1000));
+    }
+
     public static void connectToDatabase() throws ClassNotFoundException, SQLException, Exception 
     {
         try
@@ -513,7 +527,7 @@ public class SolomonServer {
         statement.setString(1, idCampain);
         statement.setString(2, idCompany);
         statement.setString(3, title);
-        statement.setString(4, category);
+        statement.setString(4   , category);
         statement.setString(5, description);
         statement.setString(6, startDate);
         statement.setString(7, endDate);
@@ -535,6 +549,40 @@ public class SolomonServer {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void dbAddLocation(Integer idUser, Double latitude, Double longitude, Long timeSeconds) {
+        ResultSet resultSet = null;
+        try {
+            if(con != null) {
+                String stmtString = "INSERT INTO userlocations(idUser, latitude, longitude, timeSeconds) VALUES(?,?,?,?);";
+                PreparedStatement preparedStatement = con.prepareStatement(stmtString);
+                preparedStatement.setInt(1, idUser);
+                preparedStatement.setDouble(2, latitude);
+                preparedStatement.setDouble(3, longitude);
+                preparedStatement.setLong(4, timeSeconds);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ResultSet dbGetUserLocations() {
+        ResultSet resultSet = null;
+        try {
+            if(con != null) {
+                Long currentTimeSeconds = System.currentTimeMillis() / 1000;
+                Integer oneDaySeconds = 3600 * 24;
+                String stmtString = "SELECT latitude, longitude FROM userLocations WHERE timeSeconds > "
+                        + (currentTimeSeconds - oneDaySeconds) + ";";
+                Statement statement = con.createStatement();
+                resultSet = statement.executeQuery(stmtString);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
     }
 
     public static void dbAddBeaconDistance(String idBeacon, Double distance) {

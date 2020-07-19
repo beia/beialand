@@ -104,7 +104,10 @@ public class MainActivityHandler extends Handler
                     e.printStackTrace();
                 }
                 break;
-            case 6://beaconsTimeMap
+            case 6://userLocationsHeatMap
+                Log.d("USER_LOCATIONS_HEAT_MAP", "handleMessage: ");
+                break;
+            case 7://beaconsTimeMap
                 Log.d("BEACONS_TIME_MAP", "handleMessage: ");
                 break;
             default:
