@@ -350,7 +350,24 @@ public class SolomonServer {
             }
         }
     }
-    
+
+    public static void dbInsertCovidUser(int idUser) throws Exception {
+        if (con != null) {
+            try {
+                String stmtString = "INSERT INTO userswithcovid19(idUser) VALUES(?)";
+                PreparedStatement preparedStatement = con.prepareStatement(stmtString);
+                preparedStatement.setInt(1, idUser);
+                preparedStatement.executeUpdate();
+            }
+            catch (SQLException sqle) {
+                sqle.printStackTrace();
+            }
+        }
+        else {
+            error = "Exception : Database connection was lost.";
+            throw new Exception(error);
+        }
+    }
     
     public static void dbInsertBeaconTime(int idUser, String idBeacon, long timeSeconds) throws Exception {
         if (con != null) {
@@ -391,7 +408,22 @@ public class SolomonServer {
             throw new Exception(error);
         }
     }
-    
+
+    public static ResultSet dbGetCovidUserLocationsFromDatabase() throws SQLException, Exception {
+        ResultSet rs = null;
+        try {
+            String queryString = ("SELECT userlocations.idUser," +
+                    "userlocations.latitude, userlocations.longitude," +
+                    "userlocations.timeSeconds" +
+                    "FROM userlocations INNER JOIN userswithcovid19 USING(idUser);");
+            Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = stmt.executeQuery(queryString);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
     
     public static ResultSet getUserDataFromDatabase(String tabelName, String username) throws SQLException, Exception
     {
@@ -568,7 +600,7 @@ public class SolomonServer {
         }
     }
 
-    public static ResultSet dbGetUserLocations() {
+    public static ResultSet dbGetUsersLast24hLocations() {
         ResultSet resultSet = null;
         try {
             if(con != null) {
@@ -576,6 +608,20 @@ public class SolomonServer {
                 Integer oneDaySeconds = 3600 * 24;
                 String stmtString = "SELECT latitude, longitude FROM userLocations WHERE timeSeconds > "
                         + (currentTimeSeconds - oneDaySeconds) + ";";
+                Statement statement = con.createStatement();
+                resultSet = statement.executeQuery(stmtString);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    public static ResultSet dbGetUserLocations(Integer idUser) {
+        ResultSet resultSet = null;
+        try {
+            if(con != null) {
+                String stmtString = "SELECT * FROM userLocations WHERE idUser = " + idUser + ";";
                 Statement statement = con.createStatement();
                 resultSet = statement.executeQuery(stmtString);
             }

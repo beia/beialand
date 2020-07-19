@@ -17,14 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import data.CampaignReaction;
-import data.Location;
-import data.Notification;
-import data.Point;
+import data.*;
 import solomonserver.SolomonServer;
 
 /**
@@ -366,7 +366,32 @@ public class ManageClientAppInteractionRunnable implements Runnable
                             break;
                         case "getUserLocations":
                             response = "{\"responseType\":\"userLocations\", \"userLocationsLast24h\":"
-                                        + gson.toJson(getUserLocations(SolomonServer.dbGetUserLocations())) + "}";
+                                        + gson.toJson(getUsersLast24hLocations(SolomonServer.dbGetUsersLast24hLocations())) + "}";
+                            synchronized (objectOutputStream) {
+                                objectOutputStream.writeObject(response);
+                            }
+                            break;
+                        case "addCovidCase":
+                            Integer covidUserId = jsonObject.get("idUser").getAsInt();
+                            SolomonServer.dbInsertCovidUser(covidUserId);
+                            break;
+                        case "getCloseCovidCases":
+                            List<ComplexLocation> covidCasesLocations = getCovidUserComplexLocations(SolomonServer.dbGetCovidUserLocationsFromDatabase());
+                            List<ComplexLocation> userLocations = getUserComplexLocations(SolomonServer.dbGetUserLocations(userId));
+                            if(!covidCasesLocations.isEmpty() && !userLocations.isEmpty()) {
+                                List<ComplexLocation> possibleInfectionPoints = covidCasesLocations.stream()
+                                        .filter(covidLocation -> userLocations.stream()
+                                                            .filter(userLocation -> Math.abs(covidLocation.getTimeSeconds() - userLocation.getTimeSeconds()) < 60)
+                                                            .anyMatch(userLocation -> getDistance(covidLocation, userLocation) < 3))
+                                        .collect(Collectors.toList());
+
+                                response = "{\"responseType\":\"closeCovidCases\", \"locations\":"
+                                        + gson.toJson(possibleInfectionPoints) + "}";
+
+                            }
+                            else {
+                                response = "{\"responseType\":\"closeCovidCases\", \"locations\": null}";
+                            }
                             synchronized (objectOutputStream) {
                                 objectOutputStream.writeObject(response);
                             }
@@ -420,7 +445,7 @@ public class ManageClientAppInteractionRunnable implements Runnable
         return bestLocation;
     }
 
-    public List<Location> getUserLocations(ResultSet resultSet) throws SQLException {
+    public List<Location> getUsersLast24hLocations(ResultSet resultSet) throws SQLException {
         List<Location> userLocations = new ArrayList<>();
         if(resultSet.isBeforeFirst()) {
             while (resultSet.next()) {
@@ -430,5 +455,59 @@ public class ManageClientAppInteractionRunnable implements Runnable
             }
         }
         return userLocations;
+    }
+
+    public List<ComplexLocation> getUserComplexLocations(ResultSet resultSet) throws SQLException {
+        List<ComplexLocation> userComplexLocations = new ArrayList<>();
+        if(resultSet.isBeforeFirst()) {
+            while (resultSet.next()) {
+                userComplexLocations.add(new ComplexLocation(
+                        resultSet.getInt(1),
+                        resultSet.getDouble(2),
+                        resultSet.getDouble(3),
+                        resultSet.getLong(4)));
+            }
+        }
+        return userComplexLocations;
+    }
+
+    public List<ComplexLocation> getCovidUserComplexLocations(ResultSet resultSet) throws SQLException {
+        List<ComplexLocation> covidUsersComplexLocations = new ArrayList<>();
+        if(resultSet.isBeforeFirst()) {
+            while (resultSet.next()) {
+                Integer idUser = resultSet.getInt(1);
+                Double latitude = resultSet.getDouble(2);
+                Double longitude = resultSet.getDouble(3);
+                Long timeSeconds = resultSet.getLong(4);
+                covidUsersComplexLocations.add(new ComplexLocation(idUser, latitude, longitude, timeSeconds));
+            }
+        }
+        return covidUsersComplexLocations;
+    }
+
+    public double getXCoordinate(double lat, double lon, int radius) {
+        return radius * Math.cos(lon * 2 * Math.PI / 360) * Math.cos(lat * 2 * Math.PI / 360);//cos because the latitude starts from 90 degrees instead of 0
+    }
+    public double getYCoordinate(double lat, double lon, int radius) {
+        return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.sin(lon * 2 * Math.PI / 360);
+    }
+    public double getZCoordinate(double lat, double lon, int radius) {
+        return radius * Math.sin(lat * 2 * Math.PI / 360);
+    }
+    public double getLatitude(double x, double y, double z) {
+        return 360 / (2 * Math.PI) * Math.asin(z / 6371000);
+    }
+    public double getLongitude(double x, double y, double z) {
+        return 360 / (2 * Math.PI) * Math.atan2(y, x);
+    }
+
+    public double getDistance(ComplexLocation locationA, ComplexLocation locationB) {
+        double xA = getXCoordinate(locationA.getLatitude(), locationA.getLongitude(), 6371000);
+        double xB = getXCoordinate(locationB.getLatitude(), locationB.getLongitude(), 6371000);
+        double yA = getYCoordinate(locationA.getLatitude(), locationA.getLongitude(), 6371000);
+        double yB = getYCoordinate(locationB.getLatitude(), locationB.getLongitude(), 6371000);
+        double zA = getZCoordinate(locationA.getLatitude(), locationA.getLongitude(), 6371000);
+        double zB = getZCoordinate(locationB.getLatitude(), locationB.getLongitude(), 6371000);
+        return Math.sqrt(Math.pow(xA - xB, 2) + Math.pow(yA - yB, 2) + Math.pow(zA - zB, 2));
     }
 }
