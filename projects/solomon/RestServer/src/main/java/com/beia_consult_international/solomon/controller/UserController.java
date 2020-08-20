@@ -5,6 +5,7 @@ import com.beia_consult_international.solomon.exception.WrongUserDetailsExceptio
 import com.beia_consult_international.solomon.model.User;
 import com.beia_consult_international.solomon.service.UserService;
 import com.beia_consult_international.solomon.service.mapper.UserMapper;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,4 +24,14 @@ public class UserController {
         return UserMapper.mapToDto(userService.findUserByUsername(username));
     }
 
+    @PostMapping("/signUp")
+    public Boolean signUp(@RequestBody UserDto userDto, @RequestParam String password) {
+        System.out.println(userDto.toString());
+        User user = UserMapper.mapToModel(userDto);
+        if(userService.userExists(user)) {
+            return false;
+        }
+        userService.save(user, password);
+        return true;
+    }
 }

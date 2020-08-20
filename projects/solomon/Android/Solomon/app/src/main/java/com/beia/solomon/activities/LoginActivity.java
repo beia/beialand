@@ -1,7 +1,6 @@
 package com.beia.solomon.activities;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +8,6 @@ import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -32,132 +29,61 @@ import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
+import com.beia.solomon.model.Gender;
+import com.beia.solomon.model.Role;
 import com.beia.solomon.model.User;
-import com.beia.solomon.networkPackets.SignInData;
-import com.beia.solomon.networkPackets.SignUpData;
-import com.beia.solomon.networkPackets.UserData;
-import com.google.gson.Gson;
-
-import org.json.JSONObject;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
     public static Resources r;
-    public static Context context;
-    private RequestQueue volleyQueue;
-    private Gson gson = new Gson();
+    public Context context;
+    public RequestQueue volleyQueue;
+    public LinearLayout mainLinearLayout;
 
-
-    //UI variables
-    public static LinearLayout mainLinearLayout;    //the linear layout that contains the title and the other linear layout
     //sign in UI variables
-    public static ImageView solomonPicture;
-    public static CardView usernameSignInCardView;
-    public static EditText usernameSignInEditText;
-    public static CardView passwordSignInCardView;
-    public static EditText passwordSignInEditText;
-    public static CardView loginButton;
-    public static TextView feedbackTextView;
-    public static CardView loginAsGuestButton;
-    public static TextView createAccountTextView;
+    public ImageView solomonPicture;
+    public CardView usernameSignInCardView;
+    public EditText usernameSignInEditText;
+    public CardView passwordSignInCardView;
+    public EditText passwordSignInEditText;
+    public CardView loginButton;
+    public TextView feedbackTextView;
+    public CardView loginAsGuestButton;
+    public TextView createAccountTextView;
     //sign up UI variables
-    public static ImageView backButton;
-    public static TextView createAccountTitle;
-    public static CardView firstNameSignUpCardView;
-    public static EditText firstNameSignUpEditText;
-    public static TextView firstNameFeedbackText;
-    public static CardView lastNameSignUpCardView;
-    public static EditText lastNameSignUpEditText;
-    public static TextView lastNameFeedbackText;
-    public static CardView genderSignUpCardView;
-    public static Spinner genderSignUpSpinner;
-    public static String genderSelected;
-    public static TextView genderFeedbackTextView;
-    public static CardView ageSignUpCardView;
-    public static EditText ageSignUpEditText;
-    public static TextView ageFeedbackText;
-    public static CardView usernameSignUpCardView;
-    public static EditText usernameSignUpEditText;
-    public static TextView usernameFeedbackText;
-    public static CardView passwordSignUpCardView;
-    public static EditText passwordSignUpEditText;
-    public static TextView passwordFeedbackText;
-    public static CardView passwordConfirmationSignUpCardView;
-    public static EditText passwordConfirmationSignUpEditText;
-    public static TextView passwordConfirmationFeedbackText;
-    public static CardView signUpButton;
-    public static Activity loginActivityInstance;
-
-
-    @SuppressLint("HandlerLeak")
-    public static Handler handler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-
-            switch (msg.what) {
-
-                case 1: //change the feedback text
-                    String feedbackText = (String) msg.obj;
-                    feedbackTextView.setText(feedbackText);
-                    switch (feedbackText)
-                    {
-                        case "username is taken":
-                            usernameFeedbackText.setText("username is taken");
-                            usernameFeedbackText.setVisibility(View.VISIBLE);
-                            usernameSignInCardView.setCardBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
-                            break;
-                        case "registered successfully":
-                            firstNameFeedbackText.setVisibility(View.INVISIBLE);
-                            lastNameFeedbackText.setVisibility(View.INVISIBLE);
-                            ageFeedbackText.setVisibility(View.INVISIBLE);
-                            usernameFeedbackText.setVisibility(View.INVISIBLE);
-                            passwordFeedbackText.setVisibility(View.INVISIBLE);
-                            passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
-                            firstNameSignUpEditText.setText("");
-                            lastNameSignUpEditText.setText("");
-                            ageSignUpEditText.setText("");
-                            passwordSignUpEditText.setText("");
-                            passwordConfirmationSignUpEditText.setText("");
-                            Toast.makeText(context, "account created", Toast.LENGTH_SHORT).show();
-                            setLoginLayout();
-                            break;
-                        case "username or password are wrong":
-                            //set the login fields red
-                            usernameSignInCardView.setCardBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
-                            passwordSignInCardView.setCardBackgroundColor(LoginActivity.loginActivityInstance.getResources().getColor(R.color.red));
-                            feedbackTextView.setVisibility(View.INVISIBLE);
-                            Toast.makeText(context, "username or password are wrong", Toast.LENGTH_SHORT).show();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-
-                case 2://login successful
-                    UserData userData = (UserData) msg.obj;
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    };
-
+    public ImageView backButton;
+    public TextView createAccountTitle;
+    public CardView firstNameSignUpCardView;
+    public EditText firstNameSignUpEditText;
+    public TextView firstNameFeedbackText;
+    public CardView lastNameSignUpCardView;
+    public EditText lastNameSignUpEditText;
+    public TextView lastNameFeedbackText;
+    public CardView genderSignUpCardView;
+    public Spinner genderSignUpSpinner;
+    public String gender;
+    public TextView genderFeedbackTextView;
+    public CardView ageSignUpCardView;
+    public EditText ageSignUpEditText;
+    public TextView ageFeedbackText;
+    public CardView usernameSignUpCardView;
+    public EditText usernameSignUpEditText;
+    public TextView usernameFeedbackText;
+    public CardView passwordSignUpCardView;
+    public EditText passwordSignUpEditText;
+    public TextView passwordFeedbackText;
+    public CardView passwordConfirmationSignUpCardView;
+    public EditText passwordConfirmationSignUpEditText;
+    public TextView passwordConfirmationFeedbackText;
+    public CardView signUpButton;
+    public Activity loginActivityInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,12 +115,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onStop();
     }
 
+
+
+
     public void sendSignInData(String username, String password) {
         String url = getResources().getString(R.string.login_url)
                 + "?username=" + username
                 + "&password=" + password;
 
         Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
         headers.put("Authorization", getResources().getString(R.string.universal_user));
 
         GsonRequest<User> request = new GsonRequest<>(
@@ -221,9 +151,44 @@ public class LoginActivity extends AppCompatActivity {
         volleyQueue.add(request);
     }
 
-    public void sendSignUpData(SignUpData signUpData) {
 
+
+
+    public void sendSignUpData(User user, String password) {
+        String url = getResources().getString(R.string.signUp_url)
+                + "?password=" + password;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Boolean> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                user,
+                Boolean.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", response.toString());
+                    if(response) {
+                        Toast.makeText(context, "account created!", Toast.LENGTH_SHORT).show();
+                        setLoginLayout();
+                    }
+                    else {
+                        usernameFeedbackText.setText(getResources().getString(R.string.sign_up_failed));
+                        usernameFeedbackText.setVisibility(View.VISIBLE);
+                        usernameSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                    }
+                },
+                error -> {
+                    Log.d("ERROR", new String(error.networkResponse.data));
+                });
+
+        volleyQueue.add(request);
     }
+
+
+
 
     public void initUI() {
         //login layout
@@ -260,21 +225,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 switch (position) {
-                    case 1://MALE SELECTED
-                        genderSelected = (String) adapterView.getItemAtPosition(1);
+                    case 1:
+                        gender = "MALE";
                         break;
-                    case 2://FEMALE SELECTED
-                        genderSelected = (String) adapterView.getItemAtPosition(2);
+                    case 2:
+                        gender = "FEMALE";
                         break;
                     default:
-                        genderSelected = null;
+                        gender = null;
                         break;
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                genderSelected = null;
+                gender = null;
             }
         });
         genderFeedbackTextView = findViewById(R.id.genderFeedbackText);
@@ -289,13 +253,10 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirmationFeedbackText = findViewById(R.id.passwordConfirmationFeedbackText);
         signUpButton = findViewById(R.id.signUpButton);
 
-        //click listeners
         createAccountTextView.setOnClickListener(v -> setSignUpLayout());
-
         backButton.setOnClickListener(v -> setLoginLayout());
-
         loginButton.setOnClickListener(v -> {
-            hideKeyboard(LoginActivity.loginActivityInstance);
+            hideKeyboard(this);
             feedbackTextView.setVisibility(View.VISIBLE);
             String username, password;
             boolean correctLoginData = true;
@@ -315,109 +276,33 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         signUpButton.setOnClickListener(v -> {
-            //clear the error texts
-            firstNameFeedbackText.setVisibility(View.INVISIBLE);
-            lastNameFeedbackText.setVisibility(View.INVISIBLE);
-            ageFeedbackText.setVisibility(View.INVISIBLE);
-            genderFeedbackTextView.setVisibility(View.INVISIBLE);
-            usernameFeedbackText.setVisibility(View.INVISIBLE);
-            passwordFeedbackText.setVisibility(View.INVISIBLE);
-            passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
-            //get the sign up data
-            String firstName, lastName, username, password, passwordConfirmation, ageString;
+            clearErrorTexts();
             int age = 0;
+            String firstName, lastName, username, password, passwordConfirmation, ageString;
             firstName = firstNameSignUpEditText.getText().toString().trim();
             lastName = lastNameSignUpEditText.getText().toString().trim();
             ageString = ageSignUpEditText.getText().toString().trim();
             username = usernameSignUpEditText.getText().toString().trim();
             password = passwordSignUpEditText.getText().toString().trim();
             passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString().trim();
-            boolean correctSignUpData = true;
-            if(firstName.equals(""))
-            {
-                firstNameFeedbackText.setText("first name not filled");
-                firstNameFeedbackText.setVisibility(View.VISIBLE);
-                firstNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            else {
-                firstNameFeedbackText.setVisibility(View.INVISIBLE);
-            }
-            if(lastName.equals(""))
-            {
-                lastNameFeedbackText.setText("last name not filled");
-                lastNameFeedbackText.setVisibility(View.VISIBLE);
-                lastNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(genderSelected == null) {
-                genderFeedbackTextView.setText("gender not selected");
-                genderFeedbackTextView.setVisibility(View.VISIBLE);
-                genderSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(!ageString.equals("")) {
-                age = Integer.parseInt(ageString);
-                if(age < 0 || age > 120) {
-                    ageFeedbackText.setText("age not possible");
-                    ageFeedbackText.setVisibility(View.VISIBLE);
-                    ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-            }
-            else {
-                ageFeedbackText.setText("age not filled");
-                ageFeedbackText.setVisibility(View.VISIBLE);
-                ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(username.equals(""))
-            {
-                usernameFeedbackText.setText("username not filled");
-                usernameFeedbackText.setVisibility(View.VISIBLE);
-                usernameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(password.equals(""))
-            {
-                passwordFeedbackText.setText("password not filled");
-                passwordFeedbackText.setVisibility(View.VISIBLE);
-                passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(passwordConfirmation.equals(""))
-            {
-                passwordConfirmationFeedbackText.setText("password not filled");
-                passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
-                passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(!password.equals(passwordConfirmation))
-            {
-                passwordConfirmationFeedbackText.setText("passwords don't match");
-                passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
-                passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                correctSignUpData = false;
-            }
-            if(correctSignUpData)
-            {
-                String encryptedPassword = null;
-                try {//encrypt the password
-                    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-                    encryptedPassword = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                }
-                if(encryptedPassword != null)
-                    sendSignUpData(new SignUpData(lastName, firstName, genderSelected, age, username, encryptedPassword, encryptedPassword));
-                else
-                    Log.d("LOGIN", "error: can't encrypt password");
+            boolean correctSignUpData = validSignUpDetails(username, firstName,
+                    lastName, ageString, age, gender, password, passwordConfirmation);
+            if(correctSignUpData) {
+                User user = User
+                        .builder()
+                        .username(username)
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .age(age)
+                        .gender(gender.equals("MALE") ? Gender.MALE : Gender.FEMALE)
+                        .role(Role.USER.name())
+                        .build();
+                sendSignUpData(user, password);
             }
         });
     }
 
-    public static void setLoginLayout()
+    public void setLoginLayout()
     {
         //hide the sign up views
         backButton.setVisibility(View.GONE);
@@ -437,6 +322,11 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirmationSignUpCardView.setVisibility(View.GONE);
         passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
         signUpButton.setVisibility(View.GONE);
+        firstNameSignUpEditText.setText("");
+        lastNameSignUpEditText.setText("");
+        ageSignUpEditText.setText("");
+        passwordSignUpEditText.setText("");
+        passwordConfirmationSignUpEditText.setText("");
         //show the login views
         solomonPicture.setVisibility(View.VISIBLE);
         usernameSignInCardView.setVisibility(View.VISIBLE);
@@ -446,7 +336,7 @@ public class LoginActivity extends AppCompatActivity {
         createAccountTextView.setVisibility(View.VISIBLE);
     }
 
-    public static void setSignUpLayout()
+    public void setSignUpLayout()
     {
         //hide the login views
         solomonPicture.setVisibility(View.GONE);
@@ -477,6 +367,89 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton.setVisibility(View.VISIBLE);
     }
 
+    public void clearErrorTexts() {
+        firstNameFeedbackText.setVisibility(View.INVISIBLE);
+        lastNameFeedbackText.setVisibility(View.INVISIBLE);
+        ageFeedbackText.setVisibility(View.INVISIBLE);
+        genderFeedbackTextView.setVisibility(View.INVISIBLE);
+        usernameFeedbackText.setVisibility(View.INVISIBLE);
+        passwordFeedbackText.setVisibility(View.INVISIBLE);
+        passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
+    }
+
+    public boolean validSignUpDetails(String username, String firstName,
+                                      String lastName, String ageString, int age, String gender,
+                                      String password, String passwordConfirmation) {
+
+        if(firstName.equals("")) {
+            firstNameFeedbackText.setText(getResources().getString(R.string.first_name_error));
+            firstNameFeedbackText.setVisibility(View.VISIBLE);
+            firstNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(lastName.equals("")) {
+            lastNameFeedbackText.setText(getResources().getString(R.string.last_name_error));
+            lastNameFeedbackText.setVisibility(View.VISIBLE);
+            lastNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(gender == null) {
+            genderFeedbackTextView.setText(getResources().getString(R.string.gender_error));
+            genderFeedbackTextView.setVisibility(View.VISIBLE);
+            genderSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(!ageString.equals("")) {
+            age = Integer.parseInt(ageString);
+            if(age < 0 || age > 120) {
+                ageFeedbackText.setText(getResources().getString(R.string.age_error_1));
+                ageFeedbackText.setVisibility(View.VISIBLE);
+                ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                return false;
+            }
+        }
+        else {
+            ageFeedbackText.setText(getResources().getString(R.string.age_error_2));
+            ageFeedbackText.setVisibility(View.VISIBLE);
+            ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(username.equals("")) {
+            usernameFeedbackText.setText(getResources().getString(R.string.username_error));
+            usernameFeedbackText.setVisibility(View.VISIBLE);
+            usernameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(password.equals("")) {
+            passwordFeedbackText.setText(getResources().getString(R.string.password_error_1));
+            passwordFeedbackText.setVisibility(View.VISIBLE);
+            passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(passwordConfirmation.equals("")) {
+            passwordConfirmationFeedbackText.setText(getResources().getString(R.string.password_error_1));
+            passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+            passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        if(!password.equals(passwordConfirmation)) {
+            passwordConfirmationFeedbackText.setText(getResources().getString(R.string.password_error_2));
+            passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+            passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+            return false;
+        }
+
+        return true;
+    }
+
     //change cursor color
     public static void setCursorColor(EditText view, @ColorInt int color) {
         try {
@@ -499,7 +472,8 @@ public class LoginActivity extends AppCompatActivity {
             field = editor.getClass().getDeclaredField("mCursorDrawable");
             field.setAccessible(true);
             field.set(editor, drawables);
-        } catch (Exception ignored) {
+        }
+        catch (Exception ignored) {
         }
     }
 
@@ -513,5 +487,4 @@ public class LoginActivity extends AppCompatActivity {
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-
 }

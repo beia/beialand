@@ -46,7 +46,7 @@ public class GsonRequest<T> extends Request<T> {
     }
 
     @Override
-    public byte[] getBody() throws AuthFailureError {
+    public byte[] getBody() {
         return gson.toJson(dataIn).getBytes();
     }
 

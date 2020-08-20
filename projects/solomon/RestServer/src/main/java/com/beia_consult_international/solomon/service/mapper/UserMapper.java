@@ -1,6 +1,8 @@
 package com.beia_consult_international.solomon.service.mapper;
 
 import com.beia_consult_international.solomon.dto.UserDto;
+import com.beia_consult_international.solomon.model.Gender;
+import com.beia_consult_international.solomon.model.Role;
 import com.beia_consult_international.solomon.model.User;
 
 public abstract class UserMapper {
@@ -28,6 +30,7 @@ public abstract class UserMapper {
                 .lastName(userDto.getLastName())
                 .gender(userDto.getGender())
                 .age(userDto.getAge())
+                .role(userDto.getRole().equals("USER") ? Role.USER : Role.ADMIN)
                 .build();
     }
 }

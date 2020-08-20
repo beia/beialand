@@ -14,7 +14,17 @@
 
     <string name="login_successful">login successful!</string>
     <string name="login_failed">username or password are wrong!</string>
+    <string name="sign_up_failed">username is taken!</string>
+    <string name="first_name_error">First name not filled</string>
+    <string name="last_name_error">Last name not filled</string>
+    <string name="gender_error">Gender not selected</string>
+    <string name="age_error_1">Age not possible</string>
+    <string name="age_error_2">Age not filled</string>
+    <string name="username_error">Username not filled</string>
+    <string name="password_error_1">Password not filled</string>
+    <string name="password_error_2">Passwords don\'t match</string>
 
     <string name="universal_user">Basic YWRtaW46c29sb21vbg==</string>
     <string name="login_url">http://192.168.0.45:8080/users/login</string>
+    <string name="signUp_url">http://192.168.0.45:8080/users/signUp</string>
 </resources>
