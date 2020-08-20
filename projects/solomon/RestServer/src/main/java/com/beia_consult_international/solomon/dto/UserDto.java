@@ -91,4 +91,18 @@ public class UserDto {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    @Override
+    public String toString() {
+        return "UserDto{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", gender=" + gender +
+                ", age=" + age +
+                ", role='" + role + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
+    }
 }

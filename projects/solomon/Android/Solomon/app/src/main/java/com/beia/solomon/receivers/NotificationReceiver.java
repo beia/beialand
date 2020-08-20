@@ -10,15 +10,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+
 import androidx.core.app.NotificationCompat;
+
 import com.beia.solomon.App;
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
-import com.beia.solomon.runnables.RequestRunnable;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
-import java.io.IOException;
 
 import static android.content.Context.POWER_SERVICE;
 import static com.beia.solomon.App.CHANNEL_1_ID;
@@ -69,14 +68,10 @@ public class NotificationReceiver extends BroadcastReceiver
         int idUser = intent.getIntExtra("idUser", 0);
         if(MainActivity.objectOutputStream == null)
         {
-            try {
-                String requestString = "{\"requestType\":\"getNotifications\", \"userId\":" + idUser +"}";
-                Log.d("USER", "onReceive: " + idUser);
-                new Thread(new RequestRunnable(requestString)).start();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            String requestString = "{\"requestType\":\"getNotifications\", \"userId\":" + idUser +"}";
+            Log.d("USER", "onReceive: " + idUser);
+            //new Thread(new RequestRunnable(requestString)).start();
+
         }
     }
 

@@ -11,10 +11,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.R;
+import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.networkPackets.Campaign;
-import com.beia.solomon.runnables.RequestRunnable;
 import com.bumptech.glide.Glide;
 
 import java.text.DateFormat;
@@ -90,7 +89,7 @@ public class CampaignsAdapter extends BaseAdapter {
                 Calendar calendar = Calendar.getInstance();
                 String currentTime = dateFormat.format(calendar.getTime());
                 String request = "{\"requestType\":\"postCampaignReaction\", \"idCampaign\":\"" + campaign.getId() + "\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"gender\":\"" + MainActivity.userData.getGender() + "\", \"age\":" + MainActivity.userData.getAge() + ", \"viewDate\":\"" + currentTime + "\"}";
-                new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
+                //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
             }
         });
         return campaignView;

@@ -10,4 +10,11 @@
         <item>Male</item>
         <item>Female</item>
     </string-array>
+
+
+    <string name="login_successful">login successful!</string>
+    <string name="login_failed">username or password are wrong!</string>
+
+    <string name="universal_user">Basic YWRtaW46c29sb21vbg==</string>
+    <string name="login_url">http://192.168.0.45:8080/users/login</string>
 </resources>

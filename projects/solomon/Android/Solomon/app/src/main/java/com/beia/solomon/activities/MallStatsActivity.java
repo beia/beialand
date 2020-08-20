@@ -1,14 +1,13 @@
 package com.beia.solomon.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.beia.solomon.R;
-import com.beia.solomon.runnables.RequestRunnable;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -101,7 +100,7 @@ public class MallStatsActivity extends AppCompatActivity {
         mallId = getIntent().getIntExtra("mallId", -1);
         if(mallId != -1) {
             String request = "{\"requestType\":\"getParkingStats\",\"mallId\":" + mallId + "}";
-            new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
+            //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
         }
     }
 

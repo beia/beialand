@@ -1,18 +1,12 @@
 package com.beia.solomon.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -23,43 +17,37 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
+import com.beia.solomon.R;
+import com.beia.solomon.adapters.ViewPagerAdapter;
 import com.beia.solomon.data.Location;
 import com.beia.solomon.data.Point;
 import com.beia.solomon.fragments.MapFragment;
-import com.beia.solomon.R;
 import com.beia.solomon.fragments.SettingsFragment;
 import com.beia.solomon.fragments.StoreAdvertisementFragment;
-import com.beia.solomon.adapters.ViewPagerAdapter;
-import com.beia.solomon.networkPackets.Campaign;
-import com.beia.solomon.networkPackets.Mall;
-import com.beia.solomon.receivers.NotificationReceiver;
-import com.beia.solomon.runnables.PostRunnable;
-import com.beia.solomon.runnables.RequestRunnable;
-import com.beia.solomon.runnables.WaitForServerDataRunnable;
-import com.estimote.mustard.rx_goodness.rx_requirements_wizard.Requirement;
-import com.estimote.mustard.rx_goodness.rx_requirements_wizard.RequirementsWizardFactory;
-import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
-import com.estimote.proximity_sdk.api.ProximityObserver;
-import com.estimote.proximity_sdk.api.ProximityObserverBuilder;
-import com.estimote.proximity_sdk.api.ProximityZone;
-import com.estimote.proximity_sdk.api.ProximityZoneBuilder;
-import com.estimote.proximity_sdk.api.ProximityZoneContext;
 import com.beia.solomon.handlers.MainActivityHandler;
 import com.beia.solomon.networkPackets.Beacon;
-import com.beia.solomon.networkPackets.EstimoteBeacon;
+import com.beia.solomon.networkPackets.Campaign;
 import com.beia.solomon.networkPackets.KontaktBeacon;
+import com.beia.solomon.networkPackets.Mall;
 import com.beia.solomon.networkPackets.UserData;
+import com.beia.solomon.receivers.NotificationReceiver;
+import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
+import com.estimote.proximity_sdk.api.ProximityObserver;
+import com.estimote.proximity_sdk.api.ProximityZone;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
@@ -73,12 +61,6 @@ import com.kontakt.sdk.android.ble.spec.EddystoneFrameType;
 import com.kontakt.sdk.android.common.KontaktSDK;
 import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.viewpager.widget.ViewPager;
-import android.widget.Toast;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -92,15 +74,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -123,9 +101,6 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
     public IBeaconDevice[] closestBeacons;
-
-    //RUNNABLES
-    public static WaitForServerDataRunnable waitForServerRunnable;
 
     //LOCATION
     public Point[] closestBeaconsCoordinates;
@@ -198,6 +173,11 @@ public class MainActivity extends AppCompatActivity {
         displayWidth = displayMetrics.widthPixels;
         displayHeight = displayMetrics.heightPixels;
 
+        if(userData == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
+
         //init variables
         context = getApplicationContext();
         mainActivity = this;
@@ -225,85 +205,15 @@ public class MainActivity extends AppCompatActivity {
 
         //initialize the cache
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-
         //getUserData
         MainActivity.userData = (UserData) getIntent().getSerializableExtra("UserData");
-
         //check if the activity started from a notification
         notification = getIntent().getBooleanExtra("notification", false);
+        //SharedPreferences.Editor editor = sharedPref.edit();
+        //editor.putString("username", userData.getUsername());
+        //editor.putString("password", userData.getPassword());
+        //editor.apply();
 
-        if(userData != null)//NORMAL LOGIN
-        {
-            //get the communication variables from the login activity
-            MainActivity.objectOutputStream = LoginActivity.objectOutputStream;
-            MainActivity.objectInputStream = LoginActivity.objectInputStream;
-            MainActivity.waitForServerRunnable = LoginActivity.waitForServerDataRunnable;
-            MainActivity.waitForServerRunnable.setCurrentActivity("MainActivity");
-
-            //request the beacons and beacon times
-            String request1 = "{\"requestType\":\"getBeacons\"}";
-            new Thread(new RequestRunnable(request1, objectOutputStream)).start();
-            String request2 = "{\"requestType\":\"getBeaconsTime\"}";
-            new Thread(new RequestRunnable(request2, objectOutputStream)).start();
-            //start the notifications background process
-            setupBackgroundProcess();
-
-            //save the data in the cache
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("username", userData.getUsername());
-            editor.putString("password", userData.getPassword());
-            editor.apply();
-
-            //the data can be received before the main activity was created
-            //if it's not the code below will be executed in the main activity handler
-            if(!MainActivity.beaconsMap.isEmpty())
-            {
-                //initialize all the malls and set all the malls entered values to false
-                for (Map.Entry entry : MainActivity.beaconsMap.entrySet())
-                {
-                    Beacon beacon = (Beacon) entry.getValue();
-                    if(MainActivity.mallsEntered.isEmpty())
-                    {
-                        MainActivity.mallsEntered.put(beacon.getMallId(), false);
-                    }
-                    else
-                    {
-                        if(MainActivity.mallsEntered.containsKey(beacon.getMallId()) == false)
-                        {
-                            MainActivity.mallsEntered.put(beacon.getMallId(), false);
-                        }
-                    }
-                }
-                // set Kontakt beacons
-                initKontaktBeacons();
-            }
-        }
-        else//AUTOMATIC LOGIN
-        {
-            MainActivity.userData = new UserData(sharedPref.getString("username", null), sharedPref.getString("password", null));
-            if(userData.getUsername() != null && userData.getPassword() != null) { //SUCCESSFUL AUTOMATIC LOGIN
-                waitForServerRunnable = new WaitForServerDataRunnable("MainActivity");
-                new Thread(waitForServerRunnable).start();
-            }
-            else { //AUTOMATIC LOGIN FAILED
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
-                active = false;
-                finish();
-            }
-        }
-
-        //create a local cache
-        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 16;
-        MainActivity.picturesCache = new LruCache<String, Bitmap>(cacheSize) {
-            @Override
-            protected int sizeOf(String key, Bitmap bitmap) {
-                // The cache size will be measured in kilobytes rather than
-                // number of items.
-                return bitmap.getByteCount() / 1024;
-            }
-        };
         initUI();
     }
 
@@ -329,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
     //ESTIMOTE
     public void initEstimoteBeacons()
     {
+        /*
         //initialized cloud credentials
         cloudCredentials = new EstimoteCloudCredentials("solomon-app-ge4", "97f78b20306bb6a15ed1ddcd24b9ca21");
 
@@ -418,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
                                 return null;
                             }
                         });
+         */
     }
 
 
@@ -640,8 +552,8 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             //request campaigns
-                            String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
-                            new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
+                            //String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
+                            //new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
 
                             //put the user on the map(not the exact location)
                             setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
@@ -700,8 +612,8 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                     //request campaigns
-                                    String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
-                                    new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
+                                    //String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
+                                    //new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
 
                                     //put the user on the map(not the exact location)
                                     setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
@@ -725,8 +637,8 @@ public class MainActivity extends AppCompatActivity {
                                     toast.show();
                                     //LOCATION DATA
                                     long timeSeconds = (System.currentTimeMillis() - timeMap.get(iBeaconDevice.getUniqueId())) / 1000;
-                                    String requestString = "{\"requestType\":\"postBeaconTime\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"idBeacon\":\"" + iBeaconDevice.getUniqueId() + "\", \"timeSeconds\":" + timeSeconds + "}";
-                                    new Thread(new PostRunnable(requestString, objectOutputStream)).start();
+                                    //String requestString = "{\"requestType\":\"postBeaconTime\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"idBeacon\":\"" + iBeaconDevice.getUniqueId() + "\", \"timeSeconds\":" + timeSeconds + "}";
+                                    //new Thread(new PostRunnable(requestString, objectOutputStream)).start();
                                 }
                             }
                         }
@@ -770,8 +682,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
 
                                 //request campaigns
-                                String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
-                                new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
+                                //String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
+                                //new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
 
                                 //put the user on the map(not the exact location)
                                 setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
@@ -824,8 +736,8 @@ public class MainActivity extends AppCompatActivity {
                         stringBuilder.append(",\"beaconCoordinates\":");
                         stringBuilder.append(gson.toJson(closestBeaconsCoordinates));
                         stringBuilder.append("}");
-                        String request = stringBuilder.toString();
-                        new Thread(new RequestRunnable(request, objectOutputStream)).start();
+                        //String request = stringBuilder.toString();
+                        //new Thread(new RequestRunnable(request, objectOutputStream)).start();
                     }
                 }
             }

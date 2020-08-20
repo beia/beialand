@@ -3,21 +3,14 @@ package com.beia.solomon.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import androidx.annotation.ColorInt;
-import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -31,41 +24,46 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
+import com.beia.solomon.model.User;
 import com.beia.solomon.networkPackets.SignInData;
 import com.beia.solomon.networkPackets.SignUpData;
 import com.beia.solomon.networkPackets.UserData;
-import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
-import com.beia.solomon.runnables.WaitForServerDataRunnable;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.lang.reflect.Field;
-import java.net.*;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
     public static Resources r;
     public static Context context;
-
-    //Threads
-    public static Thread waitForServerData;
-
-    //networking variables
-    public static volatile Socket socket;
-    public static volatile ObjectOutputStream objectOutputStream;
-    public static volatile ObjectInputStream objectInputStream;
-
-    public static volatile boolean active = false;
+    private RequestQueue volleyQueue;
+    private Gson gson = new Gson();
 
 
     //UI variables
     public static LinearLayout mainLinearLayout;    //the linear layout that contains the title and the other linear layout
-    public static int hintTextColor = Color.argb(50, 0, 0, 0);
-    public static int orangeAccentColor = Color.argb(200,29, 222, 190);
     //sign in UI variables
     public static ImageView solomonPicture;
     public static CardView usernameSignInCardView;
@@ -102,9 +100,6 @@ public class LoginActivity extends AppCompatActivity {
     public static EditText passwordConfirmationSignUpEditText;
     public static TextView passwordConfirmationFeedbackText;
     public static CardView signUpButton;
-
-    public static WaitForServerDataRunnable waitForServerDataRunnable;
-
     public static Activity loginActivityInstance;
 
 
@@ -154,30 +149,7 @@ public class LoginActivity extends AppCompatActivity {
                     break;
 
                 case 2://login successful
-                    feedbackTextView.setText("login successful");
-                    feedbackTextView.setTextColor(LoginActivity.context.getResources().getColor(R.color.greenAccent));
                     UserData userData = (UserData) msg.obj;
-
-                    //check if it's the first login of the user so we can setup his preferences first
-                    if(userData.isFirstLogin())
-                    {
-                        //start the preferences activity
-                        usernameSignInEditText.setText("");
-                        passwordSignInEditText.setText("");
-                        Intent intent = new Intent(LoginActivity.context, PreferencesActivity.class);
-                        intent.putExtra("UserData", userData);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        LoginActivity.context.startActivity(intent);
-                    }
-                    else
-                    {
-                        //start main activity
-                        Intent intent = new Intent(LoginActivity.context, MainActivity.class);
-                        intent.putExtra("UserData", userData);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        LoginActivity.context.startActivity(intent);
-                    }
-                    LoginActivity.loginActivityInstance.finish();
                     break;
 
                 default:
@@ -192,47 +164,68 @@ public class LoginActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //request permission
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        ActivityCompat.requestPermissions(this,
+                new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-        //initialize variables
+        volleyQueue = Volley.newRequestQueue(this);
+
         r = getResources();
-        active = true;
         context = this.getApplicationContext();
         loginActivityInstance = this;
 
-        waitForServerDataRunnable = new WaitForServerDataRunnable("LoginActivity");
-        waitForServerData = new Thread(waitForServerDataRunnable);
-        waitForServerData.start();
-
-        //initialize the UI
         initUI();
         setLoginLayout();
     }
+
     @Override
     public void onStop() {
         super.onStop();
-        active = false;
     }
 
-    //CLIENT COMMUNICATION METHODS
-    public void sendSignInData(SignInData signInData)
-    {
-        Thread sendSignInDataThread = new Thread(new SendAuthenticationDataRunnable("sign in", signInData, objectOutputStream));
-        sendSignInDataThread.start();
-    }
-    public void sendSignUpData(SignUpData signUpData)
-    {
-        Thread sendSignUpDataThread = new Thread(new SendAuthenticationDataRunnable("sign up", signUpData, objectOutputStream));
-        sendSignUpDataThread.start();
+    public void sendSignInData(String username, String password) {
+        String url = getResources().getString(R.string.login_url)
+                + "?username=" + username
+                + "&password=" + password;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<User> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                User.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", response.toString());
+                    feedbackTextView.setText(getResources().getString(R.string.login_successful));
+                    feedbackTextView.setTextColor(getResources().getColor(R.color.greenAccent));
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("user", response);
+                    intent.putExtra("password", password);
+                    startActivity(intent);
+                },
+                error -> {
+                    Log.d("ERROR", new String(error.networkResponse.data));
+                    feedbackTextView.setText(getResources().getString(R.string.login_failed));
+                    feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
+                });
+
+        volleyQueue.add(request);
     }
 
+    public void sendSignUpData(SignUpData signUpData) {
 
-    //UI METHODS
-    public void initUI()
-    {
+    }
+
+    public void initUI() {
         //login layout
         solomonPicture = findViewById(R.id.solomonPicture);
         mainLinearLayout = findViewById(R.id.MainMenuLinearLayout);
@@ -297,154 +290,129 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton = findViewById(R.id.signUpButton);
 
         //click listeners
-        createAccountTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setSignUpLayout();
+        createAccountTextView.setOnClickListener(v -> setSignUpLayout());
+
+        backButton.setOnClickListener(v -> setLoginLayout());
+
+        loginButton.setOnClickListener(v -> {
+            hideKeyboard(LoginActivity.loginActivityInstance);
+            feedbackTextView.setVisibility(View.VISIBLE);
+            String username, password;
+            boolean correctLoginData = true;
+            username = usernameSignInEditText.getText().toString();
+            password = passwordSignInEditText.getText().toString();
+            if(username.trim().equals("")) {
+                usernameSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctLoginData = false;
+            }
+            if(password.trim().equals("")) {
+                passwordSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctLoginData = false;
+            }
+            if(correctLoginData) {
+                sendSignInData(username, password);
             }
         });
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setLoginLayout();
+
+        signUpButton.setOnClickListener(v -> {
+            //clear the error texts
+            firstNameFeedbackText.setVisibility(View.INVISIBLE);
+            lastNameFeedbackText.setVisibility(View.INVISIBLE);
+            ageFeedbackText.setVisibility(View.INVISIBLE);
+            genderFeedbackTextView.setVisibility(View.INVISIBLE);
+            usernameFeedbackText.setVisibility(View.INVISIBLE);
+            passwordFeedbackText.setVisibility(View.INVISIBLE);
+            passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
+            //get the sign up data
+            String firstName, lastName, username, password, passwordConfirmation, ageString;
+            int age = 0;
+            firstName = firstNameSignUpEditText.getText().toString().trim();
+            lastName = lastNameSignUpEditText.getText().toString().trim();
+            ageString = ageSignUpEditText.getText().toString().trim();
+            username = usernameSignUpEditText.getText().toString().trim();
+            password = passwordSignUpEditText.getText().toString().trim();
+            passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString().trim();
+            boolean correctSignUpData = true;
+            if(firstName.equals(""))
+            {
+                firstNameFeedbackText.setText("first name not filled");
+                firstNameFeedbackText.setVisibility(View.VISIBLE);
+                firstNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
             }
-        });
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideKeyboard(LoginActivity.loginActivityInstance);
-                feedbackTextView.setVisibility(View.VISIBLE);
-                String username, password;
-                boolean correctLoginData = true;
-                username = usernameSignInEditText.getText().toString();
-                password = passwordSignInEditText.getText().toString();
-                if(username.trim().equals("")) {
-                    usernameSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctLoginData = false;
-                }
-                if(password.trim().equals("")) {
-                    passwordSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctLoginData = false;
-                }
-                if(correctLoginData) {
-                    String encryptedPassword = null;
-                    try {//encrypt the password
-                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-                        encryptedPassword = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-                    if(encryptedPassword != null) {
-                        sendSignInData(new SignInData(username, encryptedPassword));
-                        feedbackTextView.setVisibility(View.VISIBLE);
-                    }
-                    else
-                        Log.d("LOGIN", "error: can't encrypt password");
-                }
-            }
-        });
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //clear the error texts
+            else {
                 firstNameFeedbackText.setVisibility(View.INVISIBLE);
-                lastNameFeedbackText.setVisibility(View.INVISIBLE);
-                ageFeedbackText.setVisibility(View.INVISIBLE);
-                genderFeedbackTextView.setVisibility(View.INVISIBLE);
-                usernameFeedbackText.setVisibility(View.INVISIBLE);
-                passwordFeedbackText.setVisibility(View.INVISIBLE);
-                passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
-                //get the sign up data
-                String firstName, lastName, username, password, passwordConfirmation, ageString;
-                int age = 0;
-                firstName = firstNameSignUpEditText.getText().toString().trim();
-                lastName = lastNameSignUpEditText.getText().toString().trim();
-                ageString = ageSignUpEditText.getText().toString().trim();
-                username = usernameSignUpEditText.getText().toString().trim();
-                password = passwordSignUpEditText.getText().toString().trim();
-                passwordConfirmation = passwordConfirmationSignUpEditText.getText().toString().trim();
-                boolean correctSignUpData = true;
-                if(firstName.equals(""))
-                {
-                    firstNameFeedbackText.setText("first name not filled");
-                    firstNameFeedbackText.setVisibility(View.VISIBLE);
-                    firstNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-                else {
-                    firstNameFeedbackText.setVisibility(View.INVISIBLE);
-                }
-                if(lastName.equals(""))
-                {
-                    lastNameFeedbackText.setText("last name not filled");
-                    lastNameFeedbackText.setVisibility(View.VISIBLE);
-                    lastNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-                if(genderSelected == null) {
-                    genderFeedbackTextView.setText("gender not selected");
-                    genderFeedbackTextView.setVisibility(View.VISIBLE);
-                    genderSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-                if(!ageString.equals("")) {
-                    age = Integer.parseInt(ageString);
-                    if(age < 0 || age > 120) {
-                        ageFeedbackText.setText("age not possible");
-                        ageFeedbackText.setVisibility(View.VISIBLE);
-                        ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                        correctSignUpData = false;
-                    }
-                }
-                else {
-                    ageFeedbackText.setText("age not filled");
+            }
+            if(lastName.equals(""))
+            {
+                lastNameFeedbackText.setText("last name not filled");
+                lastNameFeedbackText.setVisibility(View.VISIBLE);
+                lastNameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(genderSelected == null) {
+                genderFeedbackTextView.setText("gender not selected");
+                genderFeedbackTextView.setVisibility(View.VISIBLE);
+                genderSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(!ageString.equals("")) {
+                age = Integer.parseInt(ageString);
+                if(age < 0 || age > 120) {
+                    ageFeedbackText.setText("age not possible");
                     ageFeedbackText.setVisibility(View.VISIBLE);
                     ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
                     correctSignUpData = false;
                 }
-                if(username.equals(""))
-                {
-                    usernameFeedbackText.setText("username not filled");
-                    usernameFeedbackText.setVisibility(View.VISIBLE);
-                    usernameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
+            }
+            else {
+                ageFeedbackText.setText("age not filled");
+                ageFeedbackText.setVisibility(View.VISIBLE);
+                ageSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(username.equals(""))
+            {
+                usernameFeedbackText.setText("username not filled");
+                usernameFeedbackText.setVisibility(View.VISIBLE);
+                usernameSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(password.equals(""))
+            {
+                passwordFeedbackText.setText("password not filled");
+                passwordFeedbackText.setVisibility(View.VISIBLE);
+                passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(passwordConfirmation.equals(""))
+            {
+                passwordConfirmationFeedbackText.setText("password not filled");
+                passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+                passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(!password.equals(passwordConfirmation))
+            {
+                passwordConfirmationFeedbackText.setText("passwords don't match");
+                passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
+                passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                correctSignUpData = false;
+            }
+            if(correctSignUpData)
+            {
+                String encryptedPassword = null;
+                try {//encrypt the password
+                    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+                    encryptedPassword = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
                 }
-                if(password.equals(""))
-                {
-                    passwordFeedbackText.setText("password not filled");
-                    passwordFeedbackText.setVisibility(View.VISIBLE);
-                    passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-                if(passwordConfirmation.equals(""))
-                {
-                    passwordConfirmationFeedbackText.setText("password not filled");
-                    passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
-                    passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-                if(!password.equals(passwordConfirmation))
-                {
-                    passwordConfirmationFeedbackText.setText("passwords don't match");
-                    passwordConfirmationFeedbackText.setVisibility(View.VISIBLE);
-                    passwordSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    passwordConfirmationSignUpCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    correctSignUpData = false;
-                }
-                if(correctSignUpData)
-                {
-                    String encryptedPassword = null;
-                    try {//encrypt the password
-                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-                        encryptedPassword = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-                    if(encryptedPassword != null)
-                        sendSignUpData(new SignUpData(lastName, firstName, genderSelected, age, username, encryptedPassword, encryptedPassword));
-                    else
-                        Log.d("LOGIN", "error: can't encrypt password");
-                }
+                if(encryptedPassword != null)
+                    sendSignUpData(new SignUpData(lastName, firstName, genderSelected, age, username, encryptedPassword, encryptedPassword));
+                else
+                    Log.d("LOGIN", "error: can't encrypt password");
             }
         });
     }
@@ -477,6 +445,7 @@ public class LoginActivity extends AppCompatActivity {
         loginAsGuestButton.setVisibility(View.VISIBLE);
         createAccountTextView.setVisibility(View.VISIBLE);
     }
+
     public static void setSignUpLayout()
     {
         //hide the login views
@@ -507,7 +476,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirmationFeedbackText.setVisibility(View.INVISIBLE);
         signUpButton.setVisibility(View.VISIBLE);
     }
-
 
     //change cursor color
     public static void setCursorColor(EditText view, @ColorInt int color) {

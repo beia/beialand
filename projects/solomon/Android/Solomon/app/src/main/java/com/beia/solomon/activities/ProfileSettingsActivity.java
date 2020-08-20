@@ -11,12 +11,8 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.MediaStore;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -26,12 +22,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.beia.solomon.R;
 import com.beia.solomon.networkPackets.ImageData;
-import com.beia.solomon.networkPackets.UpdateUserData;
-import com.beia.solomon.runnables.RequestRunnable;
-import com.beia.solomon.runnables.SendImageRunable;
-import com.beia.solomon.runnables.SendUserUpdateData;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -200,8 +195,8 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 }
 
                 //send the update request to the server
-                String request = "{\"requestType\":\"updateUserData\", \"userID\":" + MainActivity.userData.getUserId() + ", \"username\":\"" + username + "\", \"password\":\"" + password + "\", \"age\":" + age + "}";
-                new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
+                //String request = "{\"requestType\":\"updateUserData\", \"userID\":" + MainActivity.userData.getUserId() + ", \"username\":\"" + username + "\", \"password\":\"" + password + "\", \"age\":" + age + "}";
+                //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
                 Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
 
                 //change the user data
@@ -338,8 +333,8 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
                         //start sending image thread
                         synchronized (MainActivity.objectOutputStream) {
-                            Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
-                            sendImageThread.start();
+                            //Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
+                            //sendImageThread.start();
                         }
                         //save the picture into cache memory
                         MainActivity.picturesCache.put("profilePicture", bitmap);

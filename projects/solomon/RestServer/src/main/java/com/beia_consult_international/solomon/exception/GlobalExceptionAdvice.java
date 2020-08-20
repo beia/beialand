@@ -9,6 +9,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler({
         UserNotFoundException.class,
+        WrongUserDetailsException.class
     })
     public ResponseEntity<String> handle(Exception e) {
         return ResponseEntity

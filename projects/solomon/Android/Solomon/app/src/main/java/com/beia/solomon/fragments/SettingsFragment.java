@@ -1,32 +1,29 @@
 package com.beia.solomon.fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.cardview.widget.CardView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+
 import com.beia.solomon.R;
 import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
 import com.beia.solomon.activities.StatsActivity;
-import com.beia.solomon.runnables.SendAuthenticationDataRunnable;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 import static com.beia.solomon.activities.ProfileSettingsActivity.decodeBase64;
 
@@ -60,8 +57,8 @@ public class SettingsFragment extends Fragment {
                 editor.putString("password", null);
                 editor.apply();
                 //send a message to the server to logout the user and wait for authentication data
-                Thread logoutThread = new Thread(new SendAuthenticationDataRunnable("log out", MainActivity.objectOutputStream));
-                logoutThread.start();
+                //Thread logoutThread = new Thread(new SendAuthenticationDataRunnable("log out", MainActivity.objectOutputStream));
+                //logoutThread.start();
                 //start the LoginActivity
                 Intent intent = new Intent(getContext(), LoginActivity.class);
                 startActivity(intent);

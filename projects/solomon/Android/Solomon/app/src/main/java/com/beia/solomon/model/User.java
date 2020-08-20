@@ -1,50 +1,32 @@
-package com.beia_consult_international.solomon.model;
+package com.beia.solomon.model;
+
+import java.io.Serializable;
 
 import lombok.Builder;
 
-import javax.persistence.*;
-
-@Entity
 @Builder
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class User implements Serializable {
     private long id;
-
-    @Column(nullable = false)
     private String username;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
     private String firstName;
-
     private String lastName;
-
-    @Enumerated(EnumType.STRING)
     private Gender gender;
-
     private int age;
-
-    @Column(nullable = false)
-    private Role role;
-
-    private String pictureUrl;
+    private String role;
+    private String imageUrl;
 
     public User() {
     }
 
-    public User(long id, String username, String password, String firstName, String lastName, Gender gender, int age, Role role, String pictureUrl) {
+    public User(long id, String username, String firstName, String lastName, Gender gender, int age, String role, String imageUrl) {
         this.id = id;
         this.username = username;
-        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.age = age;
         this.role = role;
-        this.pictureUrl = pictureUrl;
+        this.imageUrl = imageUrl;
     }
 
     public long getId() {
@@ -61,14 +43,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getFirstName() {
@@ -103,20 +77,20 @@ public class User {
         this.age = age;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
-    public String getPictureUrl() {
-        return pictureUrl;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setPictureUrl(String pictureUrl) {
-        this.pictureUrl = pictureUrl;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override
@@ -124,13 +98,12 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", gender=" + gender +
                 ", age=" + age +
-                ", role=" + role +
-                ", pictureUrl='" + pictureUrl + '\'' +
+                ", role='" + role + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }
