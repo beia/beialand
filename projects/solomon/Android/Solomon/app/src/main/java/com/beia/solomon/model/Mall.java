@@ -1,9 +1,11 @@
 package com.beia.solomon.model;
 
+import java.io.Serializable;
+
 import lombok.Builder;
 
 @Builder
-public class Mall {
+public class Mall implements Serializable {
     private long id;
     private String name;
     private double latitude;

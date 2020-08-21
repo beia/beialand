@@ -5,9 +5,10 @@ import lombok.Builder;
 @Builder
 public class BeaconDto {
     private long id;
+    private String manufacturerId;
     private String name;
-    private String major;
-    private String minor;
+    private int major;
+    private int minor;
     private double latitude;
     private double longitude;
     private int layer;
@@ -19,8 +20,9 @@ public class BeaconDto {
     public BeaconDto() {
     }
 
-    public BeaconDto(long id, String name, String major, String minor, double latitude, double longitude, int layer, int floor, String manufacturer, UserDto user, MallDto mall) {
+    public BeaconDto(long id, String manufacturerId, String name, int major, int minor, double latitude, double longitude, int layer, int floor, String manufacturer, UserDto user, MallDto mall) {
         this.id = id;
+        this.manufacturerId = manufacturerId;
         this.name = name;
         this.major = major;
         this.minor = minor;
@@ -41,6 +43,14 @@ public class BeaconDto {
         this.id = id;
     }
 
+    public String getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(String manufacturerId) {
+        this.manufacturerId = manufacturerId;
+    }
+
     public String getName() {
         return name;
     }
@@ -49,19 +59,19 @@ public class BeaconDto {
         this.name = name;
     }
 
-    public String getMajor() {
+    public int getMajor() {
         return major;
     }
 
-    public void setMajor(String major) {
+    public void setMajor(int major) {
         this.major = major;
     }
 
-    public String getMinor() {
+    public int getMinor() {
         return minor;
     }
 
-    public void setMinor(String minor) {
+    public void setMinor(int minor) {
         this.minor = minor;
     }
 

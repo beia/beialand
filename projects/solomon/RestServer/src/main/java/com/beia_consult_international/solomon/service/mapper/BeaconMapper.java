@@ -9,6 +9,7 @@ public abstract class BeaconMapper {
         return BeaconDto
                 .builder()
                 .id(beacon.getId())
+                .manufacturerId(beacon.getManufacturerId())
                 .name(beacon.getName())
                 .latitude(beacon.getLatitude())
                 .longitude(beacon.getLongitude())
@@ -26,6 +27,7 @@ public abstract class BeaconMapper {
         return Beacon
                 .builder()
                 .id(beaconDto.getId())
+                .manufacturerId(beaconDto.getManufacturerId())
                 .name(beaconDto.getName())
                 .latitude(beaconDto.getLatitude())
                 .longitude(beaconDto.getLongitude())

@@ -1,6 +1,5 @@
 package com.beia_consult_international.solomon.model;
 
-import com.sun.istack.NotNull;
 import lombok.Builder;
 
 import javax.persistence.*;
@@ -60,5 +59,15 @@ public class Mall {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    @Override
+    public String toString() {
+        return "Mall{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
     }
 }

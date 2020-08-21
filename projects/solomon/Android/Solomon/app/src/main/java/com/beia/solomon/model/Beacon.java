@@ -1,13 +1,16 @@
 package com.beia.solomon.model;
 
+import java.io.Serializable;
+
 import lombok.Builder;
 
 @Builder
-public class Beacon {
+public class Beacon implements Serializable {
     private long id;
+    private String manufacturerId;
     private String name;
-    private String major;
-    private String minor;
+    private int major;
+    private int minor;
     private double latitude;
     private double longitude;
     private int layer;
@@ -19,8 +22,9 @@ public class Beacon {
     public Beacon() {
     }
 
-    public Beacon(long id, String name, String major, String minor, double latitude, double longitude, int layer, int floor, String manufacturer, User user, Mall mall) {
+    public Beacon(long id, String manufacturerId, String name, int major, int minor, double latitude, double longitude, int layer, int floor, String manufacturer, User user, Mall mall) {
         this.id = id;
+        this.manufacturerId = manufacturerId;
         this.name = name;
         this.major = major;
         this.minor = minor;
@@ -41,6 +45,14 @@ public class Beacon {
         this.id = id;
     }
 
+    public String getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(String manufacturerId) {
+        this.manufacturerId = manufacturerId;
+    }
+
     public String getName() {
         return name;
     }
@@ -49,19 +61,19 @@ public class Beacon {
         this.name = name;
     }
 
-    public String getMajor() {
+    public int getMajor() {
         return major;
     }
 
-    public void setMajor(String major) {
+    public void setMajor(int major) {
         this.major = major;
     }
 
-    public String getMinor() {
+    public int getMinor() {
         return minor;
     }
 
-    public void setMinor(String minor) {
+    public void setMinor(int minor) {
         this.minor = minor;
     }
 

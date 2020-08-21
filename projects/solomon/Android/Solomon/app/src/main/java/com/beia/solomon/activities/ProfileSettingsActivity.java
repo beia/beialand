@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.beia.solomon.R;
-import com.beia.solomon.networkPackets.ImageData;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -165,71 +164,73 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             }
         });
 
-        saveChangesButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v)
-            {
-                //get the data from the UI
-                String username = MainActivity.userData.getUsername(), password = null;
-                int age = MainActivity.userData.getAge();
-                if(usernameEditText.getVisibility() == View.VISIBLE && !usernameEditText.getText().toString().equals(""))
-                    username = usernameEditText.getText().toString().trim();
-                if(passwordEditText.getVisibility() == View.VISIBLE && !passwordEditText.getText().toString().equals(""))
-                    password = passwordEditText.getText().toString().trim();
-                if(ageEditText.getVisibility() == View.VISIBLE && !ageEditText.getText().toString().equals("")) {
-                    try {
-                        age = Integer.parseInt(ageEditText.getText().toString().trim());
-                    }
-                    catch (NumberFormatException ex) {
-                        age = MainActivity.userData.getAge();
-                    }
-                }
-                if(password != null) {//encrypt the password
-                    try {
-                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-                        password = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
-                    }
-                    catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-                }
 
-                //send the update request to the server
-                //String request = "{\"requestType\":\"updateUserData\", \"userID\":" + MainActivity.userData.getUserId() + ", \"username\":\"" + username + "\", \"password\":\"" + password + "\", \"age\":" + age + "}";
-                //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
-                Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
-
-                //change the user data
-                if(!username.equals(MainActivity.userData.getUsername())) {
-                    usernameTextView.setText(MainActivity.userData.getUsername());
-                    MainActivity.userData.setUsername(username);
-                    usernameTextView.setText(username);
-                }
-                if(age != MainActivity.userData.getAge()) {
-                    ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
-                    MainActivity.userData.setAge(age);
-                    ageTextView.setText(Integer.toString(age));
-                }
-
-                //set the UI as it was before updating
-                cancelUsernameChangesButton.setVisibility(View.GONE);
-                cancelPasswordChangesButton.setVisibility(View.GONE);
-                cancelAgeChangesButton.setVisibility(View.GONE);
-                usernameEditText.setVisibility(View.GONE);
-                passwordEditText.setVisibility(View.GONE);
-                ageEditText.setVisibility(View.GONE);
-                usernameEditText.setText("");
-                passwordEditText.setText("");
-                ageEditText.setText("");
-                usernameEditButton.setVisibility(View.VISIBLE);
-                passwordEditButton.setVisibility(View.VISIBLE);
-                ageEditButton.setVisibility(View.VISIBLE);
-                usernameTextView.setVisibility(View.VISIBLE);
-                passwordTextView.setVisibility(View.VISIBLE);
-                ageTextView.setVisibility(View.VISIBLE);
-                saveChangesButton.setVisibility(View.GONE);
-            }
-        });
+//        saveChangesButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v)
+//            {
+//
+//                //get the data from the UI
+//                String username = MainActivity.userData.getUsername(), password = null;
+//                int age = MainActivity.userData.getAge();
+//                if(usernameEditText.getVisibility() == View.VISIBLE && !usernameEditText.getText().toString().equals(""))
+//                    username = usernameEditText.getText().toString().trim();
+//                if(passwordEditText.getVisibility() == View.VISIBLE && !passwordEditText.getText().toString().equals(""))
+//                    password = passwordEditText.getText().toString().trim();
+//                if(ageEditText.getVisibility() == View.VISIBLE && !ageEditText.getText().toString().equals("")) {
+//                    try {
+//                        age = Integer.parseInt(ageEditText.getText().toString().trim());
+//                    }
+//                    catch (NumberFormatException ex) {
+//                        age = MainActivity.userData.getAge();
+//                    }
+//                }
+//                if(password != null) {//encrypt the password
+//                    try {
+//                        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+//                        password = new String(messageDigest.digest(password.getBytes()), StandardCharsets.UTF_8);
+//                    }
+//                    catch (NoSuchAlgorithmException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//                //send the update request to the server
+//                //String request = "{\"requestType\":\"updateUserData\", \"userID\":" + MainActivity.userData.getUserId() + ", \"username\":\"" + username + "\", \"password\":\"" + password + "\", \"age\":" + age + "}";
+//                //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
+//                Toast.makeText(ProfileSettingsActivity.profileSettingsContext, "info updated", Toast.LENGTH_LONG).show();
+//
+//                //change the user data
+//                if(!username.equals(MainActivity.userData.getUsername())) {
+//                    usernameTextView.setText(MainActivity.userData.getUsername());
+//                    MainActivity.userData.setUsername(username);
+//                    usernameTextView.setText(username);
+//                }
+//                if(age != MainActivity.userData.getAge()) {
+//                    ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
+//                    MainActivity.userData.setAge(age);
+//                    ageTextView.setText(Integer.toString(age));
+//                }
+//
+//                //set the UI as it was before updating
+//                cancelUsernameChangesButton.setVisibility(View.GONE);
+//                cancelPasswordChangesButton.setVisibility(View.GONE);
+//                cancelAgeChangesButton.setVisibility(View.GONE);
+//                usernameEditText.setVisibility(View.GONE);
+//                passwordEditText.setVisibility(View.GONE);
+//                ageEditText.setVisibility(View.GONE);
+//                usernameEditText.setText("");
+//                passwordEditText.setText("");
+//                ageEditText.setText("");
+//                usernameEditButton.setVisibility(View.VISIBLE);
+//                passwordEditButton.setVisibility(View.VISIBLE);
+//                ageEditButton.setVisibility(View.VISIBLE);
+//                usernameTextView.setVisibility(View.VISIBLE);
+//                passwordTextView.setVisibility(View.VISIBLE);
+//                ageTextView.setVisibility(View.VISIBLE);
+//                saveChangesButton.setVisibility(View.GONE);
+//            }
+//        });
 
     }
     public void initUI()
@@ -251,44 +252,44 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         cancelPasswordChangesButton = findViewById(R.id.cancelPasswordChangeButton);
         cancelAgeChangesButton = findViewById(R.id.cancelAgeChangeButton);
         saveChangesButton = findViewById(R.id.saveChangesButton);
-
-        //set the UI based on user data
-        nameTextView.setText(MainActivity.userData.getLastName() + " " + MainActivity.userData.getFirstName());
-        usernameTextView.setText(MainActivity.userData.getUsername());
-        ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
-
-        //if we can't find the profile picture in the cache we check in the users prefs or we get it from the server
-        if(MainActivity.picturesCache == null || MainActivity.picturesCache.get("profilePicture") == null)
-        {
-            //we check for the profile picture in the memory and if we find it we check if the same user is logged in as the one who's picture is saved
-            //if that's the case we get it from the memory(the picture is saved as a String and then it's concatenated with the user id with a space in between)
-            //if it's not the case then we download it from the server
-            if (MainActivity.sharedPref.contains("profilePicture"))
-            {
-                String userImageString = "";
-                //get the image string from the disk
-                userImageString = MainActivity.sharedPref.getString("profilePicture", "noImage");
-                if(!userImageString.equals("noImage"))
-                {
-                    String[] data = userImageString.split(" ");
-                    String imageString = data[0];
-                    int userId = Integer.parseInt(data[1]);
-                    if(userId == MainActivity.userData.getUserId()) {
-                        Bitmap imageBitmap = decodeBase64(imageString);
-                        ProfileSettingsActivity.profilePicture.setImageBitmap(imageBitmap);
-                        //save the picture into cache memory
-                        MainActivity.picturesCache.put("profilePicture", imageBitmap);
-                        return;
-                    }
-                }
-            }
-        }
-        else
-        {
-            //get the picture from cache
-            Bitmap bitmap = MainActivity.picturesCache.get("profilePicture");
-            ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
-        }
+//
+//        //set the UI based on user data
+//       // nameTextView.setText(MainActivity.userData.getLastName() + " " + MainActivity.userData.getFirstName());
+//        //usernameTextView.setText(MainActivity.userData.getUsername());
+//        //ageTextView.setText(Integer.toString(MainActivity.userData.getAge()));
+//
+//        //if we can't find the profile picture in the cache we check in the users prefs or we get it from the server
+//        if(MainActivity.picturesCache == null || MainActivity.picturesCache.get("profilePicture") == null)
+//        {
+//            //we check for the profile picture in the memory and if we find it we check if the same user is logged in as the one who's picture is saved
+//            //if that's the case we get it from the memory(the picture is saved as a String and then it's concatenated with the user id with a space in between)
+//            //if it's not the case then we download it from the server
+//            if (MainActivity.sharedPref.contains("profilePicture"))
+//            {
+//                String userImageString = "";
+//                //get the image string from the disk
+//                userImageString = MainActivity.sharedPref.getString("profilePicture", "noImage");
+//                if(!userImageString.equals("noImage"))
+//                {
+//                    String[] data = userImageString.split(" ");
+//                    String imageString = data[0];
+//                    int userId = Integer.parseInt(data[1]);
+//                    if(userId == MainActivity.userData.getUserId()) {
+//                        Bitmap imageBitmap = decodeBase64(imageString);
+//                        ProfileSettingsActivity.profilePicture.setImageBitmap(imageBitmap);
+//                        //save the picture into cache memory
+//                        MainActivity.picturesCache.put("profilePicture", imageBitmap);
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+//        else
+//        {
+//            //get the picture from cache
+//            Bitmap bitmap = MainActivity.picturesCache.get("profilePicture");
+//            ProfileSettingsActivity.profilePicture.setImageBitmap(bitmap);
+//        }
     }
 
 
@@ -306,51 +307,53 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Result code is RESULT_OK only if the user selects an Image
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            switch (requestCode) {
 
-                case 0://GALLERY_REQUEST_CODE
-                    //data.getData returns the content URI for the selected Image
-                    Uri selectedImageUri = data.getData();
-                    String path = getRealPathFromURI(selectedImageUri);
-                    try {
-                        //extract bytes from the imageUri and create an object that contains the profile picture and the user id
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
-                        bitmap = getCorrectBitmap(path, bitmap);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        //compress the bitmap data and save it into a byte array
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        byte[] imageContent = baos.toByteArray();
-                        int userId = MainActivity.userData.getUserId();
-                        ImageData imageData = new ImageData(imageContent, userId);
-                        baos.close();
-
-                        //set the profile picture with the selected one
-                        profilePicture.setImageURI(selectedImageUri);
-                        Toast.makeText(this, "Updated the profile picture", Toast.LENGTH_LONG).show();
-
-                        //start sending image thread
-                        synchronized (MainActivity.objectOutputStream) {
-                            //Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
-                            //sendImageThread.start();
-                        }
-                        //save the picture into cache memory
-                        MainActivity.picturesCache.put("profilePicture", bitmap);
-                        //get preferences
-                        SharedPreferences.Editor userPrefs = MainActivity.sharedPref.edit();
-                        //save the profile picture into the memory
-                        String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
-                        String userImageString = imageString + " " + MainActivity.userData.getUserId();
-                        userPrefs.putString("profilePicture", userImageString);
-                        userPrefs.apply();
-                    } catch (IOException e) {
-                        Toast.makeText(this, "Image format error", Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-            }
-        }
+//        // Result code is RESULT_OK only if the user selects an Image
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (resultCode == Activity.RESULT_OK) {
+//            switch (requestCode) {
+//
+//                case 0://GALLERY_REQUEST_CODE
+//                    //data.getData returns the content URI for the selected Image
+//                    Uri selectedImageUri = data.getData();
+//                    String path = getRealPathFromURI(selectedImageUri);
+//                    try {
+//                        //extract bytes from the imageUri and create an object that contains the profile picture and the user id
+//                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+//                        bitmap = getCorrectBitmap(path, bitmap);
+//                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                        //compress the bitmap data and save it into a byte array
+//                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//                        byte[] imageContent = baos.toByteArray();
+//                        int userId = MainActivity.userData.getUserId();
+//                        ImageData imageData = new ImageData(imageContent, userId);
+//                        baos.close();
+//
+//                        //set the profile picture with the selected one
+//                        profilePicture.setImageURI(selectedImageUri);
+//                        Toast.makeText(this, "Updated the profile picture", Toast.LENGTH_LONG).show();
+//
+//                        //start sending image thread
+//                        synchronized (MainActivity.objectOutputStream) {
+//                            //Thread sendImageThread = new Thread(new SendImageRunable(imageData, MainActivity.objectOutputStream));
+//                            //sendImageThread.start();
+//                        }
+//                        //save the picture into cache memory
+//                        MainActivity.picturesCache.put("profilePicture", bitmap);
+//                        //get preferences
+//                        SharedPreferences.Editor userPrefs = MainActivity.sharedPref.edit();
+//                        //save the profile picture into the memory
+//                        String imageString = ProfileSettingsActivity.encodeTobase64(bitmap);
+//                        String userImageString = imageString + " " + MainActivity.userData.getUserId();
+//                        userPrefs.putString("profilePicture", userImageString);
+//                        userPrefs.apply();
+//                    } catch (IOException e) {
+//                        Toast.makeText(this, "Image format error", Toast.LENGTH_LONG).show();
+//                        e.printStackTrace();
+//                    }
+//            }
+//        }
     }
 
     public Bitmap getCorrectBitmap(String photoPath, Bitmap bitmap) throws IOException

@@ -27,4 +27,6 @@
     <string name="universal_user">Basic YWRtaW46c29sb21vbg==</string>
     <string name="login_url">http://192.168.0.45:8080/users/login</string>
     <string name="signUp_url">http://192.168.0.45:8080/users/signUp</string>
+    <string name="getMallsUrl">http://192.168.0.45:8080/users/getMalls</string>
+    <string name="getBeaconsUrl">http://192.168.0.45:8080/users/getBeacons</string>
 </resources>

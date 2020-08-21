@@ -13,24 +13,24 @@ import android.widget.TextView;
 
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
-import com.beia.solomon.networkPackets.Campaign;
+import com.beia.solomon.model.Campaign;
 import com.bumptech.glide.Glide;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class CampaignsAdapter extends BaseAdapter {
 
     public Context context;
-    public ArrayList<Campaign> campaigns;
+    public List<Campaign> campaigns;
     public DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    public CampaignsAdapter(Context context, ArrayList<Campaign> campaigns)
+    public CampaignsAdapter(Context context, List<Campaign> campaigns)
     {
         this.context = context;
         this.campaigns = campaigns;
-        Log.d("CAMPAIGN", "CampaignsAdapter: " + campaigns.size());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class CampaignsAdapter extends BaseAdapter {
                 //send the campaigns reaction to the server
                 Calendar calendar = Calendar.getInstance();
                 String currentTime = dateFormat.format(calendar.getTime());
-                String request = "{\"requestType\":\"postCampaignReaction\", \"idCampaign\":\"" + campaign.getId() + "\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"gender\":\"" + MainActivity.userData.getGender() + "\", \"age\":" + MainActivity.userData.getAge() + ", \"viewDate\":\"" + currentTime + "\"}";
+                //String request = "{\"requestType\":\"postCampaignReaction\", \"idCampaign\":\"" + campaign.getId() + "\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"gender\":\"" + MainActivity.userData.getGender() + "\", \"age\":" + MainActivity.userData.getAge() + ", \"viewDate\":\"" + currentTime + "\"}";
                 //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
             }
         });

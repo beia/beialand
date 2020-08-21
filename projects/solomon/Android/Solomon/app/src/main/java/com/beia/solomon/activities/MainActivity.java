@@ -24,6 +24,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.adapters.ViewPagerAdapter;
 import com.beia.solomon.data.Location;
@@ -31,13 +35,10 @@ import com.beia.solomon.data.Point;
 import com.beia.solomon.fragments.MapFragment;
 import com.beia.solomon.fragments.SettingsFragment;
 import com.beia.solomon.fragments.StoreAdvertisementFragment;
-import com.beia.solomon.handlers.MainActivityHandler;
-import com.beia.solomon.networkPackets.Beacon;
-import com.beia.solomon.networkPackets.Campaign;
-import com.beia.solomon.networkPackets.KontaktBeacon;
-import com.beia.solomon.networkPackets.Mall;
-import com.beia.solomon.networkPackets.UserData;
-import com.beia.solomon.receivers.NotificationReceiver;
+import com.beia.solomon.model.Beacon;
+import com.beia.solomon.model.Campaign;
+import com.beia.solomon.model.Mall;
+import com.beia.solomon.model.User;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
 import com.estimote.proximity_sdk.api.ProximityObserver;
 import com.estimote.proximity_sdk.api.ProximityZone;
@@ -74,15 +75,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
-import java.util.Stack;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    //display variables
+    public RequestQueue volleyQueue;
+    public Gson gson;
+    public static User user;
+    public String password;
+
+    public List<Mall> malls;
+    public List<Beacon> beacons;
+    public List<Campaign> campaigns;
+
+
     public static int displayWidth;
     public static int displayHeight;
 
@@ -94,9 +104,7 @@ public class MainActivity extends AppCompatActivity {
     public static volatile HashMap<String, Long> timeMap;//key:idBeacon value:current time ms when the user entered the beacon area
     public static volatile HashMap<Integer, Mall> mallsMap;//key:mallId value:mall
     public static volatile List<Location> userLocations;//contains all the user locations in the last 24h
-    public static volatile ArrayList<Mall> malls;
     public static volatile HashMap<Integer, Boolean> mallsEntered;
-    public static volatile ArrayList<Campaign> campaigns;
     public static List<IndoorLevel> levels;
     public ArrayList<Boolean> levelsActivated;
     public HashSet<IBeaconDevice> ibeaconsSet;
@@ -130,11 +138,6 @@ public class MainActivity extends AppCompatActivity {
     public static volatile Queue<Marker> positionMarkers;
     public IndoorBuilding indoorBuilding;
 
-
-    //HANDLERS
-    public static MainActivityHandler mainActivityHandler;
-    public static boolean beaconsReceived = false;
-
     //UI
     public static TabLayout tabLayout;
     public ViewPager viewPager;
@@ -152,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
     public static SettingsFragment settingsFragment;
 
     public static Date currentTime;
-    public static volatile UserData userData;
     public static Context context;
     public static MainActivity mainActivity;
 
@@ -167,17 +169,89 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //get the screen dimensions
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         displayWidth = displayMetrics.widthPixels;
         displayHeight = displayMetrics.heightPixels;
 
-        if(userData == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
+        volleyQueue = Volley.newRequestQueue(this);
+        gson = new Gson();
 
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        user = gson.fromJson(sharedPref.getString("user", null), User.class);
+        password = sharedPref.getString("password", null);
+
+        if(user == null || password == null) {
+            user = (User) getIntent().getSerializableExtra("user");
+            password = getIntent().getStringExtra("password");
+            if(user == null || password == null) {
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+            }
+            else {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString("user", gson.toJson(user));
+                editor.putString("password", password);
+                editor.apply();
+            }
+        }
+        else {
+            initData();
+            getMalls();
+        }
+    }
+
+    public void getMalls() {
+        String url = getResources().getString(R.string.getMallsUrl);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<List> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                List.class,
+                headers,
+                malls -> {
+                    Log.d("RESPONSE", "malls");
+                    malls.forEach(mall -> Log.d("MALL", mall.toString()));
+                    this.malls = (List<Mall>)malls;
+                    getBeacons();
+                },
+                Throwable::printStackTrace);
+
+        volleyQueue.add(request);
+    }
+
+    public void getBeacons() {
+        String url = getResources().getString(R.string.getBeaconsUrl);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<List> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                List.class,
+                headers,
+                beacons -> {
+                    Log.d("RESPONSE", "beacons");
+                    beacons.forEach(beacon -> Log.d("BEACON", beacon.toString()));
+                    this.beacons = (List<Beacon>)beacons;
+                    initUI();
+                    initEstimoteBeacons();
+                    initKontaktBeacons();
+                },
+                error -> {
+                    Log.d("ERROR", new String(error.networkResponse.data));
+                });
+
+        volleyQueue.add(request);
+    }
+
+    public void initData() {
         //init variables
         context = getApplicationContext();
         mainActivity = this;
@@ -198,41 +272,19 @@ public class MainActivity extends AppCompatActivity {
         distancesQueues = new Queue[4];//a distance queue for each beacon in the room
         beaconDistances = new double[4];//the distances after the mean
         positionMarkers = new LinkedList<>();
-        campaigns = new ArrayList<>();
-
-        //create handler
-        mainActivityHandler = new MainActivityHandler(this);
-
-        //initialize the cache
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        //getUserData
-        MainActivity.userData = (UserData) getIntent().getSerializableExtra("UserData");
-        //check if the activity started from a notification
-        notification = getIntent().getBooleanExtra("notification", false);
-        //SharedPreferences.Editor editor = sharedPref.edit();
-        //editor.putString("username", userData.getUsername());
-        //editor.putString("password", userData.getPassword());
-        //editor.apply();
-
-        initUI();
-    }
-
-    @Override
-    public void onBackPressed() {
-        //do nothing
     }
 
 
     //NOTIFICATIONS
-    public void setupBackgroundProcess()
-    {
-        Intent alarmIntent = new Intent(this, NotificationReceiver.class);
-        alarmIntent.putExtra("idUser", userData.getUserId());
-        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
-        Log.d("ALARM", "started");
-    }
+//    public void setupBackgroundProcess()
+//    {
+//        Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+//        alarmIntent.putExtra("idUser", userData.getUserId());
+//        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+//        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
+//        Log.d("ALARM", "started");
+//    }
 
 
 
@@ -353,21 +405,14 @@ public class MainActivity extends AppCompatActivity {
 
         //configure the regions
         final Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
-        for(Beacon beacon: beaconsMap.values())
-        {
-            if(beacon instanceof KontaktBeacon)
-            {
-                Log.d("BEACONS", "initKontaktBeacons: " + beacon.getLabel());
-                KontaktBeacon kontaktBeacon = (KontaktBeacon) beacon;
-                IBeaconRegion kontaktRegion = new BeaconRegion.Builder()
-                        .identifier(kontaktBeacon.getLabel())
+        beacons.stream()
+                .filter(beacon -> beacon.getManufacturer().equals("KONTAKT"))
+                .forEach(beacon -> beaconRegions.add(new BeaconRegion.Builder()
+                        .identifier(beacon.getName())
                         .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
-                        .major(Integer.parseInt(kontaktBeacon.getMajor()))
-                        .minor(Integer.parseInt(kontaktBeacon.getMinor()))
-                        .build();
-                beaconRegions.add(kontaktRegion);
-            }
-        }
+                        .major(beacon.getMajor())
+                        .minor(beacon.getMinor())
+                        .build()));
 
         //manage the regions
         proximityManager.spaces().iBeaconRegions(beaconRegions);
@@ -375,8 +420,8 @@ public class MainActivity extends AppCompatActivity {
         proximityManager.setIBeaconListener(new IBeaconListener()
         {
             @Override
-            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region)
-            {
+            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region){}
+            /*{
                 //CHECK IF THE MALL CHANGED
                 if(MainActivity.beaconsMap.containsKey(iBeacon.getUniqueId()) && MainActivity.mallsEntered.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId()) == false)
                 {
@@ -388,13 +433,13 @@ public class MainActivity extends AppCompatActivity {
                     //get all the levels from the store(the floors)
                     indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
 
-                    /*
+                    *//*
                     while(indoorBuilding == null)
                     {
                         indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
                         Log.d("NO FOCUS", "onIBeaconDiscovered: ");
                     }
-                    */
+                    *//*
 
                     if(indoorBuilding == null)
                         Log.d("NULL BUILDING", "onIBeaconDiscovered: ");
@@ -427,12 +472,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-            }
+            }*/
 
             //DETECTED BEACONS
             @Override
-            public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region)
-            {
+            public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region) {}
+            /*{
                 int radius = 6371000;//Earth radius in meters
                 //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
                 for(IBeaconDevice iBeaconDevice : iBeacons)
@@ -505,11 +550,11 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
 
-                    /*
+                    *//*
                     //send the distance to the server
                     String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"idBeacon\":\"" + kontaktBeacon.getId() + "\"}";
                     new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
-                     */
+                     *//*
 
                     //check if a user entered a region
                     if(regionsEntered.isEmpty())
@@ -740,7 +785,7 @@ public class MainActivity extends AppCompatActivity {
                         //new Thread(new RequestRunnable(request, objectOutputStream)).start();
                     }
                 }
-            }
+            }*/
             @Override
             public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
             }
@@ -759,16 +804,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         if(proximityManager != null) {
-            //restart scanning for the Kontakt beacons
             startScanning();
-            if(settingsFragment.profilePicture != null)
-                settingsFragment.profilePicture.setImageBitmap(MainActivity.picturesCache.get("profilePicture"));
-            if(settingsFragment.nameTextView != null)
-                settingsFragment.nameTextView.setText(userData.getLastName() + " " + userData.getFirstName());
         }
     }
 
@@ -778,7 +817,7 @@ public class MainActivity extends AppCompatActivity {
             proximityManager.stopScanning();
         }
         super.onStop();
-        this.active = false;
+        active = false;
     }
 
     @Override
@@ -789,6 +828,11 @@ public class MainActivity extends AppCompatActivity {
             proximityManager = null;
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //do nothing
     }
 
     protected void startScanning() {
@@ -804,14 +848,12 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("ResourceAsColor")
     public void initUI()
     {
-        //get UI references
-        tabLayout = (TabLayout) findViewById(R.id.tabLayoutId);
-        viewPager = (ViewPager) findViewById(R.id.viewPagerId);
+        tabLayout = findViewById(R.id.tabLayoutId);
+        viewPager = findViewById(R.id.viewPagerId);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mainActivityLinearLayout = findViewById(R.id.mainActivityLinearLayout);
 
-        //set tabbed layout
-        storeAdvertisementFragment = new StoreAdvertisementFragment(MainActivity.campaigns);
+        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns);
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
@@ -825,9 +867,12 @@ public class MainActivity extends AppCompatActivity {
 
         settingsFragment = new SettingsFragment();
         Bundle bundle3 = new Bundle();
-        ArrayList<String> profileDataAndSettingsData = new ArrayList<>();
-        bundle3.putStringArrayList("profileDataAndSettingsData", profileDataAndSettingsData);
-        settingsFragment.setArguments(bundle3, "profileDataAndSettingsData");
+        ArrayList<String> settingsFragmentData = new ArrayList<>();
+        settingsFragmentData.add(gson.toJson(user));
+        settingsFragmentData.add(password);
+        settingsFragmentData.add(gson.toJson(malls));
+        bundle3.putStringArrayList("settingsData", settingsFragmentData);
+        settingsFragment.setArguments(bundle3);
 
         //add the fragment to the viewPagerAdapter
         int numberOfTabs = 3;

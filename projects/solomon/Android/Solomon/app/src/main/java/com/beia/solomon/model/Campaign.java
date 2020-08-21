@@ -1,9 +1,6 @@
-package com.beia.solomon.networkPackets;
+package com.beia.solomon.model;
 
-import java.io.Serializable;
-
-public class Campaign implements Serializable
-{
+public class Campaign {
     private String idCampaign;
     private String idCompany;
     private String companyName;
@@ -79,4 +76,3 @@ public class Campaign implements Serializable
         this.endDate = endDate;
     }
 }
-

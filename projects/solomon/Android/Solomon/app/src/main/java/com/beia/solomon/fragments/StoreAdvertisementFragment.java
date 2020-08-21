@@ -1,37 +1,31 @@
 package com.beia.solomon.fragments;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.adapters.CampaignsAdapter;
-import com.beia.solomon.networkPackets.Beacon;
-import com.beia.solomon.networkPackets.Campaign;
+import com.beia.solomon.model.Campaign;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class StoreAdvertisementFragment extends Fragment {
 
     public View view;
     public GridView campaignsGridView;
     public CampaignsAdapter campaignsAdapter;
-    public ArrayList<Campaign> campaigns;
+    public List<Campaign> campaigns;
 
-    public StoreAdvertisementFragment(ArrayList<Campaign> campaigns) {
+    public StoreAdvertisementFragment(List<Campaign> campaigns) {
         this.campaigns = campaigns;
     }
 
