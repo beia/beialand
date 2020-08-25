@@ -29,8 +29,7 @@ public class StatsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
         String mallsJson = getIntent().getStringExtra("malls");
-        Type type = (Type) new TypeToken<List<Mall>>(){}.getType();
-        malls = new Gson().fromJson(mallsJson, (java.lang.reflect.Type) type);
+        malls = new Gson().fromJson(mallsJson, new TypeToken<List<Mall>>(){}.getType());
         initUI();
     }
 

@@ -45,14 +45,9 @@ public class SettingsFragment extends Fragment {
 
     }
 
-    public void setArguments(@Nullable Bundle args, String bundleDataName) {
+    @Override
+    public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        ArrayList<String> bundleData = args.getStringArrayList("settingsData");
-        user = gson.fromJson(bundleData.get(0), User.class);
-        password = bundleData.get(1);
-        Type type = (Type) new TypeToken<List<Mall>>(){}.getType();
-        malls = gson.fromJson(bundleData.get(2), (java.lang.reflect.Type) type);
-
 
     }
 
@@ -61,8 +56,22 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.settings_fragment, container, false);
         gson = new Gson();
-        initUI(view);
+        Bundle bundle = getArguments();
+        if(bundle != null) {
+            ArrayList<String> bundleData = bundle.getStringArrayList("settingsData");
+            if(bundleData != null) {
+                user = gson.fromJson(bundleData.get(0), User.class);
+                password = bundleData.get(1);
+                malls = gson.fromJson(bundleData.get(2), new TypeToken<List<Mall>>() {}.getType());
+            }
+        }
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        initUI(view);
     }
 
     private void initUI(View view)
@@ -74,7 +83,8 @@ public class SettingsFragment extends Fragment {
         logoutButton = view.findViewById(R.id.logoutButton);
         profilePicture = view.findViewById(R.id.profilePicture);
         nameTextView = view.findViewById(R.id.usernameTextView);
-        nameTextView.setText(MainActivity.user.getFirstName() + " " + MainActivity.user.getLastName());
+        String nameText = user.getFirstName() + " " + user.getLastName();
+        nameTextView.setText(nameText);
 
         logoutButton.setOnClickListener(v -> {
         });

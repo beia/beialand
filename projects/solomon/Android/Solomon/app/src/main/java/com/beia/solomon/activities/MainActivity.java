@@ -7,16 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,11 +32,13 @@ import com.beia.solomon.fragments.StoreAdvertisementFragment;
 import com.beia.solomon.model.Beacon;
 import com.beia.solomon.model.Campaign;
 import com.beia.solomon.model.Mall;
+import com.beia.solomon.model.ProximityStatus;
 import com.beia.solomon.model.User;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
 import com.estimote.proximity_sdk.api.ProximityObserver;
 import com.estimote.proximity_sdk.api.ProximityZone;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
@@ -50,10 +46,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
-import com.kontakt.sdk.android.ble.connection.OnServiceReadyListener;
 import com.kontakt.sdk.android.ble.device.BeaconRegion;
 import com.kontakt.sdk.android.ble.manager.ProximityManager;
 import com.kontakt.sdk.android.ble.manager.ProximityManagerFactory;
@@ -79,8 +75,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class MainActivity extends AppCompatActivity {
 
     public RequestQueue volleyQueue;
@@ -91,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
     public List<Mall> malls;
     public List<Beacon> beacons;
     public List<Campaign> campaigns;
+    public Mall currentMall;
+
+    public Map<String, Marker> beaconMarkers;
 
 
     public static int displayWidth;
@@ -213,10 +210,10 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 List.class,
                 headers,
-                malls -> {
+                response -> {
                     Log.d("RESPONSE", "malls");
-                    malls.forEach(mall -> Log.d("MALL", mall.toString()));
-                    this.malls = (List<Mall>)malls;
+                    malls = gson.fromJson(gson.toJson(response), new TypeToken<List<Mall>>(){}.getType());
+                    malls.forEach(mall -> Log.d("Mall", mall.toString()));
                     getBeacons();
                 },
                 Throwable::printStackTrace);
@@ -236,17 +233,15 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 List.class,
                 headers,
-                beacons -> {
+                response -> {
                     Log.d("RESPONSE", "beacons");
-                    beacons.forEach(beacon -> Log.d("BEACON", beacon.toString()));
-                    this.beacons = (List<Beacon>)beacons;
+                    this.beacons = gson.fromJson(gson.toJson(response), new TypeToken<List<Beacon>>(){}.getType());
+                    beacons.forEach(beacon -> Log.d("Beacon", beacon.toString()));
                     initUI();
                     initEstimoteBeacons();
                     initKontaktBeacons();
                 },
-                error -> {
-                    Log.d("ERROR", new String(error.networkResponse.data));
-                });
+                Throwable::printStackTrace);
 
         volleyQueue.add(request);
     }
@@ -261,9 +256,7 @@ public class MainActivity extends AppCompatActivity {
         beaconsMapByCompanyId = new HashMap<>();
         regionsEntered = new HashMap<>();
         timeMap = new HashMap<>();
-        mallsMap = new HashMap<>();
         malls = new ArrayList<>();
-        mallsEntered = new HashMap<>();
         levels = new ArrayList<>();
         levelsActivated = new ArrayList<>();
         ibeaconsSet = new HashSet<>();
@@ -272,23 +265,372 @@ public class MainActivity extends AppCompatActivity {
         distancesQueues = new Queue[4];//a distance queue for each beacon in the room
         beaconDistances = new double[4];//the distances after the mean
         positionMarkers = new LinkedList<>();
+        beaconMarkers = new HashMap<>();
+    }
+
+    @SuppressLint("ResourceAsColor")
+    public void initUI()
+    {
+        tabLayout = findViewById(R.id.tabLayoutId);
+        viewPager = findViewById(R.id.viewPagerId);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        mainActivityLinearLayout = findViewById(R.id.mainActivityLinearLayout);
+
+        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns);
+        Bundle bundle1 = new Bundle();
+        ArrayList<String> storeAdvertisementsData = new ArrayList<>();
+        bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
+        storeAdvertisementFragment.setArguments(bundle1, "storeAdvertisementsData");
+
+        mapFragment = new MapFragment(beaconMarkers);
+        Bundle bundle2 = new Bundle();
+        ArrayList<String> beaconsData = new ArrayList<>();
+        beaconsData.add(gson.toJson(beacons));
+        bundle2.putStringArrayList("mapData", beaconsData);
+        mapFragment.setArguments(bundle2);
+
+        settingsFragment = new SettingsFragment();
+        Bundle bundle3 = new Bundle();
+        ArrayList<String> settingsFragmentData = new ArrayList<>();
+        settingsFragmentData.add(gson.toJson(user));
+        settingsFragmentData.add(password);
+        settingsFragmentData.add(gson.toJson(malls));
+        bundle3.putStringArrayList("settingsData", settingsFragmentData);
+        settingsFragment.setArguments(bundle3);
+
+        //add the fragment to the viewPagerAdapter
+        int numberOfTabs = 3;
+        viewPagerAdapter.addFragment(storeAdvertisementFragment, "storeAdvertisementsData");
+        viewPagerAdapter.addFragment(mapFragment, "userStatsData");
+        viewPagerAdapter.addFragment(settingsFragment, "profileDataAndSettingsData");
+
+        //set my ViewPagerAdapter to the ViewPager
+        viewPager.setAdapter(viewPagerAdapter);
+        //set the tabLayoutViewPager
+        tabLayout.setupWithViewPager(viewPager);
+
+        //set images instead of title text for each tab
+        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon).setText("SPECIAL OFFERS");
+        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon).setText("MAP");
+        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon).setText("SETTINGS");
+
+        //select the initial tab that the user sees
+        if(!MainActivity.notification)
+            tabLayout.getTabAt(1).select();
+        else
+            tabLayout.getTabAt(0).select();
+
+        //set the user profile UFI variables
+        usernameTextView = findViewById(R.id.usernameTextView);
+        passwordTextView = findViewById(R.id.passwordTexView);
+        ageTextView = findViewById(R.id.ageTextView);
+        Log.d("BEACONS", "LAYOUT");
+    }
+
+    public void initKontaktBeacons()
+    {
+        Log.d("BEACONS", "initKontaktBeacons: ");
+        //initialize the Kontakt SDK
+        KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
+        proximityManager = ProximityManagerFactory.create(this);
+
+
+        //configure the proximity manager
+        proximityManager.configuration()
+                .scanMode(ScanMode.LOW_LATENCY)
+                .scanPeriod(ScanPeriod.RANGING)
+                .activityCheckConfiguration(ActivityCheckConfiguration.DEFAULT)
+                .eddystoneFrameTypes(Arrays.asList(EddystoneFrameType.UID, EddystoneFrameType.URL));
+
+
+        //configure the regions
+        final Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
+        beacons.stream()
+                .filter(beacon -> beacon.getManufacturer().equals("KONTAKT"))
+                .forEach(beacon -> beaconRegions.add(new BeaconRegion.Builder()
+                        .identifier(beacon.getName())
+                        .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
+                        .major(beacon.getMajor())
+                        .minor(beacon.getMinor())
+                        .build()));
+
+        //manage the regions
+        proximityManager.spaces().iBeaconRegions(beaconRegions);
+
+        proximityManager.setIBeaconListener(new IBeaconListener() {
+            @Override
+            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region) {
+                Log.d("MUIE", "onIBeaconDiscovered: ");
+                Beacon beacon = beacons
+                        .stream()
+                        .filter(b -> b.getManufacturerId().equals(iBeacon.getUniqueId()))
+                        .findFirst()
+                        .orElse(null);
+                //MALL CHANGED
+                if(beacon != null && !beacon.getMall().equals(currentMall)) {
+                    currentMall = beacon.getMall();
+                    Log.d("MALL", currentMall.getLatitude() + " " + currentMall.getLongitude());
+                    LatLng mallCoordinates = new LatLng(currentMall.getLatitude(),
+                            currentMall.getLongitude());
+                    mapFragment.getGoogleMap().moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
+                }
+            }
+
+            //DETECTED BEACONS
+            @Override
+            public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region){
+                int radius = 6371000;//Earth radius in meters
+                for(IBeaconDevice iBeaconDevice : iBeacons) {
+
+                    Beacon beacon = beacons
+                            .stream()
+                            .filter(b -> b.getManufacturerId().equals(iBeaconDevice.getUniqueId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (beacon != null) {
+
+                        double distance = iBeaconDevice.getDistance();
+                        double x = getXCoordinate(beacon.getLatitude(), beacon.getLongitude(), radius);
+                        double y = getYCoordinate(beacon.getLatitude(), beacon.getLongitude(), radius);
+                        double z = getZCoordinate(beacon.getLatitude(), beacon.getLongitude(), radius);
+
+                        switch (beacon.getName()) {
+                            case "Emag":
+                                closestBeacons[0] = iBeaconDevice;
+                                if (distancesQueues[0] == null)
+                                    distancesQueues[0] = new LinkedList<Double>();
+                                distancesQueues[0].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[0] = new Point(x, y, z);
+                                break;
+                            case "Nike":
+                                closestBeacons[1] = iBeaconDevice;
+                                if (distancesQueues[1] == null)
+                                    distancesQueues[1] = new LinkedList();
+                                distancesQueues[1].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[1] = new Point(x, y, z);
+                                break;
+                            case "Taco Bell":
+                                closestBeacons[2] = iBeaconDevice;
+                                if (distancesQueues[2] == null)
+                                    distancesQueues[2] = new LinkedList();
+                                distancesQueues[2].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[2] = new Point(x, y, z);
+                                break;
+                            case "Bershka":
+                                closestBeacons[3] = iBeaconDevice;
+                                if (distancesQueues[3] == null)
+                                    distancesQueues[3] = new LinkedList();
+                                distancesQueues[3].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[3] = new Point(x, y, z);
+                                break;
+                            case "McDonald's":
+                                closestBeacons[0] = iBeaconDevice;
+                                if (distancesQueues[0] == null)
+                                    distancesQueues[0] = new LinkedList<Double>();
+                                distancesQueues[0].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[0] = new Point(x, y, z);
+                                break;
+                            case "Altex":
+                                closestBeacons[1] = iBeaconDevice;
+                                if (distancesQueues[1] == null)
+                                    distancesQueues[1] = new LinkedList();
+                                distancesQueues[1].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[1] = new Point(x, y, z);
+                                break;
+                            case "Zara":
+                                closestBeacons[2] = iBeaconDevice;
+                                if (distancesQueues[2] == null)
+                                    distancesQueues[2] = new LinkedList();
+                                distancesQueues[2].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[2] = new Point(x, y, z);
+                                break;
+                            case "Starbucks":
+                                closestBeacons[3] = iBeaconDevice;
+                                if (distancesQueues[3] == null)
+                                    distancesQueues[3] = new LinkedList();
+                                distancesQueues[3].add(iBeaconDevice.getDistance());
+                                closestBeaconsCoordinates[3] = new Point(x, y, z);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (regionsEntered.containsKey(iBeaconDevice.getUniqueId())) {
+                            boolean inZone = regionsEntered.get(iBeaconDevice.getUniqueId());
+                            if (!inZone) {
+                                if (distance < roomDimension * 0.5) {
+                                    regionsEntered.put(iBeaconDevice.getUniqueId(), true);
+                                    manageEnteredRegion(beacon, iBeaconDevice, region);
+                                }
+                            }
+                            else {
+                                if (distance > roomDimension) {
+                                    regionsEntered.put(iBeaconDevice.getUniqueId(), false);
+                                    manageLeftRegion(beacon, iBeaconDevice, region);
+                                }
+                            }
+                        }
+                        else {
+                            if (distance < roomDimension * 0.5) {
+                                regionsEntered.put(iBeaconDevice.getUniqueId(), true);
+                                manageEnteredRegion(beacon, iBeaconDevice, region);
+                            }
+                        }
+                    }
+
+                    //INDOOR POSITION
+                    boolean roomDetected = true;
+                    for (Point beaconLocation : closestBeaconsCoordinates)
+                        if (beaconLocation == null) {
+                            roomDetected = false;
+                            break;
+                        }
+                    if (roomDetected) {
+                        boolean enoughValues = true;
+                        for (int i = 0; i < distancesQueues.length; i++) {
+                            if (distancesQueues[i].size() < 2) {
+                                enoughValues = false;
+                                break;
+                            }
+                            else {
+                                Queue<Double> distances = distancesQueues[i];
+                                double meanDistance = 0, distancesNr = 0;
+                                distancesNr = distances.size();
+                                while (!distances.isEmpty())
+                                    meanDistance += distances.poll();
+                                meanDistance /= distancesNr;
+                                beaconDistances[i] = meanDistance;
+                            }
+                        }
+
+                        //COMPUTE LOCATION
+                        if (enoughValues) {
+                            //TODO::send beacon measured distances and beacon coordinates
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
+            }
+        });
+        startScanning();
+    }
+
+    private void manageEnteredRegion(Beacon beacon, IBeaconDevice iBeaconDevice, IBeaconRegion region) {
+        indoorBuilding = mapFragment.getGoogleMap().getFocusedBuilding();
+        List<IndoorLevel> levels = indoorBuilding != null ? indoorBuilding.getLevels() : null;
+        int currentActiveFloor = levels != null ? levels.size() - indoorBuilding.getActiveLevelIndex() : 0;
+        if(indoorBuilding != null && beacon.getFloor() != currentActiveFloor) {
+            levels.get(levels.size() - beacon.getFloor()).activate();
+        }
+        //TODO::request campaigns
+        highlightBeaconMarker(beacon, ProximityStatus.CLOSE);
+
+        timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
+        Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void manageLeftRegion(Beacon beacon, IBeaconDevice iBeaconDevice, IBeaconRegion region) {
+        long timeSeconds = (System.currentTimeMillis() - timeMap.get(iBeaconDevice.getUniqueId())) / 1000;
+        highlightBeaconMarker(beacon, ProximityStatus.FAR);
+        //TODO::send beacon time data
+        Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void highlightBeaconMarker(Beacon beacon, ProximityStatus proximityStatus) {
+        if(beaconMarkers.containsKey(beacon.getManufacturerId())) {
+            beaconMarkers.get(beacon.getManufacturerId()).remove();
+            beaconMarkers.remove(beacon.getManufacturerId());
+            LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
+            Marker marker = mapFragment
+                    .getGoogleMap()
+                    .addMarker(new MarkerOptions()
+                            .position(storeLocation)
+                            .icon(BitmapDescriptorFactory
+                                    .fromBitmap(mapFragment.createStoreMarker(MainActivity.context, null, proximityStatus))));
+            marker.setTitle(beacon.getName());
+            beaconMarkers.put(beacon.getManufacturerId(), marker);
+        }
     }
 
 
-    //NOTIFICATIONS
-//    public void setupBackgroundProcess()
-//    {
-//        Intent alarmIntent = new Intent(this, NotificationReceiver.class);
-//        alarmIntent.putExtra("idUser", userData.getUserId());
-//        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-//        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
-//        Log.d("ALARM", "started");
-//    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(proximityManager != null) {
+            //restart scanning for the Kontakt beacons
+            startScanning();
+        }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(proximityManager != null) {
+            startScanning();
+        }
+    }
 
+    @Override
+    protected void onStop() {
+        if(proximityManager != null) {
+            proximityManager.stopScanning();
+        }
+        super.onStop();
+        active = false;
+    }
 
-    //ESTIMOTE
+    @Override
+    protected void onDestroy() {
+        if(proximityManager != null) {
+            proximityManager.stopScanning();
+            proximityManager.disconnect();
+            proximityManager = null;
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //do nothing
+    }
+
+    protected void startScanning() {
+        proximityManager.connect(() -> {
+            proximityManager.startScanning();
+            Toast.makeText(context, "scanning for beacons...", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    public static void setUserPosition(LatLng latLng) {
+        LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
+        MainActivity.mapFragment.getGoogleMap().animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 19.4f));
+        Marker positionMarker = MainActivity.mapFragment.getGoogleMap().addMarker(new MarkerOptions().position(coordinates));
+        MainActivity.positionMarkers.add(positionMarker);
+        if(MainActivity.positionMarkers.size() > 1) {
+            MainActivity.positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
+        }
+    }
+
+    public double getXCoordinate(double lat, double lon, int radius) {
+        return radius * Math.cos(lon * 2 * Math.PI / 360) * Math.cos(lat * 2 * Math.PI / 360);//cos because the latitude starts from 90 degrees instead of 0
+    }
+    public double getYCoordinate(double lat, double lon, int radius) {
+        return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.sin(lon * 2 * Math.PI / 360);
+    }
+    public double getZCoordinate(double lat, double lon, int radius) {
+        return radius * Math.sin(lat * 2 * Math.PI / 360);
+    }
+    public double getLatitude(double x, double y, double z) {
+        return 360 / (2 * Math.PI) * Math.asin(z / 6371000);
+    }
+    public double getLongitude(double x, double y, double z) {
+        return 360 / (2 * Math.PI) * Math.atan2(y, x);
+    }
+
     public void initEstimoteBeacons()
     {
         /*
@@ -384,571 +726,14 @@ public class MainActivity extends AppCompatActivity {
          */
     }
 
-
-
-    //KONTAKT
-    public void initKontaktBeacons()
-    {
-        Log.d("BEACONS", "initKontaktBeacons: ");
-        //initialize the Kontakt SDK
-        KontaktSDK.initialize(String.valueOf(R.string.kontakt_io_api_key));
-        proximityManager = ProximityManagerFactory.create(this);
-
-
-        //configure the proximity manager
-        proximityManager.configuration()
-                .scanMode(ScanMode.LOW_LATENCY)
-                .scanPeriod(ScanPeriod.RANGING)
-                .activityCheckConfiguration(ActivityCheckConfiguration.DEFAULT)
-                .eddystoneFrameTypes(Arrays.asList(EddystoneFrameType.UID, EddystoneFrameType.URL));
-
-
-        //configure the regions
-        final Collection<IBeaconRegion> beaconRegions = new ArrayList<>();
-        beacons.stream()
-                .filter(beacon -> beacon.getManufacturer().equals("KONTAKT"))
-                .forEach(beacon -> beaconRegions.add(new BeaconRegion.Builder()
-                        .identifier(beacon.getName())
-                        .proximity(UUID.fromString("f7826da6-4fa2-4e98-8024-bc5b71e0893e"))
-                        .major(beacon.getMajor())
-                        .minor(beacon.getMinor())
-                        .build()));
-
-        //manage the regions
-        proximityManager.spaces().iBeaconRegions(beaconRegions);
-
-        proximityManager.setIBeaconListener(new IBeaconListener()
-        {
-            @Override
-            public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region){}
-            /*{
-                //CHECK IF THE MALL CHANGED
-                if(MainActivity.beaconsMap.containsKey(iBeacon.getUniqueId()) && MainActivity.mallsEntered.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId()) == false)
-                {
-                    //update the map based on the beacon mallId
-                    Mall mall = MainActivity.mallsMap.get(MainActivity.beaconsMap.get(iBeacon.getUniqueId()).getMallId());
-                    Log.d("MALL", mall.getMallCoordinates().getLatitude() + " " + mall.getMallCoordinates().getLongitude());
-                    LatLng mallCoordinates = new LatLng(mall.getMallCoordinates().getLatitude(), mall.getMallCoordinates().getLongitude());
-                    mapFragment.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
-                    //get all the levels from the store(the floors)
-                    indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
-
-                    *//*
-                    while(indoorBuilding == null)
-                    {
-                        indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
-                        Log.d("NO FOCUS", "onIBeaconDiscovered: ");
-                    }
-                    *//*
-
-                    if(indoorBuilding == null)
-                        Log.d("NULL BUILDING", "onIBeaconDiscovered: ");
-
-                    //SET THE INDOOR LEVELS
-                    if(indoorBuilding != null)
-                    {
-                        List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
-                        //spin the array because it has the upper levels at the begining
-                        Stack<IndoorLevel> stack = new Stack<>();
-                        for(IndoorLevel indoorLevel : levels_aux)
-                            stack.push(indoorLevel);
-                        while(!stack.empty())
-                            levels.add(stack.pop());
-                        //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
-                        for(IndoorLevel indoorLevel : levels)
-                        {
-                            levelsActivated.add(false);
-                        }
-                    }
-
-                    //the user just entered the mall we change the map and we make all the other values in the mallEntered map as false
-                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beaconsMap.get(iBeacon.getUniqueId());
-                    mallsEntered.put(kontaktBeacon.getMallId(),true);
-                    for(Integer mallId : mallsEntered.keySet())
-                    {
-                        if(mallId != mall.getMallId())
-                        {
-                            mallsEntered.put(mallId, false);
-                        }
-                    }
-                }
-            }*/
-
-            //DETECTED BEACONS
-            @Override
-            public void onIBeaconsUpdated(List<IBeaconDevice> iBeacons, IBeaconRegion region) {}
-            /*{
-                int radius = 6371000;//Earth radius in meters
-                //check if a user entered a zone and record the time spent in the zone(used for analitics and stuff)
-                for(IBeaconDevice iBeaconDevice : iBeacons)
-                {
-                    Log.d("TEST", "onIBeaconsUpdated: " + beaconsMap.size());
-                    KontaktBeacon kontaktBeacon = (KontaktBeacon) MainActivity.beaconsMap.get(iBeaconDevice.getUniqueId());
-                    double distance = iBeaconDevice.getDistance();
-                    double x = getXCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
-                    double y = getYCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
-                    double z = getZCoordinate(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude(), radius);
-
-                    switch (kontaktBeacon.getLabel()) {
-                        case "Emag":
-                            closestBeacons[0] = iBeaconDevice;
-                            if(distancesQueues[0] == null)
-                                distancesQueues[0] = new LinkedList<Double>();
-                            distancesQueues[0].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[0] = new Point(x, y, z);
-                            break;
-                        case "Nike":
-                            closestBeacons[1] = iBeaconDevice;
-                            if(distancesQueues[1] == null)
-                                distancesQueues[1] = new LinkedList();
-                            distancesQueues[1].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[1] = new Point(x, y, z);
-                            break;
-                        case "Taco Bell":
-                            closestBeacons[2] = iBeaconDevice;
-                            if(distancesQueues[2] == null)
-                                distancesQueues[2] = new LinkedList();
-                            distancesQueues[2].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[2] = new Point(x, y, z);
-                            break;
-                        case "Bershka":
-                            closestBeacons[3] = iBeaconDevice;
-                            if(distancesQueues[3] == null)
-                                distancesQueues[3] = new LinkedList();
-                            distancesQueues[3].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[3] = new Point(x, y, z);
-                            break;
-                        case "McDonald's":
-                            closestBeacons[0] = iBeaconDevice;
-                            if(distancesQueues[0] == null)
-                                distancesQueues[0] = new LinkedList<Double>();
-                            distancesQueues[0].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[0] = new Point(x, y, z);
-                            break;
-                        case "Altex":
-                            closestBeacons[1] = iBeaconDevice;
-                            if(distancesQueues[1] == null)
-                                distancesQueues[1] = new LinkedList();
-                            distancesQueues[1].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[1] = new Point(x, y, z);
-                        break;
-                        case "Zara":
-                            closestBeacons[2] = iBeaconDevice;
-                            if(distancesQueues[2] == null)
-                                distancesQueues[2] = new LinkedList();
-                            distancesQueues[2].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[2] = new Point(x, y, z);
-                            break;
-                        case "Starbucks":
-                            closestBeacons[3] = iBeaconDevice;
-                            if(distancesQueues[3] == null)
-                                distancesQueues[3] = new LinkedList();
-                            distancesQueues[3].add(iBeaconDevice.getDistance());
-                            closestBeaconsCoordinates[3] = new Point(x, y, z);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    *//*
-                    //send the distance to the server
-                    String distanceDataRequest = "{\"requestType\":\"saveDistance\", \"distance\":" + distance + ", \"idBeacon\":\"" + kontaktBeacon.getId() + "\"}";
-                    new Thread(new RequestRunnable(distanceDataRequest, objectOutputStream)).start();
-                     *//*
-
-                    //check if a user entered a region
-                    if(regionsEntered.isEmpty())
-                    {
-                        if(distance < roomDimension * 0.5)
-                        {
-                            //check if the map loaded and initialize variables
-                            if(indoorBuilding == null)
-                            {
-                                indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
-                                if(indoorBuilding != null)
-                                {
-                                    List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
-                                    //spin the array because it has the upper levels at the begining
-                                    Stack<IndoorLevel> stack = new Stack<>();
-                                    for(IndoorLevel indoorLevel : levels_aux)
-                                        stack.push(indoorLevel);
-                                    while(!stack.empty())
-                                        levels.add(stack.pop());
-                                    //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
-                                    for(IndoorLevel indoorLevel : levels)
-                                    {
-                                        levelsActivated.add(false);
-                                    }
-                                }
-                            }
-                            //change the map level(floor) to the current floor
-                            if(levels != null && levels.isEmpty() == false) {
-                                if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
-                                    //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
-                                    levelsActivated.set(kontaktBeacon.getFloor(), true);
-                                    for (int i = 0; i < levelsActivated.size(); i++) {
-                                        if (i != kontaktBeacon.getFloor()) {
-                                            levelsActivated.set(i, false);
-                                        }
-                                    }
-                                    //set the new indoor map level
-                                    levels.get(kontaktBeacon.getFloor()).activate();
-                                }
-                            }
-
-                            //request campaigns
-                            //String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
-                            //new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
-
-                            //put the user on the map(not the exact location)
-                            setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
-
-
-                            regionsEntered.put(iBeaconDevice.getUniqueId(), true);
-                            Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
-                            toast.show();
-                            //LOCATION DATA
-                            timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
-                        }
-                    }
-                    else
-                    {
-                        if(regionsEntered.containsKey(iBeaconDevice.getUniqueId()))
-                        {
-                            boolean inZone = regionsEntered.get(iBeaconDevice.getUniqueId());
-                            if(!inZone)
-                            {
-                                //user is inside the region
-                                if(distance < roomDimension * 0.5)
-                                {
-                                    //check if the map loaded and initialize variables
-                                    if(indoorBuilding == null)
-                                    {
-                                        indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
-                                        if(indoorBuilding != null)
-                                        {
-                                            List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
-                                            //spin the array because it has the upper levels at the begining
-                                            Stack<IndoorLevel> stack = new Stack<>();
-                                            for(IndoorLevel indoorLevel : levels_aux)
-                                                stack.push(indoorLevel);
-                                            while(!stack.empty())
-                                                levels.add(stack.pop());
-                                            //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
-                                            for(IndoorLevel indoorLevel : levels)
-                                            {
-                                                levelsActivated.add(false);
-                                            }
-                                        }
-                                    }
-                                    //change the map level(floor) to the current floor
-                                    if(levels != null && levels.isEmpty() == false) {
-                                        if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
-                                            //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
-                                            levelsActivated.set(kontaktBeacon.getFloor(), true);
-                                            for (int i = 0; i < levelsActivated.size(); i++) {
-                                                if (i != kontaktBeacon.getFloor()) {
-                                                    levelsActivated.set(i, false);
-                                                }
-                                            }
-                                            //set the new indoor map level
-                                            levels.get(kontaktBeacon.getFloor()).activate();
-                                        }
-                                    }
-
-                                    //request campaigns
-                                    //String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
-                                    //new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
-
-                                    //put the user on the map(not the exact location)
-                                    setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
-
-                                    regionsEntered.put(iBeaconDevice.getUniqueId(), true);
-                                    //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
-                                    Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
-                                    toast.show();
-                                    //LOCATION DATA
-                                    timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
-                                }
-                            }
-                            else
-                            {
-                                //user is outside the region
-                                if(distance > roomDimension)
-                                {
-                                    regionsEntered.put(iBeaconDevice.getUniqueId(), false);
-                                    //when the distance from the beacon is smaller than 5 metres and the user was outside the region the user entered the zone
-                                    Toast toast = Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
-                                    toast.show();
-                                    //LOCATION DATA
-                                    long timeSeconds = (System.currentTimeMillis() - timeMap.get(iBeaconDevice.getUniqueId())) / 1000;
-                                    //String requestString = "{\"requestType\":\"postBeaconTime\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"idBeacon\":\"" + iBeaconDevice.getUniqueId() + "\", \"timeSeconds\":" + timeSeconds + "}";
-                                    //new Thread(new PostRunnable(requestString, objectOutputStream)).start();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if(distance < roomDimension * 0.5)
-                            {
-                                //check if the map loaded and initialize variables
-                                if(indoorBuilding == null)
-                                {
-                                    indoorBuilding = mapFragment.googleMap.getFocusedBuilding();
-                                    if(indoorBuilding != null)
-                                    {
-                                        List<IndoorLevel> levels_aux = indoorBuilding.getLevels();
-                                        //spin the array because it has the upper levels at the begining
-                                        Stack<IndoorLevel> stack = new Stack<>();
-                                        for(IndoorLevel indoorLevel : levels_aux)
-                                            stack.push(indoorLevel);
-                                        while(!stack.empty())
-                                            levels.add(stack.pop());
-                                        //set all the levels to false(initially we are not in a close range from a beacon so we don't know in which level we're in)
-                                        for(IndoorLevel indoorLevel : levels)
-                                        {
-                                            levelsActivated.add(false);
-                                        }
-                                    }
-                                }
-                                //change the map level(floor) to the current floor
-                                if(levels != null && levels.isEmpty() == false) {
-                                    if (levelsActivated.get(kontaktBeacon.getFloor()) == false) {
-                                        //checked if the floor was changed set the current floor to true in the lavels activated array and make all the others false
-                                        levelsActivated.set(kontaktBeacon.getFloor(), true);
-                                        for (int i = 0; i < levelsActivated.size(); i++) {
-                                            if (i != kontaktBeacon.getFloor()) {
-                                                levelsActivated.set(i, false);
-                                            }
-                                        }
-                                        //set the new indoor map level
-                                        levels.get(kontaktBeacon.getFloor()).activate();
-                                    }
-                                }
-
-                                //request campaigns
-                                //String campaignsRequest = "{\"requestType\":\"getCampaigns\",\"beaconId\":\"" + kontaktBeacon.getId() + "\"}";
-                                //new Thread(new RequestRunnable(campaignsRequest, objectOutputStream)).start();
-
-                                //put the user on the map(not the exact location)
-                                setUserPosition(new LatLng(kontaktBeacon.getCoordinates().getLatitude(), kontaktBeacon.getCoordinates().getLongitude()));
-
-                                regionsEntered.put(iBeaconDevice.getUniqueId(), true);
-                                Toast toast = Toast.makeText(getApplicationContext(), "Entered region: " + region.getIdentifier(), Toast.LENGTH_SHORT);
-                                toast.show();
-                                //LOCATION DATA
-                                timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
-                            }
-                        }
-                    }
-                }
-
-                //INDOOR POSITION
-                //check if an area can be formed from the beacons and compute the position of the user
-                boolean roomDetected = true;
-                for(Point beaconLocation : closestBeaconsCoordinates)
-                    if(beaconLocation == null) {
-                        roomDetected = false;
-                        break;
-                    }
-                if(roomDetected)
-                {
-                    //check if there are enough values in the distances queues
-                    boolean enoughValues = true;
-                    for(int i = 0; i < distancesQueues.length; i++) {//iterate through the distances queue of each beacon
-                        if (distancesQueues[i].size() < 2) {
-                            enoughValues = false;
-                            break;
-                        }
-                        else {
-                            LinkedList<Double> distances = (LinkedList<Double>)distancesQueues[i];
-                            double meanDistance = 0, distancesNr = 0;
-                            distancesNr = distances.size();
-                            while(!distances.isEmpty())
-                                meanDistance += distances.poll();
-                            meanDistance /= distancesNr;
-                            beaconDistances[i] = meanDistance;
-                        }
-                    }
-
-                    //COMPUTE LOCATION
-                    if(enoughValues) {
-                        //send location data to the server
-                        Gson gson = new Gson();
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("{\"requestType\":\"computeLocation\",\"beaconDistances\":");
-                        stringBuilder.append(gson.toJson(beaconDistances));
-                        stringBuilder.append(",\"beaconCoordinates\":");
-                        stringBuilder.append(gson.toJson(closestBeaconsCoordinates));
-                        stringBuilder.append("}");
-                        //String request = stringBuilder.toString();
-                        //new Thread(new RequestRunnable(request, objectOutputStream)).start();
-                    }
-                }
-            }*/
-            @Override
-            public void onIBeaconLost(IBeaconDevice iBeacon, IBeaconRegion region) {
-            }
-        });
-        startScanning();
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(proximityManager != null) {
-            //restart scanning for the Kontakt beacons
-            startScanning();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(proximityManager != null) {
-            startScanning();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        if(proximityManager != null) {
-            proximityManager.stopScanning();
-        }
-        super.onStop();
-        active = false;
-    }
-
-    @Override
-    protected void onDestroy() {
-        if(proximityManager != null) {
-            proximityManager.stopScanning();
-            proximityManager.disconnect();
-            proximityManager = null;
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        //do nothing
-    }
-
-    protected void startScanning() {
-        proximityManager.connect(new OnServiceReadyListener() {
-            @Override
-            public void onServiceReady() {
-                proximityManager.startScanning();
-                Toast.makeText(context, "scanning for beacons...", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @SuppressLint("ResourceAsColor")
-    public void initUI()
-    {
-        tabLayout = findViewById(R.id.tabLayoutId);
-        viewPager = findViewById(R.id.viewPagerId);
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        mainActivityLinearLayout = findViewById(R.id.mainActivityLinearLayout);
-
-        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns);
-        Bundle bundle1 = new Bundle();
-        ArrayList<String> storeAdvertisementsData = new ArrayList<>();
-        bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
-        storeAdvertisementFragment.setArguments(bundle1, "storeAdvertisementsData");
-
-        mapFragment = new MapFragment();
-        Bundle bundle2 = new Bundle();
-        ArrayList<String> userStatsData = new ArrayList<>();
-        bundle2.putStringArrayList("userStatsData", userStatsData);
-        mapFragment.setArguments(bundle2, "userStatsData");
-
-        settingsFragment = new SettingsFragment();
-        Bundle bundle3 = new Bundle();
-        ArrayList<String> settingsFragmentData = new ArrayList<>();
-        settingsFragmentData.add(gson.toJson(user));
-        settingsFragmentData.add(password);
-        settingsFragmentData.add(gson.toJson(malls));
-        bundle3.putStringArrayList("settingsData", settingsFragmentData);
-        settingsFragment.setArguments(bundle3);
-
-        //add the fragment to the viewPagerAdapter
-        int numberOfTabs = 3;
-        viewPagerAdapter.addFragment(storeAdvertisementFragment, "storeAdvertisementsData");
-        viewPagerAdapter.addFragment(mapFragment, "userStatsData");
-        viewPagerAdapter.addFragment(settingsFragment, "profileDataAndSettingsData");
-
-        //set my ViewPagerAdapter to the ViewPager
-        viewPager.setAdapter(viewPagerAdapter);
-        //set the tabLayoutViewPager
-        tabLayout.setupWithViewPager(viewPager);
-
-        //set images instead of title text for each tab
-        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon).setText("SPECIAL OFFERS");
-        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon).setText("MAP");
-        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon).setText("SETTINGS");
-
-        //select the initial tab that the user sees
-        if(!MainActivity.notification)
-            tabLayout.getTabAt(1).select();
-        else
-            tabLayout.getTabAt(0).select();
-
-        //set the user profile UFI variables
-        usernameTextView = findViewById(R.id.usernameTextView);
-        passwordTextView = findViewById(R.id.passwordTexView);
-        ageTextView = findViewById(R.id.ageTextView);
-        Log.d("BEACONS", "LAYOUT");
-    }
-
-    public static Bitmap createStoreMarker(Context context, Bitmap bitmap) {
-
-        View marker = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.store_marker, null);
-
-        CircleImageView markerImageView = marker.findViewById(R.id.profile_image);
-        markerImageView.setImageBitmap(bitmap);
-
-        marker.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        marker.layout(0, 0, (int)(marker.getMeasuredWidth() * 0.6), (int)(marker.getMeasuredHeight() * 0.6)) ;
-        marker.buildDrawingCache();
-        Bitmap returnedBitmap = Bitmap.createBitmap((int)(marker.getMeasuredWidth() * 0.6), (int)(marker.getMeasuredHeight() * 0.6),
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(returnedBitmap);
-        canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
-        Drawable drawable = marker.getBackground();
-        if (drawable != null)
-            drawable.draw(canvas);
-        marker.draw(canvas);
-
-        return returnedBitmap;
-    }
-
-    public static void setUserPosition(LatLng latLng) {
-        LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
-        MainActivity.mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 19.4f));
-        Marker positionMarker = MainActivity.mapFragment.googleMap.addMarker(new MarkerOptions().position(coordinates));
-        MainActivity.positionMarkers.add(positionMarker);
-        if(MainActivity.positionMarkers.size() > 1)
-        {
-            MainActivity.positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
-        }
-    }
-
-    public double getXCoordinate(double lat, double lon, int radius) {
-        return radius * Math.cos(lon * 2 * Math.PI / 360) * Math.cos(lat * 2 * Math.PI / 360);//cos because the latitude starts from 90 degrees instead of 0
-    }
-    public double getYCoordinate(double lat, double lon, int radius) {
-        return radius * Math.cos(lat * 2 * Math.PI / 360) * Math.sin(lon * 2 * Math.PI / 360);
-    }
-    public double getZCoordinate(double lat, double lon, int radius) {
-        return radius * Math.sin(lat * 2 * Math.PI / 360);
-    }
-    public double getLatitude(double x, double y, double z) {
-        return 360 / (2 * Math.PI) * Math.asin(z / 6371000);
-    }
-    public double getLongitude(double x, double y, double z) {
-        return 360 / (2 * Math.PI) * Math.atan2(y, x);
-    }
+    //NOTIFICATIONS
+//    public void setupBackgroundProcess()
+//    {
+//        Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+//        alarmIntent.putExtra("idUser", userData.getUserId());
+//        pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+//        alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 60000, pendingIntent);
+//        Log.d("ALARM", "started");
+//    }
 }

@@ -132,4 +132,22 @@ public class Beacon implements Serializable {
     public void setMall(Mall mall) {
         this.mall = mall;
     }
+
+    @Override
+    public String toString() {
+        return "Beacon{" +
+                "id=" + id +
+                ", manufacturerId='" + manufacturerId + '\'' +
+                ", name='" + name + '\'' +
+                ", major=" + major +
+                ", minor=" + minor +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", layer=" + layer +
+                ", floor=" + floor +
+                ", manufacturer='" + manufacturer + '\'' +
+                ", user=" + user +
+                ", mall=" + mall +
+                '}';
+    }
 }

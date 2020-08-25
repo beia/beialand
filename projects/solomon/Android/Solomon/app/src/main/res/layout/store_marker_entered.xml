@@ -3,7 +3,7 @@
     android:id="@+id/custom_marker_view"
     android:layout_width="@dimen/dimen30dp"
     android:layout_height="@dimen/dimen30dp"
-    android:background="@drawable/marker">
+    android:background="@drawable/marker_entered_zone">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image"

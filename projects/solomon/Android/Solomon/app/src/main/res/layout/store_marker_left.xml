@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_marker_view"
+    android:layout_width="@dimen/dimen30dp"
+    android:layout_height="@dimen/dimen30dp"
+    android:background="@drawable/marker_left_zone">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="@dimen/dimen14dp"
+        android:layout_height="@dimen/dimen14dp"
+        android:layout_marginTop="@dimen/dimen2dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@null"
+        android:src="@drawable/user_icon" />
+</FrameLayout>

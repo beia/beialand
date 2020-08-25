@@ -67,6 +67,8 @@ public class StatsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemCount() {
-        return malls.size();
+        if(malls != null)
+            return malls.size();
+        return 0;
     }
 }
