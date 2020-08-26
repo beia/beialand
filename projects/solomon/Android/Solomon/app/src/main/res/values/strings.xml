@@ -29,4 +29,6 @@
     <string name="signUp_url">http://192.168.0.45:8080/users/signUp</string>
     <string name="getMallsUrl">http://192.168.0.45:8080/users/getMalls</string>
     <string name="getBeaconsUrl">http://192.168.0.45:8080/users/getBeacons</string>
+    <string name="postBeaconTimeUrl">http://192.168.0.45:8080/users/postBeaconTime</string>
+    <string name="computeLocationUrl">http://192.168.0.45:8080/users/computeLocation</string>
 </resources>

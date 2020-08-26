@@ -24,8 +24,9 @@ import com.android.volley.toolbox.Volley;
 import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.adapters.ViewPagerAdapter;
-import com.beia.solomon.data.Location;
-import com.beia.solomon.data.Point;
+import com.beia.solomon.model.BeaconLocalizationData;
+import com.beia.solomon.model.Location;
+import com.beia.solomon.model.Point;
 import com.beia.solomon.fragments.MapFragment;
 import com.beia.solomon.fragments.SettingsFragment;
 import com.beia.solomon.fragments.StoreAdvertisementFragment;
@@ -240,6 +241,51 @@ public class MainActivity extends AppCompatActivity {
                     initUI();
                     initEstimoteBeacons();
                     initKontaktBeacons();
+                },
+                Throwable::printStackTrace);
+
+        volleyQueue.add(request);
+    }
+
+    public void postBeaconTime(Beacon beacon, long seconds) {
+        String url = getResources().getString(R.string.postBeaconTimeUrl) +
+                "?user_id=" + user.getId() +
+                "&beacon_id=" + beacon.getId();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                seconds,
+                Object.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", "SAVED BEACON TIME");
+                },
+                Throwable::printStackTrace);
+
+        volleyQueue.add(request);
+    }
+
+    public void requestLocalization(BeaconLocalizationData beaconLocalizationData) {
+        String url = getResources().getString(R.string.computeLocationUrl) + "/" + user.getId();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Location> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                beaconLocalizationData,
+                Location.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", "Location:" + response);
+                    LatLng coordinates = new LatLng(response.getLatitude(), response.getLongitude());
+                    setUserPosition(coordinates);
+                    closestBeaconsCoordinates = new Point[4];
                 },
                 Throwable::printStackTrace);
 
@@ -489,7 +535,7 @@ public class MainActivity extends AppCompatActivity {
                     if (roomDetected) {
                         boolean enoughValues = true;
                         for (int i = 0; i < distancesQueues.length; i++) {
-                            if (distancesQueues[i].size() < 2) {
+                            if (distancesQueues[i].size() < 1) {
                                 enoughValues = false;
                                 break;
                             }
@@ -506,7 +552,8 @@ public class MainActivity extends AppCompatActivity {
 
                         //COMPUTE LOCATION
                         if (enoughValues) {
-                            //TODO::send beacon measured distances and beacon coordinates
+                            Log.d("POSITION", "onIBeaconsUpdated: ");
+                            requestLocalization(new BeaconLocalizationData(closestBeaconsCoordinates, beaconDistances));
                         }
                     }
                 }
@@ -536,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
     private void manageLeftRegion(Beacon beacon, IBeaconDevice iBeaconDevice, IBeaconRegion region) {
         long timeSeconds = (System.currentTimeMillis() - timeMap.get(iBeaconDevice.getUniqueId())) / 1000;
         highlightBeaconMarker(beacon, ProximityStatus.FAR);
-        //TODO::send beacon time data
+        postBeaconTime(beacon, timeSeconds);
         Toast.makeText(getApplicationContext(), "Left region: " + region.getIdentifier(), Toast.LENGTH_SHORT).show();
     }
 
@@ -556,6 +603,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setUserPosition(LatLng coordinates) {
+        mapFragment.getGoogleMap().animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+        Marker positionMarker = mapFragment
+                .getGoogleMap()
+                .addMarker(new MarkerOptions()
+                        .position(coordinates)
+                        .icon(BitmapDescriptorFactory
+                                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        positionMarkers.add(positionMarker);
+        if(positionMarkers.size() > 1) {
+            positionMarkers.poll().remove();
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -603,16 +663,6 @@ public class MainActivity extends AppCompatActivity {
             proximityManager.startScanning();
             Toast.makeText(context, "scanning for beacons...", Toast.LENGTH_SHORT).show();
         });
-    }
-
-    public static void setUserPosition(LatLng latLng) {
-        LatLng coordinates = new LatLng(latLng.latitude, latLng.longitude);
-        MainActivity.mapFragment.getGoogleMap().animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 19.4f));
-        Marker positionMarker = MainActivity.mapFragment.getGoogleMap().addMarker(new MarkerOptions().position(coordinates));
-        MainActivity.positionMarkers.add(positionMarker);
-        if(MainActivity.positionMarkers.size() > 1) {
-            MainActivity.positionMarkers.poll().remove();//remove the head of the queue leaving only the new marker
-        }
     }
 
     public double getXCoordinate(double lat, double lon, int radius) {

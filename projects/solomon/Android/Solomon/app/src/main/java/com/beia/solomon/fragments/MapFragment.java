@@ -13,7 +13,7 @@ import android.view.View;
 
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
-import com.beia.solomon.data.Location;
+import com.beia.solomon.model.Location;
 import com.beia.solomon.model.Beacon;
 import com.beia.solomon.model.ProximityStatus;
 import com.google.android.gms.maps.GoogleMap;
