@@ -406,7 +406,6 @@ public class MainActivity extends AppCompatActivity {
         proximityManager.setIBeaconListener(new IBeaconListener() {
             @Override
             public void onIBeaconDiscovered(IBeaconDevice iBeacon, IBeaconRegion region) {
-                Log.d("MUIE", "onIBeaconDiscovered: ");
                 Beacon beacon = beacons
                         .stream()
                         .filter(b -> b.getManufacturerId().equals(iBeacon.getUniqueId()))

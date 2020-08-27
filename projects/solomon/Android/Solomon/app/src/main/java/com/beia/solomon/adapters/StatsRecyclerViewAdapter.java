@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MallStatsActivity;
 import com.beia.solomon.model.Mall;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 
 import java.util.List;
 
@@ -50,9 +53,17 @@ public class StatsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+        Mall mall = malls.get(position);
         MallViewHolder mallViewHolder = (MallViewHolder) holder;
         mallViewHolder.mallName.setText(malls.get(position).getName());
-        //TODO: load mall image from url
+        GlideUrl glideUrl = new GlideUrl(context.getResources().getString(R.string.mallPicturesUrl) + "/" + mall.getId() + ".png",
+                new LazyHeaders.Builder()
+                        .addHeader("Authorization", context.getResources().getString(R.string.universal_user))
+                        .build());
+        Glide.with(context)
+                .asBitmap()
+                .load(glideUrl)
+                .into(mallViewHolder.mallImage);
         mallViewHolder.mallName.setOnClickListener(view -> {
             Intent intent = new Intent(context, MallStatsActivity.class);
             intent.putExtra("mall", malls.get(position));

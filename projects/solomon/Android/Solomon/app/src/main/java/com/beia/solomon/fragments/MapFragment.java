@@ -11,11 +11,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
-import com.beia.solomon.model.Location;
 import com.beia.solomon.model.Beacon;
+import com.beia.solomon.model.Location;
 import com.beia.solomon.model.ProximityStatus;
+import com.beia.solomon.ui.StoreClusterItem;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -27,6 +36,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.util.ArrayList;
@@ -39,6 +49,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback{
 
     private GoogleMap googleMap;
+    private ClusterManager<StoreClusterItem> clusterManager;
+
     private Gson gson;
     private List<Beacon> beacons;
     private HeatmapTileProvider heatMapTileProvider;
@@ -73,17 +85,41 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         googleMap.setMyLocationEnabled(true);
+        setUpClusterer();
         beacons.forEach(beacon -> {
             LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
-            Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
-                    .icon(BitmapDescriptorFactory
-                            .fromBitmap(createStoreMarker(MainActivity.context, null, ProximityStatus.FAR))));
-            marker.setTitle(beacon.getName());
-            beaconMarkers.put(beacon.getManufacturerId(), marker);
+            GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.beaconPicturesUrl) + "/" + beacon.getManufacturerId() + ".png",
+                    new LazyHeaders.Builder()
+                    .addHeader("Authorization", getResources().getString(R.string.universal_user))
+                    .build());
+            Glide.with(this)
+                    .asBitmap()
+                    .load(glideUrl)
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
+                                    .icon(BitmapDescriptorFactory
+                                            .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
+                            marker.setTitle(beacon.getName());
+                            beaconMarkers.put(beacon.getManufacturerId(), marker);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
         });
         if(MainActivity.userLocations != null)
             addHeatMap(MainActivity.userLocations);
     }
+
+    private void setUpClusterer() {
+        clusterManager = new ClusterManager<StoreClusterItem>(getContext(), googleMap);
+        googleMap.setOnCameraIdleListener(clusterManager);
+        googleMap.setOnMarkerClickListener(clusterManager);
+    }
+
 
     private void addHeatMap(List<Location> userLocations) {
         Log.d("HEAT_MAP", "addHeatMap: " + userLocations.size() + " locations");
