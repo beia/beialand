@@ -1,19 +1,21 @@
 package com.beia_consult_international.solomon;
 
-import com.beia_consult_international.solomon.model.Beacon;
-import com.beia_consult_international.solomon.model.Mall;
-import com.beia_consult_international.solomon.model.Role;
-import com.beia_consult_international.solomon.model.User;
+import com.beia_consult_international.solomon.model.*;
 import com.beia_consult_international.solomon.repository.BeaconRepository;
+import com.beia_consult_international.solomon.repository.CampaignRepository;
 import com.beia_consult_international.solomon.repository.MallRepository;
 import com.beia_consult_international.solomon.repository.UserRepository;
+import com.beia_consult_international.solomon.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
 @SpringBootApplication
@@ -22,6 +24,8 @@ public class SolomonApplication implements CommandLineRunner {
     private UserRepository userRepository;
     @Autowired
     private MallRepository mallRepository;
+    @Autowired
+    private CampaignService campaignService;
     @Autowired
     private BeaconRepository beaconRepository;
     @Autowired
@@ -227,5 +231,64 @@ public class SolomonApplication implements CommandLineRunner {
                   .manufacturer("KONTAKT")
                   .build());
         beaconRepository.saveAll(beacons);
+
+
+        List<Campaign> campaigns = List.of(
+          Campaign
+                  .builder()
+                  .title("Adidasi nike")
+                  .description("pret: 500 lei")
+                  .category(Category.Shoes)
+                  .startDate(LocalDateTime.now().minusDays(1))
+                  .endDate(LocalDateTime.now().plusDays(100))
+                  .user(users.get(6))
+                  .build(),
+            Campaign
+                    .builder()
+                    .title("Iphone 11 pro")
+                    .description("pret: 4500 lei")
+                    .category(Category.Smartphones)
+                    .startDate(LocalDateTime.now().minusDays(10))
+                    .endDate(LocalDateTime.now().plusDays(50))
+                    .user(users.get(5))
+                    .build(),
+            Campaign
+                    .builder()
+                    .title("Taco bell oferta 1")
+                    .description("pret: 35 lei")
+                    .category(Category.Food)
+                    .startDate(LocalDateTime.now().minusDays(5))
+                    .endDate(LocalDateTime.now().plusDays(30))
+                    .user(users.get(7))
+                    .build(),
+            Campaign
+                    .builder()
+                    .title("SmartTv Samsung")
+                    .description("pret: 3000 lei")
+                    .category(Category.Electronics)
+                    .startDate(LocalDateTime.now().minusDays(5))
+                    .endDate(LocalDateTime.now().plusDays(30))
+                    .user(users.get(5))
+                    .build(),
+            Campaign
+                    .builder()
+                    .title("Tricou dama")
+                    .description("pret: 60 lei")
+                    .category(Category.Clothes)
+                    .startDate(LocalDateTime.now().minusDays(5))
+                    .endDate(LocalDateTime.now().plusDays(30))
+                    .user(users.get(8))
+                    .build(),
+            Campaign
+                    .builder()
+                    .title("Sapca Nike")
+                    .description("pret: 150 lei")
+                    .category(Category.Clothes)
+                    .startDate(LocalDateTime.now().minusDays(5))
+                    .endDate(LocalDateTime.now().plusDays(30))
+                    .user(users.get(6))
+                    .build()
+        );
+        campaignService.saveAll(campaigns);
     }
 }

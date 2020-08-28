@@ -9,7 +9,9 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler({
         UserNotFoundException.class,
-        WrongUserDetailsException.class
+        WrongUserDetailsException.class,
+        BeaconNotFoundException.class,
+        CampaignsNotFoundException.class
     })
     public ResponseEntity<String> handle(Exception e) {
         return ResponseEntity
