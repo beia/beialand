@@ -1,78 +1,105 @@
 package com.beia.solomon.model;
 
-public class Campaign {
-    private String idCampaign;
-    private String idCompany;
-    private String companyName;
-    private byte[] companyImage;
-    private String title;
-    private String category;
-    private String description;
-    private String startDate;
-    private String endDate;
-    private String photoPath;
-    private byte[] image;
+import java.time.LocalDateTime;
 
-    public Campaign(String idCampaign, String idCompany, String companyName, String title, String category,  String description, String startDate, String endDate, byte[] image)
-    {
-        this.idCampaign = idCampaign;
-        this.idCompany = idCompany;
-        this.companyName = companyName;
+public class Campaign {
+    private long id;
+    private String title;
+    private String description;
+    private Category category;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
+    private byte[] image;
+    private User user;
+
+    public Campaign() {
+    }
+
+    public Campaign(long id, String title, String description, Category category, LocalDateTime startDate, LocalDateTime endDate, byte[] image, User user) {
+        this.id = id;
         this.title = title;
-        this.category = category;
         this.description = description;
+        this.category = category;
         this.startDate = startDate;
         this.endDate = endDate;
         this.image = image;
+        this.user = user;
     }
-    //constructor for campaigns data sent to users
-    public Campaign(String idCampaign, String idCompany, String companyName, String title, String category, String description, String startDate, String endDate)
-    {
-        this.idCampaign = idCampaign;
-        this.idCompany = idCompany;
-        this.companyName = companyName;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
         this.title = title;
-        this.category = category;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
-    //constructor for campaigns data sent to users
-    public Campaign(String idCampaign, String idCompany, String companyName, String title, String category, String description, String startDate, String endDate, String photoPath)
-    {
-        this.idCampaign = idCampaign;
-        this.idCompany = idCompany;
-        this.companyName = companyName;
-        this.title = title;
-        this.category = category;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.photoPath = photoPath;
+
+    public byte[] getImage() {
+        return image;
     }
-    public String getId() { return this.idCampaign; }
-    public String getIdCompany() { return this.idCompany; }
-    public String getCompanyName() { return this.companyName; }
-    public byte[] getCompanyImage() { return this.companyImage; }
-    public String getTitle() { return this.title; }
-    public String getCategory() { return this.category; }
-    public String getDescription() { return this.description; }
-    public String getStartDate() { return this.startDate; }
-    public String getEndDate() { return this.endDate; }
-    public String getPhotoPath() { return this.photoPath; }
-    public byte[] getImage() { return this.image; }
-    public void setTitle(String title) { this.title = title; }
-    public void setCompanyImage(byte[] image) { this.companyImage = image; }
-    public void setDescription(String description) { this.description = description; }
-    public void setStartDate(String startDate) { this.startDate = startDate; }
-    public void setEndDate(String endDate) { this.endDate = endDate; }
-    public void setImage(byte[] image) { this.image = image; }
-    public void update(String title, String category, String description, String startDate, String endDate)
-    {
-        this.title = title;
-        this.category = category;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "Campaign{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", category=" + category +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", user=" + user +
+                '}';
     }
 }

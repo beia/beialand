@@ -20,18 +20,13 @@ import java.util.List;
 
 public class StoreAdvertisementFragment extends Fragment {
 
-    public View view;
-    public GridView campaignsGridView;
-    public CampaignsAdapter campaignsAdapter;
-    public List<Campaign> campaigns;
+    private View view;
+    private GridView campaignsGridView;
+    private CampaignsAdapter campaignsAdapter;
+    private List<Campaign> campaigns;
 
     public StoreAdvertisementFragment(List<Campaign> campaigns) {
         this.campaigns = campaigns;
-    }
-
-    public void setArguments(@Nullable Bundle args, String bundleDataName) {
-        super.setArguments(args);
-        ArrayList<String> bundleData = args.getStringArrayList(bundleDataName);
     }
 
     @Nullable

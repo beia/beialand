@@ -3,7 +3,6 @@ package com.beia.solomon.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +11,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.beia.solomon.R;
-import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.model.Campaign;
 import com.bumptech.glide.Glide;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class CampaignsAdapter extends BaseAdapter {
 
-    public Context context;
-    public List<Campaign> campaigns;
-    public DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private Context context;
+    private List<Campaign> campaigns;
+
     public CampaignsAdapter(Context context, List<Campaign> campaigns)
     {
         this.context = context;
@@ -60,38 +54,26 @@ public class CampaignsAdapter extends BaseAdapter {
         TextView campaignDescriptionTextView = campaignView.findViewById(R.id.campaignDescription);
         TextView campaignStartDateTextView = campaignView.findViewById(R.id.startDate);
         TextView campaignEndDateTextView = campaignView.findViewById(R.id.endDate);
-        companyNameTextView.setText(campaign.getCompanyName());
+        companyNameTextView.setText(campaign.getUser().getFirstName());
         campaignTitleTextView.setText(campaign.getTitle());
         campaignDescriptionTextView.setText(campaign.getDescription());
-        campaignStartDateTextView.setText(campaign.getStartDate());
-        campaignEndDateTextView.setText(campaign.getEndDate());
+        campaignStartDateTextView.setText(campaign.getStartDate().toString());
+        campaignEndDateTextView.setText(campaign.getEndDate().toString());
         Bitmap bitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
         Glide.with(context)
                 .asBitmap()
                 .load(bitmap)
                 .into(campaignImageView);
 
-        //load the company image
-        if(campaign.getCompanyImage() != null) {
+        if(campaign.getImage() != null) {
             ImageView companyImageView = campaignView.findViewById(R.id.companyImage);
-            Bitmap companyImageBitmap = BitmapFactory.decodeByteArray(campaign.getCompanyImage(), 0, campaign.getCompanyImage().length);
+            Bitmap companyImageBitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
             Glide.with(context).
                     asBitmap().
                     load(companyImageBitmap).
                     into(companyImageView);
         }
 
-        campaignView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity.tabLayout.getTabAt(1).select();
-                //send the campaigns reaction to the server
-                Calendar calendar = Calendar.getInstance();
-                String currentTime = dateFormat.format(calendar.getTime());
-                //String request = "{\"requestType\":\"postCampaignReaction\", \"idCampaign\":\"" + campaign.getId() + "\", \"idUser\":" + MainActivity.userData.getUserId() + ", \"gender\":\"" + MainActivity.userData.getGender() + "\", \"age\":" + MainActivity.userData.getAge() + ", \"viewDate\":\"" + currentTime + "\"}";
-                //new Thread(new RequestRunnable(request, MainActivity.objectOutputStream)).start();
-            }
-        });
         return campaignView;
     }
 }

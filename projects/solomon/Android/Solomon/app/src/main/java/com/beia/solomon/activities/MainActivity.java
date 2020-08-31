@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -15,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
@@ -35,6 +38,11 @@ import com.beia.solomon.model.Campaign;
 import com.beia.solomon.model.Mall;
 import com.beia.solomon.model.ProximityStatus;
 import com.beia.solomon.model.User;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials;
 import com.estimote.proximity_sdk.api.ProximityObserver;
 import com.estimote.proximity_sdk.api.ProximityZone;
@@ -292,6 +300,28 @@ public class MainActivity extends AppCompatActivity {
         volleyQueue.add(request);
     }
 
+    public void requestCampaigns(long companyId) {
+        String url = getResources().getString(R.string.getCampaignsUrl) +
+                "?companyId" + companyId;
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<List> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                List.class,
+                headers,
+                response -> {
+                    this.campaigns = gson.fromJson(gson.toJson(response), new TypeToken<List<Campaign>>(){}.getType());
+                    campaigns.forEach(campaign -> Log.d("Campaign", campaign.toString()));
+                },
+                Throwable::printStackTrace);
+
+        volleyQueue.add(request);
+    }
+
     public void initData() {
         //init variables
         context = getApplicationContext();
@@ -326,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
-        storeAdvertisementFragment.setArguments(bundle1, "storeAdvertisementsData");
+        storeAdvertisementFragment.setArguments(bundle1);
 
         mapFragment = new MapFragment(beaconMarkers);
         Bundle bundle2 = new Bundle();
@@ -572,7 +602,8 @@ public class MainActivity extends AppCompatActivity {
         if(indoorBuilding != null && beacon.getFloor() != currentActiveFloor) {
             levels.get(levels.size() - beacon.getFloor()).activate();
         }
-        //TODO::request campaigns
+
+        requestCampaigns(beacon.getUser().getId());
         highlightBeaconMarker(beacon, ProximityStatus.CLOSE);
 
         timeMap.put(iBeaconDevice.getUniqueId(), System.currentTimeMillis());
@@ -591,14 +622,29 @@ public class MainActivity extends AppCompatActivity {
             beaconMarkers.get(beacon.getManufacturerId()).remove();
             beaconMarkers.remove(beacon.getManufacturerId());
             LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
-            Marker marker = mapFragment
-                    .getGoogleMap()
-                    .addMarker(new MarkerOptions()
-                            .position(storeLocation)
-                            .icon(BitmapDescriptorFactory
-                                    .fromBitmap(mapFragment.createStoreMarker(MainActivity.context, null, proximityStatus))));
-            marker.setTitle(beacon.getName());
-            beaconMarkers.put(beacon.getManufacturerId(), marker);
+            GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.beaconPicturesUrl) + "/" + beacon.getManufacturerId() + ".png",
+                    new LazyHeaders.Builder()
+                            .addHeader("Authorization", getResources().getString(R.string.universal_user))
+                            .build());
+            Glide.with(this)
+                    .asBitmap()
+                    .load(glideUrl)
+                    .into(new CustomTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            beaconMarkers.get(beacon.getManufacturerId()).remove();
+                            Marker marker = mapFragment.getGoogleMap().addMarker(new MarkerOptions().position(storeLocation)
+                                    .icon(BitmapDescriptorFactory
+                                            .fromBitmap(mapFragment.createStoreMarker(MainActivity.context,
+                                                    resource, proximityStatus))));
+                            marker.setTitle(beacon.getName());
+                            beaconMarkers.put(beacon.getManufacturerId(), marker);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
         }
     }
 
