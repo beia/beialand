@@ -95,7 +95,7 @@ def on_message(mosq, userdata, msg):
                 '''Number: obtain a float from the payload'''
                 try:
                     number = float(msg.payload)
-                    lines.append("%s %f %d" % (carbonkey, number, int(now)))
+                    lines.append("%s %f %d" % (carbonkey, number, now.timestamp()))
                 except ValueError:
                     logging.info("Topic %s contains non-numeric payload [%s]" %
                                  (msg.topic, msg.payload))
