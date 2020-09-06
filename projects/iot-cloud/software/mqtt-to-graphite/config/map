@@ -65,4 +65,5 @@ j urad/#
 n $SYS/brokers/+/stats/#
 n $SYS/brokers/+/metrics/#
 n sgs/#
+n android/#
 
