@@ -1,10 +1,14 @@
 package com.beia_consult_international.solomon.service;
 
+import com.beia_consult_international.solomon.dto.LocationDto;
 import com.beia_consult_international.solomon.exception.BeaconNotFoundException;
+import com.beia_consult_international.solomon.exception.UserNotFoundException;
 import com.beia_consult_international.solomon.model.*;
 import com.beia_consult_international.solomon.repository.BeaconRepository;
 import com.beia_consult_international.solomon.repository.LocationRepository;
 import com.beia_consult_international.solomon.repository.UserBeaconTimeRepository;
+import com.beia_consult_international.solomon.repository.UserRepository;
+import com.beia_consult_international.solomon.service.mapper.LocationMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,34 +17,62 @@ import java.util.Optional;
 @Service
 public class BeaconService {
     private final BeaconRepository beaconRepository;
+    private final UserRepository userRepository;
     private final UserBeaconTimeRepository userBeaconTimeRepository;
     private final LocationRepository locationRepository;
 
-    public BeaconService(BeaconRepository beaconRepository, UserBeaconTimeRepository userBeaconTimeRepository, LocationRepository locationRepository) {
+    public BeaconService(BeaconRepository beaconRepository, UserRepository userRepository, UserBeaconTimeRepository userBeaconTimeRepository, LocationRepository locationRepository) {
         this.beaconRepository = beaconRepository;
+        this.userRepository = userRepository;
         this.userBeaconTimeRepository = userBeaconTimeRepository;
         this.locationRepository = locationRepository;
     }
 
-    public Beacon findById(long id) {
-        return beaconRepository
-                .findById(id)
+    public void saveBeaconTime(long userId, long beaconId, long seconds) {
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        Beacon beacon = beaconRepository
+                .findById(beaconId)
                 .orElseThrow(BeaconNotFoundException::new);
+        Optional<UserBeaconTime> optionalUserBeaconTime = findUserBeaconTime(user, beacon);
+        if(optionalUserBeaconTime.isPresent()) {
+            UserBeaconTime userBeaconTime = optionalUserBeaconTime.get();
+            userBeaconTime.setSeconds(userBeaconTime.getSeconds() + seconds);
+            saveUserBeaconTime(userBeaconTime);
+        }
+        else {
+            saveUserBeaconTime(UserBeaconTime
+                    .builder()
+                    .user(user)
+                    .beacon(beacon)
+                    .seconds(seconds)
+                    .build());
+        }
     }
 
     public List<Beacon> findAll() {
         return beaconRepository.findAll();
     }
 
-    public Optional<UserBeaconTime> findUserBeaconTime(User user, Beacon beacon) {
-        return userBeaconTimeRepository.findUserBeaconTimeByUserAndBeacon(user, beacon);
-    }
-
     public void saveUserBeaconTime(UserBeaconTime userBeaconTime) {
         userBeaconTimeRepository.save(userBeaconTime);
     }
 
-    public Location computeLocation(BeaconLocalizationData beaconLocalizationData) {
+    private Optional<UserBeaconTime> findUserBeaconTime(User user, Beacon beacon) {
+        return userBeaconTimeRepository.findUserBeaconTimeByUserAndBeacon(user, beacon);
+    }
+
+    public LocationDto computeAndSaveLocation(BeaconLocalizationData beaconLocalizationData, long userId) {
+        Location location = computeLocation(beaconLocalizationData);
+        location.setUser(userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new));
+        return LocationMapper
+                .mapToDto(locationRepository.save(location));
+    }
+
+    private Location computeLocation(BeaconLocalizationData beaconLocalizationData) {
         Point[] closestBeaconsCoordinates = beaconLocalizationData.getBeaconCoordinates();
         double[] beaconDistances = beaconLocalizationData.getBeaconDistances();
 
@@ -111,17 +143,11 @@ public class BeaconService {
                 .build();
     }
 
-    public double getLatitude(double x, double y, double z) {
+    private double getLatitude(double x, double y, double z) {
         return 360 / (2 * Math.PI) * Math.asin(z / 6371000);
     }
 
-    public double getLongitude(double x, double y, double z) {
+    private double getLongitude(double x, double y, double z) {
         return 360 / (2 * Math.PI) * Math.atan2(y, x);
-    }
-
-    public void saveLocation(Location location) {
-        if(location != null) {
-            locationRepository.save(location);
-        }
     }
 }

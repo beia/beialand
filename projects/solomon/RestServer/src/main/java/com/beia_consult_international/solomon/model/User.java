@@ -30,12 +30,10 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    private String pictureUrl;
-
     public User() {
     }
 
-    public User(long id, String username, String password, String firstName, String lastName, Gender gender, int age, Role role, String pictureUrl) {
+    public User(long id, String username, String password, String firstName, String lastName, Gender gender, int age, Role role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -44,7 +42,6 @@ public class User {
         this.gender = gender;
         this.age = age;
         this.role = role;
-        this.pictureUrl = pictureUrl;
     }
 
     public long getId() {
@@ -111,14 +108,6 @@ public class User {
         this.role = role;
     }
 
-    public String getPictureUrl() {
-        return pictureUrl;
-    }
-
-    public void setPictureUrl(String pictureUrl) {
-        this.pictureUrl = pictureUrl;
-    }
-
     @Override
     public String toString() {
         return "User{" +
@@ -130,7 +119,6 @@ public class User {
                 ", gender=" + gender +
                 ", age=" + age +
                 ", role=" + role +
-                ", pictureUrl='" + pictureUrl + '\'' +
                 '}';
     }
 }

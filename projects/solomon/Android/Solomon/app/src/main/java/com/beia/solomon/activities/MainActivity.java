@@ -225,7 +225,12 @@ public class MainActivity extends AppCompatActivity {
                     malls.forEach(mall -> Log.d("Mall", mall.toString()));
                     getBeacons();
                 },
-                Throwable::printStackTrace);
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "getMalls: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
 
         volleyQueue.add(request);
     }
@@ -250,7 +255,12 @@ public class MainActivity extends AppCompatActivity {
                     initEstimoteBeacons();
                     initKontaktBeacons();
                 },
-                Throwable::printStackTrace);
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "getBeacons: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
 
         volleyQueue.add(request);
     }
@@ -272,7 +282,12 @@ public class MainActivity extends AppCompatActivity {
                 response -> {
                     Log.d("RESPONSE", "SAVED BEACON TIME");
                 },
-                Throwable::printStackTrace);
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "postBeaconTime: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
 
         volleyQueue.add(request);
     }
@@ -295,14 +310,19 @@ public class MainActivity extends AppCompatActivity {
                     setUserPosition(coordinates);
                     closestBeaconsCoordinates = new Point[4];
                 },
-                Throwable::printStackTrace);
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "requestLocalization: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
 
         volleyQueue.add(request);
     }
 
     public void requestCampaigns(long companyId) {
         String url = getResources().getString(R.string.getCampaignsUrl) +
-                "?companyId" + companyId;
+                "?companyId=" + companyId;
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-type", "application/json");
         headers.put("Authorization", getResources().getString(R.string.universal_user));
@@ -316,8 +336,14 @@ public class MainActivity extends AppCompatActivity {
                 response -> {
                     this.campaigns = gson.fromJson(gson.toJson(response), new TypeToken<List<Campaign>>(){}.getType());
                     campaigns.forEach(campaign -> Log.d("Campaign", campaign.toString()));
+                    storeAdvertisementFragment.refreshCampaigns(campaigns);
                 },
-                Throwable::printStackTrace);
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "requestCampaigns: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
 
         volleyQueue.add(request);
     }
@@ -632,7 +658,6 @@ public class MainActivity extends AppCompatActivity {
                     .into(new CustomTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            beaconMarkers.get(beacon.getManufacturerId()).remove();
                             Marker marker = mapFragment.getGoogleMap().addMarker(new MarkerOptions().position(storeLocation)
                                     .icon(BitmapDescriptorFactory
                                             .fromBitmap(mapFragment.createStoreMarker(MainActivity.context,

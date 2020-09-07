@@ -3,7 +3,6 @@ package com.beia_consult_international.solomon.service;
 import com.beia_consult_international.solomon.dto.UserDto;
 import com.beia_consult_international.solomon.exception.UserNotFoundException;
 import com.beia_consult_international.solomon.model.User;
-import com.beia_consult_international.solomon.model.UserBeaconTime;
 import com.beia_consult_international.solomon.repository.UserRepository;
 import com.beia_consult_international.solomon.service.mapper.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,25 +25,27 @@ public class UserService {
         return passwordEncoder.matches(password, user.getPassword());
     }
 
-    public Boolean userExists(User user) {
+    public Boolean userExists(UserDto userDto) {
+        User user = UserMapper.mapToModel(userDto);
         try { findUserByUsername(user.getUsername()); }
         catch (UserNotFoundException e) { return false; }
         return true;
     }
 
-    public User findById(Long id) {
-        return userRepository
+    public UserDto findById(Long id) {
+        return UserMapper.mapToDto(userRepository
                 .findById(id)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UserNotFoundException::new));
     }
 
-    public User findUserByUsername(String username) {
-        return userRepository
+    public UserDto findUserByUsername(String username) {
+        return UserMapper.mapToDto(userRepository
                 .findUserByUsername(username)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(UserNotFoundException::new));
     }
 
-    public void save(User user, String password) {
+    public void save(UserDto userDto, String password) {
+        User user = UserMapper.mapToModel(userDto);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
     }

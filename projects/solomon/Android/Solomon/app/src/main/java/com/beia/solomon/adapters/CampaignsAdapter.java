@@ -14,6 +14,7 @@ import com.beia.solomon.R;
 import com.beia.solomon.model.Campaign;
 import com.bumptech.glide.Glide;
 
+import java.util.Base64;
 import java.util.List;
 
 public class CampaignsAdapter extends BaseAdapter {
@@ -21,8 +22,7 @@ public class CampaignsAdapter extends BaseAdapter {
     private Context context;
     private List<Campaign> campaigns;
 
-    public CampaignsAdapter(Context context, List<Campaign> campaigns)
-    {
+    public CampaignsAdapter(Context context, List<Campaign> campaigns) {
         this.context = context;
         this.campaigns = campaigns;
     }
@@ -57,23 +57,25 @@ public class CampaignsAdapter extends BaseAdapter {
         companyNameTextView.setText(campaign.getUser().getFirstName());
         campaignTitleTextView.setText(campaign.getTitle());
         campaignDescriptionTextView.setText(campaign.getDescription());
-        campaignStartDateTextView.setText(campaign.getStartDate().toString());
-        campaignEndDateTextView.setText(campaign.getEndDate().toString());
-        Bitmap bitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
+        campaignStartDateTextView.setText(campaign.getStartDate());
+        campaignEndDateTextView.setText(campaign.getEndDate());
+
+        byte[] campaignImage = Base64.getDecoder().decode(campaign.getImage());
+        Bitmap bitmap = BitmapFactory.decodeByteArray(campaignImage, 0, campaignImage.length);
         Glide.with(context)
                 .asBitmap()
                 .load(bitmap)
                 .into(campaignImageView);
 
-        if(campaign.getImage() != null) {
+        if(campaign.getUser().getImage() != null) {
             ImageView companyImageView = campaignView.findViewById(R.id.companyImage);
-            Bitmap companyImageBitmap = BitmapFactory.decodeByteArray(campaign.getImage(), 0, campaign.getImage().length);
+            byte[] companyImage = Base64.getDecoder().decode(campaign.getUser().getImage());
+            Bitmap companyImageBitmap = BitmapFactory.decodeByteArray(companyImage, 0, companyImage.length);
             Glide.with(context).
                     asBitmap().
                     load(companyImageBitmap).
                     into(companyImageView);
         }
-
         return campaignView;
     }
 }

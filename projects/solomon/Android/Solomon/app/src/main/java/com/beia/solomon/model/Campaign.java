@@ -1,21 +1,21 @@
 package com.beia.solomon.model;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 public class Campaign {
     private long id;
     private String title;
     private String description;
     private Category category;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private byte[] image;
+    private String startDate;
+    private String endDate;
+    private String image;
     private User user;
 
     public Campaign() {
     }
 
-    public Campaign(long id, String title, String description, Category category, LocalDateTime startDate, LocalDateTime endDate, byte[] image, User user) {
+    public Campaign(long id, String title, String description, Category category, String startDate, String endDate, String image, User user) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -58,27 +58,27 @@ public class Campaign {
         this.category = category;
     }
 
-    public LocalDateTime getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 

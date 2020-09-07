@@ -12,12 +12,12 @@ public class UserDto {
     private Gender gender;
     private int age;
     private String role;
-    private String imageUrl;
+    private String image;
 
     public UserDto() {
     }
 
-    public UserDto(long id, String username, String firstName, String lastName, Gender gender, int age, String role, String imageUrl) {
+    public UserDto(long id, String username, String firstName, String lastName, Gender gender, int age, String role, String image) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
@@ -25,7 +25,7 @@ public class UserDto {
         this.gender = gender;
         this.age = age;
         this.role = role;
-        this.imageUrl = imageUrl;
+        this.image = image;
     }
 
     public long getId() {
@@ -84,12 +84,12 @@ public class UserDto {
         this.role = role;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImage() {
+        return image;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     @Override
@@ -102,7 +102,6 @@ public class UserDto {
                 ", gender=" + gender +
                 ", age=" + age +
                 ", role='" + role + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }

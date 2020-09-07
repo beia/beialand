@@ -6,6 +6,8 @@ import com.beia_consult_international.solomon.model.Campaign;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.Base64;
 
 public abstract class CampaignMapper {
 
@@ -16,28 +18,31 @@ public abstract class CampaignMapper {
                 .title(model.getTitle())
                 .description(model.getDescription())
                 .category(model.getCategory())
-                .startDate(model.getStartDate())
-                .endDate(model.getEndDate())
+                .startDate(model.getStartDate().toString())
+                .endDate(model.getEndDate().toString())
                 .user(UserMapper.mapToDto(model.getUser()))
                 .build();
     }
 
-    public static CampaignDto mapToDto(Campaign model, String campaignsPicturesPath) {
+    public static CampaignDto mapToDto(Campaign model, String campaignsPicturesPath, String usersPicturesPath) {
         CampaignDto campaignDto = CampaignDto
                 .builder()
                 .id(model.getId())
                 .title(model.getTitle())
                 .description(model.getDescription())
                 .category(model.getCategory())
-                .startDate(model.getStartDate())
-                .endDate(model.getEndDate())
-                .user(UserMapper.mapToDto(model.getUser()))
+                .startDate(model.getStartDate().toString())
+                .endDate(model.getEndDate().toString())
+                .user(UserMapper.mapToDto(model.getUser(), usersPicturesPath))
                 .build();
         try {
-            campaignDto.setImage(Files.readAllBytes(
+            byte[] image = Files.readAllBytes(
                     Path.of(campaignsPicturesPath
                             + model.getId()
-                            + ".jpg")));
+                            + ".jpg"));
+            campaignDto.setImage(Base64
+                    .getEncoder()
+                    .encodeToString(image));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,8 +56,8 @@ public abstract class CampaignMapper {
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .category(dto.getCategory())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
+                .startDate(LocalDateTime.parse(dto.getStartDate()))
+                .endDate(LocalDateTime.parse(dto.getEndDate()))
                 .user(UserMapper.mapToModel(dto.getUser()))
                 .build();
     }

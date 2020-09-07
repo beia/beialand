@@ -232,8 +232,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .build());
         beaconRepository.saveAll(beacons);
 
-
-        List<Campaign> campaigns = List.of(
+        //BEIA CAMPAIGNS
+        List<Campaign> campaignsBeia = List.of(
           Campaign
                   .builder()
                   .title("Adidasi nike")
@@ -289,6 +289,66 @@ public class SolomonApplication implements CommandLineRunner {
                     .user(users.get(6))
                     .build()
         );
-        campaignService.saveAll(campaigns);
+
+        //IZVOR CAMPAIGNS
+        List<Campaign> campaignsIzvor = List.of(
+                Campaign
+                        .builder()
+                        .title("Adidasi nike")
+                        .description("pret: 500 lei")
+                        .category(Category.Shoes)
+                        .startDate(LocalDateTime.now().minusDays(1))
+                        .endDate(LocalDateTime.now().plusDays(100))
+                        .user(users.get(4))
+                        .build(),
+                Campaign
+                        .builder()
+                        .title("Iphone 11 pro")
+                        .description("pret: 4500 lei")
+                        .category(Category.Smartphones)
+                        .startDate(LocalDateTime.now().minusDays(10))
+                        .endDate(LocalDateTime.now().plusDays(50))
+                        .user(users.get(2))
+                        .build(),
+                Campaign
+                        .builder()
+                        .title("MC oferta test")
+                        .description("pret: 35 lei")
+                        .category(Category.Food)
+                        .startDate(LocalDateTime.now().minusDays(5))
+                        .endDate(LocalDateTime.now().plusDays(30))
+                        .user(users.get(1))
+                        .build(),
+                Campaign
+                        .builder()
+                        .title("SmartTv Samsung")
+                        .description("pret: 3000 lei")
+                        .category(Category.Electronics)
+                        .startDate(LocalDateTime.now().minusDays(5))
+                        .endDate(LocalDateTime.now().plusDays(30))
+                        .user(users.get(2))
+                        .build(),
+                Campaign
+                        .builder()
+                        .title("Tricou dama")
+                        .description("pret: 60 lei")
+                        .category(Category.Clothes)
+                        .startDate(LocalDateTime.now().minusDays(5))
+                        .endDate(LocalDateTime.now().plusDays(30))
+                        .user(users.get(3))
+                        .build(),
+                Campaign
+                        .builder()
+                        .title("Sapca Nike")
+                        .description("pret: 150 lei")
+                        .category(Category.Clothes)
+                        .startDate(LocalDateTime.now().minusDays(5))
+                        .endDate(LocalDateTime.now().plusDays(30))
+                        .user(users.get(3))
+                        .build()
+        );
+
+        campaignService.saveAll(campaignsBeia);
+        campaignService.saveAll(campaignsIzvor);
     }
 }

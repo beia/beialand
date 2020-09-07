@@ -37,12 +37,16 @@ public class StoreAdvertisementFragment extends Fragment {
         return view;
     }
 
-    public void initUI(View view)
-    {
+    private void initUI(View view) {
         campaignsGridView = view.findViewById(R.id.campaignsGridView);
         campaignsGridView.setColumnWidth((int)(MainActivity.displayWidth / 2.1f));
         campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns);
         campaignsGridView.setAdapter(campaignsAdapter);
     }
 
+    public void refreshCampaigns(List<Campaign> campaigns) {
+        this.campaigns = campaigns;
+        campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns);
+        campaignsGridView.setAdapter(campaignsAdapter);
+    }
 }

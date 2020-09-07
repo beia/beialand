@@ -181,7 +181,10 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
-                    Log.d("ERROR", new String(error.networkResponse.data));
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "requestLocalization: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
                 });
 
         volleyQueue.add(request);

@@ -13,12 +13,12 @@ public class User implements Serializable {
     private Gender gender;
     private int age;
     private String role;
-    private String imageUrl;
+    private String image;
 
     public User() {
     }
 
-    public User(long id, String username, String firstName, String lastName, Gender gender, int age, String role, String imageUrl) {
+    public User(long id, String username, String firstName, String lastName, Gender gender, int age, String role, String image) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
@@ -26,7 +26,7 @@ public class User implements Serializable {
         this.gender = gender;
         this.age = age;
         this.role = role;
-        this.imageUrl = imageUrl;
+        this.image = image;
     }
 
     public long getId() {
@@ -85,12 +85,12 @@ public class User implements Serializable {
         this.role = role;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImage() {
+        return image;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     @Override
@@ -103,7 +103,6 @@ public class User implements Serializable {
                 ", gender=" + gender +
                 ", age=" + age +
                 ", role='" + role + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }
 }
