@@ -1,3 +1,5 @@
+<!DOCTYPE resources [
+    <!ENTITY domainName "192.168.0.45">]>
 <resources>
     <string name="app_name">Solomon</string>
 
@@ -26,13 +28,13 @@
 
     <string name="universal_user">Basic YWRtaW46c29sb21vbg==</string>
 
-    <string name="login_url">http://192.168.0.45:8080/users/login</string>
-    <string name="signUp_url">http://192.168.0.45:8080/users/signUp</string>
-    <string name="getMallsUrl">http://192.168.0.45:8080/users/getMalls</string>
-    <string name="getBeaconsUrl">http://192.168.0.45:8080/users/getBeacons</string>
-    <string name="postBeaconTimeUrl">http://192.168.0.45:8080/users/postBeaconTime</string>
-    <string name="computeLocationUrl">http://192.168.0.45:8080/users/computeLocation</string>
-    <string name="mallPicturesUrl">http://192.168.0.45:8080/malls</string>
-    <string name="beaconPicturesUrl">http://192.168.0.45:8080/beacons</string>
-    <string name="getCampaignsUrl">http://192.168.0.45:8080/users/getCampaigns</string>
+    <string name="login_url">http://&domainName;:8080/users/login</string>
+    <string name="signUp_url">http://&domainName;:8080/users/signUp</string>
+    <string name="getMallsUrl">http://&domainName;:8080/users/getMalls</string>
+    <string name="getBeaconsUrl">http://&domainName;:8080/users/getBeacons</string>
+    <string name="postBeaconTimeUrl">http://&domainName;:8080/users/postBeaconTime</string>
+    <string name="computeLocationUrl">http://&domainName;:8080/users/computeLocation</string>
+    <string name="mallPicturesUrl">http://&domainName;:8080/malls</string>
+    <string name="beaconPicturesUrl">http://&domainName;:8080/beacons</string>
+    <string name="getCampaignsUrl">http://&domainName;:8080/users/getCampaigns</string>
 </resources>

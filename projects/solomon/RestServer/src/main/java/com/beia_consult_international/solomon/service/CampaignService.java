@@ -27,9 +27,9 @@ public class CampaignService {
         this.userRepository = userRepository;
     }
 
-    public void save(CampaignDto campaignDto) {
-        campaignRepository
-                .save(CampaignMapper.mapToModel(campaignDto));
+    public CampaignDto save(CampaignDto campaignDto) {
+        return CampaignMapper.mapToDto(campaignRepository
+                .save(CampaignMapper.mapToModel(campaignDto)));
     }
 
     public void saveAll(List<Campaign> campaigns) {
@@ -37,15 +37,35 @@ public class CampaignService {
     }
 
     public List<CampaignDto> findCampaigns(long userId, String campaignsPicturesPath, String usersPicturesPath) {
-        return findCampaignsByUserId(userId).stream()
+        return findCampaignsByUserId(userId)
+                .stream()
                 .filter(campaign -> campaign.getEndDate().compareTo(LocalDateTime.now()) >= 0
                         && campaign.getStartDate().compareTo(LocalDateTime.now()) <= 0)
                 .map(campaign -> CampaignMapper.mapToDto(campaign, campaignsPicturesPath, usersPicturesPath))
                 .collect(Collectors.toList());
     }
 
+    public CampaignDto findCampaign(long campaignId, String campaignsPicturesPath, String usersPicturesPath) {
+        return campaignRepository.findById(campaignId)
+                .map(campaign -> CampaignMapper.mapToDto(campaign, campaignsPicturesPath, usersPicturesPath))
+                .orElseThrow(CampaignsNotFoundException::new);
+    }
+
+    public List<CampaignDto> findOldCampaigns(long userId, String campaignsPicturesPath, String usersPicturesPath) {
+        return findCampaignsByUserId(userId)
+                .stream()
+                .filter(campaign -> campaign.getEndDate().compareTo(LocalDateTime.now()) < 0
+                        || campaign.getStartDate().compareTo(LocalDateTime.now()) > 0)
+                .map(campaign -> CampaignMapper.mapToDto(campaign, campaignsPicturesPath, usersPicturesPath))
+                .collect(Collectors.toList());
+    }
+
     public void savePicture(byte[] image, String path, long id) throws IOException {
         Files.write(Path.of(path + id + ".jpg"), image);
+    }
+
+    public void deleteCampaign(long campaignId) {
+        campaignRepository.deleteById(campaignId);
     }
 
     private List<Campaign> findCampaignsByUserId(long userId) {

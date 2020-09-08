@@ -26,8 +26,7 @@ public class UserService {
     }
 
     public Boolean userExists(UserDto userDto) {
-        User user = UserMapper.mapToModel(userDto);
-        try { findUserByUsername(user.getUsername()); }
+        try { findUserByUsername(userDto.getUsername()); }
         catch (UserNotFoundException e) { return false; }
         return true;
     }
@@ -42,6 +41,12 @@ public class UserService {
         return UserMapper.mapToDto(userRepository
                 .findUserByUsername(username)
                 .orElseThrow(UserNotFoundException::new));
+    }
+
+    public UserDto findUserByUsername(String username, String usersPhotoPath) {
+        return UserMapper.mapToDto(userRepository
+                .findUserByUsername(username)
+                .orElseThrow(UserNotFoundException::new), usersPhotoPath);
     }
 
     public void save(UserDto userDto, String password) {

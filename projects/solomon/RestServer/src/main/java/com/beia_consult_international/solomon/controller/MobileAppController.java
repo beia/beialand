@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("/mobileApp")
+public class MobileAppController {
     private final UserService userService;
     private final MallService mallService;
     private final BeaconService beaconService;
@@ -28,7 +28,7 @@ public class UserController {
     @Value("${solomon.campaignsPicturesPath}")
     public String campaignsPath;
 
-    public UserController(UserService userService, MallService mallService, BeaconService beaconService, CampaignService campaignService) {
+    public MobileAppController(UserService userService, MallService mallService, BeaconService beaconService, CampaignService campaignService) {
         this.userService = userService;
         this.mallService = mallService;
         this.beaconService = beaconService;
@@ -74,9 +74,9 @@ public class UserController {
         beaconService.saveBeaconTime(userId, beaconId, seconds);
     }
 
-    @PostMapping("/computeLocation/{user_id}")
+    @PostMapping("/computeLocation/{userId}")
     public LocationDto computeLocation(@RequestBody BeaconLocalizationData beaconLocalizationData,
-                                       @PathVariable(name = "user_id") long userId) {
+                                       @PathVariable long userId) {
         System.out.println("COMPUTE LOCATION");
         return beaconService
                 .computeAndSaveLocation(beaconLocalizationData, userId);
@@ -89,8 +89,9 @@ public class UserController {
     }
 
     @PostMapping("/saveCampaign")
-    public void getCampaignsFromUser(@RequestBody CampaignDto campaignDto) throws IOException {
-        campaignService.savePicture(Base64.getDecoder().decode(campaignDto.getImage()), campaignsPath, campaignDto.getId());
+    public void saveCampaign(@RequestBody CampaignDto campaignDto) throws IOException {
+        campaignService.savePicture(Base64.getDecoder().decode(campaignDto.getImage()),
+                campaignsPath, campaignDto.getId());
         campaignService.save(campaignDto);
     }
 }
