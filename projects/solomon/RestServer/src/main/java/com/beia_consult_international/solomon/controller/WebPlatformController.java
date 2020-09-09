@@ -1,9 +1,10 @@
 package com.beia_consult_international.solomon.controller;
 
 import com.beia_consult_international.solomon.dto.CampaignDto;
+import com.beia_consult_international.solomon.dto.CampaignReactionDto;
 import com.beia_consult_international.solomon.dto.UserDto;
 import com.beia_consult_international.solomon.exception.WrongUserDetailsException;
-import com.beia_consult_international.solomon.model.Campaign;
+import com.beia_consult_international.solomon.service.CampaignReactionService;
 import com.beia_consult_international.solomon.service.CampaignService;
 import com.beia_consult_international.solomon.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,14 +19,16 @@ import java.util.List;
 public class WebPlatformController {
     private final UserService userService;
     private final CampaignService campaignService;
+    private final CampaignReactionService campaignReactionService;
     @Value("${solomon.usersPicturesPath}")
     public String usersPath;
     @Value("${solomon.campaignsPicturesPath}")
     public String campaignsPath;
 
-    public WebPlatformController(UserService userService, CampaignService campaignService) {
+    public WebPlatformController(UserService userService, CampaignService campaignService, CampaignReactionService campaignReactionService) {
         this.userService = userService;
         this.campaignService = campaignService;
+        this.campaignReactionService = campaignReactionService;
     }
 
     @GetMapping("/login")
@@ -80,5 +83,10 @@ public class WebPlatformController {
     @DeleteMapping("/campaigns/{campaignId}")
     public void deleteCampaign(@PathVariable long campaignId) {
         campaignService.deleteCampaign(campaignId);
+    }
+
+    @GetMapping("/campaignsReactions")
+    public List<CampaignReactionDto> findAll(@RequestParam long campaignId) {
+        return campaignReactionService.findAllByCampaignId(campaignId);
     }
 }

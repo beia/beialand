@@ -3,10 +3,7 @@ package com.beia_consult_international.solomon.controller;
 import com.beia_consult_international.solomon.dto.*;
 import com.beia_consult_international.solomon.exception.WrongUserDetailsException;
 import com.beia_consult_international.solomon.model.BeaconLocalizationData;
-import com.beia_consult_international.solomon.service.BeaconService;
-import com.beia_consult_international.solomon.service.CampaignService;
-import com.beia_consult_international.solomon.service.MallService;
-import com.beia_consult_international.solomon.service.UserService;
+import com.beia_consult_international.solomon.service.*;
 import com.beia_consult_international.solomon.service.mapper.BeaconMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +20,18 @@ public class MobileAppController {
     private final MallService mallService;
     private final BeaconService beaconService;
     private final CampaignService campaignService;
+    private final CampaignReactionService campaignReactionService;
     @Value("${solomon.usersPicturesPath}")
     public String usersPath;
     @Value("${solomon.campaignsPicturesPath}")
     public String campaignsPath;
 
-    public MobileAppController(UserService userService, MallService mallService, BeaconService beaconService, CampaignService campaignService) {
+    public MobileAppController(UserService userService, MallService mallService, BeaconService beaconService, CampaignService campaignService, CampaignReactionService campaignReactionService) {
         this.userService = userService;
         this.mallService = mallService;
         this.beaconService = beaconService;
         this.campaignService = campaignService;
+        this.campaignReactionService = campaignReactionService;
     }
 
     @GetMapping("/login")
@@ -93,5 +92,10 @@ public class MobileAppController {
         campaignService.savePicture(Base64.getDecoder().decode(campaignDto.getImage()),
                 campaignsPath, campaignDto.getId());
         campaignService.save(campaignDto);
+    }
+
+    @PostMapping("/saveCampaignReaction")
+    public void saveCampaignReaction(@RequestBody CampaignReactionDto campaignReactionDto) {
+        campaignReactionService.save(campaignReactionDto);
     }
 }

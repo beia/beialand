@@ -3,8 +3,6 @@ package com.beia_consult_international.solomon.dto;
 import com.beia_consult_international.solomon.model.Category;
 import lombok.Builder;
 
-import java.util.List;
-
 @Builder
 public class CampaignDto {
     private long id;

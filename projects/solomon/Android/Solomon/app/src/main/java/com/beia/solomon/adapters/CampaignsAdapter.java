@@ -3,6 +3,7 @@ package com.beia.solomon.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,21 +11,60 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.model.Campaign;
+import com.beia.solomon.model.CampaignReaction;
+import com.beia.solomon.model.User;
 import com.bumptech.glide.Glide;
 
+import org.threeten.bp.LocalDateTime;
+
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CampaignsAdapter extends BaseAdapter {
 
+    private RequestQueue volleyQueue;
     private Context context;
     private List<Campaign> campaigns;
+    private User user;
 
-    public CampaignsAdapter(Context context, List<Campaign> campaigns) {
+    private void postCampaignReaction(CampaignReaction campaignReaction) {
+        String url = context.getResources().getString(R.string.postCampaignReactionUrl);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", context.getResources().getString(R.string.universal_user));
+
+        GsonRequest<Object> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                campaignReaction,
+                Object.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", "SAVED CAMPAIGN REACTION");
+                },
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "postCampaignReaction: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
+
+        volleyQueue.add(request);
+    }
+
+    public CampaignsAdapter(Context context, List<Campaign> campaigns, User user) {
         this.context = context;
         this.campaigns = campaigns;
+        this.user = user;
+        volleyQueue = Volley.newRequestQueue(context);
     }
 
     @Override
@@ -76,6 +116,15 @@ public class CampaignsAdapter extends BaseAdapter {
                     load(companyImageBitmap).
                     into(companyImageView);
         }
+
+        campaignView.setOnClickListener((v) ->
+            postCampaignReaction(CampaignReaction
+                    .builder()
+                    .user(user)
+                    .campaign(campaign)
+                    .date(LocalDateTime.now().toString())
+                    .build()));
+
         return campaignView;
     }
 }

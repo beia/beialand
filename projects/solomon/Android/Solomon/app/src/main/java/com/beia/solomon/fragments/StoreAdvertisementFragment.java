@@ -14,8 +14,8 @@ import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.adapters.CampaignsAdapter;
 import com.beia.solomon.model.Campaign;
+import com.beia.solomon.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class StoreAdvertisementFragment extends Fragment {
@@ -24,9 +24,11 @@ public class StoreAdvertisementFragment extends Fragment {
     private GridView campaignsGridView;
     private CampaignsAdapter campaignsAdapter;
     private List<Campaign> campaigns;
+    private User user;
 
-    public StoreAdvertisementFragment(List<Campaign> campaigns) {
+    public StoreAdvertisementFragment(List<Campaign> campaigns, User user) {
         this.campaigns = campaigns;
+        this.user = user;
     }
 
     @Nullable
@@ -40,13 +42,13 @@ public class StoreAdvertisementFragment extends Fragment {
     private void initUI(View view) {
         campaignsGridView = view.findViewById(R.id.campaignsGridView);
         campaignsGridView.setColumnWidth((int)(MainActivity.displayWidth / 2.1f));
-        campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns);
+        campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns, user);
         campaignsGridView.setAdapter(campaignsAdapter);
     }
 
     public void refreshCampaigns(List<Campaign> campaigns) {
         this.campaigns = campaigns;
-        campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns);
+        campaignsAdapter = new CampaignsAdapter(view.getContext(), campaigns, user);
         campaignsGridView.setAdapter(campaignsAdapter);
     }
 }

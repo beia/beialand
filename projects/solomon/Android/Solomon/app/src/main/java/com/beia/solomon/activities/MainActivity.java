@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ScanMode;
 import com.kontakt.sdk.android.ble.configuration.ScanPeriod;
@@ -174,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        AndroidThreeTen.init(this);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -378,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mainActivityLinearLayout = findViewById(R.id.mainActivityLinearLayout);
 
-        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns);
+        storeAdvertisementFragment = new StoreAdvertisementFragment(campaigns, user);
         Bundle bundle1 = new Bundle();
         ArrayList<String> storeAdvertisementsData = new ArrayList<>();
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
@@ -412,9 +414,9 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
 
         //set images instead of title text for each tab
-        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon).setText("SPECIAL OFFERS");
-        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon).setText("MAP");
-        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon).setText("SETTINGS");
+        tabLayout.getTabAt(0).setIcon(R.drawable.store_ads_icon).setText("Campaigns");
+        tabLayout.getTabAt(1).setIcon(R.drawable.stats_icon).setText("Map");
+        tabLayout.getTabAt(2).setIcon(R.drawable.settings_icon).setText("Menu");
 
         //select the initial tab that the user sees
         if(!MainActivity.notification)
