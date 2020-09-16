@@ -66,4 +66,5 @@
 	<dimen name="dimen14sp">28sp</dimen>
 	<dimen name="dimen11sp">22sp</dimen>
 	<dimen name="dimen12sp">24sp</dimen>
+	<dimen name="dimen32dp">64dp</dimen>
 </resources>

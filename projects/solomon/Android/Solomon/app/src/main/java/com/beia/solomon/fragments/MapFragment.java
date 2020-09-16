@@ -10,10 +10,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.model.Beacon;
@@ -25,7 +33,10 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -39,23 +50,65 @@ import com.google.gson.reflect.TypeToken;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import org.jetbrains.annotations.NotNull;
+import org.threeten.bp.LocalDateTime;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MapFragment extends SupportMapFragment implements OnMapReadyCallback{
+public class MapFragment extends Fragment implements OnMapReadyCallback{
 
+    private RequestQueue volleyQueue;
+    private Gson gson;
+    private List<Beacon> beacons;
+    private List<Location> locations;
+
+    private View view;
     private GoogleMap googleMap;
     private ClusterManager<StoreClusterItem> clusterManager;
 
-    private Gson gson;
-    private List<Beacon> beacons;
     private HeatmapTileProvider heatMapTileProvider;
     private TileOverlay heatmapOverlay;
     private Map<String, Marker> beaconMarkers;
+    private ImageView heatmapButton;
+    private boolean heatmapActive;
+
+    private void getHeatmapLocations(String startDate, String endDate) {
+        String url = view.getContext().getResources().getString(R.string.getHeatmapLocationsUrl)
+                + "?startDate=" + startDate
+                + "&endDate=" + endDate;
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", view.getContext().getResources().getString(R.string.universal_user));
+
+        GsonRequest<List> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                List.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", "RECEIVED HEATMAP LOCATIONS");
+                    locations = gson.fromJson(gson.toJson(response), new TypeToken<List<Location>>(){}.getType());
+                    addHeatMap(locations);
+                },
+                error -> {
+                    if(error.networkResponse != null && error.networkResponse.data != null)
+                        Log.d("ERROR", "getHeatmapLocations: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
+
+        volleyQueue.add(request);
+    }
+
+
 
     public MapFragment(Map<String, Marker> beaconMarkers) {
         this.beaconMarkers = beaconMarkers;
@@ -66,10 +119,19 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         super.setArguments(bundle);
     }
 
+
+    @Nullable
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        getMapAsync(this);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.map_fragment, container, false);
+        this.view = v;
+        heatmapButton = view.findViewById(R.id.buttonHeatMap);
+        volleyQueue = Volley.newRequestQueue(view.getContext());
+
+        FragmentManager fragmentManager = getChildFragmentManager();
+        SupportMapFragment mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
+        if(mapFragment != null)
+            mapFragment.getMapAsync(this);
 
         gson = new Gson();
         Bundle bundle = getArguments();
@@ -79,6 +141,12 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                 beacons = gson.fromJson(bundleData.get(0), new TypeToken<List<Beacon>>() {}.getType());
             }
         }
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
@@ -110,12 +178,28 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
                         }
                     });
         });
-        if(MainActivity.userLocations != null)
-            addHeatMap(MainActivity.userLocations);
+        setUpHeatmapButton();
+    }
+
+    private void setUpHeatmapButton() {
+        heatmapActive = false;
+        heatmapButton.setOnClickListener((view) -> {
+            if(!heatmapActive) {
+                getHeatmapLocations(LocalDateTime.now().minusHours(3).toString(),
+                        LocalDateTime.now().toString());
+                heatmapButton.setImageResource(R.drawable.heat_map_activ);
+            }
+            else {
+                if(heatmapOverlay != null)
+                    heatmapOverlay.setVisible(false);
+                heatmapButton.setImageResource(R.drawable.heat_map_inactiv);
+            }
+            heatmapActive = !heatmapActive;
+        });
     }
 
     private void setUpClusterer() {
-        clusterManager = new ClusterManager<StoreClusterItem>(getContext(), googleMap);
+        clusterManager = new ClusterManager<>(Objects.requireNonNull(getContext()), googleMap);
         googleMap.setOnCameraIdleListener(clusterManager);
         googleMap.setOnMarkerClickListener(clusterManager);
     }

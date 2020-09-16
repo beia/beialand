@@ -98,4 +98,10 @@ public class MobileAppController {
     public void saveCampaignReaction(@RequestBody CampaignReactionDto campaignReactionDto) {
         campaignReactionService.save(campaignReactionDto);
     }
+
+    @GetMapping("/getHeatmapLocations")
+    public List<LocationDto> getHeatmapLocations(@RequestParam String startDate, @RequestParam String endDate) {
+        return beaconService.findHeatmapLocations(startDate, endDate);
+    }
+
 }

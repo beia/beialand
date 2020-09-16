@@ -7,12 +7,14 @@ public class LocationDto {
     private long id;
     private double latitude;
     private double longitude;
+    private String date;
     public double localizationError;
 
-    public LocationDto(long id, double latitude, double longitude, double localizationError) {
+    public LocationDto(long id, double latitude, double longitude, String date, double localizationError) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.date = date;
         this.localizationError = localizationError;
     }
 
@@ -39,6 +41,10 @@ public class LocationDto {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+    public String getDate() { return date; }
+
+    public void setDate(String date) { this.date = date; }
 
     public double getLocalizationError() {
         return localizationError;

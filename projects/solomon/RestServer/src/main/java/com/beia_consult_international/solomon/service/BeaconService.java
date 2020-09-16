@@ -11,8 +11,10 @@ import com.beia_consult_international.solomon.repository.UserRepository;
 import com.beia_consult_international.solomon.service.mapper.LocationMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BeaconService {
@@ -140,7 +142,17 @@ public class BeaconService {
                 .builder()
                 .latitude(bestLatitude)
                 .longitude(bestLongitude)
+                .date(LocalDateTime.now())
                 .build();
+    }
+
+    public List<LocationDto> findHeatmapLocations(String startDate, String endDate) {
+        return locationRepository
+                .findAllByDateBetween(LocalDateTime.parse(startDate),
+                        LocalDateTime.parse(endDate))
+                .stream()
+                .map(LocationMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     private double getLatitude(double x, double y, double z) {

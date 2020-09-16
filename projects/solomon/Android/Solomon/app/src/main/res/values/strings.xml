@@ -39,4 +39,5 @@
     <string name="computeLocationUrl">http://&domainName;:8080/mobileApp/computeLocation</string>
     <string name="getCampaignsUrl">http://&domainName;:8080/mobileApp/getCampaigns</string>
     <string name="postCampaignReactionUrl">http://&domainName;:8080/mobileApp/saveCampaignReaction</string>
+    <string name="getHeatmapLocationsUrl">http://&domainName;:8080/mobileApp/getHeatmapLocations</string>
 </resources>

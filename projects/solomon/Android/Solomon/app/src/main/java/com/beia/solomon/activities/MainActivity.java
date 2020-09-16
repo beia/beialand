@@ -228,10 +228,11 @@ public class MainActivity extends AppCompatActivity {
                     getBeacons();
                 },
                 error -> {
-                    if(error.networkResponse.data != null)
+                    if(error.networkResponse != null && error.networkResponse.data != null)
                         Log.d("ERROR", "getMalls: " + new String(error.networkResponse.data));
                     else
                         error.printStackTrace();
+                    getMalls();
                 });
 
         volleyQueue.add(request);
@@ -258,10 +259,11 @@ public class MainActivity extends AppCompatActivity {
                     initKontaktBeacons();
                 },
                 error -> {
-                    if(error.networkResponse.data != null)
+                    if(error.networkResponse != null && error.networkResponse.data != null)
                         Log.d("ERROR", "getBeacons: " + new String(error.networkResponse.data));
                     else
                         error.printStackTrace();
+                    getBeacons();
                 });
 
         volleyQueue.add(request);
@@ -285,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("RESPONSE", "SAVED BEACON TIME");
                 },
                 error -> {
-                    if(error.networkResponse.data != null)
+                    if(error.networkResponse != null && error.networkResponse.data != null)
                         Log.d("ERROR", "postBeaconTime: " + new String(error.networkResponse.data));
                     else
                         error.printStackTrace();
@@ -313,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
                     closestBeaconsCoordinates = new Point[4];
                 },
                 error -> {
-                    if(error.networkResponse.data != null)
+                    if(error.networkResponse != null && error.networkResponse.data != null)
                         Log.d("ERROR", "requestLocalization: " + new String(error.networkResponse.data));
                     else
                         error.printStackTrace();
@@ -341,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
                     storeAdvertisementFragment.refreshCampaigns(campaigns);
                 },
                 error -> {
-                    if(error.networkResponse.data != null)
+                    if(error.networkResponse != null && error.networkResponse.data != null)
                         Log.d("ERROR", "requestCampaigns: " + new String(error.networkResponse.data));
                     else
                         error.printStackTrace();
@@ -475,7 +477,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MALL", currentMall.getLatitude() + " " + currentMall.getLongitude());
                     LatLng mallCoordinates = new LatLng(currentMall.getLatitude(),
                             currentMall.getLongitude());
-                    mapFragment.getGoogleMap().moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
+                    if(mapFragment.getGoogleMap() != null)
+                        mapFragment
+                                .getGoogleMap()
+                                .moveCamera(CameraUpdateFactory.newLatLngZoom(mallCoordinates, 18.0f));
                 }
             }
 
@@ -676,16 +681,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUserPosition(LatLng coordinates) {
-        mapFragment.getGoogleMap().animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
-        Marker positionMarker = mapFragment
-                .getGoogleMap()
-                .addMarker(new MarkerOptions()
-                        .position(coordinates)
-                        .icon(BitmapDescriptorFactory
-                                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        positionMarkers.add(positionMarker);
-        if(positionMarkers.size() > 1) {
-            positionMarkers.poll().remove();
+        if(mapFragment.getGoogleMap() != null) {
+            mapFragment
+                    .getGoogleMap()
+                    .animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+            Marker positionMarker = mapFragment
+                    .getGoogleMap()
+                    .addMarker(new MarkerOptions()
+                            .position(coordinates)
+                            .icon(BitmapDescriptorFactory
+                                    .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            positionMarkers.add(positionMarker);
+            if (positionMarkers.size() > 1) {
+                positionMarkers.poll().remove();
+            }
         }
     }
 
