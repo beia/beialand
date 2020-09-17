@@ -35,6 +35,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -185,7 +186,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         heatmapActive = false;
         heatmapButton.setOnClickListener((view) -> {
             if(!heatmapActive) {
-                getHeatmapLocations(LocalDateTime.now().minusHours(3).toString(),
+                getHeatmapLocations(LocalDateTime.now().minusMinutes(30).toString(),
                         LocalDateTime.now().toString());
                 heatmapButton.setImageResource(R.drawable.heat_map_activ);
             }

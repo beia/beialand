@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.model;
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Builder
@@ -20,13 +21,17 @@ public class Mall {
     @Column(nullable = false)
     private double longitude;
 
+    @OneToMany(mappedBy = "mall", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ParkingSpace> parkingSpaces;
+
     public Mall() {
     }
 
-    public Mall(long id, String name, double latitude, double longitude) {
+    public Mall(long id, String name, double latitude, double longitude, List<ParkingSpace> parkingSpaces) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.parkingSpaces = parkingSpaces;
     }
 
     public long getId() {
@@ -59,6 +64,14 @@ public class Mall {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public List<ParkingSpace> getParkingSpaces() {
+        return parkingSpaces;
+    }
+
+    public void setParkingSpaces(List<ParkingSpace> parkingSpaces) {
+        this.parkingSpaces = parkingSpaces;
     }
 
     @Override

@@ -103,9 +103,9 @@ public class BeaconService {
 
         double bestX = min_x, bestY = min_y, bestZ = min_z;
 
-        for(double x = min_x; x < max_x; x++)
-            for(double y = min_y; y < max_y; y++)
-                for(double z = min_z; z < max_z; z++){
+        for(double x = min_x; x < max_x; x = x + 0.4)
+            for(double y = min_y; y < max_y; y = y + 0.4)
+                for(double z = min_z; z < max_z; z = z + 0.4){
                     //compute error
                     double beacon0Distance = beaconDistances[0];
                     double beacon0X = closestBeaconsCoordinates[0].getX();

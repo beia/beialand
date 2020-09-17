@@ -1,18 +1,18 @@
 package com.beia.solomon.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.beia.solomon.R;
-import com.beia.solomon.activities.MallStatsActivity;
 import com.beia.solomon.model.Mall;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -31,14 +31,17 @@ public class StatsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     public static class MallViewHolder extends RecyclerView.ViewHolder {
-        //MALL
         TextView mallName;
         ImageView mallImage;
+        TextView parkingSpacesText;
+        ProgressBar parkingSpacesProgressBar;
 
         MallViewHolder(View itemView) {
             super(itemView);
             mallName = itemView.findViewById(R.id.mallName);
             mallImage = itemView.findViewById(R.id.mallImage);
+            parkingSpacesText = itemView.findViewById(R.id.freeParkingSpacesText);
+            parkingSpacesProgressBar = itemView.findViewById(R.id.parkingSpacesProgressBar);
         }
     }
 
@@ -51,6 +54,7 @@ public class StatsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         return new MallViewHolder(v);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         Mall mall = malls.get(position);
@@ -64,16 +68,8 @@ public class StatsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
                 .asBitmap()
                 .load(glideUrl)
                 .into(mallViewHolder.mallImage);
-        mallViewHolder.mallName.setOnClickListener(view -> {
-            Intent intent = new Intent(context, MallStatsActivity.class);
-            intent.putExtra("mall", malls.get(position));
-            context.startActivity(intent);
-        });
-        mallViewHolder.mallImage.setOnClickListener(view -> {
-            Intent intent = new Intent(context, MallStatsActivity.class);
-            intent.putExtra("mall", malls.get(position));
-            context.startActivity(intent);
-        });
+        mallViewHolder.parkingSpacesText.setText(String.format("Free parking spaces: %d%s", 20, '%'));
+        mallViewHolder.parkingSpacesProgressBar.setProgress(20);
     }
 
     @Override
