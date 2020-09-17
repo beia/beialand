@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Compare</title>
+
+    <script src="/static/scripts/jquery-3.3.1.js"></script>
+    <script src="/static/scripts/ChartJS/Chart.bundle.js"></script>
+    <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/scripts/Custom/compare.js"></script>
+  </head>
+  <body class="wideBody">
+    <div class="ui grid">
+        <div class="eight wide column" align="left"  >
+            <p style="font-size: 75px; padding-top: 2%; "><strong style="cursor:pointer" onclick="javascript:window.location.href = '/'">
+                <span style="color: gray">Citi</span>Sim
+            </strong></p>
+        </div>
+        <div class="eight wide column" align="right" >
+          <table>
+            <td style="vertical-align:top; text-align:right;">
+              Connected user<br>
+              <span style="color: gray; font-size: 25px; font-weight: bold;">{{current_user.username}}</span><br>
+              <div style=" cursor: pointer;" onclick="javascript:window.location.href='/logout'">
+                <i class="sign out icon" ></i> LogOut
+              </div><br>
+              <div data-content="Help" onclick="javascript:window.location.href = '/help'" style="width:25px; height:25px; background-color:#0C9; color:#FFF; border-radius:50px;cursor: pointer; float:right;">
+                  <i class="question icon" style="margin-top:5px; margin-left: 3px; font-size:15px;"></i>
+              </div>
+            </td>
+            <td>
+              <img src="/static/logo_citisim_cut.png" alt="CitiSim Logo" style="width:120px; height:120px; cursor:pointer;" onclick="javascript:window.location.href = '/'">
+            </td>
+          </table>
+        </div>
+    </div>
+
+      <div class="ui inverted horizontal divider">
+          <strong style="font-size: 24px;">
+              Compare
+          </strong>
+      </div>
+      <br>
+
+      <div class="" align="center">
+          <select id="select_scenario_1" class="ui search dropdown">
+              <option value="">Scenario 1</option>
+              {%  for item in scenarios %}
+                  {% if item.len != 0 %}
+                      <option value="{{ item.ID }}">{{ item.Name }}</option>
+                  {% endif %}
+              {% endfor %}
+          </select>
+
+          <select id="select_scenario_2" class="ui search dropdown">
+              <option value="">Scenario 2</option>
+              {%  for item in scenarios %}
+                  {% if item.len != 0 %}
+                      <option value="{{ item.ID }}">{{ item.Name }}</option>
+                  {% endif %}
+              {% endfor %}
+          </select>
+
+          <button class="ui button" onclick="startComparing()">
+            <i class="exchange icon"></i>
+            Compare
+          </button>
+      </div>
+
+
+
+
+      {% if scen1_data is defined and scen2_data is defined %}
+          <h3>{{scen1_name}}</h3>
+          <table class="ui stripped celled selectable inverted table">
+              <thead align="center">
+                  <tr>
+                      <th>Name</th>
+                      <th>Baseline Bill</th>
+                      <th>Current Bill</th>
+                      <th>Savings Achieved <br> (monetary units)</th>
+                      <th>Savings Achieved <br> (percent)</th>
+                      <th>Amount returned</th>
+                      <th>Amount yet to be returned</th>
+                      <th>Return of Investement <br> (ROI)</th>
+                      <th>Internal Rate of Return <br> (IRR)</th>
+                      <th>Net Present Value <br> (NPV)</th>
+                      <th>Sharings ESCO</th>
+                      <th>Sharings Client</th>
+                  </tr>
+              </thead>
+              <tbody align="center">
+                  {% for row in scen1_data %}
+                      <tr id="bill_{{row.OutputID}}">
+                          <td>{{row.BillName}}</td>
+                          <td>{{row.BaselineBill}}</td>
+                          <td>{{row.CurrentBill}}</td>
+                          <td>{{row.SavingsMU}}</td>
+                          <td>{{row.SavingsPercent}} %</td>
+                          <td>{{row.AmountReturned}}</td>
+                          <td>{{row.AmountYetToBeReturned}}</td>
+                          <td>{{row.ROI}} %</td>
+                          <td>{{row.IRR}} %</td>
+                          <td>{{row.NPV}}</td>
+                          <td>{{row.ESCO}}</td>
+                          <td>{{row.Client}}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+
+          <br>
+
+          <h3>{{scen2_name}}</h3>
+          <table class="ui stripped celled selectable inverted table">
+              <thead align="center">
+                  <tr>
+                      <th>Name</th>
+                      <th>Baseline Bill</th>
+                      <th>Current Bill</th>
+                      <th>Savings Achieved <br> (monetary units)</th>
+                      <th>Savings Achieved <br> (percent)</th>
+                      <th>Amount returned</th>
+                      <th>Amount yet to be returned</th>
+                      <th>Return of Investement <br> (ROI)</th>
+                      <th>Internal Rate of Return <br> (IRR)</th>
+                      <th>Net Present Value <br> (NPV)</th>
+                      <th>Sharings ESCO</th>
+                      <th>Sharings Client</th>
+                  </tr>
+              </thead>
+              <tbody align="center">
+                  {% for row in scen2_data %}
+                      <tr>
+                          <td>{{row.BillName}}</td>
+                          <td>{{row.BaselineBill}}</td>
+                          <td>{{row.CurrentBill}}</td>
+                          <td>{{row.SavingsMU}}</td>
+                          <td>{{row.SavingsPercent}} %</td>
+                          <td>{{row.AmountReturned}}</td>
+                          <td>{{row.AmountYetToBeReturned}}</td>
+                          <td>{{row.ROI}} %</td>
+                          <td>{{row.IRR}} %</td>
+                          <td>{{row.NPV}}</td>
+                          <td>{{row.ESCO}}</td>
+                          <td>{{row.Client}}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+
+          <br><br>
+
+          <div class="ui grid" >
+              <div class="row">
+                  <div class="seven wide column" align='right'>
+                      <h1>{{scen1_name}}</h1>
+                  </div>
+                  <div class="two wide column" align='center'>
+                      <h1>
+                          <i  class='exchange icon'></i>
+                      </h1>
+                  </div>
+                  <div class="seven wide column" align='left'>
+                      <h1>{{scen2_name}}</h1>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+          <h3>Baseline and Current Bill</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="base-curr-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        var labels = [];
+                        var dataset1 = [];
+                        var dataset2 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.BaselineBill}}");
+                            dataset2.push("{{row.CurrentBill}}");
+                        {% endfor %}
+
+                        var baseCurrLeftCtx = document.getElementById('base-curr-left-canvas').getContext('2d');
+                        window.barChart = new Chart(baseCurrLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'bar',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Baseline Bill",
+                                    backgroundColor: 'rgb(255, 99, 132, 0.5)',
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }, {
+                                    label: "CurrentBill",
+                                    backgroundColor: 'rgb(54, 162, 235, 0.5)',
+                                    borderColor: 'rgb(54, 162, 235)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset2
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                      <canvas id="base-curr-right-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        dataset2 = [];
+                        {% for row in scen2_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.BaselineBill}}");
+                            dataset2.push("{{row.CurrentBill}}");
+                        {% endfor %}
+
+                        var baseCurrRightCtx = document.getElementById('base-curr-right-canvas').getContext('2d');
+                        window.barChart = new Chart(baseCurrRightCtx, {
+                            // The type of chart we want to create
+                            type: 'bar',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Baseline Bill",
+                                    backgroundColor: 'rgb(255, 99, 132, 0.5)',
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }, {
+                                    label: "CurrentBill",
+                                    backgroundColor: 'rgb(54, 162, 235, 0.5)',
+                                    borderColor: 'rgb(54, 162, 235)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset2
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+          <h3>Savings Achieved (monetary units)</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="savingsMU-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.SavingsMU}}");
+                        {% endfor %}
+
+                        var savingsMULeftCtx = document.getElementById('savingsMU-left-canvas').getContext('2d');
+                        window.barChart = new Chart(savingsMULeftCtx, {
+                            // The type of chart we want to create
+                            type: 'line',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Savings",
+                                    backgroundColor: 'rgb(255, 159, 64, 0.5)',
+                                    borderColor: 'rgb(255, 159, 64)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                elements: {
+                                  line: {
+                                    tension: 0
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                    <canvas id="savingsMU-right-canvas"></canvas>
+                    <script type="text/javascript">
+                      labels = [];
+                      dataset1 = [];
+                      {% for row in scen2_data%}
+                          labels.push("{{row.BillName}}".split(" "));
+                          dataset1.push("{{row.SavingsMU}}");
+                      {% endfor %}
+
+                      var savingsMURightCtx = document.getElementById('savingsMU-right-canvas').getContext('2d');
+                      window.barChart = new Chart(savingsMURightCtx, {
+                          // The type of chart we want to create
+                          type: 'line',
+
+                          // The data for our dataset
+                          data: {
+                              labels: labels,
+                              datasets: [{
+                                  label: "Savings",
+                                  backgroundColor: 'rgb(255, 159, 64, 0.5)',
+                                  borderColor: 'rgb(255, 159, 64)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset1,
+                              }]
+                          },
+
+                          // Configuration options go here
+                          options: {
+                              responsive: true,
+                              legend: {
+                                labels: {
+                                  fontColor: "white"
+                                }
+                              },
+                              elements: {
+                                line: {
+                                  tension: 0
+                                }
+                              },
+                              scales: {
+                                  xAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }],
+                                  yAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+          <h3>Savings Achieved (percent)</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="savingsPer-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.SavingsPercent}}");
+                        {% endfor %}
+
+                        var savingsPerLeftCtx = document.getElementById('savingsPer-left-canvas').getContext('2d');
+                        window.barChart = new Chart(savingsPerLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'line',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Savings",
+                                    backgroundColor: 'rgb(255, 205, 86, 0.5)',
+                                    borderColor: 'rgb(255, 205, 86)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                elements: {
+                                  line: {
+                                    tension: 0
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                    <canvas id="savingsPer-right-canvas"></canvas>
+                    <script type="text/javascript">
+                      labels = [];
+                      dataset1 = [];
+                      {% for row in scen2_data%}
+                          labels.push("{{row.BillName}}".split(" "));
+                          dataset1.push("{{row.SavingsPercent}}");
+                      {% endfor %}
+
+                      var savingsPerRightCtx = document.getElementById('savingsPer-right-canvas').getContext('2d');
+                      window.barChart = new Chart(savingsPerRightCtx, {
+                          // The type of chart we want to create
+                          type: 'line',
+
+                          // The data for our dataset
+                          data: {
+                              labels: labels,
+                              datasets: [{
+                                  label: "Savings",
+                                  backgroundColor: 'rgb(255, 205, 86, 0.5)',
+                                  borderColor: 'rgb(255, 205, 86)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset1,
+                              }]
+                          },
+
+                          // Configuration options go here
+                          options: {
+                              responsive: true,
+                              legend: {
+                                labels: {
+                                  fontColor: "white"
+                                }
+                              },
+                              elements: {
+                                line: {
+                                  tension: 0
+                                }
+                              },
+                              scales: {
+                                  xAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }],
+                                  yAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+
+
+
+
+          <h3>The amount returned and the remaining</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="ammount-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        dataset2 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.AmountReturned}}");
+                            dataset2.push("{{row.AmountYetToBeReturned}}");
+                        {% endfor %}
+
+                        var ammountPerLeftCtx = document.getElementById('ammount-left-canvas').getContext('2d');
+                        window.barChart = new Chart(ammountPerLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'line',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Returned",
+                                    backgroundColor: 'rgb(75, 192, 192, 0.5)',
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                },{
+                                    label: "Remaining",
+                                    backgroundColor: 'rgb(153, 102, 255, 0.5)',
+                                    borderColor: 'rgb(153, 102, 255)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset2,
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                elements: {
+                                  line: {
+                                    tension: 0
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                    <canvas id="ammount-right-canvas"></canvas>
+                    <script type="text/javascript">
+                      labels = [];
+                      dataset1 = [];
+                      dataset2 = [];
+                      {% for row in scen2_data%}
+                          labels.push("{{row.BillName}}".split(" "));
+                          dataset1.push("{{row.AmountReturned}}");
+                          dataset2.push("{{row.AmountYetToBeReturned}}");
+                      {% endfor %}
+
+                      var ammountRightCtx = document.getElementById('ammount-right-canvas').getContext('2d');
+                      window.barChart = new Chart(ammountRightCtx, {
+                          // The type of chart we want to create
+                          type: 'line',
+
+                          // The data for our dataset
+                          data: {
+                              labels: labels,
+                              datasets: [{
+                                  label: "Returned",
+                                  backgroundColor: 'rgb(75, 192, 192, 0.5)',
+                                  borderColor: 'rgb(75, 192, 192)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset1,
+                              },{
+                                  label: "Remaining",
+                                  backgroundColor: 'rgb(153, 102, 255, 0.5)',
+                                  borderColor: 'rgb(153, 102, 255)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset2,
+                              }]
+                          },
+
+                          // Configuration options go here
+                          options: {
+                              responsive: true,
+                              legend: {
+                                labels: {
+                                  fontColor: "white"
+                                }
+                              },
+                              elements: {
+                                line: {
+                                  tension: 0
+                                }
+                              },
+                              scales: {
+                                  xAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }],
+                                  yAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+
+
+          <h3>Return of Investment</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="roi-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.ROI}}");
+                        {% endfor %}
+
+                        var roiLeftCtx = document.getElementById('roi-left-canvas').getContext('2d');
+                        window.barChart = new Chart(roiLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'line',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "ROI",
+                                    backgroundColor: 'rgb(201, 203, 207, 0.5)',
+                                    borderColor: 'rgb(201, 203, 207)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                elements: {
+                                  line: {
+                                    tension: 0
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                    <canvas id="roi-right-canvas"></canvas>
+                    <script type="text/javascript">
+                      labels = [];
+                      dataset1 = [];
+                      {% for row in scen2_data%}
+                          labels.push("{{row.BillName}}".split(" "));
+                          dataset1.push("{{row.ROI}}");
+                      {% endfor %}
+
+                      var roiRightCtx = document.getElementById('roi-right-canvas').getContext('2d');
+                      window.barChart = new Chart(roiRightCtx, {
+                          // The type of chart we want to create
+                          type: 'line',
+
+                          // The data for our dataset
+                          data: {
+                              labels: labels,
+                              datasets: [{
+                                  label: "ROI",
+                                  backgroundColor: 'rgb(201, 203, 207, 0.5)',
+                                  borderColor: 'rgb(201, 203, 207)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset1,
+                              }]
+                          },
+
+                          // Configuration options go here
+                          options: {
+                              responsive: true,
+                              legend: {
+                                labels: {
+                                  fontColor: "white"
+                                }
+                              },
+                              elements: {
+                                line: {
+                                  tension: 0
+                                }
+                              },
+                              scales: {
+                                  xAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }],
+                                  yAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+
+
+
+
+          <h3>Internal Rate of Return</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="irr-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.IRR}}");
+                        {% endfor %}
+
+                        var irrLeftCtx = document.getElementById('irr-left-canvas').getContext('2d');
+                        window.barChart = new Chart(irrLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'line',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "IRR",
+                                    backgroundColor: 'rgb(255, 99, 132, 0.5)',
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                elements: {
+                                  line: {
+                                    tension: 0
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                    <canvas id="IRR-right-canvas"></canvas>
+                    <script type="text/javascript">
+                      labels = [];
+                      dataset1 = [];
+                      {% for row in scen2_data%}
+                          labels.push("{{row.BillName}}".split(" "));
+                          dataset1.push("{{row.IRR}}");
+                      {% endfor %}
+
+                      var IRRRightCtx = document.getElementById('IRR-right-canvas').getContext('2d');
+                      window.barChart = new Chart(IRRRightCtx, {
+                          // The type of chart we want to create
+                          type: 'line',
+
+                          // The data for our dataset
+                          data: {
+                              labels: labels,
+                              datasets: [{
+                                  label: "IRR",
+                                  backgroundColor: 'rgb(255, 99, 132, 0.5)',
+                                  borderColor: 'rgb(255, 99, 132)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset1,
+                              }]
+                          },
+
+                          // Configuration options go here
+                          options: {
+                              responsive: true,
+                              legend: {
+                                labels: {
+                                  fontColor: "white"
+                                }
+                              },
+                              elements: {
+                                line: {
+                                  tension: 0
+                                }
+                              },
+                              scales: {
+                                  xAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }],
+                                  yAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+
+          <h3>Net Present Value</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="NPV-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.NPV}}");
+                        {% endfor %}
+
+                        var NPVLeftCtx = document.getElementById('NPV-left-canvas').getContext('2d');
+                        window.barChart = new Chart(NPVLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'line',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "NPV",
+                                    backgroundColor: 'rgb(54, 162, 235, 0.5)',
+                                    borderColor: 'rgb(54, 162, 235)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                elements: {
+                                  line: {
+                                    tension: 0
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                    <canvas id="NPV-right-canvas"></canvas>
+                    <script type="text/javascript">
+                      labels = [];
+                      dataset1 = [];
+                      {% for row in scen2_data%}
+                          labels.push("{{row.BillName}}".split(" "));
+                          dataset1.push("{{row.NPV}}");
+                      {% endfor %}
+
+                      var NPVRightCtx = document.getElementById('NPV-right-canvas').getContext('2d');
+                      window.barChart = new Chart(NPVRightCtx, {
+                          // The type of chart we want to create
+                          type: 'line',
+
+                          // The data for our dataset
+                          data: {
+                              labels: labels,
+                              datasets: [{
+                                  label: "NPV",
+                                  backgroundColor: 'rgb(54, 162, 235, 0.5)',
+                                  borderColor: 'rgb(54, 162, 235)',
+                                  borderWidth: 3,
+                                  fill: "start",
+                                  data: dataset1,
+                              }]
+                          },
+
+                          // Configuration options go here
+                          options: {
+                              responsive: true,
+                              legend: {
+                                labels: {
+                                  fontColor: "white"
+                                }
+                              },
+                              elements: {
+                                line: {
+                                  tension: 0
+                                }
+                              },
+                              scales: {
+                                  xAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }],
+                                  yAxes: [{
+                                      ticks: {
+                                          fontColor: "white",
+                                          fontSize: 14
+                                      },
+                                      gridLines: {
+                                          color: "grey"
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+
+
+
+
+          <h3>Sharings ESCO and Client</h3>
+          <div class="ui internally celled grid">
+              <div class="row">
+                  <div class="eight wide column">
+                      <canvas id="sharings-left-canvas"></canvas>
+                      <script type="text/javascript">
+                        var labels = [];
+                        var dataset1 = [];
+                        var dataset2 = [];
+                        {% for row in scen1_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.ESCO}}");
+                            dataset2.push("{{row.Client}}");
+                        {% endfor %}
+
+                        var sharingsLeftCtx = document.getElementById('sharings-left-canvas').getContext('2d');
+                        window.barChart = new Chart(sharingsLeftCtx, {
+                            // The type of chart we want to create
+                            type: 'bar',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Sharings ESCO",
+                                    backgroundColor: 'rgb(255, 205, 86, 0.5)',
+                                    borderColor: 'rgb(255, 205, 86)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }, {
+                                    label: "Sharings Client",
+                                    backgroundColor: 'rgb(75, 192, 192, 0.5)',
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset2
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+                  <div class="eight wide column">
+                      <canvas id="sharings-right-canvas"></canvas>
+                      <script type="text/javascript">
+                        labels = [];
+                        dataset1 = [];
+                        dataset2 = [];
+                        {% for row in scen2_data%}
+                            labels.push("{{row.BillName}}".split(" "));
+                            dataset1.push("{{row.ESCO}}");
+                            dataset2.push("{{row.Client}}");
+                        {% endfor %}
+
+                        var sharingsRightCtx = document.getElementById('sharings-right-canvas').getContext('2d');
+                        window.barChart = new Chart(sharingsRightCtx, {
+                            // The type of chart we want to create
+                            type: 'bar',
+
+                            // The data for our dataset
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: "Sharings ESCO",
+                                    backgroundColor: 'rgb(255, 205, 86, 0.5)',
+                                    borderColor: 'rgb(255, 205, 86)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset1,
+                                }, {
+                                    label: "Sharings Client",
+                                    backgroundColor: 'rgb(75, 192, 192, 0.5)',
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    borderWidth: 3,
+                                    fill: "start",
+                                    data: dataset2
+                                }]
+                            },
+
+                            // Configuration options go here
+                            options: {
+                                responsive: true,
+                                legend: {
+                                  labels: {
+                                    fontColor: "white"
+                                  }
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            fontColor: "white",
+                                            fontSize: 14
+                                        },
+                                        gridLines: {
+                                            color: "grey"
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                      </script>
+                  </div>
+              </div>
+          </div>
+          <br><br>
+
+      {% endif %}
+
+
+      <div class="ui basic modal HELP">
+          <div class="ui header" align="center">
+              <i class="question circle icon"></i>
+              Scenarios Page
+          </div>
+          <div class="content" align="center" >
+            <table>
+              <tr>
+                <td style="cursor: pointer;" onclick="switchSlideLeft()">
+                  <i class="angle left icon"  style="font-size:60px;"></i>
+                </td>
+                <td>
+                  <div id="helpDiv1" align="center">
+                    <img src="/static/helpim/compare1.png" style="width:100%; height:auto;">
+                    <br><br>
+                    <p align="left">
+                      In order to find the most performant one, two different scenarios can be analysed in parallel.
+                    </p>
+                  </div>
+                  <div id="helpDiv2" align="center" hidden>
+                    <img src="/static/helpim/compare2.png" style="width:100%; height:auto;">
+                    <br><br>
+                    <p align="left">
+                      The performance of the selected scenarios can be compared using both tabelar and visual data.
+                    </p>
+                  </div>
+                </td>
+                <td style="cursor: pointer;" onclick="switchSlideRight()">
+                  <i class="angle right icon"  style="font-size:60px;"></i>
+                </td>
+              </tr>
+            </table>
+          </div>
+      </div>
+
+
+
+      <script type="text/javascript">
+          $('.dropdown').dropdown();
+
+          var count=1
+          function switchSlideRight(){
+            document.getElementById('helpDiv' + count).hidden = true;
+            count = count + 1;
+            if(count == 3)
+              count = 1;
+
+            document.getElementById('helpDiv' + count).hidden = false;
+          }
+
+          function switchSlideLeft(){
+            document.getElementById('helpDiv' + count).hidden = true;
+            count = count - 1;
+            if(count == 0)
+              count = 2;
+
+            document.getElementById('helpDiv' + count).hidden = false;
+          }
+      </script>
+
+  </body>
+</html>
