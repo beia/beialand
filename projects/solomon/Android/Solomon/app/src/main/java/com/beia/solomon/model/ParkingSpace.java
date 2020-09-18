@@ -1,42 +1,22 @@
-package com.beia_consult_international.solomon.model;
+package com.beia.solomon.model;
 
-import lombok.Builder;
-
-import javax.persistence.*;
 import java.util.List;
 
-@Entity
-@Builder
 public class ParkingSpace {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @Column(name = "uid", unique = true)
-    private String UID;
-
-    @Column(nullable = false)
     private double latitude;
-
-    @Column(nullable = false)
     private double longitude;
-
-    @ManyToOne
-    @JoinColumn(name = "mall_id")
-    private Mall mall;
-
-    @OneToMany(mappedBy = "parkingSpace", cascade = CascadeType.ALL)
+    private long mallId;
     private List<ParkingData> parkingData;
 
     public ParkingSpace() {
     }
 
-    public ParkingSpace(long id, String UID, double latitude, double longitude, Mall mall, List<ParkingData> parkingData) {
+    public ParkingSpace(long id, double latitude, double longitude, long mallId, List<ParkingData> parkingData) {
         this.id = id;
-        this.UID = UID;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.mall = mall;
+        this.mallId = mallId;
         this.parkingData = parkingData;
     }
 
@@ -46,14 +26,6 @@ public class ParkingSpace {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getUID() {
-        return UID;
-    }
-
-    public void setUID(String UID) {
-        this.UID = UID;
     }
 
     public double getLatitude() {
@@ -72,12 +44,12 @@ public class ParkingSpace {
         this.longitude = longitude;
     }
 
-    public Mall getMall() {
-        return mall;
+    public long getMall() {
+        return mallId;
     }
 
-    public void setMall(Mall mall) {
-        this.mall = mall;
+    public void setMall(long mallId) {
+        this.mallId = mallId;
     }
 
     public List<ParkingData> getParkingData() {

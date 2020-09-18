@@ -3,6 +3,8 @@ package com.beia_consult_international.solomon.service.mapper;
 import com.beia_consult_international.solomon.dto.MallDto;
 import com.beia_consult_international.solomon.model.Mall;
 
+import java.util.stream.Collectors;
+
 public abstract class MallMapper {
 
     public static MallDto mapToDto(Mall mall) {
@@ -12,6 +14,10 @@ public abstract class MallMapper {
                 .name(mall.getName())
                 .latitude(mall.getLatitude())
                 .longitude(mall.getLongitude())
+                .parkingSpaces(mall.getParkingSpaces()
+                        .stream()
+                        .map(ParkingSpaceMapper::mapToDto)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
@@ -22,6 +28,11 @@ public abstract class MallMapper {
                 .name(mallDto.getName())
                 .latitude(mallDto.getLatitude())
                 .longitude(mallDto.getLongitude())
+                .parkingSpaces(mallDto
+                        .getParkingSpaces()
+                        .stream()
+                        .map(ParkingSpaceMapper::mapToModel)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

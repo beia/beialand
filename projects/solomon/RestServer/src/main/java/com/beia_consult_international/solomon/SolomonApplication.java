@@ -1,10 +1,7 @@
 package com.beia_consult_international.solomon;
 
 import com.beia_consult_international.solomon.model.*;
-import com.beia_consult_international.solomon.repository.BeaconRepository;
-import com.beia_consult_international.solomon.repository.CampaignRepository;
-import com.beia_consult_international.solomon.repository.MallRepository;
-import com.beia_consult_international.solomon.repository.UserRepository;
+import com.beia_consult_international.solomon.repository.*;
 import com.beia_consult_international.solomon.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -28,6 +25,8 @@ public class SolomonApplication implements CommandLineRunner {
     private CampaignService campaignService;
     @Autowired
     private BeaconRepository beaconRepository;
+    @Autowired
+    private ParkingSpaceRepository parkingSpaceRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -348,7 +347,186 @@ public class SolomonApplication implements CommandLineRunner {
                         .build()
         );
 
+
+        //BEIA PARKING SPACES
+        List<ParkingSpace> parkingSpaces = List.of(
+                ParkingSpace
+                        .builder()
+                        .UID("0004A30B00EB0782")
+                        .latitude(44.395598)
+                        .longitude(26.102822)
+                        .mall(malls.get(0))
+                        .parkingData(List.of(
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(5))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(4))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.OCCUPIED)
+                                        .date(LocalDateTime.now().minusMinutes(3))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(2))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(1))
+                                        .build()
+                        ))
+                        .build(),
+                ParkingSpace
+                        .builder()
+                        .UID("0004A30B00EB5C67")
+                        .latitude(44.395587)
+                        .longitude(26.102783)
+                        .mall(malls.get(0))
+                        .parkingData(List.of(
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(5))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.OCCUPIED)
+                                        .date(LocalDateTime.now().minusMinutes(4))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(3))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(2))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.OCCUPIED)
+                                        .date(LocalDateTime.now().minusMinutes(1))
+                                        .build()
+                        ))
+                        .build(),
+                ParkingSpace
+                        .builder()
+                        .UID("0004A30B00EB0E1E")
+                        .latitude(44.395574)
+                        .longitude(26.102750)
+                        .mall(malls.get(0))
+                        .parkingData(List.of(
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(5))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(4))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(3))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(2))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.OCCUPIED)
+                                        .date(LocalDateTime.now().minusMinutes(1))
+                                        .build()
+                        ))
+                        .build(),
+                ParkingSpace
+                        .builder()
+                        .UID("0004A30B00EB04F")
+                        .latitude(44.395563)
+                        .longitude(26.102720)
+                        .mall(malls.get(0))
+                        .parkingData(List.of(
+                                ParkingData
+                                        .builder()
+                                        .status(Status.OCCUPIED)
+                                        .date(LocalDateTime.now().minusMinutes(5))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(4))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(3))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(2))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(1))
+                                        .build()
+                        ))
+                        .build(),
+                ParkingSpace
+                        .builder()
+                        .UID("0004A30B00EB71F9")
+                        .latitude(44.395550)
+                        .longitude(26.102684)
+                        .mall(malls.get(0))
+                        .parkingData(List.of(
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(5))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(4))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(3))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(2))
+                                        .build(),
+                                ParkingData
+                                        .builder()
+                                        .status(Status.FREE)
+                                        .date(LocalDateTime.now().minusMinutes(1))
+                                        .build()
+                        ))
+                        .build()
+        );
+        parkingSpaces.forEach(parkingSpace -> parkingSpace
+                .getParkingData()
+                .forEach(parkingData -> parkingData.setParkingSpace(parkingSpace)));
+
         campaignService.saveAll(campaignsBeia);
         campaignService.saveAll(campaignsIzvor);
+        parkingSpaceRepository.saveAll(parkingSpaces);
     }
 }

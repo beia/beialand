@@ -143,7 +143,12 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(intent);
                 },
                 error -> {
-                    Log.d("ERROR", new String(error.networkResponse.data));
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
                     feedbackTextView.setText(getResources().getString(R.string.login_failed));
                     feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
                 });

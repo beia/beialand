@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.model;
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -15,6 +16,9 @@ public class ParkingData {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(nullable = false)
+    private LocalDateTime date;
+
     @ManyToOne
     @JoinColumn(name = "parking_space_id")
     private ParkingSpace parkingSpace;
@@ -22,9 +26,10 @@ public class ParkingData {
     public ParkingData() {
     }
 
-    public ParkingData(long id, Status status, ParkingSpace parkingSpace) {
+    public ParkingData(long id, Status status, LocalDateTime date, ParkingSpace parkingSpace) {
         this.id = id;
         this.status = status;
+        this.date = date;
         this.parkingSpace = parkingSpace;
     }
 
@@ -42,6 +47,14 @@ public class ParkingData {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public ParkingSpace getParkingSpace() {

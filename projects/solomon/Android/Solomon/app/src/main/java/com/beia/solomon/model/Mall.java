@@ -1,6 +1,7 @@
 package com.beia.solomon.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Builder;
 
@@ -10,15 +11,17 @@ public class Mall implements Serializable {
     private String name;
     private double latitude;
     private double longitude;
+    private List<ParkingSpace> parkingSpaces;
 
     public Mall() {
     }
 
-    public Mall(long id, String name, double latitude, double longitude) {
+    public Mall(long id, String name, double latitude, double longitude, List<ParkingSpace> parkingSpaces) {
         this.id = id;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.parkingSpaces = parkingSpaces;
     }
 
     public long getId() {
@@ -53,13 +56,11 @@ public class Mall implements Serializable {
         this.longitude = longitude;
     }
 
-    @Override
-    public String toString() {
-        return "Mall{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                '}';
+    public List<ParkingSpace> getParkingSpaces() {
+        return parkingSpaces;
+    }
+
+    public void setParkingSpaces(List<ParkingSpace> parkingSpaces) {
+        this.parkingSpaces = parkingSpaces;
     }
 }

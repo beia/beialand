@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.beia.solomon.R;
 import com.beia.solomon.model.Mall;
+import com.beia.solomon.model.Status;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
@@ -68,8 +69,19 @@ public class StatsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
                 .asBitmap()
                 .load(glideUrl)
                 .into(mallViewHolder.mallImage);
-        mallViewHolder.parkingSpacesText.setText(String.format("Free parking spaces: %d%s", 20, '%'));
-        mallViewHolder.parkingSpacesProgressBar.setProgress(20);
+        if(mall.getParkingSpaces() != null) {
+            long freeParkingSpaces = mall.getParkingSpaces()
+                    .stream()
+                    .filter(parkingSpace -> parkingSpace.getParkingData() != null
+                            && parkingSpace
+                            .getParkingData()
+                            .get(parkingSpace.getParkingData().size() - 1)
+                            .getStatus().equals(Status.FREE))
+                    .count();
+            int freeParkingSpacesPercentage = (int)(((double)freeParkingSpaces / mall.getParkingSpaces().size()) * 100);
+            mallViewHolder.parkingSpacesText.setText(String.format("Free parking spaces: %d", freeParkingSpaces));
+            mallViewHolder.parkingSpacesProgressBar.setProgress(freeParkingSpacesPercentage);
+        }
     }
 
     @Override
