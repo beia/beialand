@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     public Mall currentMall;
 
     public Map<String, Marker> beaconMarkers;
+    public Map<Long, Marker> parkingSpacesMarkers;
 
 
     public static int displayWidth;
@@ -277,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
         headers.put("Content-type", "application/json");
         headers.put("Authorization", getResources().getString(R.string.universal_user));
 
-        GsonRequest request = new GsonRequest<>(
+        GsonRequest<Object> request = new GsonRequest<>(
                 Request.Method.POST,
                 url,
                 seconds,
@@ -372,6 +373,7 @@ public class MainActivity extends AppCompatActivity {
         beaconDistances = new double[4];//the distances after the mean
         positionMarkers = new LinkedList<>();
         beaconMarkers = new HashMap<>();
+        parkingSpacesMarkers = new HashMap<>();
     }
 
     @SuppressLint("ResourceAsColor")
@@ -388,10 +390,11 @@ public class MainActivity extends AppCompatActivity {
         bundle1.putStringArrayList("storeAdvertisementsData", storeAdvertisementsData);
         storeAdvertisementFragment.setArguments(bundle1);
 
-        mapFragment = new MapFragment(beaconMarkers);
+        mapFragment = new MapFragment(beaconMarkers, parkingSpacesMarkers);
         Bundle bundle2 = new Bundle();
         ArrayList<String> beaconsData = new ArrayList<>();
         beaconsData.add(gson.toJson(beacons));
+        beaconsData.add(gson.toJson(malls));
         bundle2.putStringArrayList("mapData", beaconsData);
         mapFragment.setArguments(bundle2);
 

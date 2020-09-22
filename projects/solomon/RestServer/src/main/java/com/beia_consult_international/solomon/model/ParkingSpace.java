@@ -21,6 +21,9 @@ public class ParkingSpace {
     @Column(nullable = false)
     private double longitude;
 
+    @Column(nullable = false)
+    private float rotation;
+
     @ManyToOne
     @JoinColumn(name = "mall_id")
     private Mall mall;
@@ -28,16 +31,22 @@ public class ParkingSpace {
     @OneToMany(mappedBy = "parkingSpace", cascade = CascadeType.ALL)
     private List<ParkingData> parkingData;
 
+    @OneToOne
+    @JoinColumn(name = "beacon_id")
+    private Beacon beacon;
+
     public ParkingSpace() {
     }
 
-    public ParkingSpace(long id, String UID, double latitude, double longitude, Mall mall, List<ParkingData> parkingData) {
+    public ParkingSpace(long id, String UID, double latitude, double longitude, float rotation, Mall mall, List<ParkingData> parkingData, Beacon beacon) {
         this.id = id;
         this.UID = UID;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.rotation = rotation;
         this.mall = mall;
         this.parkingData = parkingData;
+        this.beacon = beacon;
     }
 
     public long getId() {
@@ -72,6 +81,14 @@ public class ParkingSpace {
         this.longitude = longitude;
     }
 
+    public float getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
+    }
+
     public Mall getMall() {
         return mall;
     }
@@ -86,5 +103,13 @@ public class ParkingSpace {
 
     public void setParkingData(List<ParkingData> parkingData) {
         this.parkingData = parkingData;
+    }
+
+    public Beacon getBeacon() {
+        return beacon;
+    }
+
+    public void setBeacon(Beacon beacon) {
+        this.beacon = beacon;
     }
 }

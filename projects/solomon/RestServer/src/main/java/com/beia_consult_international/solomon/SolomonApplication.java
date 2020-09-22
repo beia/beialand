@@ -125,7 +125,8 @@ public class SolomonApplication implements CommandLineRunner {
 
 
         List<Beacon> beacons = List.of(
-          Beacon.builder()
+          Beacon.builder()//0
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("LKhV")
                   .name("Starbucks")
                   .latitude(44.4364283)
@@ -138,7 +139,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(4))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//1
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("MTFa")
                   .name("Taco Bell")
                   .latitude(44.395706)
@@ -151,7 +153,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(7))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//2
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("PcNy")
                   .name("Nike")
                   .latitude(44.3957388)
@@ -164,7 +167,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(6))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//3
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("R4JH")
                   .name("Zara")
                   .latitude(44.4363632)
@@ -177,7 +181,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(3))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//4
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("rrZd")
                   .name("McDonald's")
                   .latitude(44.4364185)
@@ -190,7 +195,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(1))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//5
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("tZF7")
                   .name("Emag")
                   .latitude(44.3956626)
@@ -203,7 +209,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(5))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//6
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("v7mz")
                   .name("Bershka")
                   .latitude(44.3956943)
@@ -216,7 +223,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .user(users.get(8))
                   .manufacturer("KONTAKT")
                   .build(),
-          Beacon.builder()
+          Beacon.builder()//7
+                  .type(BeaconType.NORMAL)
                   .manufacturerId("zbCe")
                   .name("Altex")
                   .latitude(44.4363572)
@@ -228,7 +236,78 @@ public class SolomonApplication implements CommandLineRunner {
                   .mall(malls.get(4))
                   .user(users.get(2))
                   .manufacturer("KONTAKT")
-                  .build());
+                  .build(),
+
+        Beacon.builder()//8
+                .type(BeaconType.PARKING)
+                .manufacturerId("xxxx")
+                .name("Beia Parking Space 1")
+                .latitude(44.4363572)
+                .longitude(26.0869305)
+                .major(60181)
+                .minor(7706)
+                .layer(1)
+                .floor(0)
+                .mall(malls.get(0))
+                .user(users.get(0))
+                .manufacturer("KONTAKT")
+                .build(),
+        Beacon.builder()//9
+                .type(BeaconType.PARKING)
+                .manufacturerId("xxxx")
+                .name("Beia Parking Space 2")
+                .latitude(44.4363572)
+                .longitude(26.0869305)
+                .major(60181)
+                .minor(7706)
+                .layer(1)
+                .floor(0)
+                .mall(malls.get(0))
+                .user(users.get(0))
+                .manufacturer("KONTAKT")
+                .build(),
+        Beacon.builder()//10
+                .type(BeaconType.PARKING)
+                .manufacturerId("xxxx")
+                .name("Beia Parking Space 3")
+                .latitude(44.4363572)
+                .longitude(26.0869305)
+                .major(60181)
+                .minor(7706)
+                .layer(1)
+                .floor(0)
+                .mall(malls.get(0))
+                .user(users.get(0))
+                .manufacturer("KONTAKT")
+                .build(),
+        Beacon.builder()//11
+                .type(BeaconType.PARKING)
+                .manufacturerId("xxxx")
+                .name("Beia Parking Space 4")
+                .latitude(44.4363572)
+                .longitude(26.0869305)
+                .major(60181)
+                .minor(7706)
+                .layer(1)
+                .floor(0)
+                .mall(malls.get(0))
+                .user(users.get(0))
+                .manufacturer("KONTAKT")
+                .build(),
+        Beacon.builder()//12
+                .type(BeaconType.PARKING)
+                .manufacturerId("xxxx")
+                .name("Beia Parking Space 5")
+                .latitude(44.4363572)
+                .longitude(26.0869305)
+                .major(60181)
+                .minor(7706)
+                .layer(1)
+                .floor(0)
+                .mall(malls.get(0))
+                .user(users.get(0))
+                .manufacturer("KONTAKT")
+                .build());
         beaconRepository.saveAll(beacons);
 
         //BEIA CAMPAIGNS
@@ -355,7 +434,9 @@ public class SolomonApplication implements CommandLineRunner {
                         .UID("0004A30B00EB0782")
                         .latitude(44.395598)
                         .longitude(26.102822)
+                        .rotation(90)
                         .mall(malls.get(0))
+                        .beacon(beacons.get(8))
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
@@ -389,6 +470,8 @@ public class SolomonApplication implements CommandLineRunner {
                         .UID("0004A30B00EB5C67")
                         .latitude(44.395587)
                         .longitude(26.102783)
+                        .rotation(90)
+                        .beacon(beacons.get(9))
                         .mall(malls.get(0))
                         .parkingData(List.of(
                                 ParkingData
@@ -423,7 +506,9 @@ public class SolomonApplication implements CommandLineRunner {
                         .UID("0004A30B00EB0E1E")
                         .latitude(44.395574)
                         .longitude(26.102750)
+                        .rotation(90)
                         .mall(malls.get(0))
+                        .beacon(beacons.get(10))
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
@@ -457,6 +542,8 @@ public class SolomonApplication implements CommandLineRunner {
                         .UID("0004A30B00EB04F")
                         .latitude(44.395563)
                         .longitude(26.102720)
+                        .rotation(90)
+                        .beacon(beacons.get(11))
                         .mall(malls.get(0))
                         .parkingData(List.of(
                                 ParkingData
@@ -491,6 +578,8 @@ public class SolomonApplication implements CommandLineRunner {
                         .UID("0004A30B00EB71F9")
                         .latitude(44.395550)
                         .longitude(26.102684)
+                        .rotation(90)
+                        .beacon(beacons.get(12))
                         .mall(malls.get(0))
                         .parkingData(List.of(
                                 ParkingData

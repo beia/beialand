@@ -1,5 +1,6 @@
 package com.beia_consult_international.solomon.dto;
 
+import com.beia_consult_international.solomon.model.BeaconType;
 import lombok.Builder;
 
 @Builder
@@ -14,13 +15,14 @@ public class BeaconDto {
     private int layer;
     private int floor;
     private String manufacturer;
+    private BeaconType type;
     private UserDto user;
     private MallDto mall;
 
     public BeaconDto() {
     }
 
-    public BeaconDto(long id, String manufacturerId, String name, int major, int minor, double latitude, double longitude, int layer, int floor, String manufacturer, UserDto user, MallDto mall) {
+    public BeaconDto(long id, String manufacturerId, String name, int major, int minor, double latitude, double longitude, int layer, int floor, String manufacturer, BeaconType type, UserDto user, MallDto mall) {
         this.id = id;
         this.manufacturerId = manufacturerId;
         this.name = name;
@@ -31,6 +33,7 @@ public class BeaconDto {
         this.layer = layer;
         this.floor = floor;
         this.manufacturer = manufacturer;
+        this.type = type;
         this.user = user;
         this.mall = mall;
     }
@@ -113,6 +116,14 @@ public class BeaconDto {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    public BeaconType getType() {
+        return type;
+    }
+
+    public void setType(BeaconType type) {
+        this.type = type;
     }
 
     public UserDto getUser() {

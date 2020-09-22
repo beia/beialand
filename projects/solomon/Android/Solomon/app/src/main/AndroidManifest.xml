@@ -57,10 +57,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeLogo" />
         <activity
-            android:name=".activities.PreferencesActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"

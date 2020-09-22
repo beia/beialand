@@ -9,18 +9,22 @@ public class ParkingSpaceDto {
     private long id;
     private double latitude;
     private double longitude;
+    private float rotation;
     private long mallId;
     private List<ParkingDataDto> parkingData;
+    private BeaconDto beacon;
 
     public ParkingSpaceDto() {
     }
 
-    public ParkingSpaceDto(long id, double latitude, double longitude, long mallId, List<ParkingDataDto> parkingData) {
+    public ParkingSpaceDto(long id, double latitude, double longitude, float rotation, long mallId, List<ParkingDataDto> parkingData, BeaconDto beacon) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.rotation = rotation;
         this.mallId = mallId;
         this.parkingData = parkingData;
+        this.beacon = beacon;
     }
 
     public long getId() {
@@ -47,11 +51,19 @@ public class ParkingSpaceDto {
         this.longitude = longitude;
     }
 
-    public long getMall() {
+    public float getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
+    }
+
+    public long getMallId() {
         return mallId;
     }
 
-    public void setMall(long mallId) {
+    public void setMallId(long mallId) {
         this.mallId = mallId;
     }
 
@@ -61,5 +73,13 @@ public class ParkingSpaceDto {
 
     public void setParkingData(List<ParkingDataDto> parkingData) {
         this.parkingData = parkingData;
+    }
+
+    public BeaconDto getBeacon() {
+        return beacon;
+    }
+
+    public void setBeacon(BeaconDto beacon) {
+        this.beacon = beacon;
     }
 }

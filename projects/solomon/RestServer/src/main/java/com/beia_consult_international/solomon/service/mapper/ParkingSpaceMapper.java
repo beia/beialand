@@ -13,6 +13,7 @@ public abstract class ParkingSpaceMapper {
                 .id(model.getId())
                 .latitude(model.getLatitude())
                 .longitude(model.getLongitude())
+                .rotation(model.getRotation())
                 .mallId(model.getMall().getId())
                 .parkingData(model
                         .getParkingData()
@@ -28,6 +29,7 @@ public abstract class ParkingSpaceMapper {
                 .id(dto.getId())
                 .latitude(dto.getLatitude())
                 .longitude(dto.getLongitude())
+                .rotation(dto.getRotation())
                 .parkingData(dto
                         .getParkingData()
                         .stream()

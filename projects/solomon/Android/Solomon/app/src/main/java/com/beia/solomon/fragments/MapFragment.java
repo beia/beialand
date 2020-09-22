@@ -25,8 +25,11 @@ import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.model.Beacon;
+import com.beia.solomon.model.BeaconType;
 import com.beia.solomon.model.Location;
+import com.beia.solomon.model.Mall;
 import com.beia.solomon.model.ProximityStatus;
+import com.beia.solomon.model.Status;
 import com.beia.solomon.ui.StoreClusterItem;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
@@ -67,6 +70,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private RequestQueue volleyQueue;
     private Gson gson;
+    private List<Mall> malls;
     private List<Beacon> beacons;
     private List<Location> locations;
 
@@ -74,9 +78,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private GoogleMap googleMap;
     private ClusterManager<StoreClusterItem> clusterManager;
 
+    private Map<String, Marker> beaconMarkers;
+    private Map<Long, Marker> parkingSpacesMarkers;
+
     private HeatmapTileProvider heatMapTileProvider;
     private TileOverlay heatmapOverlay;
-    private Map<String, Marker> beaconMarkers;
     private ImageView heatmapButton;
     private boolean heatmapActive;
 
@@ -111,8 +117,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
 
 
-    public MapFragment(Map<String, Marker> beaconMarkers) {
+    public MapFragment(Map<String, Marker> beaconMarkers, Map<Long, Marker> parkingSpacesMarkers) {
         this.beaconMarkers = beaconMarkers;
+        this.parkingSpacesMarkers = parkingSpacesMarkers;
     }
 
     @Override
@@ -140,6 +147,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             ArrayList<String> bundleData = bundle.getStringArrayList("mapData");
             if(bundleData != null) {
                 beacons = gson.fromJson(bundleData.get(0), new TypeToken<List<Beacon>>() {}.getType());
+                malls = gson.fromJson(bundleData.get(1), new TypeToken<List<Mall>>() {}.getType());
             }
         }
         return v;
@@ -155,34 +163,68 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         this.googleMap = googleMap;
         googleMap.setMyLocationEnabled(true);
         setUpClusterer();
-        beacons.forEach(beacon -> {
-            LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
-            GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.beaconPicturesUrl) + "/" + beacon.getManufacturerId() + ".png",
-                    new LazyHeaders.Builder()
-                    .addHeader("Authorization", getResources().getString(R.string.universal_user))
-                    .build());
-            Glide.with(this)
-                    .asBitmap()
-                    .load(glideUrl)
-                    .into(new CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
-                                    .icon(BitmapDescriptorFactory
-                                            .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
-                            marker.setTitle(beacon.getName());
-                            beaconMarkers.put(beacon.getManufacturerId(), marker);
-                        }
-
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
-                    });
-        });
-        setUpHeatmapButton();
+        setupBeacons();
+        setupParkingSpaces();
+        setupHeatmapButton();
     }
 
-    private void setUpHeatmapButton() {
+    private void setupBeacons() {
+        beacons
+                .stream()
+                .filter(beacon -> beacon.getType().equals(BeaconType.NORMAL))
+                .forEach(beacon -> {
+                    LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
+                    GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.beaconPicturesUrl) + "/" + beacon.getManufacturerId() + ".png",
+                            new LazyHeaders.Builder()
+                                    .addHeader("Authorization", getResources().getString(R.string.universal_user))
+                                    .build());
+                    Glide.with(this)
+                            .asBitmap()
+                            .load(glideUrl)
+                            .into(new CustomTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
+                                            .icon(BitmapDescriptorFactory
+                                                    .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
+                                    marker.setTitle(beacon.getName());
+                                    beaconMarkers.put(beacon.getManufacturerId(), marker);
+                                }
+
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+                                }
+                            });
+                });
+    }
+
+    private void setupParkingSpaces() {
+        malls
+                .stream()
+                .filter(mall -> mall.getParkingSpaces() != null)
+                .forEach(mall -> mall.getParkingSpaces().forEach(parkingSpace -> {
+            Marker parkingSpaceMarker;
+            if(parkingSpace
+                    .getParkingData()
+                    .get(parkingSpace.getParkingData().size() - 1)
+                    .getStatus()
+                    .equals(Status.FREE)) {
+                 parkingSpaceMarker = googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
+                        .rotation(parkingSpace.getRotation()));
+            }
+            else {
+                parkingSpaceMarker = googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.occupied_parking_space))
+                        .rotation(parkingSpace.getRotation()));
+            }
+            parkingSpacesMarkers.put(parkingSpace.getId(), parkingSpaceMarker);
+        }));
+    }
+
+    private void setupHeatmapButton() {
         heatmapActive = false;
         heatmapButton.setOnClickListener((view) -> {
             if(!heatmapActive) {

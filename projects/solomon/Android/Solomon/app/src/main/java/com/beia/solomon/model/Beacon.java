@@ -16,13 +16,14 @@ public class Beacon implements Serializable {
     private int layer;
     private int floor;
     private String manufacturer;
+    private BeaconType type;
     private User user;
     private Mall mall;
 
     public Beacon() {
     }
 
-    public Beacon(long id, String manufacturerId, String name, int major, int minor, double latitude, double longitude, int layer, int floor, String manufacturer, User user, Mall mall) {
+    public Beacon(long id, String manufacturerId, String name, int major, int minor, double latitude, double longitude, int layer, int floor, String manufacturer, BeaconType type, User user, Mall mall) {
         this.id = id;
         this.manufacturerId = manufacturerId;
         this.name = name;
@@ -33,6 +34,7 @@ public class Beacon implements Serializable {
         this.layer = layer;
         this.floor = floor;
         this.manufacturer = manufacturer;
+        this.type = type;
         this.user = user;
         this.mall = mall;
     }
@@ -115,6 +117,14 @@ public class Beacon implements Serializable {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    public BeaconType getType() {
+        return type;
+    }
+
+    public void setType(BeaconType type) {
+        this.type = type;
     }
 
     public User getUser() {

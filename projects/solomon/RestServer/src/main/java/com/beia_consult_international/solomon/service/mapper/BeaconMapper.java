@@ -18,6 +18,7 @@ public abstract class BeaconMapper {
                 .major(beacon.getMajor())
                 .minor(beacon.getMinor())
                 .manufacturer(beacon.getManufacturer())
+                .type(beacon.getType())
                 .mall(MallMapper.mapToDto(beacon.getMall()))
                 .user(UserMapper.mapToDto(beacon.getUser()))
                 .build();
@@ -36,6 +37,7 @@ public abstract class BeaconMapper {
                 .major(beaconDto.getMajor())
                 .minor(beaconDto.getMinor())
                 .manufacturer(beaconDto.getManufacturer())
+                .type(beaconDto.getType())
                 .mall(MallMapper.mapToModel(beaconDto.getMall()))
                 .user(UserMapper.mapToModel(beaconDto.getUser()))
                 .build();
