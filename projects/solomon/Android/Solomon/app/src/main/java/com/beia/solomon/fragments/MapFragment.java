@@ -28,19 +28,17 @@ import com.beia.solomon.model.Beacon;
 import com.beia.solomon.model.BeaconType;
 import com.beia.solomon.model.Location;
 import com.beia.solomon.model.Mall;
+import com.beia.solomon.model.MapZone;
+import com.beia.solomon.model.ParkingSpace;
 import com.beia.solomon.model.ProximityStatus;
 import com.beia.solomon.model.Status;
-import com.beia.solomon.ui.StoreClusterItem;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -51,7 +49,6 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.jetbrains.annotations.NotNull;
@@ -61,12 +58,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback{
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private RequestQueue volleyQueue;
     private Gson gson;
@@ -76,10 +72,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private View view;
     private GoogleMap googleMap;
-    private ClusterManager<StoreClusterItem> clusterManager;
 
     private Map<String, Marker> beaconMarkers;
     private Map<Long, Marker> parkingSpacesMarkers;
+    private Marker carMarker;
+    private ParkingSpace occupiedByCarParkingSpace;
+    private boolean storeMarkersLoaded = false;
 
     private HeatmapTileProvider heatMapTileProvider;
     private TileOverlay heatmapOverlay;
@@ -162,10 +160,39 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         googleMap.setMyLocationEnabled(true);
-        setUpClusterer();
-        setupBeacons();
-        setupParkingSpaces();
+        setupMapZone(MapZone.BUCHAREST);
         setupHeatmapButton();
+        setupMalls();
+        setupMapListener();
+        setupMarkerListener();
+    }
+
+    private void setupMalls() {
+        malls
+                .forEach(mall -> {
+                    LatLng storeLocation = new LatLng(mall.getLatitude(), mall.getLongitude());
+                    GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.mallPicturesUrl) + "/" + mall.getId() + "_small.png",
+                            new LazyHeaders.Builder()
+                                    .addHeader("Authorization", getResources().getString(R.string.universal_user))
+                                    .build());
+                    Glide.with(this)
+                            .asBitmap()
+                            .load(glideUrl)
+                            .into(new CustomTarget<Bitmap>() {
+                                @Override
+                                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                    Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
+                                            .icon(BitmapDescriptorFactory
+                                                    .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
+                                    marker.setTitle(mall.getName());
+                                    marker.setTag(mall);
+                                }
+
+                                @Override
+                                public void onLoadCleared(@Nullable Drawable placeholder) {
+                                }
+                            });
+                });
     }
 
     private void setupBeacons() {
@@ -188,6 +215,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                                             .icon(BitmapDescriptorFactory
                                                     .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
                                     marker.setTitle(beacon.getName());
+                                    marker.setTag(beacon);
                                     beaconMarkers.put(beacon.getManufacturerId(), marker);
                                 }
 
@@ -220,8 +248,57 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.occupied_parking_space))
                         .rotation(parkingSpace.getRotation()));
             }
+            parkingSpaceMarker.setTag(parkingSpace);
             parkingSpacesMarkers.put(parkingSpace.getId(), parkingSpaceMarker);
         }));
+    }
+
+    private void setupMapListener() {
+        googleMap.setOnCameraMoveListener(() -> {
+            if(googleMap.getCameraPosition().zoom > 18 && !storeMarkersLoaded) {
+                googleMap.clear();
+                setupBeacons();
+                setupParkingSpaces();
+                storeMarkersLoaded = true;
+            }
+            else if(googleMap.getCameraPosition().zoom < 18 && storeMarkersLoaded) {
+                googleMap.clear();
+                setupMalls();
+                storeMarkersLoaded = false;
+            }
+        });
+    }
+
+    private void setupMarkerListener() {
+        googleMap.setOnMarkerClickListener(marker -> {
+            if(marker.getTag() instanceof Mall) {
+                Mall mall = (Mall) marker.getTag();
+                googleMap.animateCamera(CameraUpdateFactory
+                        .newLatLngZoom(new LatLng(mall.getLatitude(),
+                                        mall.getLongitude()),
+                                20.5f));
+                return true;
+            }
+            else if (marker.getTag() instanceof ParkingSpace) {
+                ParkingSpace parkingSpace = (ParkingSpace) marker.getTag();
+                if(parkingSpace.getParkingData() != null &&
+                        parkingSpace
+                                .getParkingData()
+                                .get(0)
+                                .getStatus()
+                                .equals(Status.FREE)) {
+                    carMarker = createCarMarker(parkingSpace);
+                    occupiedByCarParkingSpace = parkingSpace;
+                    removeParkingSpaceMarker(parkingSpace);
+                }
+            }
+            else if(marker.equals(carMarker)) {
+                carMarker.remove();
+                Marker parkingSpaceMarker = createParkingMarker(occupiedByCarParkingSpace);
+                parkingSpacesMarkers.put(occupiedByCarParkingSpace.getId(), parkingSpaceMarker);
+            }
+            return false;
+        });
     }
 
     private void setupHeatmapButton() {
@@ -240,13 +317,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             heatmapActive = !heatmapActive;
         });
     }
-
-    private void setUpClusterer() {
-        clusterManager = new ClusterManager<>(Objects.requireNonNull(getContext()), googleMap);
-        googleMap.setOnCameraIdleListener(clusterManager);
-        googleMap.setOnMarkerClickListener(clusterManager);
-    }
-
 
     private void addHeatMap(List<Location> userLocations) {
         Log.d("HEAT_MAP", "addHeatMap: " + userLocations.size() + " locations");
@@ -290,11 +360,48 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         return returnedBitmap;
     }
 
-    public GoogleMap getGoogleMap() {
-        return googleMap;
+    private Marker createParkingMarker(ParkingSpace parkingSpace) {
+        Marker marker = null;
+        if(parkingSpace != null && parkingSpace.getParkingData() != null) {
+            if(occupiedByCarParkingSpace.getParkingData().get(0).getStatus().equals(Status.FREE)) {
+                 marker = googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
+                        .rotation(occupiedByCarParkingSpace.getRotation()));
+            }
+            else {
+                marker = googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(occupiedByCarParkingSpace.getLatitude(),
+                                occupiedByCarParkingSpace.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
+                        .rotation(occupiedByCarParkingSpace.getRotation()));
+            }
+        }
+        return marker;
     }
 
-    public void setGoogleMap(GoogleMap googleMap) {
-        this.googleMap = googleMap;
+    private Marker createCarMarker(ParkingSpace parkingSpace) {
+        Marker marker = null;
+        if(parkingSpace != null) {
+            marker = googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                        .rotation(parkingSpace.getRotation()));
+        }
+        return marker;
+    }
+
+    private void removeParkingSpaceMarker(ParkingSpace parkingSpace) {
+        if(parkingSpacesMarkers.get(parkingSpace.getId()) != null)
+            parkingSpacesMarkers.get(parkingSpace.getId()).remove();
+    }
+
+    private void setupMapZone(MapZone mapZone) {
+        googleMap.moveCamera(CameraUpdateFactory
+                .newLatLngZoom(mapZone.getCoordinates(), mapZone.getZoom()));
+    }
+
+    public GoogleMap getGoogleMap() {
+        return googleMap;
     }
 }
