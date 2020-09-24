@@ -4,7 +4,8 @@ import java.util.List;
 
 public enum Role {
     ADMIN(List.of(Authority.READ, Authority.WRITE, Authority.DELETE)),
-    COMPANY(List.of(Authority.READ, Authority.WRITE, Authority.DELETE)),
+    RETAILER(List.of(Authority.READ, Authority.WRITE, Authority.DELETE)),
+    MALL(List.of(Authority.READ, Authority.WRITE, Authority.DELETE)),
     USER(List.of(Authority.READ, Authority.WRITE));
 
     private List<Authority> authorities;

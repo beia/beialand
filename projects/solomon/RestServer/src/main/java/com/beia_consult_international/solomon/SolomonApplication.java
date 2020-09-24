@@ -38,60 +38,91 @@ public class SolomonApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         List<User> users = List.of(
-          User.builder()
+          User.builder()//0
                   .username("admin")
                   .password(passwordEncoder.encode("solomon"))
                   .firstName("Admin")
                   .role(Role.ADMIN)
                   .build(),
-          User.builder()
+          User.builder()//1
                   .username("McDonald's")
                   .password(passwordEncoder.encode("mc"))
                   .firstName("McDonald's")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//2
                   .username("Altex")
                   .password(passwordEncoder.encode("altex"))
                   .firstName("Altex")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//3
                   .username("Zara")
                   .password(passwordEncoder.encode("zara"))
                   .firstName("Zara")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//4
                   .username("Starbucks")
                   .password(passwordEncoder.encode("starbucks"))
                   .firstName("Starbucks")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//5
                   .username("Emag")
                   .password(passwordEncoder.encode("emag"))
                   .firstName("Emag")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//6
                   .username("Nike")
                   .password(passwordEncoder.encode("nike"))
                   .firstName("Nike")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//7
                   .username("Taco Bell")
                   .password(passwordEncoder.encode("taco bell"))
                   .firstName("Taco Bell")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
                   .build(),
-          User.builder()
+          User.builder()//8
                   .username("Bershka")
                   .password(passwordEncoder.encode("bershka"))
                   .firstName("Bershka")
-                  .role(Role.COMPANY)
+                  .role(Role.RETAILER)
+                  .build(),
+          User.builder()//9
+                  .username("beia")
+                  .password(passwordEncoder.encode("beiatapi"))
+                  .firstName("Beia Consult International")
+                  .role(Role.MALL)
+                  .build(),
+          User.builder()//10
+                  .username("baneasa")
+                  .password(passwordEncoder.encode("baneasa"))
+                  .firstName("Baneasa Shopping City")
+                  .role(Role.MALL)
+                  .build(),
+          User.builder()//11
+                  .username("promenada")
+                  .password(passwordEncoder.encode("promenada"))
+                  .firstName("Promenada Mall")
+                  .role(Role.MALL)
+                  .build(),
+          User.builder()//12
+                  .username("veranda")
+                  .password(passwordEncoder.encode("veranda"))
+                  .firstName("Veranda Mall")
+                  .role(Role.MALL)
+                  .build(),
+          User.builder()//13
+                  .username("izvor")
+                  .password(passwordEncoder.encode("izvor"))
+                  .firstName("Izvor")
+                  .role(Role.MALL)
                   .build());
+
         userRepository.saveAll(users);
 
 
@@ -100,26 +131,31 @@ public class SolomonApplication implements CommandLineRunner {
                   .name("Beia Consult International")
                   .latitude(44.3957038)
                   .longitude(26.1027026)
+                  .user(users.get(9))
                   .build(),
           Mall.builder()
                   .name("Baneasa Shopping City")
                   .latitude(44.508874)
                   .longitude(26.087669)
+                  .user(users.get(10))
                   .build(),
           Mall.builder()
                   .name("Promenada Mall")
                   .latitude(44.478531)
                   .longitude(26.102645)
+                  .user(users.get(11))
                   .build(),
           Mall.builder()
                   .name("Veranda Mall")
                   .latitude(44.452251)
                   .longitude(26.130569)
+                  .user(users.get(12))
                   .build(),
           Mall.builder()
                   .name("Izvor")
                   .latitude(44.436242)
                   .longitude(26.086765)
+                  .user(users.get(13))
                   .build());
         mallRepository.saveAll(malls);
 

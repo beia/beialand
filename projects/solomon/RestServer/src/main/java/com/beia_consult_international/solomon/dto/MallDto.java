@@ -1,6 +1,6 @@
 package com.beia_consult_international.solomon.dto;
 
-import com.beia_consult_international.solomon.model.ParkingSpace;
+import com.beia_consult_international.solomon.model.User;
 import lombok.Builder;
 
 import java.util.List;
@@ -11,16 +11,18 @@ public class MallDto {
     private String name;
     private double latitude;
     private double longitude;
+    private UserDto user;
     private List<ParkingSpaceDto> parkingSpaces;
 
     public MallDto() {
     }
 
-    public MallDto(long id, String name, double latitude, double longitude, List<ParkingSpaceDto> parkingSpaces) {
+    public MallDto(long id, String name, double latitude, double longitude, UserDto user, List<ParkingSpaceDto> parkingSpaces) {
         this.id = id;
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.user = user;
         this.parkingSpaces = parkingSpaces;
     }
 
@@ -54,6 +56,14 @@ public class MallDto {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public UserDto getUser() {
+        return user;
+    }
+
+    public void setUser(UserDto user) {
+        this.user = user;
     }
 
     public List<ParkingSpaceDto> getParkingSpaces() {

@@ -17,7 +17,8 @@
         android:id="@+id/buttonHeatMap"
         android:layout_width="@dimen/dimen32dp"
         android:layout_height="@dimen/dimen32dp"
-        android:layout_gravity="left|top"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="@dimen/dimen28dp"
         android:padding="@dimen/dimen7dp"
         android:src="@drawable/heat_map_inactiv" />
 </FrameLayout>

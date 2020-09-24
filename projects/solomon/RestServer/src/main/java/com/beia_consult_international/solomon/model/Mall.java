@@ -21,16 +21,21 @@ public class Mall {
     @Column(nullable = false)
     private double longitude;
 
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @OneToMany(mappedBy = "mall", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ParkingSpace> parkingSpaces;
 
     public Mall() {
     }
 
-    public Mall(long id, String name, double latitude, double longitude, List<ParkingSpace> parkingSpaces) {
+    public Mall(long id, String name, double latitude, double longitude, User user, List<ParkingSpace> parkingSpaces) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.user = user;
         this.parkingSpaces = parkingSpaces;
     }
 
@@ -64,6 +69,14 @@ public class Mall {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<ParkingSpace> getParkingSpaces() {

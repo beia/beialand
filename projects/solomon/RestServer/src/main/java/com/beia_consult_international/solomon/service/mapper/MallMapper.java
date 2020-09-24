@@ -14,6 +14,7 @@ public abstract class MallMapper {
                 .name(mall.getName())
                 .latitude(mall.getLatitude())
                 .longitude(mall.getLongitude())
+                .user(UserMapper.mapToDto(mall.getUser()))
                 .parkingSpaces(mall.getParkingSpaces()
                         .stream()
                         .map(ParkingSpaceMapper::mapToDto)
@@ -28,6 +29,7 @@ public abstract class MallMapper {
                 .name(mallDto.getName())
                 .latitude(mallDto.getLatitude())
                 .longitude(mallDto.getLongitude())
+                .user(UserMapper.mapToModel(mallDto.getUser()))
                 .parkingSpaces(mallDto
                         .getParkingSpaces()
                         .stream()

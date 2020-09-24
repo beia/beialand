@@ -183,8 +183,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                     Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
                                             .icon(BitmapDescriptorFactory
-                                                    .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
-                                    marker.setTitle(mall.getName());
+                                                    .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR)))
+                                            .title(mall.getName()));
                                     marker.setTag(mall);
                                 }
 
@@ -213,8 +213,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                                     Marker marker = googleMap.addMarker(new MarkerOptions().position(storeLocation)
                                             .icon(BitmapDescriptorFactory
-                                                    .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR))));
-                                    marker.setTitle(beacon.getName());
+                                                    .fromBitmap(createStoreMarker(MainActivity.context, resource, ProximityStatus.FAR)))
+                                            .title(beacon.getName()));
                                     marker.setTag(beacon);
                                     beaconMarkers.put(beacon.getManufacturerId(), marker);
                                 }
@@ -232,22 +232,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .filter(mall -> mall.getParkingSpaces() != null)
                 .forEach(mall -> mall.getParkingSpaces().forEach(parkingSpace -> {
             Marker parkingSpaceMarker;
-            if(parkingSpace
-                    .getParkingData()
-                    .get(parkingSpace.getParkingData().size() - 1)
-                    .getStatus()
-                    .equals(Status.FREE)) {
-                 parkingSpaceMarker = googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
-                        .rotation(parkingSpace.getRotation()));
-            }
-            else {
-                parkingSpaceMarker = googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.occupied_parking_space))
-                        .rotation(parkingSpace.getRotation()));
-            }
+            parkingSpaceMarker = createParkingMarker(parkingSpace);
             parkingSpaceMarker.setTag(parkingSpace);
             parkingSpacesMarkers.put(parkingSpace.getId(), parkingSpaceMarker);
         }));
@@ -284,9 +269,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if(parkingSpace.getParkingData() != null &&
                         parkingSpace
                                 .getParkingData()
-                                .get(0)
+                                .get(parkingSpace.getParkingData().size() - 1)
                                 .getStatus()
-                                .equals(Status.FREE)) {
+                                .equals(Status.FREE) &&
+                        carMarker == null) {
                     carMarker = createCarMarker(parkingSpace);
                     occupiedByCarParkingSpace = parkingSpace;
                     removeParkingSpaceMarker(parkingSpace);
@@ -294,7 +280,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
             else if(marker.equals(carMarker)) {
                 carMarker.remove();
+                carMarker = null;
                 Marker parkingSpaceMarker = createParkingMarker(occupiedByCarParkingSpace);
+                parkingSpaceMarker.setTag(occupiedByCarParkingSpace);
                 parkingSpacesMarkers.put(occupiedByCarParkingSpace.getId(), parkingSpaceMarker);
             }
             return false;
@@ -363,18 +351,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Marker createParkingMarker(ParkingSpace parkingSpace) {
         Marker marker = null;
         if(parkingSpace != null && parkingSpace.getParkingData() != null) {
-            if(occupiedByCarParkingSpace.getParkingData().get(0).getStatus().equals(Status.FREE)) {
+            if(parkingSpace
+                    .getParkingData()
+                    .get(parkingSpace.getParkingData().size() - 1)
+                    .getStatus().equals(Status.FREE)) {
                  marker = googleMap.addMarker(new MarkerOptions()
                         .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
-                        .rotation(occupiedByCarParkingSpace.getRotation()));
+                        .rotation(parkingSpace.getRotation())
+                        .title("free"));
             }
             else {
                 marker = googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(occupiedByCarParkingSpace.getLatitude(),
-                                occupiedByCarParkingSpace.getLongitude()))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
-                        .rotation(occupiedByCarParkingSpace.getRotation()));
+                        .position(new LatLng(parkingSpace.getLatitude(),
+                                parkingSpace.getLongitude()))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.occupied_parking_space))
+                        .rotation(parkingSpace.getRotation())
+                        .title("occupied"));
             }
         }
         return marker;
