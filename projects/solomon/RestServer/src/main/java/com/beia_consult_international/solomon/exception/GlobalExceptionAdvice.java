@@ -12,7 +12,8 @@ public class GlobalExceptionAdvice {
         WrongUserDetailsException.class,
         BeaconNotFoundException.class,
         CampaignsNotFoundException.class,
-        MallNotFoundException.class
+        MallNotFoundException.class,
+        ParkingSpaceNotFoundException.class
     })
     public ResponseEntity<String> handle(Exception e) {
         return ResponseEntity

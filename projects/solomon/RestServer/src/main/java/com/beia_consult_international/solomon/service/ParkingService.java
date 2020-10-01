@@ -44,7 +44,7 @@ public class ParkingService {
                 .status(parkingStats.getParking_slot_status() == 0
                         ? Status.FREE
                         : Status.OCCUPIED)
-                .date(LocalDateTime.parse(parkingStats.getLW_ts()))
+                .date(LocalDateTime.parse(parkingStats.getLW_ts().replace(' ', 'T')))
                 .parkingSpace(parkingSpace)
                 .build());
         parkingSpaceRepository.save(parkingSpace);
