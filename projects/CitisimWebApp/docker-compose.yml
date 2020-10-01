@@ -16,8 +16,12 @@ services:
       MYSQL_ROOT_PASSWORD: toor
     volumes:
       - ./db:/docker-entrypoint-initdb.d/:ro
+      - db_data:/var/lib/mysql
 
 networks:
   proxy_net:
     external: true
   db:
+
+volumes:
+  - db_data
