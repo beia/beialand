@@ -29,6 +29,7 @@ public class UserManagementConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers("/solomon/login/**", "/solomon/register/**").permitAll()
                 .anyRequest()
                 .authenticated();
     }

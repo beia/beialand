@@ -2,6 +2,7 @@ package com.beia_consult_international.solomon.service;
 
 import com.beia_consult_international.solomon.dto.ParkingSpaceDto;
 import com.beia_consult_international.solomon.dto.ParkingStatsDto;
+import com.beia_consult_international.solomon.exception.ParkingSpaceNotFoundException;
 import com.beia_consult_international.solomon.model.ParkingData;
 import com.beia_consult_international.solomon.model.ParkingSpace;
 import com.beia_consult_international.solomon.model.Status;
@@ -31,24 +32,21 @@ public class ParkingService {
                 .collect(Collectors.toList());
     }
 
-    public void saveAll(List<ParkingStatsDto> parkingStats) {
+    public void save(ParkingStatsDto parkingStats) {
         List<ParkingSpace> parkingSpaces = parkingSpaceRepository.findAll();
-        parkingSpaces.forEach(parkingSpace -> parkingSpace
-                .getParkingData()
-                .addAll(parkingStats
-                        .stream()
-                        .filter(parkingStatsDto -> parkingStatsDto
-                                .getLW_EUI()
-                                .equals(parkingSpace.getUID()))
-                        .map(parkingStatsDto -> ParkingData
-                                .builder()
-                                .status(parkingStatsDto.getParking_slot_status() == 0
-                                        ? Status.FREE
-                                        : Status.OCCUPIED)
-                                .date(LocalDateTime.parse(parkingStatsDto.getLW_ts()))
-                                .parkingSpace(parkingSpace)
-                                .build())
-                        .collect(Collectors.toList())));
-        parkingSpaceRepository.saveAll(parkingSpaces);
+        ParkingSpace parkingSpace = parkingSpaces
+                .stream()
+                .filter(ps -> ps.getUID().equals(parkingStats.getLW_EUI()))
+                .findFirst()
+                .orElseThrow(ParkingSpaceNotFoundException::new);
+        parkingSpace.getParkingData().add(ParkingData
+                .builder()
+                .status(parkingStats.getParking_slot_status() == 0
+                        ? Status.FREE
+                        : Status.OCCUPIED)
+                .date(LocalDateTime.parse(parkingStats.getLW_ts()))
+                .parkingSpace(parkingSpace)
+                .build());
+        parkingSpaceRepository.save(parkingSpace);
     }
 }
