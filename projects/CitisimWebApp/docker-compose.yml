@@ -2,14 +2,22 @@ version: "2"
 services:
   citisim_app:
     image: beia/citisim-webapp
-    ports:
-      - "32100:80"
+    environment:
+      VIRTUAL_HOST: 'smart-energy.beia-telemetrie.ro'
+      LETSENCRYPT_HOST: 'smart-energy.beia-telemetrie.ro'
+      LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
+    networks:
+      - db
+      - proxy_net
 
   citisim_db:
     image: mysql:5.7
-    ports:
-      - "32000:3306"
     environment:
       MYSQL_ROOT_PASSWORD: toor
     volumes:
       - ./db:/docker-entrypoint-initdb.d/:ro
+
+networks:
+  proxy_net:
+    external: true
+  db:
