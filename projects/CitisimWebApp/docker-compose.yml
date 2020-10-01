@@ -1,7 +1,7 @@
 version: "2"
 services:
   citisim_app:
-    container_name: beia/citisim_app
+    image: beia/citisim-webapp
     ports:
       - "32100:80"
 
