@@ -7,9 +7,7 @@ ENV CITISIM_MYSQL_USER root
 ENV CITISIM_MYSQL_PASSWORD toor
 ENV CITISIM_MYSQL_DB libcitisim
 
-RUN apt-get update
-RUN apt-get -y install python2.7-dev
-RUN apt-get -y install default-libmysqlclient-dev
+RUN apt-get update && apt-get -y install python2.7-dev default-libmysqlclient-dev
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
