@@ -29,9 +29,16 @@ public class UserManagementConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/solomon/login/**", "/solomon/register/**").permitAll()
-                .anyRequest()
-                .authenticated();
+                .antMatchers("/webResources/**").permitAll()
+                .antMatchers("/malls/**").permitAll()
+                .antMatchers("/beacons/**").permitAll()
+                .antMatchers("/solomon/register").permitAll()
+                .antMatchers("/favicon.ico").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin().loginPage("/solomon/login").permitAll().defaultSuccessUrl("/solomon/dashboard",true)
+                .and()
+                .logout().logoutUrl("/solomon/logout").permitAll();
     }
 
     @Override
