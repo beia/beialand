@@ -1,0 +1,33 @@
+.top-menu {
+  background-color:#f16667;
+  height: 50px;
+  padding-left: 9%;
+  padding-right: 9%;
+
+  -webkit-box-shadow: 0 5px 25px 0px #979797;
+	   -moz-box-shadow: 0 5px 15px 0px #979797;
+	        box-shadow: 0 5px 15px 0px #979797;
+}
+
+
+.top-grid {
+  height: 100%;
+  margin: 0 !important;
+}
+
+
+.top-column {
+  height: 100%;
+}
+
+.image {
+  height: 100%;
+}
+
+.menu-element {
+  color: white;
+  font-size: 25px !important;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}

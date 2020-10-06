@@ -353,8 +353,8 @@ public class SolomonApplication implements CommandLineRunner {
                   .title("Adidasi nike")
                   .description("pret: 500 lei")
                   .category(Category.Shoes)
-                  .startDate(LocalDateTime.now().minusDays(1))
-                  .endDate(LocalDateTime.now().plusDays(100))
+                  .startDate(LocalDateTime.now().minusDays(10))
+                  .endDate(LocalDateTime.now().minusDays(1))
                   .user(users.get(6))
                   .build(),
             Campaign

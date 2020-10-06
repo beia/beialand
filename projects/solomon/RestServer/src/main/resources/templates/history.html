@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="/webResources/images/solomon_favicon.png"/>
+    <title>SOLOMON History</title>
+
+    <script src="/webResources/scripts/jquery-3.3.1.js"></script>
+    <script src="/webResources/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/SemanticUI/semantic.min.css"/>
+
+    <script src="/webResources/scripts/FormanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/FormanticUI/semantic.min.css"/>
+
+    <script src="/webResources/scripts/Custom/history.js"></script>
+    <link rel="stylesheet" href="/webResources/styles/topMenu.css"/>
+    <link rel="stylesheet" href="/webResources/styles/history.css"/>
+</head>
+<body>
+<div class="top-menu">
+    <div class="ui grid top-grid ">
+        <div class="eight wide column top-column" align="left">
+            <img src="/webResources/images/logo_solomon.png"
+                 class="image"
+                 style="cursor: pointer;"
+                 onclick="javascript:window.location.href='/solomon/dashboard'">
+        </div>
+        <div class="eight wide column top-column" align="right">
+            <!-- <strong class="menu-element">Name</strong>
+            <i class="cog icon menu-element"></i> -->
+
+            <div class="menu-element">
+                <span id="userNameSpan" sec:authentication="name"></span>
+                <i class="history icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="history-body">
+    <div id="segments-zone">  </div>
+</div>
+
+
+<input id="itemID" type="hidden"/>
+
+<div class="ui basic modal RMVS">
+    <div class="ui icon header">
+        <i class="close icon"></i>
+        Are you sure you want to remove this item?
+    </div>
+    <div class="actions">
+        <div class="ui green ok inverted button" onclick="removeOldCampaign()">
+            <i class="checkmark icon"></i>
+            YES
+        </div>
+        <div class="ui red basic cancel inverted button">
+            <i class="remove icon"></i>
+            NO
+        </div>
+    </div>
+</div>
+</body>
+</html>

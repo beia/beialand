@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="/webResources/images/solomon_favicon.png"/>
+    <title>SOLOMON Register</title>
+
+    <script src="/webResources/scripts/jquery-3.3.1.js"></script>
+    <script src="/webResources/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/SemanticUI/semantic.min.css">
+
+    <script src="/webResources/scripts/Custom/register.js"></script>
+    <link rel="stylesheet" href="/webResources/styles/style.css">
+</head>
+<body>
+
+<div class="ui middle aligned center aligned grid" style="padding-left:25%; padding-right:25%;">
+    <div class="column">
+
+        <img src="/webResources/images/solomon.png" style="width:100%;" class="image">
+        <form class="ui form" id="register-form" action="/login">
+            <div class="ui stacked segment">
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon" style="color: #f16667;"></i>
+                        <input type="text" id="nameField" name="name"  placeholder="User Name">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="envelope icon" style="color: #f16667;"></i>
+                        <input type="text" id="emailField" name="email"  placeholder="E-mail address">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon" style="color: #f16667;"></i>
+                        <input type="password" id="passField" name="password" placeholder="Password">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="lock icon" style="color: #f16667;"></i>
+                        <input type="password" id="confirmField" name="repassword" placeholder="Confirm Password">
+                    </div>
+                </div>
+                <div onclick="submitForm()" class="ui fluid teal submit button" style="background-color:#f16667;">
+                    Register
+                </div>
+            </div>
+        </form>
+
+        <div id="messageDiv"></div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    var host = "<$host$>";
+</script>
+</body>
+</html>

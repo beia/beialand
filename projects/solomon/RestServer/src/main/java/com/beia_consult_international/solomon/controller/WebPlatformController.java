@@ -10,13 +10,17 @@ import com.beia_consult_international.solomon.service.CampaignService;
 import com.beia_consult_international.solomon.service.MallService;
 import com.beia_consult_international.solomon.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
-@RestController
+@Controller
 @RequestMapping("/solomon")
 public class WebPlatformController {
     private final UserService userService;
@@ -35,14 +39,18 @@ public class WebPlatformController {
         this.mallService = mallService;
     }
 
-    @GetMapping("/login")
-    public UserDto login(@RequestParam String username, @RequestParam String password) {
-        if(!userService.validUserDetails(username, password))
-            throw new WrongUserDetailsException();
-        return userService.findUserByUsername(username, usersPath);
-    }
+//    @RequestMapping(value="/login", method = RequestMethod.POST)
+//    @ResponseBody
+//    public UserDto login(@RequestBody Map<String, ?> request) {
+//        String username = (String)request.get("username");
+//        String password = (String)request.get("password");
+//        if(!userService.validUserDetails(username, password))
+//            throw new WrongUserDetailsException();
+//        return userService.findUserByUsername(username, usersPath);
+//    }
 
     @PostMapping("/register")
+    @ResponseBody
     public Boolean signUp(@RequestBody UserDto userDto, @RequestParam String password) {
         if(userService.userExists(userDto)) {
             return false;
@@ -52,50 +60,107 @@ public class WebPlatformController {
     }
 
     @GetMapping("retailer/campaigns")
-    public List<CampaignDto> getCampaigns(@RequestParam long userId) {
+    @ResponseBody
+    public List<CampaignDto> getCampaigns(@RequestParam String userName) {
         System.out.println("GET CAMPAIGNS");
-        return campaignService.findCampaigns(userId, campaignsPath, usersPath);
+        UserDto user = userService.findUserByUsername(userName);
+        return campaignService.findCampaigns(user.getId(), campaignsPath, usersPath);
     }
 
     @GetMapping("retailer/campaigns/{campaignId}")
+    @ResponseBody
     public CampaignDto getCampaign(@PathVariable long campaignId) {
         System.out.println("GET CAMPAIGN");
         return campaignService.findCampaign(campaignId, campaignsPath, usersPath);
     }
 
     @GetMapping("retailer/oldCampaigns")
-    public List<CampaignDto> getOldCampaigns(@RequestParam long userId) {
+    @ResponseBody
+    public List<CampaignDto> getOldCampaigns() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        UserDto currentUser = userService.findUserByUsername(currentPrincipalName);
+
         System.out.println("GET OLD CAMPAIGNS");
-        return campaignService.findOldCampaigns(userId, campaignsPath, usersPath);
+        return campaignService.findOldCampaigns(currentUser.getId(), campaignsPath, usersPath);
     }
 
     @PostMapping("retailer/addCampaign")
+    @ResponseBody
     public CampaignDto saveCampaign(@RequestBody CampaignDto campaignDto) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        UserDto currentUser = userService.findUserByUsername(currentPrincipalName);
+        campaignDto.setUser(currentUser);
+
         CampaignDto savedCampaign = campaignService.save(campaignDto);
         campaignService.savePicture(Base64.getDecoder().decode(campaignDto.getImage()),
                 campaignsPath, savedCampaign.getId());
+        savedCampaign.setImage(campaignDto.getImage());
         return savedCampaign;
     }
 
-    @PutMapping("retailer/updateCampaign")
+    @PostMapping("retailer/updateCampaign")
+    @ResponseBody
     public CampaignDto updateCampaign(@RequestBody CampaignDto campaignDto) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        UserDto currentUser = userService.findUserByUsername(currentPrincipalName);
+        campaignDto.setUser(currentUser);
+
         campaignService.savePicture(Base64.getDecoder().decode(campaignDto.getImage()),
                 campaignsPath, campaignDto.getId());
-        return campaignService.save(campaignDto);
+        CampaignDto savedCampaign = campaignService.save(campaignDto);
+        savedCampaign.setImage(campaignDto.getImage());
+        return savedCampaign;
+
     }
 
     @DeleteMapping("retailer/campaigns/{campaignId}")
+    @ResponseBody
     public void deleteCampaign(@PathVariable long campaignId) {
         campaignService.deleteCampaign(campaignId);
     }
 
     @GetMapping("retailer/campaignsReactions")
+    @ResponseBody
     public List<CampaignReactionDto> findAll(@RequestParam long campaignId) {
         return campaignReactionService.findAllByCampaignId(campaignId);
     }
 
     @GetMapping("mall/getInfo")
+    @ResponseBody
     public MallDto getMallInfo(@RequestParam long userId) {
         return mallService.findByUserId(userId);
+    }
+
+    @RequestMapping(value="/helloWorld", method = RequestMethod.GET)
+    public String getHelloWorldPage(){
+        return "helloWorld";
+    }
+
+    @RequestMapping(value="/login", method = RequestMethod.GET)
+    public String getLoginPage(){
+        return "login";
+    }
+
+    @RequestMapping(value="/dashboard", method = RequestMethod.GET)
+    public String getDashboardPage(){
+        return "dashboard";
+    }
+
+    @RequestMapping(value="/contact", method = RequestMethod.GET)
+    public String getContactPage(){
+        return "contact";
+    }
+
+    @RequestMapping(value="/history", method = RequestMethod.GET)
+    public String getHistoryPage(){
+        return "history";
+    }
+
+    @RequestMapping(value="/register", method = RequestMethod.GET)
+    public String getRegisterPage(){
+        return "register";
     }
 }

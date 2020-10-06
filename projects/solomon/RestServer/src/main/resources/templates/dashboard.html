@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="/webResources/images/solomon_favicon.png"/>
+    <title>SOLOMON</title>
+
+    <script src="/webResources/scripts/jquery-3.3.1.js"></script>
+    <script src="/webResources/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/SemanticUI/semantic.min.css"/>
+
+    <script src="/webResources/scripts/FormanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/FormanticUI/semantic.min.css"/>
+
+
+    <script src="/webResources/scripts/ChartJS/Chart.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/ChartJS/Chart.min.css"/>
+
+    <script src="/webResources/scripts/Custom/dashboard.js"></script>
+    <script src="/webResources/scripts/Custom/statistics.js"></script>
+    <link rel="stylesheet" href="/webResources/styles/topMenu.css"/>
+    <link rel="stylesheet" href="/webResources/styles/dashboard.css"/>
+    <link rel="stylesheet" href="/webResources/styles/statistics.css"/>
+</head>
+<body>
+<div class="top-menu">
+    <div class="ui grid top-grid ">
+        <div class="eight wide column top-column" align="left">
+            <img src="/webResources/images/logo_solomon.png"
+                 class="image"
+                 style="cursor: pointer;"
+                 onclick="javascript:window.location.href='/solomon/dashboard'">
+        </div>
+        <div class="eight wide column top-column" align="right">
+            <!-- <strong class="menu-element">Name</strong>
+            <i class="cog icon menu-element"></i> -->
+
+            <div class="ui right dropdown item menu-element">
+                <span id="userNameSpan" sec:authentication="name"></span>
+                <i class="cog icon"></i>
+                <div class="menu">
+                    <div class="item" id="newPromotionBtn"><i class="plus icon"></i>Add new campaign</div>
+                    <div class="item" id="historyBtn"><i class="history icon"></i>Campaigns history</div>
+                    <div class="item" id="contactBtn"><i class="users icon"></i>Contact Support Team</div>
+                    <div class="item" id="logOutBtn"><i class="sign-out icon"></i>Log out</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="body-rest">
+    <div class="ui grid body-rest-grid">
+        <div id="leftSectionDiv" class="four wide  column left-section">
+            <div class="ui icon input wide-input">
+                <input id="search-input" type="text" placeholder="Search...">
+                <i class="search icon"></i>
+            </div>
+
+            <!-- <table name="leftTable" class="ui table borderless">
+              <tr>
+                <td>
+                  <img id="img0" src="/static/images/solomon.png" class="image thumb-im">
+                </td>
+                <td><strong>Marian programeaza</strong><br>25.01,2020 - 30.01.2020</td>
+              </tr>
+            </table> -->
+
+        </div>
+        <div class="twelve wide column right-section">
+            <div id="buttonsDiv" hidden>
+                <button id="editBtn" class="ui basic button">
+                    <i class="edit icon"></i>
+                    Edit
+                </button>
+
+                <button id="removeBtn" class="ui basic button">
+                    <i class="close icon"></i>
+                    Remove
+                </button>
+
+                <input id="itemID" type="hidden"/>
+            </div>
+            <br>
+
+            <table class="right-section-table">
+                <tr>
+                    <td class="small-row"> <h3 id="rightTitle"> </h3> </td>
+                    <td rowspan="10" class="img-cell">
+                        <img id="rightImage" src="" class="image profile-img">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="small-row" id="rightCategory">  <br><br> </td>
+                </tr>
+                <tr>
+                    <td class="small-row" id="rightPeriod">  <br><br> </td>
+                </tr>
+                <tr>
+                    <td class="small-row description-cell" id="rightDescription">
+
+                        <br><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="small-row" id="rightViewed"><br><br> </td>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+            </table>
+
+
+
+
+
+            <table style="width:100%;" id="viewStatisticsTable" hidden="true">
+                <tr>
+                    <td id="viewsNumCell"  colspan="2"></td>
+
+                </tr>
+
+                <tr>
+                    <td id="ageDistributionCell" style="width:50%;"> <canvas id="ageDistributionCanvas"></canvas></td>
+                    <td id="genderDistributionCell" style="width:50%;"> <canvas id="genderDistributionCanvas"></canvas></td> </td>
+                </tr>
+
+                <tr>
+                    <td id="perDayViewsCell" colspan="2"><canvas id="perDayViewsCanvas"></canvas></td>
+                </tr>
+
+            </table>
+
+
+
+
+
+        </div>
+    </div>
+</div>
+
+<div class="ui basic modal RMVS">
+    <div class="ui icon header">
+        <i class="close icon"></i>
+        Are you sure you want to remove this item?
+    </div>
+    <div class="actions">
+        <div class="ui green ok inverted button" onclick="rmvModalYes()">
+            <i class="checkmark icon"></i>
+            YES
+        </div>
+        <div class="ui red basic cancel inverted button">
+            <i class="remove icon"></i>
+            NO
+        </div>
+    </div>
+</div>
+
+<div class="ui basic modal NS">
+    <div class="ui icon header">
+        <i class="edit icon"></i>
+        Item details
+    </div>
+
+    <div class="content" align="center">
+        <input id="nsEditSave" type="hidden">
+        <div class="ui labeled inverted input" style="margin: 10px;">
+            <div class="ui label" style="width:100px">Title</div>
+            <input id="nsTitle" type="text" style="width:400px">
+        </div>
+        <div class="ui labeled inverted input" style="margin: 10px;">
+            <div class="ui label" style="width:100px">Category</div>
+            <div class="ui selection dropdown" id="nsCategory" style="width:400px;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                <input type="hidden">
+                <i class="dropdown icon"></i>
+                <div class="default text"></div>
+                <div class="menu">
+                    <div class="item" data-value=""></div>
+                    <div class="item" data-value="Books">Books</div>
+                    <div class="item" data-value="Cakes">Cakes</div>
+                    <div class="item" data-value="Clothes">Clothes</div>
+                    <div class="item" data-value="Coffee">Coffee</div>
+                    <div class="item" data-value="Drinks">Drinks</div>
+                    <div class="item" data-value="Electric scooters">Electric scooters</div>
+                    <div class="item" data-value="Electronics">Electronics</div>
+                    <div class="item" data-value="Flowers">Flowers</div>
+                    <div class="item" data-value="Food">Food</div>
+                    <div class="item" data-value="Games">Games</div>
+                    <div class="item" data-value="Laptops">Laptops</div>
+                    <div class="item" data-value="Monitors">Monitors</div>
+                    <div class="item" data-value="Shoes">Shoes</div>
+                    <div class="item" data-value="Smartphones">Smartphones</div>
+                    <div class="item" data-value="Sports">Sports</div>
+                    <div class="item" data-value="Tea">Tea</div>
+                </div>
+            </div>
+        </div>
+        <div class="ui labeled inverted input" style="margin: 10px;">
+            <div class="ui label" style="width:100px">Period</div>
+            <div class="field" id="startmonthcalendarfield">
+                <div class="ui calendar" id="rangestart">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" placeholder="Start" style="width:200px;border-radius: 0;">
+                    </div>
+                </div>
+            </div>
+            <div class="field" id="endmonthcalendarfield">
+                <div class="ui calendar" id="rangeend">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input type="text" placeholder="End" style="width:200px;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui inverted input" style="margin: 10px;">
+            <textarea id="nsDescription" class="ui" rows="5" placeholder="Type a brief description" style="width:500px; resize:none; border-radius: .28571429rem;"> </textarea>
+        </div>
+        <div class="ui inverted input" style="margin: 10px;">
+            <div class="ui label" style="width:100px;border-top-right-radius: 0;border-bottom-right-radius: 0;margin: 0;">Image</div>
+            <input id="nsFile" type="file" style="width:400px;border-top-left-radius: 0;border-bottom-left-radius: 0;"/>
+        </div>
+        <img id="nsImage" src="" class="image profile-img"/>
+    </div>
+
+    <div class="actions">
+        <div class="ui red basic cancel inverted button">
+            <i class="remove icon"></i>
+            Cancel
+        </div>
+        <div id="nsSaveBtn" class="ui green ok inverted button" onclick="nsModalSave()">
+            <i class="checkmark icon"></i>
+            Save
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var host = "http://localhost:8080";
+</script>
+</body>
+</html>
