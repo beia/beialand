@@ -1,6 +1,5 @@
 package com.beia_consult_international.solomon.model;
 
-import com.sun.istack.NotNull;
 import lombok.Builder;
 
 import javax.persistence.*;

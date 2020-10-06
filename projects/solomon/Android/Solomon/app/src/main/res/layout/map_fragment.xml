@@ -21,4 +21,13 @@
         android:layout_marginTop="@dimen/dimen28dp"
         android:padding="@dimen/dimen7dp"
         android:src="@drawable/heat_map_inactiv" />
+
+    <ImageView
+        android:id="@+id/buttonFindCar"
+        android:layout_width="@dimen/dimen32dp"
+        android:layout_height="@dimen/dimen32dp"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="@dimen/dimen55dp"
+        android:padding="@dimen/dimen7dp"
+        android:src="@drawable/car_icon" />
 </FrameLayout>

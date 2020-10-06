@@ -67,4 +67,5 @@
 	<dimen name="dimen11sp">22sp</dimen>
 	<dimen name="dimen12sp">24sp</dimen>
 	<dimen name="dimen32dp">64dp</dimen>
+	<dimen name="dimen55dp">110dp</dimen>
 </resources>

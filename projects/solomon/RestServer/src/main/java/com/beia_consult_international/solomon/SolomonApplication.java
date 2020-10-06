@@ -468,9 +468,9 @@ public class SolomonApplication implements CommandLineRunner {
                 ParkingSpace
                         .builder()
                         .UID("0004A30B00EB0782")
-                        .latitude(44.395598)
-                        .longitude(26.102822)
-                        .rotation(90)
+                        .latitude(44.395571)
+                        .longitude(26.102969)
+                        .rotation(68)
                         .mall(malls.get(0))
                         .beacon(beacons.get(8))
                         .parkingData(List.of(
@@ -503,10 +503,10 @@ public class SolomonApplication implements CommandLineRunner {
                         .build(),
                 ParkingSpace
                         .builder()
-                        .UID("0004A30B00EB5C67")
-                        .latitude(44.395587)
-                        .longitude(26.102783)
-                        .rotation(90)
+                        .UID("0004A30B00EB04FD")
+                        .latitude(44.395564)
+                        .longitude(26.102829)
+                        .rotation(-30)
                         .beacon(beacons.get(9))
                         .mall(malls.get(0))
                         .parkingData(List.of(
@@ -539,9 +539,9 @@ public class SolomonApplication implements CommandLineRunner {
                         .build(),
                 ParkingSpace
                         .builder()
-                        .UID("0004A30B00EB0E1E")
+                        .UID("0004A30B00EB71F9")
                         .latitude(44.395574)
-                        .longitude(26.102750)
+                        .longitude(26.102736)
                         .rotation(90)
                         .mall(malls.get(0))
                         .beacon(beacons.get(10))
@@ -553,7 +553,7 @@ public class SolomonApplication implements CommandLineRunner {
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(Status.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(4))
                                         .build(),
                                 ParkingData
@@ -563,7 +563,7 @@ public class SolomonApplication implements CommandLineRunner {
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(Status.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(2))
                                         .build(),
                                 ParkingData
@@ -575,9 +575,9 @@ public class SolomonApplication implements CommandLineRunner {
                         .build(),
                 ParkingSpace
                         .builder()
-                        .UID("0004A30B00EB04F")
-                        .latitude(44.395563)
-                        .longitude(26.102720)
+                        .UID("0004A30B00EB5C67")
+                        .latitude(44.395560)
+                        .longitude(26.102681)
                         .rotation(90)
                         .beacon(beacons.get(11))
                         .mall(malls.get(0))
@@ -611,12 +611,12 @@ public class SolomonApplication implements CommandLineRunner {
                         .build(),
                 ParkingSpace
                         .builder()
-                        .UID("0004A30B00EB71F9")
-                        .latitude(44.395550)
-                        .longitude(26.102684)
-                        .rotation(90)
-                        .beacon(beacons.get(12))
+                        .UID("0004A30B00EB0E1E")
+                        .latitude(44.395615)
+                        .longitude(26.102889)
+                        .rotation(68)
                         .mall(malls.get(0))
+                        .beacon(beacons.get(10))
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
@@ -640,7 +640,7 @@ public class SolomonApplication implements CommandLineRunner {
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(Status.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(1))
                                         .build()
                         ))
