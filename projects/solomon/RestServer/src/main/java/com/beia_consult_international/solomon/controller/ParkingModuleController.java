@@ -14,7 +14,7 @@ public class ParkingModuleController {
 
     public ParkingModuleController(ParkingService parkingService) {
         this.parkingService = parkingService;
-    }git
+    }
 
     @PostMapping
     public void postParkingStats(@RequestBody ParkingStatsDto parkingStats) {
