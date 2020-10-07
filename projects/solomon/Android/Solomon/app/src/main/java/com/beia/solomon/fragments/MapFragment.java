@@ -1,6 +1,7 @@
 package com.beia.solomon.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,6 +71,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private List<Mall> malls;
     private List<Beacon> beacons;
     private List<Location> locations;
+    private LatLng carLocation;
 
     private View view;
     private GoogleMap googleMap;
@@ -76,6 +79,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Map<String, Marker> beaconMarkers;
     private Map<Long, Marker> parkingSpacesMarkers;
     private Marker carMarker;
+    private ImageView findCarButton;
     private ParkingSpace occupiedByCarParkingSpace;
     private boolean storeMarkersLoaded = false;
 
@@ -132,6 +136,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View v = inflater.inflate(R.layout.map_fragment, container, false);
         this.view = v;
         heatmapButton = view.findViewById(R.id.buttonHeatMap);
+        findCarButton = view.findViewById(R.id.buttonFindCar);
         volleyQueue = Volley.newRequestQueue(view.getContext());
 
         FragmentManager fragmentManager = getChildFragmentManager();
@@ -148,6 +153,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 malls = gson.fromJson(bundleData.get(1), new TypeToken<List<Mall>>() {}.getType());
             }
         }
+
         return v;
     }
 
@@ -162,6 +168,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         googleMap.setMyLocationEnabled(true);
         setupMapZone(MapZone.BUCHAREST);
         setupHeatmapButton();
+        setupFindCarButton();
         setupMalls();
         setupMapListener();
         setupMarkerListener();
@@ -244,6 +251,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 googleMap.clear();
                 setupBeacons();
                 setupParkingSpaces();
+                if(carLocation != null) {
+                    createCarMarkerAtLocation(carLocation);
+                }
+                else {
+                    createCarMarkerFromCache();
+                }
                 storeMarkersLoaded = true;
             }
             else if(googleMap.getCameraPosition().zoom < 18 && storeMarkersLoaded) {
@@ -281,6 +294,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             else if(marker.equals(carMarker)) {
                 carMarker.remove();
                 carMarker = null;
+                carLocation = null;
+                deleteCarLocationFromCache();
                 Marker parkingSpaceMarker = createParkingMarker(occupiedByCarParkingSpace);
                 parkingSpaceMarker.setTag(occupiedByCarParkingSpace);
                 parkingSpacesMarkers.put(occupiedByCarParkingSpace.getId(), parkingSpaceMarker);
@@ -303,6 +318,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 heatmapButton.setImageResource(R.drawable.heat_map_inactiv);
             }
             heatmapActive = !heatmapActive;
+        });
+    }
+
+    private void setupFindCarButton() {
+        findCarButton.setOnClickListener(v -> {
+
+            if(carLocation != null) {
+                googleMap.animateCamera(CameraUpdateFactory
+                        .newLatLngZoom(carLocation, 20.5f));
+            }
+            else {
+                String carLat = MainActivity.sharedPref.getString("carLat", null);
+                String carLng = MainActivity.sharedPref.getString("carLng", null);
+                if(carLat != null && carLng != null) {
+                    googleMap.animateCamera(CameraUpdateFactory
+                            .newLatLngZoom(new LatLng(Double.parseDouble(carLat), Double.parseDouble(carLng)), 20.5f));
+                }
+                else {
+                    Toast.makeText(getContext(), "Car not found!", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
 
@@ -356,7 +392,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     .get(parkingSpace.getParkingData().size() - 1)
                     .getStatus().equals(Status.FREE)) {
                  marker = googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
+                        .position(new LatLng(parkingSpace.getLatitude(),
+                                parkingSpace.getLongitude()))
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.free_parking_space))
                         .rotation(parkingSpace.getRotation())
                         .title("free"));
@@ -376,6 +413,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Marker createCarMarker(ParkingSpace parkingSpace) {
         Marker marker = null;
         if(parkingSpace != null) {
+            carLocation = new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude());
+            saveCarLocationInCache(carLocation);
             marker = googleMap.addMarker(new MarkerOptions()
                         .position(new LatLng(parkingSpace.getLatitude(), parkingSpace.getLongitude()))
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
@@ -384,8 +423,56 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return marker;
     }
 
+    private void createCarMarkerAtLocation(LatLng location) {
+        if(location != null) {
+            ParkingSpace carParkingSpace = malls
+                    .stream()
+                    .flatMap(mall -> mall.getParkingSpaces().stream())
+                    .filter(parkingSpace -> parkingSpace.getLatitude() == location.latitude &&
+                            parkingSpace.getLongitude() == location.longitude)
+                    .findFirst()
+                    .orElse(null);
+            if(carParkingSpace != null) {
+                removeParkingSpaceMarker(carParkingSpace);
+                carMarker = createCarMarker(carParkingSpace);
+            }
+        }
+    }
+
+    private void createCarMarkerFromCache() {
+        String carLat = MainActivity.sharedPref.getString("carLat", null);
+        String carLng = MainActivity.sharedPref.getString("carLng", null);
+        if(carLat != null && carLng != null) {
+            carLocation = new LatLng(Double.parseDouble(carLat), Double.parseDouble(carLng));
+            ParkingSpace carParkingSpace = malls
+                    .stream()
+                    .flatMap(mall -> mall.getParkingSpaces().stream())
+                    .filter(parkingSpace -> parkingSpace.getLatitude() == carLocation.latitude &&
+                            parkingSpace.getLongitude() == carLocation.longitude)
+                    .findFirst()
+                    .orElse(null);
+            occupiedByCarParkingSpace = carParkingSpace;
+            removeParkingSpaceMarker(carParkingSpace);
+            carMarker = createCarMarker(carParkingSpace);
+        }
+    }
+
+    private void saveCarLocationInCache(LatLng location) {
+        SharedPreferences.Editor editor = MainActivity.sharedPref.edit();
+        editor.putString("carLat", Double.toString(location.latitude));
+        editor.putString("carLng", Double.toString(location.longitude));
+        editor.apply();
+    }
+
+    private void deleteCarLocationFromCache() {
+        SharedPreferences.Editor editor = MainActivity.sharedPref.edit();
+        editor.remove("carLat");
+        editor.remove("carLng");
+        editor.apply();
+    }
+
     private void removeParkingSpaceMarker(ParkingSpace parkingSpace) {
-        if(parkingSpacesMarkers.get(parkingSpace.getId()) != null)
+        if(parkingSpace != null && parkingSpacesMarkers.get(parkingSpace.getId()) != null)
             parkingSpacesMarkers.get(parkingSpace.getId()).remove();
     }
 
