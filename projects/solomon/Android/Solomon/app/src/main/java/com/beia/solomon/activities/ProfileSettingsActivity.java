@@ -1,9 +1,7 @@
 package com.beia.solomon.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,7 +18,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,9 +27,6 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class ProfileSettingsActivity extends AppCompatActivity {
 
@@ -71,97 +65,69 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
         initUI();
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
+        backButton.setOnClickListener(v -> finish());
+
+
+        profilePicture.setOnClickListener(v -> pickFromGallery());
+
+        usernameEditButton.setOnClickListener(v -> {
+            if(saveChangesButton.getVisibility() != View.VISIBLE)
+                saveChangesButton.setVisibility(View.VISIBLE);
+            usernameTextView.setVisibility(View.GONE);
+            usernameEditText.setVisibility(View.VISIBLE);
+            usernameEditButton.setVisibility(View.GONE);
+            cancelUsernameChangesButton.setVisibility(View.VISIBLE);
         });
 
-
-        profilePicture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickFromGallery();
-            }
+        passwordEditButton.setOnClickListener(v -> {
+            if(saveChangesButton.getVisibility() != View.VISIBLE)
+                saveChangesButton.setVisibility(View.VISIBLE);
+            passwordTextView.setVisibility(View.GONE);
+            passwordEditText.setVisibility(View.VISIBLE);
+            passwordEditButton.setVisibility(View.GONE);
+            cancelPasswordChangesButton.setVisibility(View.VISIBLE);
         });
 
-        usernameEditButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(saveChangesButton.getVisibility() != View.VISIBLE)
-                    saveChangesButton.setVisibility(View.VISIBLE);
-                usernameTextView.setVisibility(View.GONE);
-                usernameEditText.setVisibility(View.VISIBLE);
-                usernameEditButton.setVisibility(View.GONE);
-                cancelUsernameChangesButton.setVisibility(View.VISIBLE);
-            }
+        ageEditButton.setOnClickListener(v -> {
+            if(saveChangesButton.getVisibility() != View.VISIBLE)
+                saveChangesButton.setVisibility(View.VISIBLE);
+            ageTextView.setVisibility(View.GONE);
+            ageEditText.setVisibility(View.VISIBLE);
+            ageEditButton.setVisibility(View.GONE);
+            cancelAgeChangesButton.setVisibility(View.VISIBLE);
         });
 
-        passwordEditButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(saveChangesButton.getVisibility() != View.VISIBLE)
-                    saveChangesButton.setVisibility(View.VISIBLE);
-                passwordTextView.setVisibility(View.GONE);
-                passwordEditText.setVisibility(View.VISIBLE);
-                passwordEditButton.setVisibility(View.GONE);
-                cancelPasswordChangesButton.setVisibility(View.VISIBLE);
+        cancelUsernameChangesButton.setOnClickListener(v -> {
+            if(passwordEditButton.getVisibility() == View.VISIBLE && ageEditButton.getVisibility() == View.VISIBLE)
+            {
+                saveChangesButton.setVisibility(View.GONE);
             }
+            usernameEditText.setVisibility(View.GONE);
+            usernameTextView.setVisibility(View.VISIBLE);
+            cancelUsernameChangesButton.setVisibility(View.GONE);
+            usernameEditButton.setVisibility(View.VISIBLE);
         });
 
-        ageEditButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(saveChangesButton.getVisibility() != View.VISIBLE)
-                    saveChangesButton.setVisibility(View.VISIBLE);
-                ageTextView.setVisibility(View.GONE);
-                ageEditText.setVisibility(View.VISIBLE);
-                ageEditButton.setVisibility(View.GONE);
-                cancelAgeChangesButton.setVisibility(View.VISIBLE);
+        cancelPasswordChangesButton.setOnClickListener(v -> {
+            if(usernameEditButton.getVisibility() == View.VISIBLE && ageEditButton.getVisibility() == View.VISIBLE)
+            {
+                saveChangesButton.setVisibility(View.GONE);
             }
+            passwordEditText.setVisibility(View.GONE);
+            passwordTextView.setVisibility(View.VISIBLE);
+            cancelPasswordChangesButton.setVisibility(View.GONE);
+            passwordEditButton.setVisibility(View.VISIBLE);
         });
 
-        cancelUsernameChangesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(passwordEditButton.getVisibility() == View.VISIBLE && ageEditButton.getVisibility() == View.VISIBLE)
-                {
-                    saveChangesButton.setVisibility(View.GONE);
-                }
-                usernameEditText.setVisibility(View.GONE);
-                usernameTextView.setVisibility(View.VISIBLE);
-                cancelUsernameChangesButton.setVisibility(View.GONE);
-                usernameEditButton.setVisibility(View.VISIBLE);
+        cancelAgeChangesButton.setOnClickListener(v -> {
+            if(usernameEditButton.getVisibility() == View.VISIBLE && passwordEditButton.getVisibility() == View.VISIBLE)
+            {
+                saveChangesButton.setVisibility(View.GONE);
             }
-        });
-
-        cancelPasswordChangesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(usernameEditButton.getVisibility() == View.VISIBLE && ageEditButton.getVisibility() == View.VISIBLE)
-                {
-                    saveChangesButton.setVisibility(View.GONE);
-                }
-                passwordEditText.setVisibility(View.GONE);
-                passwordTextView.setVisibility(View.VISIBLE);
-                cancelPasswordChangesButton.setVisibility(View.GONE);
-                passwordEditButton.setVisibility(View.VISIBLE);
-            }
-        });
-
-        cancelAgeChangesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(usernameEditButton.getVisibility() == View.VISIBLE && passwordEditButton.getVisibility() == View.VISIBLE)
-                {
-                    saveChangesButton.setVisibility(View.GONE);
-                }
-                ageEditText.setVisibility(View.GONE);
-                ageTextView.setVisibility(View.VISIBLE);
-                cancelAgeChangesButton.setVisibility(View.GONE);
-                ageEditButton.setVisibility(View.VISIBLE);
-            }
+            ageEditText.setVisibility(View.GONE);
+            ageTextView.setVisibility(View.VISIBLE);
+            cancelAgeChangesButton.setVisibility(View.GONE);
+            ageEditButton.setVisibility(View.VISIBLE);
         });
 
 

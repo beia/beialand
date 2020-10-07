@@ -24,8 +24,10 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.beia.solomon.GsonRequest;
+import com.beia.solomon.backgroundTasks.MapHandler;
 import com.beia.solomon.R;
 import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.backgroundTasks.UpdateParkingData;
 import com.beia.solomon.model.Beacon;
 import com.beia.solomon.model.BeaconType;
 import com.beia.solomon.model.Location;
@@ -65,6 +67,8 @@ import java.util.stream.Collectors;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
+
+    public static MapHandler mapHandler;
 
     private RequestQueue volleyQueue;
     private Gson gson;
@@ -154,6 +158,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
 
+        MapFragment.mapHandler = new MapHandler(this);
+        new Thread(new UpdateParkingData(getContext(), volleyQueue)).start();
+
         return v;
     }
 
@@ -237,12 +244,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         malls
                 .stream()
                 .filter(mall -> mall.getParkingSpaces() != null)
-                .forEach(mall -> mall.getParkingSpaces().forEach(parkingSpace -> {
-            Marker parkingSpaceMarker;
-            parkingSpaceMarker = createParkingMarker(parkingSpace);
-            parkingSpaceMarker.setTag(parkingSpace);
-            parkingSpacesMarkers.put(parkingSpace.getId(), parkingSpaceMarker);
-        }));
+                .flatMap(mall -> mall.getParkingSpaces().stream())
+                .filter(parkingSpace -> {
+                    if(carLocation != null) {
+                        return parkingSpace.getLatitude() != carLocation.latitude || parkingSpace.getLongitude() != carLocation.longitude;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList())
+                .forEach(parkingSpace -> {
+                    Marker parkingSpaceMarker;
+                    parkingSpaceMarker = createParkingMarker(parkingSpace);
+                    parkingSpaceMarker.setTag(parkingSpace);
+                    parkingSpacesMarkers.put(parkingSpace.getId(), parkingSpaceMarker);
+                });
     }
 
     private void setupMapListener() {
@@ -483,5 +498,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public GoogleMap getGoogleMap() {
         return googleMap;
+    }
+
+    public void updateParkingSpaces(List<Mall> malls) {
+        this.malls = malls;
+        if(storeMarkersLoaded) {
+            parkingSpacesMarkers.forEach((id, marker) -> marker.remove());
+            parkingSpacesMarkers.clear();
+            setupParkingSpaces();
+            if(carMarker == null) {
+                if (carLocation != null) {
+                    createCarMarkerAtLocation(carLocation);
+                } else {
+                    createCarMarkerFromCache();
+                }
+            }
+        }
     }
 }

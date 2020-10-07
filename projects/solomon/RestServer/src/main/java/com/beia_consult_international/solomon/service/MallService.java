@@ -26,6 +26,14 @@ public class MallService {
                 .collect(Collectors.toList());
     }
 
+    public List<MallDto> findAllForMobileUser() {
+        return mallRepository
+                .findAll()
+                .stream()
+                .map(MallMapper::mapToDtoMobileUser)
+                .collect(Collectors.toList());
+    }
+
     public MallDto findById(long id) {
         return mallRepository
                 .findById(id)

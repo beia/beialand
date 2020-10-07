@@ -22,6 +22,21 @@ public abstract class MallMapper {
                 .build();
     }
 
+    public static MallDto mapToDtoMobileUser(Mall mall) {
+        return MallDto
+                .builder()
+                .id(mall.getId())
+                .name(mall.getName())
+                .latitude(mall.getLatitude())
+                .longitude(mall.getLongitude())
+                .user(UserMapper.mapToDto(mall.getUser()))
+                .parkingSpaces(mall.getParkingSpaces()
+                        .stream()
+                        .map(ParkingSpaceMapper::mapToDto)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
     public static Mall mapToModel(MallDto mallDto) {
         return Mall
                 .builder()

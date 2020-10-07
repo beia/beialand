@@ -24,7 +24,7 @@
         android:layout_height="120dp"
         android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/no_profile_picture"
+        android:src="@drawable/adi_foto"
         app:civ_border_color="#FF222222"
         app:civ_border_width="4dp"
         app:civ_shadow="true"
@@ -39,7 +39,7 @@
         android:gravity="center"
         android:textSize="20sp"
         android:textColor="@android:color/black"
-        android:text="Cristian Balanean" />
+        android:text="Adrian Pasat" />
 
 
     <LinearLayout
@@ -68,7 +68,7 @@
                 android:gravity="left|center_vertical"
                 android:layout_marginLeft="40dp"
                 android:textSize="20sp"
-                android:text="bala"/>
+                android:text="adi"/>
             <EditText
                 android:id="@+id/usernameEditText"
                 android:layout_width="0dp"
@@ -189,7 +189,7 @@
                 android:gravity="left|center_vertical"
                 android:layout_marginLeft="40dp"
                 android:textSize="20sp"
-                android:text="21"/>
+                android:text="35"/>
             <EditText
                 android:id="@+id/ageEditText"
                 android:layout_width="0dp"

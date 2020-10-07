@@ -654,40 +654,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void highlightBeaconMarker(Beacon beacon, ProximityStatus proximityStatus) {
-        if(beaconMarkers.containsKey(beacon.getManufacturerId())) {
-            beaconMarkers.get(beacon.getManufacturerId()).remove();
-            beaconMarkers.remove(beacon.getManufacturerId());
-            LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
-            GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.beaconPicturesUrl) + "/" + beacon.getManufacturerId() + ".png",
-                    new LazyHeaders.Builder()
-                            .addHeader("Authorization", getResources().getString(R.string.universal_user))
-                            .build());
-            Glide.with(this)
-                    .asBitmap()
-                    .load(glideUrl)
-                    .into(new CustomTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            Marker marker = mapFragment.getGoogleMap().addMarker(new MarkerOptions().position(storeLocation)
-                                    .icon(BitmapDescriptorFactory
-                                            .fromBitmap(mapFragment.createStoreMarker(MainActivity.context,
-                                                    resource, proximityStatus))));
-                            marker.setTitle(beacon.getName());
-                            beaconMarkers.put(beacon.getManufacturerId(), marker);
-                        }
+        if(mapFragment.getGoogleMap().getCameraPosition().zoom > 18) {
+            if (beaconMarkers.containsKey(beacon.getManufacturerId())) {
+                beaconMarkers.get(beacon.getManufacturerId()).remove();
+                beaconMarkers.remove(beacon.getManufacturerId());
+                LatLng storeLocation = new LatLng(beacon.getLatitude(), beacon.getLongitude());
+                GlideUrl glideUrl = new GlideUrl(getResources().getString(R.string.beaconPicturesUrl) + "/" + beacon.getManufacturerId() + ".png",
+                        new LazyHeaders.Builder()
+                                .addHeader("Authorization", getResources().getString(R.string.universal_user))
+                                .build());
+                Glide.with(this)
+                        .asBitmap()
+                        .load(glideUrl)
+                        .into(new CustomTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                Marker marker = mapFragment.getGoogleMap().addMarker(new MarkerOptions().position(storeLocation)
+                                        .icon(BitmapDescriptorFactory
+                                                .fromBitmap(mapFragment.createStoreMarker(MainActivity.context,
+                                                        resource, proximityStatus))));
+                                marker.setTitle(beacon.getName());
+                                beaconMarkers.put(beacon.getManufacturerId(), marker);
+                            }
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                        }
-                    });
+                            @Override
+                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                            }
+                        });
+            }
         }
     }
 
     private void setUserPosition(LatLng coordinates) {
-        if(mapFragment.getGoogleMap() != null) {
-            mapFragment
-                    .getGoogleMap()
-                    .animateCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 20.0f));
+        if(mapFragment.getGoogleMap() != null && mapFragment.getGoogleMap().getCameraPosition().zoom > 18) {
             Marker positionMarker = mapFragment
                     .getGoogleMap()
                     .addMarker(new MarkerOptions()

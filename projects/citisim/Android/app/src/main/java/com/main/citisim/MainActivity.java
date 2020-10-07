@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                                     } else if (error instanceof AuthFailureError) {
                                         Toast.makeText(getApplicationContext(), "wrong user/pass", Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                  E                      Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
                                         Log.d("wrongKey",error.toString());
                                     }
                                 }

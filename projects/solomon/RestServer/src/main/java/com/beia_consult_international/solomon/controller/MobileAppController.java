@@ -53,7 +53,7 @@ public class MobileAppController {
     @GetMapping("/getMalls")
     public List<MallDto> getMalls() {
         System.out.println("GET MALLS");
-        return mallService.findAll();
+        return mallService.findAllForMobileUser();
     }
 
     @GetMapping("/getBeacons")

@@ -28,7 +28,7 @@
                 android:layout_gravity="center"
                 android:background="@color/transparentColor"
                 android:layout_marginLeft="17dp"
-                android:src="@drawable/no_profile_picture"
+                android:src="@drawable/adi_foto"
                 app:civ_border_color="#FF222222"
                 app:civ_border_width="2dp"
                 app:civ_shadow="true"
@@ -238,14 +238,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Stats"
+                    android:text="Malls"
                     android:textSize="@dimen/dimen8sp"
                     android:fontFamily="@font/open_sans_bold"
                     android:textColor="@android:color/background_dark"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Receipts, Time chart, Discounts"
+                    android:text="Parking spaces availability"
                     android:textSize="@dimen/dimen5sp"
                     android:fontFamily="@font/open_sans_regular"
                     android:textColor="@android:color/background_dark"/>
