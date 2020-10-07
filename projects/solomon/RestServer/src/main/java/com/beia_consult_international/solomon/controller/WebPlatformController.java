@@ -163,4 +163,9 @@ public class WebPlatformController {
     public String getRegisterPage(){
         return "register";
     }
+
+    @RequestMapping(value="/parkingPlaces", method = RequestMethod.GET)
+    public String getParkingPlacesPage(){
+        return "parkingPlaces";
+    }
 }

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" href="/webResources/images/solomon_favicon.png"/>
+    <title>SOLOMON Parking Places</title>
+
+    <script src="/webResources/scripts/jquery-3.3.1.js"></script>
+    <script src="/webResources/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/SemanticUI/semantic.min.css"/>
+
+    <script src="/webResources/scripts/FormanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/FormanticUI/semantic.min.css"/>
+
+    <script src="/webResources/scripts/ChartJS/Chart.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/ChartJS/Chart.min.css"/>
+
+    <script src="/webResources/scripts/Custom/parkingPlaces.js"></script>
+    <link rel="stylesheet" href="/webResources/styles/topMenu.css"/>
+    <link rel="stylesheet" href="/webResources/styles/parkingPlaces.css"/>
+
+    <link rel="stylesheet" href="/webResources/scripts/Leaflet/leaflet.css" />
+    <script src="/webResources/scripts/Leaflet/leaflet.js"></script>
+</head>
+<body>
+<div class="top-menu">
+    <div class="ui grid top-grid ">
+        <div class="eight wide column top-column" align="left">
+            <img src="/webResources/images/logo_solomon.png"
+                 class="image"
+                 style="cursor: pointer;"
+                 onclick="javascript:window.location.href='/solomon/dashboard'">
+        </div>
+        <div class="eight wide column top-column" align="right">
+            <!-- <strong class="menu-element">Name</strong>
+            <i class="cog icon menu-element"></i> -->
+
+            <div class="menu-element">
+                <span>Parking Places</span>
+                <i class="car icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div  class="parking-body">
+    <br><br>
+    <div class="ui labeled inverted input" style="margin: 10px;">
+        <div class="ui label" style="width:100px">Mall</div>
+        <div class="ui selection dropdown" id="nsCategory" style="width:400px;border-top-left-radius: 0; border-bottom-left-radius: 0;">
+            <input type="hidden" id="mallSelection" onchange="displayMall()">
+            <i class="dropdown icon"></i>
+            <div class="default text"></div>
+            <div class="menu" id="mallSelectMenu">
+            </div>
+        </div>
+    </div>
+
+    <div id="map-container">
+        <div id="map-area"></div>
+    </div>
+
+    <br>
+    <div id="statistics-container" hidden>
+        <input id="mallIndexInput" type="hidden"/>
+        <input id="parkingSpaceIndexInput" type="hidden"/>
+
+        <table style="width:100%; text-align:center;">
+            <tr>
+                <td id="day1" style="background-color:lightgray; border-radius:7px">Day 1 <br> Day day</td>
+                <td id="day2" style="background-color:lightgray; border-radius:7px">Day 2 <br> Day day</td>
+                <td id="day3" style="background-color:lightgray; border-radius:7px">Day 3 <br> Day day</td>
+                <td id="day4" style="background-color:lightgray; border-radius:7px">Day 4 <br> Day day</td>
+                <td id="day5" style="background-color:lightgray; border-radius:7px">Day 5 <br> Day day</td>
+                <td id="day6" style="background-color:lightgray; border-radius:7px">Day 6 <br> Day day</td>
+                <td id="day7" style="background-color:lightgray; border-radius:7px">Day 7 <br> Day day</td>
+            </tr>
+        </table>
+        <br>
+
+        <canvas id="canvas"></canvas>
+        <br>
+    </div>
+    <br>
+</div>
+
+</body>
+</html>

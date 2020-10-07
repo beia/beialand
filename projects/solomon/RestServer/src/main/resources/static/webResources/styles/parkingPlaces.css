@@ -1,8 +1,14 @@
-.contact-body{
+.parking-body{
     height: 100%;
     width: 60%;
     margin-left: auto;
     margin-right: auto;
     margin-top: -50px;
     padding-top: 50px;
+}
+
+#map-area {
+    height: 400px;
+    width: 100%;
+    z-index: 0;
 }

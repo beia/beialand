@@ -33,6 +33,7 @@ public class UserManagementConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/malls/**").permitAll()
                 .antMatchers("/beacons/**").permitAll()
                 .antMatchers("/solomon/register").permitAll()
+                .antMatchers("/solomon/parkingPlaces").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
                 .anyRequest().authenticated()
                 .and()
