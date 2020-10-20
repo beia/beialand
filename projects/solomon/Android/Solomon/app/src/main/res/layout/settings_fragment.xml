@@ -107,108 +107,6 @@
         android:background="@color/darkgray"/>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/preferencesCardView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10"
-        android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
-        card_view:cardElevation="0dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/transparentColor"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/preferences"
-                android:layout_gravity="center"
-                android:background="@color/transparentColor"
-                android:layout_marginLeft="20dp"/>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center_vertical"
-                android:background="@color/transparentColor"
-                android:layout_marginLeft="20dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Preferences"
-                    android:textSize="@dimen/dimen8sp"
-                    android:fontFamily="@font/open_sans_bold"
-                    android:textColor="@android:color/background_dark"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Product discounts, Personal interests"
-                    android:textSize="@dimen/dimen5sp"
-                    android:fontFamily="@font/open_sans_regular"
-                    android:textColor="@android:color/background_dark"/>
-            </LinearLayout>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
-
-    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/notificationsCardView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10"
-        android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
-        card_view:cardElevation="0dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/transparentColor"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/notifications_icon"
-                android:layout_gravity="center"
-                android:background="@color/transparentColor"
-                android:layout_marginLeft="20dp"/>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center_vertical"
-                android:background="@color/transparentColor"
-                android:layout_marginLeft="20dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Notifications"
-                    android:textSize="@dimen/dimen8sp"
-                    android:fontFamily="@font/open_sans_bold"
-                    android:textColor="@android:color/background_dark"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Prefered notifications, Block products notifications"
-                    android:textSize="@dimen/dimen5sp"
-                    android:fontFamily="@font/open_sans_regular"
-                    android:textColor="@android:color/background_dark"/>
-            </LinearLayout>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
-
-    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/statsCardView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -246,6 +144,108 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Parking spaces availability"
+                    android:textSize="@dimen/dimen5sp"
+                    android:fontFamily="@font/open_sans_regular"
+                    android:textColor="@android:color/background_dark"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:background="@color/darkgray"/>
+
+    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/askUsAgentCardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:layout_gravity="center"
+        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardElevation="0dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparentColor"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/notifications_icon"
+                android:layout_gravity="center"
+                android:background="@color/transparentColor"
+                android:layout_marginLeft="20dp"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:background="@color/transparentColor"
+                android:layout_marginLeft="20dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ask us"
+                    android:textSize="@dimen/dimen8sp"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:textColor="@android:color/background_dark"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chat with an agent"
+                    android:textSize="@dimen/dimen5sp"
+                    android:fontFamily="@font/open_sans_regular"
+                    android:textColor="@android:color/background_dark"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:background="@color/darkgray"/>
+
+    <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/preferencesCardView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:layout_gravity="center"
+        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardElevation="0dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparentColor"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/preferences"
+                android:layout_gravity="center"
+                android:background="@color/transparentColor"
+                android:layout_marginLeft="20dp"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:background="@color/transparentColor"
+                android:layout_marginLeft="20dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Preferences"
+                    android:textSize="@dimen/dimen8sp"
+                    android:fontFamily="@font/open_sans_bold"
+                    android:textColor="@android:color/background_dark"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Product discounts, Personal interests"
                     android:textSize="@dimen/dimen5sp"
                     android:fontFamily="@font/open_sans_regular"
                     android:textColor="@android:color/background_dark"/>

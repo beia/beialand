@@ -31,7 +31,7 @@ import com.beia.solomon.model.BeaconLocalizationData;
 import com.beia.solomon.model.Location;
 import com.beia.solomon.model.Point;
 import com.beia.solomon.fragments.MapFragment;
-import com.beia.solomon.fragments.SettingsFragment;
+import com.beia.solomon.fragments.MenuFragment;
 import com.beia.solomon.fragments.StoreAdvertisementFragment;
 import com.beia.solomon.model.Beacon;
 import com.beia.solomon.model.Campaign;
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     //FRAGMENTS
     public static StoreAdvertisementFragment storeAdvertisementFragment;
     public static MapFragment mapFragment;
-    public static SettingsFragment settingsFragment;
+    public static MenuFragment menuFragment;
 
     public static Date currentTime;
     public static Context context;
@@ -202,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString("user", gson.toJson(user));
                 editor.putString("password", password);
                 editor.apply();
+                initData();
+                getMalls();
             }
         }
         else {
@@ -398,20 +400,20 @@ public class MainActivity extends AppCompatActivity {
         bundle2.putStringArrayList("mapData", beaconsData);
         mapFragment.setArguments(bundle2);
 
-        settingsFragment = new SettingsFragment();
+        menuFragment = new MenuFragment();
         Bundle bundle3 = new Bundle();
         ArrayList<String> settingsFragmentData = new ArrayList<>();
         settingsFragmentData.add(gson.toJson(user));
         settingsFragmentData.add(password);
         settingsFragmentData.add(gson.toJson(malls));
         bundle3.putStringArrayList("settingsData", settingsFragmentData);
-        settingsFragment.setArguments(bundle3);
+        menuFragment.setArguments(bundle3);
 
         //add the fragment to the viewPagerAdapter
         int numberOfTabs = 3;
         viewPagerAdapter.addFragment(storeAdvertisementFragment, "storeAdvertisementsData");
         viewPagerAdapter.addFragment(mapFragment, "userStatsData");
-        viewPagerAdapter.addFragment(settingsFragment, "profileDataAndSettingsData");
+        viewPagerAdapter.addFragment(menuFragment, "profileDataAndSettingsData");
 
         //set my ViewPagerAdapter to the ViewPager
         viewPager.setAdapter(viewPagerAdapter);

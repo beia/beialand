@@ -1,5 +1,5 @@
-<!DOCTYPE resources [
-    <!ENTITY domainName "10.0.9.34">]>
+<!-- solomon-beacon.beia-consult.ro:48000-->
+<!DOCTYPE resources [<!ENTITY domainName "192.168.0.45:8000">]>
 <resources>
     <string name="app_name">Solomon</string>
 
@@ -28,16 +28,16 @@
 
     <string name="universal_user">Basic YWRtaW46c29sb21vbg==</string>
 
-    <string name="mallPicturesUrl">http://&domainName;:8080/malls</string>
-    <string name="beaconPicturesUrl">http://&domainName;:8080/beacons</string>
+    <string name="mallPicturesUrl">http://&domainName;/malls</string>
+    <string name="beaconPicturesUrl">http://&domainName;/beacons</string>
 
-    <string name="login_url">http://&domainName;:8080/mobileApp/login</string>
-    <string name="signUp_url">http://&domainName;:8080/mobileApp/signUp</string>
-    <string name="getMallsUrl">http://&domainName;:8080/mobileApp/getMalls</string>
-    <string name="getBeaconsUrl">http://&domainName;:8080/mobileApp/getBeacons</string>
-    <string name="postBeaconTimeUrl">http://&domainName;:8080/mobileApp/postBeaconTime</string>
-    <string name="computeLocationUrl">http://&domainName;:8080/mobileApp/computeLocation</string>
-    <string name="getCampaignsUrl">http://&domainName;:8080/mobileApp/getCampaigns</string>
-    <string name="postCampaignReactionUrl">http://&domainName;:8080/mobileApp/saveCampaignReaction</string>
-    <string name="getHeatmapLocationsUrl">http://&domainName;:8080/mobileApp/getHeatmapLocations</string>
+    <string name="login_url">http://&domainName;/mobileApp/login</string>
+    <string name="signUp_url">http://&domainName;/mobileApp/signUp</string>
+    <string name="getMallsUrl">http://&domainName;/mobileApp/getMalls</string>
+    <string name="getBeaconsUrl">http://&domainName;/mobileApp/getBeacons</string>
+    <string name="postBeaconTimeUrl">http://&domainName;/mobileApp/postBeaconTime</string>
+    <string name="computeLocationUrl">http://&domainName;/mobileApp/computeLocation</string>
+    <string name="getCampaignsUrl">http://&domainName;/mobileApp/getCampaigns</string>
+    <string name="postCampaignReactionUrl">http://&domainName;/mobileApp/saveCampaignReaction</string>
+    <string name="getHeatmapLocationsUrl">http://&domainName;/mobileApp/getHeatmapLocations</string>
 </resources>

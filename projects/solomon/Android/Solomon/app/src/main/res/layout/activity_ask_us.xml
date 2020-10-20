@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.AskUsActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/messageInputView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:background="@color/lightGray"/>
+
+    <LinearLayout
+        android:id="@+id/animationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/loadingAnimationImage"
+            android:layout_width="@dimen/dimen80dp"
+            android:layout_height="@dimen/dimen80dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/dimen10dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/open_sans_regular"
+            android:gravity="center"
+            android:text="FINDING AVAILABLE AGENT"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/dimen8sp" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messageInputView"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/transparentColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/animationLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+        <EditText
+            android:id="@+id/messageEditText"
+            android:layout_width="238dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen3dp"
+            android:layout_marginTop="@dimen/dimen3dp"
+            android:layout_marginEnd="@dimen/dimen3dp"
+            android:layout_marginBottom="@dimen/dimen3dp"
+            android:background="@color/greyAccent"
+            android:hint="write a message for agent"
+            android:inputType="textCapSentences|textMultiLine"
+            android:isScrollContainer="true"
+            android:maxLength="2000"
+            android:maxLines="4"
+            android:paddingTop="@dimen/dimen3dp"
+            android:paddingBottom="@dimen/dimen3dp"
+            android:singleLine="false"
+            android:textSize="@dimen/dimen9sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.152"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            android:backgroundTint="@color/lightGray"/>
+        <Button
+            android:id="@+id/messageButton"
+            android:layout_width="87dp"
+            android:layout_height="42dp"
+            android:layout_marginStart="@dimen/dimen3dp"
+            android:layout_marginTop="@dimen/dimen3dp"
+            android:layout_marginEnd="@dimen/dimen5dp"
+            android:layout_marginBottom="@dimen/dimen3dp"
+            android:text="send"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/messageEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/messageEditText"
+            app:layout_constraintTop_toTopOf="@+id/messageEditText" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

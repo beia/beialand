@@ -1,9 +1,8 @@
 package com.beia.solomon.fragments;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.renderscript.Type;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,8 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.beia.solomon.R;
+import com.beia.solomon.activities.AskUsActivity;
+import com.beia.solomon.activities.LoginActivity;
 import com.beia.solomon.activities.MainActivity;
 import com.beia.solomon.activities.ProfileSettingsActivity;
 import com.beia.solomon.activities.StatsActivity;
@@ -27,12 +28,12 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.beia.solomon.activities.ProfileSettingsActivity.decodeBase64;
+import io.reactivex.internal.schedulers.NewThreadScheduler;
 
-public class SettingsFragment extends Fragment {
+public class MenuFragment extends Fragment {
 
     public View view;
-    public CardView profileSettingsCardView, preferencesCardView, notificationsCardView, statsCardView, logoutButton;
+    public CardView profileSettingsButton, mallStatsButton, askUsButton, preferencesButton, logoutButton;
     public CircularImageView profilePicture;
     public TextView nameTextView;
 
@@ -41,7 +42,7 @@ public class SettingsFragment extends Fragment {
     private List<Mall> malls;
     private Gson gson;
 
-    public SettingsFragment() {
+    public MenuFragment() {
 
     }
 
@@ -76,29 +77,43 @@ public class SettingsFragment extends Fragment {
 
     private void initUI(View view)
     {
-        profileSettingsCardView = view.findViewById(R.id.profileSettingsCardView);
-        preferencesCardView = view.findViewById(R.id.preferencesCardView);
-        notificationsCardView = view.findViewById(R.id.notificationsCardView);
-        statsCardView = view.findViewById(R.id.statsCardView);
+        profileSettingsButton = view.findViewById(R.id.profileSettingsCardView);
+        mallStatsButton= view.findViewById(R.id.statsCardView);
+        askUsButton = view.findViewById(R.id.askUsAgentCardView);
+        preferencesButton = view.findViewById(R.id.preferencesCardView);
         logoutButton = view.findViewById(R.id.logoutButton);
         profilePicture = view.findViewById(R.id.profilePicture);
         nameTextView = view.findViewById(R.id.usernameTextView);
         String nameText = user.getFirstName() + " " + user.getLastName();
         nameTextView.setText(nameText);
 
-        logoutButton.setOnClickListener(v -> {
-        });
-
-        profileSettingsCardView.setOnClickListener(v -> {
+        profileSettingsButton.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), ProfileSettingsActivity.class);
             intent.putExtra("user", user);
             intent.putExtra("password", password);
             startActivity(intent);
         });
 
-        statsCardView.setOnClickListener(view1 -> {
+        mallStatsButton.setOnClickListener(view1 -> {
             Intent intent = new Intent(view1.getContext(), StatsActivity.class);
             intent.putExtra("malls", gson.toJson(malls));
+            startActivity(intent);
+        });
+
+        askUsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AskUsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("user", user);
+            startActivity(intent);
+        });
+
+        logoutButton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = MainActivity.sharedPref.edit();
+            editor.remove("user");
+            editor.remove("password");
+            editor.commit();
+            Intent intent = new Intent(getContext(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         });
 
