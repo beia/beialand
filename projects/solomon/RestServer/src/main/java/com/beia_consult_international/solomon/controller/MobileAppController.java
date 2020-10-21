@@ -5,6 +5,7 @@ import com.beia_consult_international.solomon.exception.WrongUserDetailsExceptio
 import com.beia_consult_international.solomon.model.BeaconLocalizationData;
 import com.beia_consult_international.solomon.service.*;
 import com.beia_consult_international.solomon.service.mapper.BeaconMapper;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +40,11 @@ public class MobileAppController {
         if(!userService.validUserDetails(username, password))
             throw new WrongUserDetailsException();
         return userService.findUserByUsername(username);
+    }
+
+    @PostMapping("/fcmToken")
+    public void saveFCMToken(@RequestParam long userId, @RequestBody String token) {
+        userService.saveToken(userId, token);
     }
 
     @PostMapping("/signUp")
@@ -104,4 +110,8 @@ public class MobileAppController {
         return beaconService.findHeatmapLocations(startDate, endDate);
     }
 
+    @PostMapping("/findChatAgent")
+    public void findChatAgent(@RequestParam long userId) throws FirebaseMessagingException {
+        userService.sendChatNotificationsToAllAgents(userId);
+    }
 }

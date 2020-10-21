@@ -30,10 +30,13 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column
+    private String fcmToken;
+
     public User() {
     }
 
-    public User(long id, String username, String password, String firstName, String lastName, Gender gender, int age, Role role) {
+    public User(long id, String username, String password, String firstName, String lastName, Gender gender, int age, Role role, String fcmToken) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -42,6 +45,7 @@ public class User {
         this.gender = gender;
         this.age = age;
         this.role = role;
+        this.fcmToken = fcmToken;
     }
 
     public long getId() {
@@ -106,6 +110,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 
     @Override

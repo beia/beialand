@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         volleyQueue = Volley.newRequestQueue(this);
         gson = new Gson();
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences("user_preferences", Context.MODE_PRIVATE);
         user = gson.fromJson(sharedPref.getString("user", null), User.class);
         password = sharedPref.getString("password", null);
 

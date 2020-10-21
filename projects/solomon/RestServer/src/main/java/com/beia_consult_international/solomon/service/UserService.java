@@ -2,9 +2,14 @@ package com.beia_consult_international.solomon.service;
 
 import com.beia_consult_international.solomon.dto.UserDto;
 import com.beia_consult_international.solomon.exception.UserNotFoundException;
+import com.beia_consult_international.solomon.model.Topic;
 import com.beia_consult_international.solomon.model.User;
 import com.beia_consult_international.solomon.repository.UserRepository;
 import com.beia_consult_international.solomon.service.mapper.UserMapper;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,5 +58,24 @@ public class UserService {
         User user = UserMapper.mapToModel(userDto);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
+    }
+
+    public void saveToken(long userId, String token) {
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        user.setFcmToken(token.substring(1, token.length() - 1));
+        userRepository.save(user);
+    }
+
+    public void sendChatNotificationsToAllAgents(long userId) throws FirebaseMessagingException {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Message message = Message
+                .builder()
+                .putData("title", user.getUsername() + " wants to chat with you...")
+                .putData("message", "Click to respond")
+                .setTopic(Topic.AGENT.name())
+                .build();
+        FirebaseMessaging.getInstance().send(message);
     }
 }

@@ -32,6 +32,7 @@
     <string name="beaconPicturesUrl">http://&domainName;/beacons</string>
 
     <string name="login_url">http://&domainName;/mobileApp/login</string>
+    <string name="fcm_token_url">http://&domainName;/mobileApp/fcmToken</string>
     <string name="signUp_url">http://&domainName;/mobileApp/signUp</string>
     <string name="getMallsUrl">http://&domainName;/mobileApp/getMalls</string>
     <string name="getBeaconsUrl">http://&domainName;/mobileApp/getBeacons</string>
@@ -40,4 +41,7 @@
     <string name="getCampaignsUrl">http://&domainName;/mobileApp/getCampaigns</string>
     <string name="postCampaignReactionUrl">http://&domainName;/mobileApp/saveCampaignReaction</string>
     <string name="getHeatmapLocationsUrl">http://&domainName;/mobileApp/getHeatmapLocations</string>
+    <string name="findChatAgentUrl">http://&domainName;/mobileApp/findChatAgent</string>
+
+    <string name="defaultChannelId">CHANNEL_DEFAULT</string>
 </resources>

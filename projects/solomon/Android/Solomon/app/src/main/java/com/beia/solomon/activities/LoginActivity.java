@@ -34,7 +34,9 @@ import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.model.Gender;
 import com.beia.solomon.model.Role;
+import com.beia.solomon.model.Topic;
 import com.beia.solomon.model.User;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -85,6 +87,9 @@ public class LoginActivity extends AppCompatActivity {
     public CardView signUpButton;
     public Activity loginActivityInstance;
 
+    private User user;
+    private String password;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -116,8 +121,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
-
     public void sendSignInData(String username, String password) {
         String url = getResources().getString(R.string.login_url)
                 + "?username=" + username
@@ -137,10 +140,9 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("RESPONSE", response.toString());
                     feedbackTextView.setText(getResources().getString(R.string.login_successful));
                     feedbackTextView.setTextColor(getResources().getColor(R.color.greenAccent));
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.putExtra("user", response);
-                    intent.putExtra("password", password);
-                    startActivity(intent);
+                    this.user = response;
+                    this.password = password;
+                    initFCM();
                 },
                 error -> {
                     if(error.networkResponse != null) {
@@ -156,6 +158,37 @@ public class LoginActivity extends AppCompatActivity {
         volleyQueue.add(request);
     }
 
+    public void sendFCMToken(long userId, String token) {
+        String url = getResources().getString(R.string.fcm_token_url)
+                + "?userId=" + userId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Object> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                token,
+                Object.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", "FCM TOKEN SENT");
+                    startMainActivity(user, password);
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                    feedbackTextView.setText(getResources().getString(R.string.login_failed));
+                    feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
+                });
+
+        volleyQueue.add(request);
+    }
 
 
 
@@ -196,7 +229,26 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    public void initFCM() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("FIREBASE", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+                    String token = task.getResult();
+                    sendFCMToken(user.getId(), token);
+                });
+        FirebaseMessaging.getInstance().subscribeToTopic(Topic.AGENT.name());
+    }
 
+
+    public void startMainActivity(User user, String password) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("user", user);
+        intent.putExtra("password", password);
+        startActivity(intent);
+    }
 
     public void initUI() {
         //login layout
