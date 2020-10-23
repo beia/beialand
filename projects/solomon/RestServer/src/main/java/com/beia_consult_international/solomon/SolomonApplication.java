@@ -121,6 +121,13 @@ public class SolomonApplication implements CommandLineRunner {
                         .password(passwordEncoder.encode("izvor"))
                         .firstName("Izvor")
                         .role(Role.MALL)
+                        .build(),
+                User.builder()//14
+                        .username("agent")
+                        .password(passwordEncoder.encode("agent"))
+                        .firstName("Agent")
+                        .lastName("1")
+                        .role(Role.AGENT)
                         .build());
 
         userRepository.saveAll(users);

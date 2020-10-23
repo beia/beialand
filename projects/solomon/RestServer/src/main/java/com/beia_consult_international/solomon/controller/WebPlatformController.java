@@ -4,7 +4,6 @@ import com.beia_consult_international.solomon.dto.CampaignDto;
 import com.beia_consult_international.solomon.dto.CampaignReactionDto;
 import com.beia_consult_international.solomon.dto.MallDto;
 import com.beia_consult_international.solomon.dto.UserDto;
-import com.beia_consult_international.solomon.exception.WrongUserDetailsException;
 import com.beia_consult_international.solomon.service.CampaignReactionService;
 import com.beia_consult_international.solomon.service.CampaignService;
 import com.beia_consult_international.solomon.service.MallService;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/solomon")
@@ -51,7 +49,7 @@ public class WebPlatformController {
 
     @PostMapping("/register")
     @ResponseBody
-    public Boolean signUp(@RequestBody UserDto userDto, @RequestParam String password) {
+    public Boolean signUp(@RequestBody UserDto userDto, @RequestParam String password) throws IOException {
         if(userService.userExists(userDto)) {
             return false;
         }

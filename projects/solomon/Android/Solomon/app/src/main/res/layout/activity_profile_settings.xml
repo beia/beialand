@@ -24,12 +24,12 @@
         android:layout_height="120dp"
         android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/adi_foto"
         app:civ_border_color="#FF222222"
         app:civ_border_width="4dp"
         app:civ_shadow="true"
         app:civ_shadow_radius="0"
-        app:civ_shadow_color="#8BC34A"/>
+        app:civ_shadow_color="#8BC34A"
+        android:src="@drawable/user_icon"/>
 
     <TextView
         android:id="@+id/nameTextView"

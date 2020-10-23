@@ -39,7 +39,7 @@ public abstract class UserMapper {
         try {
             byte[] image = Files
                     .readAllBytes(Path.of(usersPicturesPath + user.getId() + ".png"));
-            userDto.setImage(Base64.getEncoder().encodeToString(image));
+            userDto.setImage(Base64.getMimeEncoder().encodeToString(image));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

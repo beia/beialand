@@ -120,115 +120,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStop();
     }
 
-
-    public void sendSignInData(String username, String password) {
-        String url = getResources().getString(R.string.login_url)
-                + "?username=" + username
-                + "&password=" + password;
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-type", "application/json");
-        headers.put("Authorization", getResources().getString(R.string.universal_user));
-
-        GsonRequest<User> request = new GsonRequest<>(
-                Request.Method.GET,
-                url,
-                null,
-                User.class,
-                headers,
-                response -> {
-                    Log.d("RESPONSE", response.toString());
-                    feedbackTextView.setText(getResources().getString(R.string.login_successful));
-                    feedbackTextView.setTextColor(getResources().getColor(R.color.greenAccent));
-                    this.user = response;
-                    this.password = password;
-                    initFCM();
-                },
-                error -> {
-                    if(error.networkResponse != null) {
-                        Log.d("ERROR", new String(error.networkResponse.data));
-                    }
-                    else {
-                        error.printStackTrace();
-                    }
-                    feedbackTextView.setText(getResources().getString(R.string.login_failed));
-                    feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
-                });
-
-        volleyQueue.add(request);
-    }
-
-    public void sendFCMToken(long userId, String token) {
-        String url = getResources().getString(R.string.fcm_token_url)
-                + "?userId=" + userId;
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-type", "application/json");
-        headers.put("Authorization", getResources().getString(R.string.universal_user));
-
-        GsonRequest<Object> request = new GsonRequest<>(
-                Request.Method.POST,
-                url,
-                token,
-                Object.class,
-                headers,
-                response -> {
-                    Log.d("RESPONSE", "FCM TOKEN SENT");
-                    startMainActivity(user, password);
-                },
-                error -> {
-                    if(error.networkResponse != null) {
-                        Log.d("ERROR", new String(error.networkResponse.data));
-                    }
-                    else {
-                        error.printStackTrace();
-                    }
-                    feedbackTextView.setText(getResources().getString(R.string.login_failed));
-                    feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
-                });
-
-        volleyQueue.add(request);
-    }
-
-
-
-    public void sendSignUpData(User user, String password) {
-        String url = getResources().getString(R.string.signUp_url)
-                + "?password=" + password;
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-type", "application/json");
-        headers.put("Authorization", getResources().getString(R.string.universal_user));
-
-        GsonRequest<Boolean> request = new GsonRequest<>(
-                Request.Method.POST,
-                url,
-                user,
-                Boolean.class,
-                headers,
-                response -> {
-                    Log.d("RESPONSE", response.toString());
-                    if(response) {
-                        Toast.makeText(context, "account created!", Toast.LENGTH_SHORT).show();
-                        setLoginLayout();
-                    }
-                    else {
-                        usernameFeedbackText.setText(getResources().getString(R.string.sign_up_failed));
-                        usernameFeedbackText.setVisibility(View.VISIBLE);
-                        usernameSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
-                    }
-                },
-                error -> {
-                    if(error.networkResponse.data != null)
-                        Log.d("ERROR", "requestLocalization: " + new String(error.networkResponse.data));
-                    else
-                        error.printStackTrace();
-                });
-
-        volleyQueue.add(request);
-    }
-
-
     public void initFCM() {
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
@@ -239,7 +130,15 @@ public class LoginActivity extends AppCompatActivity {
                     String token = task.getResult();
                     sendFCMToken(user.getId(), token);
                 });
-        FirebaseMessaging.getInstance().subscribeToTopic(Topic.AGENT.name());
+        if(user.getRole().equals(Role.AGENT.name())) {
+            FirebaseMessaging
+                    .getInstance()
+                    .subscribeToTopic(Topic.AGENT.name());
+        }
+        else {
+            FirebaseMessaging.getInstance()
+                    .unsubscribeFromTopic(Topic.AGENT.name());
+        }
     }
 
 
@@ -546,5 +445,111 @@ public class LoginActivity extends AppCompatActivity {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public void sendSignInData(String username, String password) {
+        String url = getResources().getString(R.string.login_url)
+                + "?username=" + username
+                + "&password=" + password;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<User> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                User.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", response.toString());
+                    feedbackTextView.setText(getResources().getString(R.string.login_successful));
+                    feedbackTextView.setTextColor(getResources().getColor(R.color.greenAccent));
+                    this.user = response;
+                    this.password = password;
+                    initFCM();
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                    feedbackTextView.setText(getResources().getString(R.string.login_failed));
+                    feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
+                });
+
+        volleyQueue.add(request);
+    }
+
+    public void sendFCMToken(long userId, String token) {
+        String url = getResources().getString(R.string.fcm_token_url)
+                + "?userId=" + userId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Object> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                token,
+                Object.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", "FCM TOKEN SENT");
+                    startMainActivity(user, password);
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                    feedbackTextView.setText(getResources().getString(R.string.login_failed));
+                    feedbackTextView.setTextColor(getResources().getColor(R.color.redAccent));
+                });
+
+        volleyQueue.add(request);
+    }
+
+
+    public void sendSignUpData(User user, String password) {
+        String url = getResources().getString(R.string.signUp_url)
+                + "?password=" + password;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Boolean> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                user,
+                Boolean.class,
+                headers,
+                response -> {
+                    Log.d("RESPONSE", response.toString());
+                    if(response) {
+                        Toast.makeText(context, "account created!", Toast.LENGTH_SHORT).show();
+                        setLoginLayout();
+                    }
+                    else {
+                        usernameFeedbackText.setText(getResources().getString(R.string.sign_up_failed));
+                        usernameFeedbackText.setVisibility(View.VISIBLE);
+                        usernameSignInCardView.setCardBackgroundColor(getResources().getColor(R.color.red));
+                    }
+                },
+                error -> {
+                    if(error.networkResponse.data != null)
+                        Log.d("ERROR", "Sign up error: " + new String(error.networkResponse.data));
+                    else
+                        error.printStackTrace();
+                });
+
+        volleyQueue.add(request);
     }
 }

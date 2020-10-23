@@ -34,6 +34,9 @@
     <string name="login_url">http://&domainName;/mobileApp/login</string>
     <string name="fcm_token_url">http://&domainName;/mobileApp/fcmToken</string>
     <string name="signUp_url">http://&domainName;/mobileApp/signUp</string>
+    <string name="update_profile_picture_url">http://&domainName;/mobileApp/updateProfilePicture</string>
+    <string name="update_user_data_url">http://&domainName;/mobileApp/updateUser</string>
+    <string name="get_profile_picture_url">http://&domainName;/mobileApp/getProfilePicture</string>
     <string name="getMallsUrl">http://&domainName;/mobileApp/getMalls</string>
     <string name="getBeaconsUrl">http://&domainName;/mobileApp/getBeacons</string>
     <string name="postBeaconTimeUrl">http://&domainName;/mobileApp/postBeaconTime</string>

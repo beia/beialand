@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,12 +49,30 @@ public class MobileAppController {
     }
 
     @PostMapping("/signUp")
-    public Boolean signUp(@RequestBody UserDto userDto, @RequestParam String password) {
+    public Boolean signUp(@RequestBody UserDto userDto, @RequestParam String password) throws IOException {
         if(userService.userExists(userDto)) {
             return false;
         }
         userService.save(userDto, password);
         return true;
+    }
+
+    @PostMapping("/updateUser")
+    public void updateUser(@RequestBody UserDto userDto, @RequestParam String password) throws IOException {
+        userService.save(userDto, password);
+    }
+
+    @PostMapping("/updateProfilePicture/{userId}")
+    public void updateProfilePicture(@RequestBody String profilePicture, @PathVariable long userId) throws IOException {
+        userService.savePicture(
+                Base64.getMimeDecoder().decode(profilePicture),
+                usersPath,
+                userId);
+    }
+
+    @GetMapping("/getProfilePicture/{userId}")
+    public String getProfilePicture(@PathVariable long userId) {
+        return userService.findById(userId).getImage();
     }
 
     @GetMapping("/getMalls")
