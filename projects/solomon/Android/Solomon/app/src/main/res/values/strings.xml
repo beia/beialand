@@ -1,5 +1,5 @@
 <!-- solomon-beacon.beia-consult.ro:48000-->
-<!DOCTYPE resources [<!ENTITY domainName "192.168.0.45:8000">]>
+<!DOCTYPE resources [<!ENTITY domainName "solomon-beacon.beia-consult.ro:48000">]>
 <resources>
     <string name="app_name">Solomon</string>
 
