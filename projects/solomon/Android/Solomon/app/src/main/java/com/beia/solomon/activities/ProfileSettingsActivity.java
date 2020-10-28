@@ -71,7 +71,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_settings);
         user = (User) getIntent().getSerializableExtra("user");
-        password = getIntent().getStringExtra("password");
+        password =  getIntent().getStringExtra("password");
         volleyQueue = Volley.newRequestQueue(this);
         initUI();
     }
@@ -109,7 +109,11 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         setupSaveChangesClickListener();
 
         profilePicture.setOnClickListener(v -> pickFromGallery());
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> {
+            finish();
+            MainActivity.user = user;
+            MainActivity.password = password;
+        });
     }
 
     public void setupUsernameClickListener() {
@@ -186,7 +190,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
     public void setupSaveChangesClickListener() {
         saveChangesButton.setOnClickListener(v -> {
-            String username = user.getUsername(), password = this.password;
+            String username = user.getUsername();
             int age = user.getAge();
             if(usernameEditText.getVisibility() == View.VISIBLE
                     && !usernameEditText.getText().toString().equals("")) {
@@ -208,8 +212,9 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
             user.setUsername(username);
             user.setAge(age);
-            this.password = password;
+
             MainActivity.user = user;
+            MainActivity.password = password;
 
             sendUserData(user);
             saveUserDataIntoCache();
@@ -220,7 +225,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     public void saveUserDataIntoCache() {
         SharedPreferences.Editor editor = MainActivity.sharedPref.edit();
         editor.putString("user", new Gson().toJson(user));
-        editor.putString("password", new Gson().toJson(password));
+        editor.putString("password", password);
         editor.apply();
     }
 
@@ -241,6 +246,9 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         passwordTextView.setVisibility(View.VISIBLE);
         ageTextView.setVisibility(View.VISIBLE);
         saveChangesButton.setVisibility(View.GONE);
+
+        usernameTextView.setText(user.getUsername());
+        ageTextView.setText(String.format("%s", user.getAge()));
     }
 
 
@@ -281,12 +289,13 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 Uri selectedImageUri = data.getData();
                 try {
                     Bitmap bitmap = fetchBitmapFromURI(selectedImageUri);
-                    profilePicture.setImageURI(selectedImageUri);
+                    bitmap = scaleDown(bitmap, 300, true);
+                    profilePicture.setImageBitmap(bitmap);
                     Toast.makeText(this,
                             "Updated the profile picture",
                             Toast.LENGTH_LONG)
                             .show();
-                    String encodedImage = ProfileSettingsActivity.encodeToBase64(bitmap);
+                    String encodedImage = encodeToBase64(bitmap);
                     sendProfilePicture(encodedImage, user.getId());
                     user.setImage(encodedImage);
                     saveUserDataIntoCache();
@@ -351,15 +360,26 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    private Bitmap scaleDown(Bitmap realImage, float maxImageSize, boolean filter) {
+        float ratio = Math.min(
+                 maxImageSize / realImage.getWidth(),
+                 maxImageSize / realImage.getHeight());
+        int width = Math.round(ratio * realImage.getWidth());
+        int height = Math.round(ratio * realImage.getHeight());
+
+        return Bitmap.createScaledBitmap(realImage, width,
+                height, filter);
+    }
+
     public static String encodeToBase64(Bitmap image) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
-        return Base64.getMimeEncoder().encodeToString(byteArray);
+        return Base64.getEncoder().encodeToString(byteArray);
     }
 
     public static Bitmap decodeBase64(String input) {
-        byte[] decodedByte = Base64.getMimeDecoder().decode(input);
+        byte[] decodedByte = Base64.getDecoder().decode(input);
         return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
     }
 
@@ -379,9 +399,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 encodedImage,
                 Object.class,
                 headers,
-                response -> {
-                    Log.d("RESPONSE", response.toString());
-                },
+                response -> {},
                 error -> {
                     if(error.networkResponse.data != null)
                         Log.d("ERROR", "Update profile picture: " + new String(error.networkResponse.data));
@@ -438,9 +456,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                 user,
                 Object.class,
                 headers,
-                response -> {
-                    Log.d("RESPONSE", response.toString());
-                },
+                response -> {},
                 error -> {
                     if(error.networkResponse.data != null)
                         Log.d("ERROR", "Update user data: " + new String(error.networkResponse.data));

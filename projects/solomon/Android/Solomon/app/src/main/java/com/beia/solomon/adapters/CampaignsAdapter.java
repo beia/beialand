@@ -109,7 +109,7 @@ public class CampaignsAdapter extends BaseAdapter {
 
         if(campaign.getUser().getImage() != null) {
             ImageView companyImageView = campaignView.findViewById(R.id.companyImage);
-            byte[] companyImage = Base64.getDecoder().decode(campaign.getUser().getImage());
+            byte[] companyImage = Base64.getMimeDecoder().decode(campaign.getUser().getImage());
             Bitmap companyImageBitmap = BitmapFactory.decodeByteArray(companyImage, 0, companyImage.length);
             Glide.with(context).
                     asBitmap().

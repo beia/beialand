@@ -10,10 +10,12 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,16 +65,10 @@ public class UserService {
         User user = UserMapper.mapToModel(userDto);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        if(userDto.getImage() != null) {
-            savePicture(
-                    Base64.getDecoder().decode(userDto.getImage()),
-                    usersPath,
-                    userDto.getId());
-        }
     }
 
     public void savePicture(byte[] image, String path, long id) throws IOException {
-        Files.write(Path.of(path + id + ".png"), image);
+        FileUtils.writeByteArrayToFile(new File(path + id + ".png"), image);
     }
 
     public void saveToken(long userId, String token) {

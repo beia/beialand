@@ -39,6 +39,12 @@ public class StoreAdvertisementFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        user = MainActivity.user;
+    }
+
     private void initUI(View view) {
         campaignsGridView = view.findViewById(R.id.campaignsGridView);
         campaignsGridView.setColumnWidth((int)(MainActivity.displayWidth / 2.1f));

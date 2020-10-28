@@ -64,8 +64,11 @@ public class MobileAppController {
 
     @PostMapping("/updateProfilePicture/{userId}")
     public void updateProfilePicture(@RequestBody String profilePicture, @PathVariable long userId) throws IOException {
+        byte[] decodedImage = Base64
+                .getDecoder()
+                .decode(profilePicture.substring(1, profilePicture.length() - 1));
         userService.savePicture(
-                Base64.getMimeDecoder().decode(profilePicture),
+                decodedImage,
                 usersPath,
                 userId);
     }

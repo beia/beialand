@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     public RequestQueue volleyQueue;
     public Gson gson;
     public static User user;
-    public String password;
+    public static String password;
 
     public List<Mall> malls;
     public List<Beacon> beacons;

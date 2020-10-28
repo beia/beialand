@@ -84,6 +84,14 @@ public class MenuFragment extends Fragment {
         initUI(view);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        user = MainActivity.user;
+        password = MainActivity.password;
+        fetchAndSetProfilePicture();
+    }
+
     private void initUI(View view) {
         profileSettingsButton = view.findViewById(R.id.profileSettingsCardView);
         mallStatsButton= view.findViewById(R.id.statsCardView);
@@ -170,7 +178,7 @@ public class MenuFragment extends Fragment {
                 },
                 error -> {
                     if(error.networkResponse.data != null)
-                        Log.d("ERROR", "Update profile picture: " + new String(error.networkResponse.data));
+                        Log.d("ERROR", "Update profile picture");
                     else
                         error.printStackTrace();
                 });

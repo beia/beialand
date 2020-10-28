@@ -4,7 +4,9 @@ import com.beia_consult_international.solomon.dto.UserDto;
 import com.beia_consult_international.solomon.model.Gender;
 import com.beia_consult_international.solomon.model.Role;
 import com.beia_consult_international.solomon.model.User;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,11 +39,11 @@ public abstract class UserMapper {
                 .role(user.getRole().name())
                 .build();
         try {
-            byte[] image = Files
-                    .readAllBytes(Path.of(usersPicturesPath + user.getId() + ".png"));
-            userDto.setImage(Base64.getMimeEncoder().encodeToString(image));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            byte[] image = FileUtils.readFileToByteArray(new File(usersPicturesPath + user.getId() + ".png"));
+            String encodedImage = Base64.getEncoder().encodeToString(image);
+            userDto.setImage(encodedImage);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return userDto;
     }

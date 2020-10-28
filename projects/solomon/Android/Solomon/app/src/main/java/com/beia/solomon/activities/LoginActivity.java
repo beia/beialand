@@ -247,6 +247,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean correctSignUpData = validSignUpDetails(username, firstName,
                     lastName, ageString, age, gender, password, passwordConfirmation);
             if(correctSignUpData) {
+                age = Integer.parseInt(ageSignUpEditText.getText().toString());
                 User user = User
                         .builder()
                         .username(username)
