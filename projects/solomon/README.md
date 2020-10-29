@@ -10,7 +10,7 @@ BEIA contribution to the project:
 # Android app
 ### Features
   - See the malls locations<br/><br/>
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192105_Solomon.jpg?raw=true)<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192105_Solomon.jpg?raw=true)<br/><br/>
   - Indoor localization in a shopping center based on BLE beacons<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164101_Solomon.jpg?raw=true)<br/><br/>
   - Heatmap for user locations in the shopping center in the last 30 minutes<br/><br/>
