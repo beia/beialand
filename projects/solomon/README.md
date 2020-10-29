@@ -12,17 +12,14 @@ BEIA contribution to the project:
   - See the malls locations<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192105_Solomon.jpg?raw=true)<br/>
   - Indoor localization in a shopping center based on BLE beacons<br/>
-  <p align="center">
-  <img src="https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164101_Solomon.jpg?raw=true" alt="Sublime's custom image"/>
-  </p>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164101_Solomon.jpg?raw=true)<br/>
-  - Heatmap for user locations in the shopping center in the last 30 minutes<br/>
+  - Heatmap for user locations in the shopping center in the last 30 minutes<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192302_Solomon.jpg?raw=true)<br/>  
-  - Detects stores that are close and shows special offers provided by the retailers<br/>
+  - Detects stores that are close and shows special offers provided by the retailers<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-160348_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164530_Solomon.jpg?raw=true)<br/>
-  - See the parking spaces availability<br/>
+  - See the parking spaces availability<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192322_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192824_Solomon.jpg?raw=true)<br/>
-  - Mark your car on the map so you can find it after shopping<br/>
+  - Mark your car on the map so you can find it after shopping<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192413_Solomon.jpg?raw=true)
 
 # REST Server
