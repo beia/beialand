@@ -10,16 +10,16 @@ BEIA contribution to the project:
 # Android app
 ### Features
   - See the malls locations<br/>
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192105_Solomon.jpg?raw=true)  
-  - Indoor localization in a shopping center based on BLE beacons\
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164101_Solomon.jpg?raw=true)  
-  - Heatmap for user locations in the shopping center in the last 30 minutes\
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192302_Solomon.jpg?raw=true)  
-  - Detects stores that are close and shows special offers provided by the retailers\
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-160348_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164530_Solomon.jpg?raw=true)  
-  - See the parking spaces availability\
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192322_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192824_Solomon.jpg?raw=true)  
-  - Mark your car on the map so you can find it after shopping\
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192105_Solomon.jpg?raw=true)<br/>
+  - Indoor localization in a shopping center based on BLE beacons<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164101_Solomon.jpg?raw=true)<br/>
+  - Heatmap for user locations in the shopping center in the last 30 minutes<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192302_Solomon.jpg?raw=true)<br/>  
+  - Detects stores that are close and shows special offers provided by the retailers<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-160348_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164530_Solomon.jpg?raw=true)<br/>
+  - See the parking spaces availability<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192322_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192824_Solomon.jpg?raw=true)<br/>
+  - Mark your car on the map so you can find it after shopping<br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192413_Solomon.jpg?raw=true)
 
 # REST Server
