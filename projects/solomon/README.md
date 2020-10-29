@@ -14,11 +14,11 @@ BEIA contribution to the project:
   - Indoor localization in a shopping center based on BLE beacons<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164101_Solomon.jpg?raw=true)<br/><br/>
   - Heatmap for user locations in the shopping center in the last 30 minutes<br/><br/>
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192302_Solomon.jpg?raw=true)<br/>  
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192302_Solomon.jpg?raw=true)<br/><br/>  
   - Detects stores that are close and shows special offers provided by the retailers<br/><br/>
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-160348_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164530_Solomon.jpg?raw=true)<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-160348_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201029-164530_Solomon.jpg?raw=true)<br/><br/>
   - See the parking spaces availability<br/><br/>
-  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192322_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192824_Solomon.jpg?raw=true)<br/>
+  ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192322_Solomon.jpg?raw=true) ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192824_Solomon.jpg?raw=true)<br/><br/>
   - Mark your car on the map so you can find it after shopping<br/><br/>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/projects/solomon/Media/Screenshot_20201028-192413_Solomon.jpg?raw=true)
 
