@@ -1,0 +1,2 @@
+C:\Users\SAFECARE\Desktop\BeiaDeviceDriver_Hum\obj\Debug\BeiaDeviceDriver_Hum.csprojAssemblyReference.cache
+C:\Users\SAFECARE\Desktop\BeiaDeviceDriver_Hum\obj\Debug\BeiaDeviceDriver_Hum.csproj.CoreCompileInputs.cache
