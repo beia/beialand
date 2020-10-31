@@ -1,0 +1,3 @@
+<plugin>
+   <file name="BeiaDeviceDriver.dll" debug="true" />
+</plugin>
