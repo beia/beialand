@@ -1,5 +1,9 @@
 # IoTDevices
 
+This folder contains the XProtect drivers written for the IoT devices.
+
+The orginal repository can be found at [zenjieli/IoTDevices](https://github.com/zenjieli/IoTDevices).
+
 ## Deployment
 
 Run CopyDlls.bat or CopyDllsRelease.bat in admin mode.
