@@ -1,5 +1,6 @@
 package com.beia_consult_international.solomon.exception;
 
+import com.beia_consult_international.solomon.model.ConversationStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,8 @@ public class GlobalExceptionAdvice {
         BeaconNotFoundException.class,
         CampaignsNotFoundException.class,
         MallNotFoundException.class,
-        ParkingSpaceNotFoundException.class
+        ParkingSpaceNotFoundException.class,
+        ConversationNotFoundException.class
     })
     public ResponseEntity<String> handle(Exception e) {
         return ResponseEntity

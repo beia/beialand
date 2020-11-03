@@ -5,7 +5,7 @@ import com.beia_consult_international.solomon.dto.ParkingStatsDto;
 import com.beia_consult_international.solomon.exception.ParkingSpaceNotFoundException;
 import com.beia_consult_international.solomon.model.ParkingData;
 import com.beia_consult_international.solomon.model.ParkingSpace;
-import com.beia_consult_international.solomon.model.Status;
+import com.beia_consult_international.solomon.model.ParkingStatus;
 import com.beia_consult_international.solomon.repository.ParkingSpaceRepository;
 import com.beia_consult_international.solomon.service.mapper.ParkingSpaceMapper;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,8 @@ public class ParkingService {
         parkingSpace.getParkingData().add(ParkingData
                 .builder()
                 .status(parkingStats.getParking_slot_status() == 0
-                        ? Status.FREE
-                        : Status.OCCUPIED)
+                        ? ParkingStatus.FREE
+                        : ParkingStatus.OCCUPIED)
                 .date(LocalDateTime.parse(parkingStats.getLW_ts().replace(' ', 'T')))
                 .parkingSpace(parkingSpace)
                 .build());

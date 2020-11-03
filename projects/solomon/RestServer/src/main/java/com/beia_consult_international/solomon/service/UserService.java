@@ -85,6 +85,7 @@ public class UserService {
                 .builder()
                 .putData("title", user.getUsername() + " wants to chat with you...")
                 .putData("message", "Click to respond")
+                .putData("userId", Long.toString(userId))
                 .setTopic(Topic.AGENT.name())
                 .build();
         FirebaseMessaging.getInstance().send(message);

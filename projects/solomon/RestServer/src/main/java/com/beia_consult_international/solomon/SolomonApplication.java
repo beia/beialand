@@ -9,10 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 
 @SpringBootApplication
@@ -483,27 +480,27 @@ public class SolomonApplication implements CommandLineRunner {
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(5))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(4))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(3))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(2))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(1))
                                         .build()
                         ))
@@ -519,27 +516,27 @@ public class SolomonApplication implements CommandLineRunner {
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(5))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(4))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(3))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(2))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(1))
                                         .build()
                         ))
@@ -555,27 +552,27 @@ public class SolomonApplication implements CommandLineRunner {
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(5))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(4))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(3))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(2))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(1))
                                         .build()
                         ))
@@ -591,27 +588,27 @@ public class SolomonApplication implements CommandLineRunner {
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(5))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(4))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(3))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(2))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(1))
                                         .build()
                         ))
@@ -627,27 +624,27 @@ public class SolomonApplication implements CommandLineRunner {
                         .parkingData(List.of(
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(5))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(4))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(3))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.FREE)
+                                        .status(ParkingStatus.FREE)
                                         .date(LocalDateTime.now().minusMinutes(2))
                                         .build(),
                                 ParkingData
                                         .builder()
-                                        .status(Status.OCCUPIED)
+                                        .status(ParkingStatus.OCCUPIED)
                                         .date(LocalDateTime.now().minusMinutes(1))
                                         .build()
                         ))

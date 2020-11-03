@@ -10,6 +10,8 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
+
+import android.os.Bundle;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -27,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * NOTE: There can only be one service in each app that receives FCM messages. If multiple
@@ -79,7 +82,8 @@ public class FcmService extends FirebaseMessagingService {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
             String title = remoteMessage.getData().get("title");
             String message = remoteMessage.getData().get("message");
-            sendNotification(title, message);
+            long userId = Long.parseLong(Objects.requireNonNull(remoteMessage.getData().get("userId")));
+            sendNotification(title, message, userId);
         }
 
         // Check if message contains a notification payload.
@@ -126,7 +130,7 @@ public class FcmService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String title, String messageBody) {
+    private void sendNotification(String title, String messageBody, long userId) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -134,10 +138,13 @@ public class FcmService extends FirebaseMessagingService {
 
         String defaultChannelId = getString(R.string.defaultChannelId);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Bundle extraData = new Bundle();
+        extraData.putLong("userId", userId);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, defaultChannelId)
                         .setSmallIcon(R.drawable.solomon_notification_icon)
                         .setContentTitle(title)
+                        .setExtras(extraData)
                         .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
@@ -157,7 +164,6 @@ public class FcmService extends FirebaseMessagingService {
         if(notificationManager != null)
             notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
-
 
 
     public void sendFCMToken(long userId, String token) {

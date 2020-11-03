@@ -14,7 +14,7 @@ public class ParkingData {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ParkingStatus status;
 
     @Column(nullable = false)
     private LocalDateTime date;
@@ -26,7 +26,7 @@ public class ParkingData {
     public ParkingData() {
     }
 
-    public ParkingData(long id, Status status, LocalDateTime date, ParkingSpace parkingSpace) {
+    public ParkingData(long id, ParkingStatus status, LocalDateTime date, ParkingSpace parkingSpace) {
         this.id = id;
         this.status = status;
         this.date = date;
@@ -41,11 +41,11 @@ public class ParkingData {
         this.id = id;
     }
 
-    public Status getStatus() {
+    public ParkingStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(ParkingStatus status) {
         this.status = status;
     }
 
