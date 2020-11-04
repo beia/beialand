@@ -13,13 +13,16 @@ import androidx.core.app.NotificationCompat;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.LongSparseArray;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
+import com.beia.solomon.activities.AskUsActivity;
 import com.beia.solomon.activities.MainActivity;
+import com.beia.solomon.model.FcmMessageType;
 import com.beia.solomon.model.User;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -80,10 +83,23 @@ public class FcmService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-            String title = remoteMessage.getData().get("title");
-            String message = remoteMessage.getData().get("message");
-            long userId = Long.parseLong(Objects.requireNonNull(remoteMessage.getData().get("userId")));
-            sendNotification(title, message, userId);
+            String messageType = remoteMessage.getData().get("messageType");
+            if(messageType.equals(FcmMessageType.AGENT_REQUEST.name())) {
+                String title = remoteMessage.getData().get("title");
+                String message = remoteMessage.getData().get("message");
+                long userId = Long.parseLong(Objects.requireNonNull(remoteMessage.getData().get("userId")));
+                Bundle extraData = new Bundle();
+                extraData.putLong("userId", userId);
+                sendNotification(title, message, FcmMessageType.AGENT_REQUEST.name(), extraData);
+            } else if(messageType.equals(FcmMessageType.CONVERSATION.name())) {
+                long conversationId = Long.parseLong(remoteMessage.getData().get("conversationId"));
+                Bundle extraData = new Bundle();
+                extraData.putLong("conversationId", conversationId);
+                sendNotification("Solomon",
+                        "We found an available agent, please click so you can speak to him",
+                        FcmMessageType.CONVERSATION.name(),
+                        extraData);
+            }
         }
 
         // Check if message contains a notification payload.
@@ -130,21 +146,33 @@ public class FcmService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String title, String messageBody, long userId) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    private void sendNotification(String title, String messageBody, String notificationType, Bundle extraData) {
+
+        Intent intent;
+        if(notificationType.equals(FcmMessageType.AGENT_REQUEST.name())) {
+            intent = new Intent(this, AskUsActivity.class);
+            intent.putExtra("intentType", "AGENT_REQUEST");
+            intent.putExtra("userId", extraData.getLong("userId"));
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        } else if(notificationType.equals(FcmMessageType.CONVERSATION.name())) {
+            intent = new Intent(this, AskUsActivity.class);
+            intent.putExtra("intentType", "CONVERSATION");
+            intent.putExtra("conversationId", extraData.getLong("conversationId"));
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        } else {
+            intent = new Intent(this, AskUsActivity.class);
+            intent.putExtra("intentType", "MESSAGE");
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         String defaultChannelId = getString(R.string.defaultChannelId);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Bundle extraData = new Bundle();
-        extraData.putLong("userId", userId);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, defaultChannelId)
                         .setSmallIcon(R.drawable.solomon_notification_icon)
                         .setContentTitle(title)
-                        .setExtras(extraData)
                         .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)

@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.model;na
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Builder
@@ -23,14 +24,18 @@ public class Conversation {
     @JoinColumn(name = "user2_id", nullable = false)
     private User user2;
 
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
+    private List<Message> messages;
+
     public Conversation() {
     }
 
-    public Conversation(long id, ConversationStatus status, User user1, User user2) {
+    public Conversation(long id, ConversationStatus status, User user1, User user2, List<Message> messages) {
         this.id = id;
         this.status = status;
         this.user1 = user1;
         this.user2 = user2;
+        this.messages = messages;
     }
 
     public long getId() {
@@ -63,5 +68,13 @@ public class Conversation {
 
     public void setUser2(User user2) {
         this.user2 = user2;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }

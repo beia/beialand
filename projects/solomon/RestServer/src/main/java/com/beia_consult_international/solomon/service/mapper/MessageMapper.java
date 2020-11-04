@@ -9,7 +9,7 @@ import com.beia_consult_international.solomon.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class MessageMapper {
+public class MessageMapper {
     private final UserRepository userRepository;
     private final ConversationRepository conversationRepository;
 

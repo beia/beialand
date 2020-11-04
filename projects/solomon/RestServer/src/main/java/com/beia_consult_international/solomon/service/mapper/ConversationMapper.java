@@ -2,26 +2,45 @@ package com.beia_consult_international.solomon.service.mapper;
 
 import com.beia_consult_international.solomon.dto.ConversationDto;
 import com.beia_consult_international.solomon.model.Conversation;
+import org.springframework.stereotype.Component;
 
-public abstract class ConversationMapper {
+import java.util.stream.Collectors;
 
-    public static ConversationDto maptoDto(Conversation model) {
+@Component
+public class ConversationMapper {
+    MessageMapper messageMapper;
+
+    public ConversationMapper(MessageMapper messageMapper) {
+        this.messageMapper = messageMapper;
+    }
+
+    public ConversationDto maptoDto(Conversation model) {
         return ConversationDto
                 .builder()
                 .id(model.getId())
                 .status(model.getStatus())
                 .user1(UserMapper.mapToDto(model.getUser1(), "src/main/resources/users/"))
                 .user2(UserMapper.mapToDto(model.getUser2(), "src/main/resources/users/"))
+                .messages(model
+                        .getMessages()
+                        .stream()
+                        .map(message -> messageMapper.mapToDto(message))
+                        .collect(Collectors.toList()))
                 .build();
     }
 
-    public static Conversation mapToModel(ConversationDto dto) {
+    public Conversation mapToModel(ConversationDto dto) {
         return Conversation
                 .builder()
                 .id(dto.getId())
                 .status(dto.getStatus())
                 .user1(UserMapper.mapToModel(dto.getUser1()))
                 .user2(UserMapper.mapToModel(dto.getUser2()))
+                .messages(dto
+                        .getMessages()
+                        .stream()
+                        .map(messageDto -> messageMapper.mapToModel(messageDto))
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

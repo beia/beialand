@@ -1,4 +1,4 @@
-package com.beia_consult_international.solomon.model;
+package com.beia.solomon.model;
 
 public enum ConversationStatus {
     STARTED,

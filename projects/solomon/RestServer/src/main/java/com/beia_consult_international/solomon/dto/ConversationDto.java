@@ -1,8 +1,9 @@
 package com.beia_consult_international.solomon.dto;
 
 import com.beia_consult_international.solomon.model.ConversationStatus;
-import com.beia_consult_international.solomon.model.User;
 import lombok.Builder;
+
+import java.util.List;
 
 @Builder
 public class ConversationDto {
@@ -10,15 +11,17 @@ public class ConversationDto {
     private ConversationStatus status;
     private UserDto user1;
     private UserDto user2;
+    private List<MessageDto> messages;
 
     public ConversationDto() {
     }
 
-    public ConversationDto(long id, ConversationStatus status, UserDto user1, UserDto user2) {
+    public ConversationDto(long id, ConversationStatus status, UserDto user1, UserDto user2, List<MessageDto> messages) {
         this.id = id;
         this.status = status;
         this.user1 = user1;
         this.user2 = user2;
+        this.messages = messages;
     }
 
     public long getId() {
@@ -51,5 +54,13 @@ public class ConversationDto {
 
     public void setUser2(UserDto user2) {
         this.user2 = user2;
+    }
+
+    public List<MessageDto> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<MessageDto> messages) {
+        this.messages = messages;
     }
 }

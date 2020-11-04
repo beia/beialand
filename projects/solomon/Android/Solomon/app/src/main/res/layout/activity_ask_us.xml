@@ -27,13 +27,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
         <ImageView
             android:id="@+id/loadingAnimationImage"
             android:layout_width="@dimen/dimen80dp"
             android:layout_height="@dimen/dimen80dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/dimen10dp"/>
+            android:layout_marginBottom="@dimen/dimen10dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,7 +70,6 @@
             android:layout_marginEnd="@dimen/dimen3dp"
             android:layout_marginBottom="@dimen/dimen3dp"
             android:background="@color/greyAccent"
-            android:hint="write a message for agent"
             android:inputType="textCapSentences|textMultiLine"
             android:isScrollContainer="true"
             android:maxLength="2000"

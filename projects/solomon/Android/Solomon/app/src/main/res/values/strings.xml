@@ -45,6 +45,9 @@
     <string name="postCampaignReactionUrl">http://&domainName;/mobileApp/saveCampaignReaction</string>
     <string name="getHeatmapLocationsUrl">http://&domainName;/mobileApp/getHeatmapLocations</string>
     <string name="findChatAgentUrl">http://&domainName;/mobileApp/findChatAgent</string>
+    <string name="startConversationUrl">http://&domainName;/mobileApp/startConversation</string>
+    <string name="getConversationUrl">http://&domainName;/mobileApp/getConversation</string>
+    <string name="getConversationMessagesUrl">http://&domainName;/mobileApp/getConversationMessages</string>
 
     <string name="defaultChannelId">CHANNEL_DEFAULT</string>
 </resources>

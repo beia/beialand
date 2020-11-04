@@ -3,6 +3,8 @@ package com.beia_consult_international.solomon.controller;
 import com.beia_consult_international.solomon.dto.*;
 import com.beia_consult_international.solomon.exception.WrongUserDetailsException;
 import com.beia_consult_international.solomon.model.BeaconLocalizationData;
+import com.beia_consult_international.solomon.model.ConversationStatus;
+import com.beia_consult_international.solomon.model.Message;
 import com.beia_consult_international.solomon.service.*;
 import com.beia_consult_international.solomon.service.mapper.BeaconMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -10,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,17 +24,19 @@ public class MobileAppController {
     private final BeaconService beaconService;
     private final CampaignService campaignService;
     private final CampaignReactionService campaignReactionService;
+    private final ConversationService conversationService;
     @Value("${solomon.usersPicturesPath}")
     public String usersPath;
     @Value("${solomon.campaignsPicturesPath}")
     public String campaignsPath;
 
-    public MobileAppController(UserService userService, MallService mallService, BeaconService beaconService, CampaignService campaignService, CampaignReactionService campaignReactionService) {
+    public MobileAppController(UserService userService, MallService mallService, BeaconService beaconService, CampaignService campaignService, CampaignReactionService campaignReactionService, ConversationService conversationService) {
         this.userService = userService;
         this.mallService = mallService;
         this.beaconService = beaconService;
         this.campaignService = campaignService;
         this.campaignReactionService = campaignReactionService;
+        this.conversationService = conversationService;
     }
 
     @GetMapping("/login")
@@ -135,5 +138,29 @@ public class MobileAppController {
     @PostMapping("/findChatAgent")
     public void findChatAgent(@RequestParam long userId) throws FirebaseMessagingException {
         userService.sendChatNotificationsToAllAgents(userId);
+    }
+
+    @PostMapping("/startConversation")
+    public ConversationDto startConversation(@RequestParam long agentId, @RequestParam long userId) throws FirebaseMessagingException {
+        UserDto agent = userService.findById(agentId);
+        UserDto user = userService.findById(userId);
+        ConversationDto conversation = ConversationDto
+                .builder()
+                .status(ConversationStatus.STARTED)
+                .user1(agent)
+                .user2(user)
+                .build();
+        return conversationService
+                .startConversation(conversation);
+    }
+
+    @GetMapping("/getConversation")
+    public ConversationDto getConversation(@RequestParam long conversationId) {
+        return conversationService.findById(conversationId);
+    }
+
+    @GetMapping("/getConversationMessages")
+    public List<MessageDto> getConversationMessages(@RequestParam long conversationId) {
+        return conversationService.findMessagesByConversationId(conversationId);
     }
 }

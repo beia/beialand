@@ -15,7 +15,8 @@ public class GlobalExceptionAdvice {
         CampaignsNotFoundException.class,
         MallNotFoundException.class,
         ParkingSpaceNotFoundException.class,
-        ConversationNotFoundException.class
+        ConversationNotFoundException.class,
+        ConversationAlreadyStartedException.class
     })
     public ResponseEntity<String> handle(Exception e) {
         return ResponseEntity
