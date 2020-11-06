@@ -17,6 +17,7 @@
 }
 
 .myBox {
-  margin-top:0 !important;
-  margin-bottom: 2rem !important;
+    margin-top:0 !important;
+    margin-bottom: 2rem !important;
+    cursor: pointer;
 }

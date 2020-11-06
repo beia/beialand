@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded',function(){
   drawOldList();
 }, false);
 
+
 function drawOldList(){
   var request = $.ajax({
     type: "get",
@@ -53,6 +54,7 @@ function drawOldElementInList(campaign){
 
     var segmentDiv = document.createElement("div");
     segmentDiv.setAttribute("class", "ui segment myBox");
+    segmentDiv.setAttribute("onclick", "getStatisticsForCampaign("+campaign["id"]+",'"+campaign["startDate"]+"')");
     segmentDiv.appendChild(tbl);
 
     var rmvIcon = document.createElement("i");
@@ -99,4 +101,23 @@ function removeOldCampaign() {
       window.location.replace("/solomon/dashboard");
     }
   });
+}
+
+var json = {}
+function getStatisticsForCampaign(campaignId, startDate){
+    if(document.getElementById("viewStatisticsTable").hidden == false
+        && document.getElementById("itemID").value == campaignId){
+            document.getElementById("viewStatisticsTable").hidden = true;
+            return;
+    }
+
+    document.getElementById("itemID").value = campaignId;
+    json[campaignId] = {};
+    json[campaignId]["startDate"] = startDate;
+
+    var statsTable = document.getElementById("viewStatisticsTable");
+    statsTable.parentNode.removeChild(statsTable);
+    document.getElementById(campaignId).appendChild(statsTable);
+
+    getStatistics();
 }
