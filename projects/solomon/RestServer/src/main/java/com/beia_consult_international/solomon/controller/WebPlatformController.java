@@ -132,9 +132,20 @@ public class WebPlatformController {
         return mallService.findByUserId(userId);
     }
 
+    @GetMapping("retailer/getViewStats")
+    @ResponseBody
+    public List<CampaignReactionDto> getViewStats(@RequestParam long campaignId) {
+        return campaignReactionService.findAllByCampaignId(campaignId);
+    }
+
     @RequestMapping(value="/helloWorld", method = RequestMethod.GET)
     public String getHelloWorldPage(){
         return "helloWorld";
+    }
+
+    @RequestMapping(value="/register", method = RequestMethod.GET)
+    public String getRegisterPage(){
+        return "register";
     }
 
     @RequestMapping(value="/login", method = RequestMethod.GET)
@@ -155,11 +166,6 @@ public class WebPlatformController {
     @RequestMapping(value="/history", method = RequestMethod.GET)
     public String getHistoryPage(){
         return "history";
-    }
-
-    @RequestMapping(value="/register", method = RequestMethod.GET)
-    public String getRegisterPage(){
-        return "register";
     }
 
     @RequestMapping(value="/parkingPlaces", method = RequestMethod.GET)

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" type="image/png" href="/webResources/images/solomon_favicon.png"/>
@@ -12,9 +13,14 @@
     <script src="/webResources/scripts/FormanticUI/semantic.min.js"></script>
     <link rel="stylesheet" href="/webResources/scripts/FormanticUI/semantic.min.css"/>
 
+    <script src="/webResources/scripts/ChartJS/Chart.min.js"></script>
+    <link rel="stylesheet" href="/webResources/scripts/ChartJS/Chart.min.css"/>
+
     <script src="/webResources/scripts/Custom/history.js"></script>
+    <script src="/webResources/scripts/Custom/statistics.js"></script>
     <link rel="stylesheet" href="/webResources/styles/topMenu.css"/>
     <link rel="stylesheet" href="/webResources/styles/history.css"/>
+    <link rel="stylesheet" href="/webResources/styles/statistics.css"/>
 </head>
 <body>
 <div class="top-menu">
@@ -42,6 +48,22 @@
     <div id="segments-zone">  </div>
 </div>
 
+<table style="width:100%;" id="viewStatisticsTable" hidden="true">
+    <tr>
+        <td id="viewsNumCell"  colspan="2"></td>
+
+    </tr>
+
+    <tr>
+        <td id="ageDistributionCell" style="width:50%;"> <canvas id="ageDistributionCanvas"></canvas></td>
+        <td id="genderDistributionCell" style="width:50%;"> <canvas id="genderDistributionCanvas"></canvas></td> </td>
+    </tr>
+
+    <tr>
+        <td id="perDayViewsCell" colspan="2"><canvas id="perDayViewsCanvas"></canvas></td>
+    </tr>
+
+</table>
 <input id="itemID" type="hidden"/>
 
 <div class="ui basic modal RMVS">

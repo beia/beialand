@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
 var malls = {}
 
+
 function toggleColorEnter(elemID){
     if(document.getElementById(elemID).style.backgroundColor != "gray"){
         document.getElementById(elemID).style.backgroundColor = "darkgray";
@@ -159,38 +160,75 @@ function displayMall(){
         circle.bindTooltip(malls[index]["name"]).openTooltip();
     } else {
         for(var i=0; i<malls[index]["parkingSpaces"].length; i++){
-            if(malls[index]["parkingSpaces"][i]["parkingData"][malls[index]["parkingSpaces"][i]["parkingData"].length-1].status == "FREE") {
-            //if(Math.floor(Math.random() * 10) >= 5) {
-                var color = 'green';
-                var fillColor = '#44fc69';
+            //if(malls[index]["parkingSpaces"][i]["parkingData"][malls[index]["parkingSpaces"][i]["parkingData"].length-1].status == "FREE") {
+            if(malls[index]["parkingSpaces"][i]["id"] == 1){
+                var markerColor = "green";
+                var markerIcon = L.icon({
+                    iconUrl: '/webResources/images/greenMarker.png',
+                    iconSize:     [30, 50], // size of the icon
+                    iconAnchor:   [15, 25] // point of the icon which will correspond to marker's location
+                });
+            } else if (malls[index]["parkingSpaces"][i]["id"] == 2) {
+                var markerColor = "red";
+                var markerIcon = L.icon({
+                    iconUrl: '/webResources/images/redMarker.png',
+                    iconSize: [30, 50], // size of the icon
+                    iconAnchor: [15, 25] // point of the icon which will correspond to marker's location
+                });
+            } else if (malls[index]["parkingSpaces"][i]["id"] == 3) {
+                var markerColor = "red";
+                var markerIcon = L.icon({
+                    iconUrl: '/webResources/images/redMarker.png',
+                    iconSize: [30, 50], // size of the icon
+                    iconAnchor: [15, 25] // point of the icon which will correspond to marker's location
+                });
+            } else if (malls[index]["parkingSpaces"][i]["id"] == 5) {
+                var markerColor = "red";
+                var markerIcon = L.icon({
+                    iconUrl: '/webResources/images/redMarker.png',
+                    iconSize: [30, 50], // size of the icon
+                    iconAnchor: [15, 25] // point of the icon which will correspond to marker's location
+                });
+            } else if(Math.floor(Math.random() * 10) >= 5) {
+                var markerColor = "green";
+                var markerIcon = L.icon({
+                    iconUrl: '/webResources/images/greenMarker.png',
+                    iconSize:     [30, 50], // size of the icon
+                    iconAnchor:   [15, 25] // point of the icon which will correspond to marker's location
+                });
             } else {
-                var color = 'red';
-                var fillColor = '#f03';
+                var markerColor = "red";
+                var markerIcon = L.icon({
+                    iconUrl: '/webResources/images/redMarker.png',
+                    iconSize:     [30, 50], // size of the icon
+                    iconAnchor:   [15, 25] // point of the icon which will correspond to marker's location
+                });
             }
 
-            var circle = L.circle([malls[index]["parkingSpaces"][i]["latitude"],malls[index]["parkingSpaces"][i]["longitude"]], {
-                color: color,
-                fillColor: fillColor,
-                fillOpacity: 0.5,
-                radius: 1,
+
+            var marker = L.marker([malls[index]["parkingSpaces"][i]["latitude"],malls[index]["parkingSpaces"][i]["longitude"]], {
+                icon: markerIcon,
+                rotationAngle: malls[index]["parkingSpaces"][i]["rotation"]-90,
+                markerColor: markerColor,
                 mallIndex: index,
                 parkingSpaceIndex: i
             }).addTo(mymap).on("click",function(e) {
-                displayParkingSpace(this.options.mallIndex, this.options.parkingSpaceIndex);
+                displayParkingSpace(this.options.mallIndex, this.options.parkingSpaceIndex, this.options.markerColor);
             });
+            marker.bindTooltip("SP" + (malls[index]["parkingSpaces"][i]["id"]+1));
 
-            if(malls[index]["id"] == 1){
-                var imageUrl = '/webResources/images/parkingLotBeia.png',
-                    imageBounds = [[44.39573,26.10251], [44.39548,26.102925]];
-                L.imageOverlay(imageUrl, imageBounds).addTo(mymap);
-            }
+            // if(malls[index]["id"] == 1){
+            //     var imageUrl = '/webResources/images/parkingLotBeia.png',
+            //         imageBounds = [[44.39573,26.10251], [44.39548,26.102925]];
+            //     L.imageOverlay(imageUrl, imageBounds).addTo(mymap);
+            // }
         }
     }
 
     document.getElementById("statistics-container").hidden = true;
 }
 
-function displayParkingSpace(mallIndex, psIndex){
+function displayParkingSpace(mallIndex, psIndex, markerColor){
     if(document.getElementById("statistics-container").hidden == false
         && document.getElementById("mallIndexInput").value == mallIndex
             && document.getElementById("parkingSpaceIndexInput").value == psIndex){
@@ -201,6 +239,7 @@ function displayParkingSpace(mallIndex, psIndex){
     document.getElementById("statistics-container").hidden = false;
     document.getElementById("mallIndexInput").value = mallIndex;
     document.getElementById("parkingSpaceIndexInput").value = psIndex;
+    document.getElementById("markerColorInput").value = markerColor;
 
     document.getElementById("day7").style.backgroundColor = "lightgray";
     document.getElementById("day7").click();
@@ -238,38 +277,58 @@ function computeChartDatasets(dateStr, mall, parkSpace){
         var loc = 0;
         var timeLabel = ("0" + hours).slice(-2) + ":" + ("0" + minutes).slice(-2);
 
-        if(ts.length > 0 && timeLabel > ts[tsIndex].time) {
-            while(1){
-                if(timeLabel < ts[tsIndex].time)
-                    break;
-                else
-                    status = ts[tsIndex].status
+        // if(ts.length > 0 && timeLabel > ts[tsIndex].time) {
+        //     while(1){
+        //         if(timeLabel < ts[tsIndex].time)
+        //             break;
+        //         else
+        //             status = ts[tsIndex].status
+        //
+        //         if(tsIndex == ts.length -1){
+        //             break;
+        //         }
+        //         tsIndex = tsIndex + 1;
+        //     }
+        // }
+        // if(status == -1){
+        //     lf = 0;
+        //     loc = 0;
+        // } else {
+        //     lf = 0 + parseInt(status);
+        //     loc = 1 - parseInt(status);
+        // }
+        //
 
-                if(tsIndex == ts.length -1){
-                    break;
-                }
-                tsIndex = tsIndex + 1;
-            }
-        }
-        if(status == -1){
-            lf = 0;
+        if(Math.floor(Math.random() * 10) >= 5){
+            lf = 1;
             loc = 0;
         } else {
-            lf = 0 + parseInt(status);
-            loc = 1 - parseInt(status);
+            lf = 0;
+            loc = 1;
         }
 
         var d = new Date();
         if(dateStr == d.toISOString().substring(0,10) && timeLabel> (("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2))){
-            lf = 0;
-            loc = 0;
+            if(status == -1){
+                if(document.getElementById("markerColorInput").value == "green"){
+                    lf = 1;
+                    loc = 0;
+                } else {
+                    lf = 0;
+                    loc = 1;
+                }
+                status = 0;
+            } else {
+                lf = 0;
+                loc = 0;
+            }
         }
 
         labels.push(timeLabel);
         free.push(lf);
         occupied.push(loc);
 
-        minutes=minutes+5;
+        minutes=minutes+15;
         if(minutes==60) {
             hours = hours+1;
             minutes = 0;
