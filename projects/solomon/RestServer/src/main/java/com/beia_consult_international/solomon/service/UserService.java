@@ -1,12 +1,14 @@
 package com.beia_consult_international.solomon.service;
 
+import com.beia_consult_international.solomon.dto.ConversationDto;
 import com.beia_consult_international.solomon.dto.UserDto;
+import com.beia_consult_international.solomon.exception.ConversationNotFoundException;
 import com.beia_consult_international.solomon.exception.UserNotFoundException;
-import com.beia_consult_international.solomon.model.Topic;
-import com.beia_consult_international.solomon.model.User;
+import com.beia_consult_international.solomon.model.*;
+import com.beia_consult_international.solomon.repository.ConversationRepository;
 import com.beia_consult_international.solomon.repository.UserRepository;
+import com.beia_consult_international.solomon.service.mapper.ConversationMapper;
 import com.beia_consult_international.solomon.service.mapper.UserMapper;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -17,20 +19,24 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ConversationRepository conversationRepository;
+    private final ConversationMapper conversationMapper;
     @Value("${solomon.usersPicturesPath}")
     public String usersPath;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ConversationRepository conversationRepository, ConversationMapper conversationMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.conversationRepository = conversationRepository;
+        this.conversationMapper = conversationMapper;
     }
 
     public Boolean validUserDetails(String username, String password) {
@@ -83,8 +89,10 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Message message = Message
                 .builder()
+                .putData("messageType", FcmMessageType.AGENT_REQUEST.name())
                 .putData("title", user.getUsername() + " wants to chat with you...")
                 .putData("message", "Click to respond")
+                .putData("userId", Long.toString(userId))
                 .setTopic(Topic.AGENT.name())
                 .build();
         FirebaseMessaging.getInstance().send(message);

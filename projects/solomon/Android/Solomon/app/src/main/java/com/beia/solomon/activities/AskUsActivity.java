@@ -1,8 +1,12 @@
 package com.beia.solomon.activities;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,20 +21,31 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
+import com.beia.solomon.model.Conversation;
+import com.beia.solomon.model.Message;
+import com.beia.solomon.model.Role;
 import com.beia.solomon.model.User;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AskUsActivity extends AppCompatActivity {
 
     private User user;
+    private Conversation conversation;
+
     private RecyclerView recyclerView;
     private LinearLayout animationLayout;
     private ImageView loadingImage;
     private ConstraintLayout messageInputLayout;
     private EditText messageEditText;
     private Button messageButton;
+
+    private SharedPreferences sharedPref;
+    private Gson gson;
 
     RequestQueue volleyQueue;
     AnimationDrawable loadingAnimation;
@@ -40,8 +55,15 @@ public class AskUsActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ask_us);
-        user = (User) getIntent().getSerializableExtra("user");
+
+        gson = new Gson();
+        sharedPref = getSharedPreferences("user_preferences", Context.MODE_PRIVATE);
         volleyQueue = Volley.newRequestQueue(this);
+
+        Intent intent = getIntent();
+        fetchUser(intent);
+        handleIntentType(intent);
+
         initUI();
     }
 
@@ -49,8 +71,11 @@ public class AskUsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         createLoadingAnimation();
-        if(user != null)
+        if(user != null
+                && user.getRole().equals(Role.AGENT.name())
+                && conversation == null) {
             requestAgentChat(user.getId());
+        }
     }
 
     public void initUI() {
@@ -62,12 +87,60 @@ public class AskUsActivity extends AppCompatActivity {
         messageButton = findViewById(R.id.messageButton);
     }
 
+    public void loadConversationUI() {
+        animationLayout.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        messageInputLayout.setVisibility(View.VISIBLE);
+    }
+
     public void createLoadingAnimation() {
         loadingImage.setBackgroundResource(R.drawable.loading_animation);
         loadingAnimation = (AnimationDrawable) loadingImage.getBackground();
         loadingAnimation.start();
     }
 
+    public void fetchUser(Intent intent) {
+        user = (User) intent.getSerializableExtra("user");
+        if(user != null) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("user", gson.toJson(user));
+            editor.apply();
+        } else {
+            user = gson.fromJson(
+                    sharedPref.getString("user", null),
+                    User.class);
+        }
+    }
+
+    public void fetchConversation() {
+        conversation = gson.fromJson(
+                sharedPref.getString("conversation", null),
+                Conversation.class);
+    }
+
+    public void handleIntentType(Intent intent) {
+        String intentType = intent.getStringExtra("intentType");
+        if(intentType != null) {
+            switch (intentType) {
+                case "AGENT_REQUEST"://received only by agents
+                    startConversation(user.getId(), intent.getLongExtra("userId", -1));
+                    break;
+                case "CONVERSATION":
+                    long conversationId = intent.getLongExtra("conversationId", -1);
+                    if(conversationId != -1)
+                        getConversation(conversationId);
+                    break;
+                case "MESSAGE":
+                    fetchConversation();
+                    getConversationMessages(conversation.getId());
+                    break;
+                default:
+                    fetchConversation();
+                    loadConversationUI();
+                    break;
+            }
+        }
+    }
 
     public void requestAgentChat(long userId) {
         String url = getResources().getString(R.string.findChatAgentUrl)
@@ -85,6 +158,95 @@ public class AskUsActivity extends AppCompatActivity {
                 headers,
                 response -> {
                     Log.d("RESPONSE", "AGENT CHAT REQUEST SENT");
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                });
+        volleyQueue.add(request);
+    }
+
+    public void startConversation(long agentId, long userId) {
+        String url = getResources().getString(R.string.startConversationUrl)
+                + "?agentId=" + agentId
+                + "&userId=" + userId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Conversation> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                null,
+                Conversation.class,
+                headers,
+                response -> {
+                    this.conversation = response;
+                    loadConversationUI();
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                });
+        volleyQueue.add(request);
+    }
+
+    public void getConversation(long conversationId) {
+        String url = getResources().getString(R.string.getConversationUrl)
+                + "?conversationId=" + conversationId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Conversation> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                Conversation.class,
+                headers,
+                response -> {
+                    conversation = response;
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                });
+        volleyQueue.add(request);
+    }
+
+    public void getConversationMessages(long conversationId) {
+        String url = getResources().getString(R.string.getConversationMessagesUrl)
+                + "?conversationId=" + conversationId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<List> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                List.class,
+                headers,
+                response -> {
+                    conversation
+                            .setMessages(gson.fromJson(gson.toJson(response),
+                                    new TypeToken<List<Message>>(){}.getType()));
+                    loadConversationUI();
                 },
                 error -> {
                     if(error.networkResponse != null) {

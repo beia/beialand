@@ -1,19 +1,19 @@
 package com.beia_consult_international.solomon.dto;
 
-import com.beia_consult_international.solomon.model.Status;
+import com.beia_consult_international.solomon.model.ParkingStatus;
 import lombok.Builder;
 
 @Builder
 public class ParkingDataDto {
     private long id;
-    private Status status;
+    private ParkingStatus status;
     private String date;
     private long parkingSpaceId;
 
     public ParkingDataDto() {
     }
 
-    public ParkingDataDto(long id, Status status, String date, long parkingSpaceId) {
+    public ParkingDataDto(long id, ParkingStatus status, String date, long parkingSpaceId) {
         this.id = id;
         this.status = status;
         this.date = date;
@@ -28,11 +28,11 @@ public class ParkingDataDto {
         this.id = id;
     }
 
-    public Status getStatus() {
+    public ParkingStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(ParkingStatus status) {
         this.status = status;
     }
 
