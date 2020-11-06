@@ -1,4 +1,4 @@
-package com.beia_consult_international.solomon.model;na
+package com.beia_consult_international.solomon.model;
 
 import lombok.Builder;
 
