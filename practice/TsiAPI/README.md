@@ -28,5 +28,5 @@ Users will receive a list of air quality data samples from different owned devic
 ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/ss/telemetryResponse.PNG?raw=true)<br/><br/>
 
 # Node Red
-We created a [Node Red flow](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/blueSkyFlow.json) for gathering the data from Beia's BlueSky sensor and displaying it in [Grafana](https://grafana.beia-telemetrie.ro/d/lQoTQWoMz/bluesky-tsi-device-data?orgId=1).<br/><br/>
+We created a [Node Red flow](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/blueSkyFlow.json) for gathering the data from Beia's BlueSky sensor (using the TSI API) and displayed it on [Grafana](https://grafana.beia-telemetrie.ro/d/lQoTQWoMz/bluesky-tsi-device-data?orgId=1).<br/><br/>
 ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/ss/grafana.png?raw=true)<br/><br/>
