@@ -1,0 +1,351 @@
+{
+	"info": {
+		"_postman_id": "51507e44-07fc-4220-8ec8-229b8bbf0373",
+		"name": "External API Demo (BEIA)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "BEIA (prod)",
+			"item": [
+				{
+					"name": "Access Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "Urj2Pw7wAO3gRaJhVnzX0qU6frehW2LD",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "W2kYUdRvI84TJfWMvaPSWbpwh-pMwJ8ydNKFZ79mzyVeUorf3giVhCGq8xT4SAZZ",
+									"type": "text"
+								},
+								{
+									"key": "audience",
+									"value": "https://tsi-prd.appspot.com/api/v1/",
+									"type": "text"
+								}
+							],
+							"options": {
+								"urlencoded": {}
+							}
+						},
+						"url": {
+							"raw": "https://tsi-prd.auth0.com/oauth/token",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"auth0",
+								"com"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Devices",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqRkNORFUzT1Rnek9FVTFNVE16T0RaQk5rSkZSRVE0TkRFM04wTTJSRGt5TlRJMU9ESXdPQSJ9.eyJpc3MiOiJodHRwczovL3RzaS1wcmQuYXV0aDAuY29tLyIsInN1YiI6IlVyajJQdzd3QU8zZ1JhSmhWbnpYMHFVNmZyZWhXMkxEQGNsaWVudHMiLCJhdWQiOiJodHRwczovL3RzaS1wcmQuYXBwc3BvdC5jb20vYXBpL3YxLyIsImlhdCI6MTYwNDQxNzczMywiZXhwIjoxNjA0NTA0MTMzLCJhenAiOiJVcmoyUHc3d0FPM2dSYUpoVm56WDBxVTZmcmVoVzJMRCIsInNjb3BlIjoiYXBpOnJlYWQ6ZGV2aWNlIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.diL9xU7lT9h5UM6DlOuVKl7nUjwqMJ9iRjhjhWpfoV2k4GFzGwrfMgdE3TaVtJdI5WnupkC5E50hBjLSwGLk8BkzV_iBjaPWoYHF6bDCX8GEsXm4jC1Yx3uO6YrQO1v7XZXnMhZZLcgW6Cr1W8fADm8yGGXI2LMFEVvFVgXeCrXKkL69QbT1yR0C-DXUhG7wnbiPwUy_2pclW5ljk8yX_DIKwxumgEH9yCTq70-gfOGSf0rRsatsxcfXkejqEhX_Gr3EOq7Ccsyoo3uimMeOyhd4ViczNBSbydU7wcIO44Gk5AtrT1rLCvCKWXkrNrIevGeI6gNX6otIjb9fqiCZAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://tsi-prd.appspot.com/api/v1/external/account/btqufdsuk6m35o00mdpg/device",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"appspot",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"external",
+								"account",
+								"btqufdsuk6m35o00mdpg",
+								"device"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Telemetry (account, after)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqRkNORFUzT1Rnek9FVTFNVE16T0RaQk5rSkZSRVE0TkRFM04wTTJSRGt5TlRJMU9ESXdPQSJ9.eyJpc3MiOiJodHRwczovL3RzaS1wcmQuYXV0aDAuY29tLyIsInN1YiI6IlVyajJQdzd3QU8zZ1JhSmhWbnpYMHFVNmZyZWhXMkxEQGNsaWVudHMiLCJhdWQiOiJodHRwczovL3RzaS1wcmQuYXBwc3BvdC5jb20vYXBpL3YxLyIsImlhdCI6MTYwNDQxNzczMywiZXhwIjoxNjA0NTA0MTMzLCJhenAiOiJVcmoyUHc3d0FPM2dSYUpoVm56WDBxVTZmcmVoVzJMRCIsInNjb3BlIjoiYXBpOnJlYWQ6ZGV2aWNlIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.diL9xU7lT9h5UM6DlOuVKl7nUjwqMJ9iRjhjhWpfoV2k4GFzGwrfMgdE3TaVtJdI5WnupkC5E50hBjLSwGLk8BkzV_iBjaPWoYHF6bDCX8GEsXm4jC1Yx3uO6YrQO1v7XZXnMhZZLcgW6Cr1W8fADm8yGGXI2LMFEVvFVgXeCrXKkL69QbT1yR0C-DXUhG7wnbiPwUy_2pclW5ljk8yX_DIKwxumgEH9yCTq70-gfOGSf0rRsatsxcfXkejqEhX_Gr3EOq7Ccsyoo3uimMeOyhd4ViczNBSbydU7wcIO44Gk5AtrT1rLCvCKWXkrNrIevGeI6gNX6otIjb9fqiCZAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://tsi-prd.appspot.com/api/v1/external/account/btqufdsuk6m35o00mdpg/telemetry?after=2020-09-16T00:00:00Z&timezone=America/Chicago",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"appspot",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"external",
+								"account",
+								"btqufdsuk6m35o00mdpg",
+								"telemetry"
+							],
+							"query": [
+								{
+									"key": "after",
+									"value": "2020-09-16T00:00:00Z"
+								},
+								{
+									"key": "timezone",
+									"value": "America/Chicago"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Telemetry (account, age)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqRkNORFUzT1Rnek9FVTFNVE16T0RaQk5rSkZSRVE0TkRFM04wTTJSRGt5TlRJMU9ESXdPQSJ9.eyJpc3MiOiJodHRwczovL3RzaS1wcmQuYXV0aDAuY29tLyIsInN1YiI6IlVyajJQdzd3QU8zZ1JhSmhWbnpYMHFVNmZyZWhXMkxEQGNsaWVudHMiLCJhdWQiOiJodHRwczovL3RzaS1wcmQuYXBwc3BvdC5jb20vYXBpL3YxLyIsImlhdCI6MTYwNDQxNzczMywiZXhwIjoxNjA0NTA0MTMzLCJhenAiOiJVcmoyUHc3d0FPM2dSYUpoVm56WDBxVTZmcmVoVzJMRCIsInNjb3BlIjoiYXBpOnJlYWQ6ZGV2aWNlIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.diL9xU7lT9h5UM6DlOuVKl7nUjwqMJ9iRjhjhWpfoV2k4GFzGwrfMgdE3TaVtJdI5WnupkC5E50hBjLSwGLk8BkzV_iBjaPWoYHF6bDCX8GEsXm4jC1Yx3uO6YrQO1v7XZXnMhZZLcgW6Cr1W8fADm8yGGXI2LMFEVvFVgXeCrXKkL69QbT1yR0C-DXUhG7wnbiPwUy_2pclW5ljk8yX_DIKwxumgEH9yCTq70-gfOGSf0rRsatsxcfXkejqEhX_Gr3EOq7Ccsyoo3uimMeOyhd4ViczNBSbydU7wcIO44Gk5AtrT1rLCvCKWXkrNrIevGeI6gNX6otIjb9fqiCZAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://tsi-prd.appspot.com/api/v1/external/account/btqufdsuk6m35o00mdpg/telemetry?age=1&timezone=America/Chicago",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"appspot",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"external",
+								"account",
+								"btqufdsuk6m35o00mdpg",
+								"telemetry"
+							],
+							"query": [
+								{
+									"key": "age",
+									"value": "1"
+								},
+								{
+									"key": "timezone",
+									"value": "America/Chicago"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Telemetry (after)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqRkNORFUzT1Rnek9FVTFNVE16T0RaQk5rSkZSRVE0TkRFM04wTTJSRGt5TlRJMU9ESXdPQSJ9.eyJpc3MiOiJodHRwczovL3RzaS1wcmQuYXV0aDAuY29tLyIsInN1YiI6IlVyajJQdzd3QU8zZ1JhSmhWbnpYMHFVNmZyZWhXMkxEQGNsaWVudHMiLCJhdWQiOiJodHRwczovL3RzaS1wcmQuYXBwc3BvdC5jb20vYXBpL3YxLyIsImlhdCI6MTYwNDQxNzczMywiZXhwIjoxNjA0NTA0MTMzLCJhenAiOiJVcmoyUHc3d0FPM2dSYUpoVm56WDBxVTZmcmVoVzJMRCIsInNjb3BlIjoiYXBpOnJlYWQ6ZGV2aWNlIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.diL9xU7lT9h5UM6DlOuVKl7nUjwqMJ9iRjhjhWpfoV2k4GFzGwrfMgdE3TaVtJdI5WnupkC5E50hBjLSwGLk8BkzV_iBjaPWoYHF6bDCX8GEsXm4jC1Yx3uO6YrQO1v7XZXnMhZZLcgW6Cr1W8fADm8yGGXI2LMFEVvFVgXeCrXKkL69QbT1yR0C-DXUhG7wnbiPwUy_2pclW5ljk8yX_DIKwxumgEH9yCTq70-gfOGSf0rRsatsxcfXkejqEhX_Gr3EOq7Ccsyoo3uimMeOyhd4ViczNBSbydU7wcIO44Gk5AtrT1rLCvCKWXkrNrIevGeI6gNX6otIjb9fqiCZAA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://tsi-prd.appspot.com/api/v1/external/account/btqufdsuk6m35o00mdpg/device/btqug9223akg02jua6h0/telemetry?after=2020-11-01T00:00:00Z&timezone=America/Chicago",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"appspot",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"external",
+								"account",
+								"btqufdsuk6m35o00mdpg",
+								"device",
+								"btqug9223akg02jua6h0",
+								"telemetry"
+							],
+							"query": [
+								{
+									"key": "after",
+									"value": "2020-11-01T00:00:00Z"
+								},
+								{
+									"key": "timezone",
+									"value": "America/Chicago"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Telemetry (age)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqRkNORFUzT1Rnek9FVTFNVE16T0RaQk5rSkZSRVE0TkRFM04wTTJSRGt5TlRJMU9ESXdPQSJ9.eyJpc3MiOiJodHRwczovL3RzaS1wcmQuYXV0aDAuY29tLyIsInN1YiI6IlVyajJQdzd3QU8zZ1JhSmhWbnpYMHFVNmZyZWhXMkxEQGNsaWVudHMiLCJhdWQiOiJodHRwczovL3RzaS1wcmQuYXBwc3BvdC5jb20vYXBpL3YxLyIsImlhdCI6MTYwNDMzMTczMiwiZXhwIjoxNjA0NDE4MTMyLCJhenAiOiJVcmoyUHc3d0FPM2dSYUpoVm56WDBxVTZmcmVoVzJMRCIsInNjb3BlIjoiYXBpOnJlYWQ6ZGV2aWNlIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.O_PscB_azTY_tsp7m_Scof7UiGmJ9ZA0ARhYYVdRYEEQEmr67OAKigqZhN-VdKNEb4Gj21yOpVTPuHeslv82yGiExwhelKi2QM-QBihq0JT06mbWB6n3vXloe5erx7fM1-s8Yw8MFxZDyBYawRVkAqTa1w9H1Q3-99zqNCPgYPjU9G-DaZsl4toaYMpu6H7gB2OO6V-HI7SgfmvCL9ALr0ybjsIV3YxC2iHs_Y6ID7O5ySLtTKNBZYGL9WuEW87w5qAcWrhQrt8jxJECuo5lm-ObbK2Z_kOIfvUjNlMPJx7DF3nlb9eQ0fiFNY2TH2IVkGC4CysduCZCnr8pkwxpqw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/csv",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://tsi-prd.appspot.com/api/v1/external/account/btqufdsuk6m35o00mdpg/device/btqug9223akg02jua6h0/telemetry?age=1&timezone=America/Chicago",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"appspot",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"external",
+								"account",
+								"btqufdsuk6m35o00mdpg",
+								"device",
+								"btqug9223akg02jua6h0",
+								"telemetry"
+							],
+							"query": [
+								{
+									"key": "age",
+									"value": "1"
+								},
+								{
+									"key": "timezone",
+									"value": "America/Chicago"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Telemetry (latest)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqRkNORFUzT1Rnek9FVTFNVE16T0RaQk5rSkZSRVE0TkRFM04wTTJSRGt5TlRJMU9ESXdPQSJ9.eyJpc3MiOiJodHRwczovL3RzaS1wcmQuYXV0aDAuY29tLyIsInN1YiI6IlVyajJQdzd3QU8zZ1JhSmhWbnpYMHFVNmZyZWhXMkxEQGNsaWVudHMiLCJhdWQiOiJodHRwczovL3RzaS1wcmQuYXBwc3BvdC5jb20vYXBpL3YxLyIsImlhdCI6MTYwNDMzMTczMiwiZXhwIjoxNjA0NDE4MTMyLCJhenAiOiJVcmoyUHc3d0FPM2dSYUpoVm56WDBxVTZmcmVoVzJMRCIsInNjb3BlIjoiYXBpOnJlYWQ6ZGV2aWNlIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIn0.O_PscB_azTY_tsp7m_Scof7UiGmJ9ZA0ARhYYVdRYEEQEmr67OAKigqZhN-VdKNEb4Gj21yOpVTPuHeslv82yGiExwhelKi2QM-QBihq0JT06mbWB6n3vXloe5erx7fM1-s8Yw8MFxZDyBYawRVkAqTa1w9H1Q3-99zqNCPgYPjU9G-DaZsl4toaYMpu6H7gB2OO6V-HI7SgfmvCL9ALr0ybjsIV3YxC2iHs_Y6ID7O5ySLtTKNBZYGL9WuEW87w5qAcWrhQrt8jxJECuo5lm-ObbK2Z_kOIfvUjNlMPJx7DF3nlb9eQ0fiFNY2TH2IVkGC4CysduCZCnr8pkwxpqw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://tsi-prd.appspot.com/api/v1/external/account/btqufdsuk6m35o00mdpg/device/btqug9223akg02jua6h0/telemetry?latest=true",
+							"protocol": "https",
+							"host": [
+								"tsi-prd",
+								"appspot",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"external",
+								"account",
+								"btqufdsuk6m35o00mdpg",
+								"device",
+								"btqug9223akg02jua6h0",
+								"telemetry"
+							],
+							"query": [
+								{
+									"key": "latest",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
