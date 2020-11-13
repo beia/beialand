@@ -18,7 +18,7 @@ Example of bad token response:<br/><br/>
 # Get owned devices
 Before sending the request users must fill in the bearer token generated previously in the authorization section by selecting Bearer Token as authorization type.<br/><br/>
 ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/ss/devices.PNG?raw=true)<br/><br/>
-The response is a list of owned devices.
+The response is a list of owned devices.<br/><br/>
 ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/ss/deviceResponse.PNG?raw=true)<br/><br/>
 
 # Telemetry
