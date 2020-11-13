@@ -4,10 +4,10 @@ The TSI BlueSky™ Air Quality Monitor is a lightweight, laser-based particle in
 
 # Getting started
 Download and install [Postman](https://www.postman.com/downloads/) on your pc.
-Click on import, then provide the [json collection file](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/External%20API%20Demo%20(BEIA).postman_collection%20v11-3-20%20(1).json).
+Click on import, then provide the [JSON collection file](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/External%20API%20Demo%20(BEIA).postman_collection%20v11-3-20%20(1).json).
   
 # Obtaining the auth token  
-Fill in the client id and the client secret and send the request.
+Fill in the client id and the client secret and send the request.</br></br>
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/ss/authToken.PNG?raw=true)<br/>
 Users will receive a bearer token that will be used for further requests using OAuth2.<br/>  
   ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/TsiAPI/ss/authTokenResponse.PNG?raw=true)<br/>
