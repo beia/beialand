@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
-    Optional<List<Conversation>> findByUser1AndUser2(User user1, User user2);
+    Optional<List<Conversation>> findByUser2(User user);
 }

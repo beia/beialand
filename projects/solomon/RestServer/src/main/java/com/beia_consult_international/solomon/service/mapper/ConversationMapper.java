@@ -3,10 +3,12 @@ package com.beia_consult_international.solomon.service.mapper;
 import com.beia_consult_international.solomon.dto.ConversationDto;
 import com.beia_consult_international.solomon.model.Conversation;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
 @Component
+@Transactional
 public class ConversationMapper {
     MessageMapper messageMapper;
 

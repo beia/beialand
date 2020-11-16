@@ -1,10 +1,10 @@
 package com.beia_consult_international.solomon.service;
 
-import com.beia_consult_international.solomon.dto.ConversationDto;
 import com.beia_consult_international.solomon.dto.UserDto;
-import com.beia_consult_international.solomon.exception.ConversationNotFoundException;
 import com.beia_consult_international.solomon.exception.UserNotFoundException;
-import com.beia_consult_international.solomon.model.*;
+import com.beia_consult_international.solomon.model.FcmMessageType;
+import com.beia_consult_international.solomon.model.Topic;
+import com.beia_consult_international.solomon.model.User;
 import com.beia_consult_international.solomon.repository.ConversationRepository;
 import com.beia_consult_international.solomon.repository.UserRepository;
 import com.beia_consult_international.solomon.service.mapper.ConversationMapper;
@@ -19,9 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -83,18 +80,5 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
         user.setFcmToken(token.substring(1, token.length() - 1));
         userRepository.save(user);
-    }
-
-    public void sendChatNotificationsToAllAgents(long userId) throws FirebaseMessagingException {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Message message = Message
-                .builder()
-                .putData("messageType", FcmMessageType.AGENT_REQUEST.name())
-                .putData("title", user.getUsername() + " wants to chat with you...")
-                .putData("message", "Click to respond")
-                .putData("userId", Long.toString(userId))
-                .setTopic(Topic.AGENT.name())
-                .build();
-        FirebaseMessaging.getInstance().send(message);
     }
 }

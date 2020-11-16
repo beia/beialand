@@ -149,19 +149,15 @@ public class FcmService extends FirebaseMessagingService {
     private void sendNotification(String title, String messageBody, String notificationType, Bundle extraData) {
 
         Intent intent;
-        if(notificationType.equals(FcmMessageType.AGENT_REQUEST.name())) {
+        if(notificationType.equals(FcmMessageType.AGENT_REQUEST.name())) { //agent receives a chat request
             intent = new Intent(this, AskUsActivity.class);
             intent.putExtra("intentType", "AGENT_REQUEST");
             intent.putExtra("userId", extraData.getLong("userId"));
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        } else if(notificationType.equals(FcmMessageType.CONVERSATION.name())) {
+        } else {//client receives the conversation
             intent = new Intent(this, AskUsActivity.class);
             intent.putExtra("intentType", "CONVERSATION");
             intent.putExtra("conversationId", extraData.getLong("conversationId"));
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        } else {
-            intent = new Intent(this, AskUsActivity.class);
-            intent.putExtra("intentType", "MESSAGE");
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         }
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,

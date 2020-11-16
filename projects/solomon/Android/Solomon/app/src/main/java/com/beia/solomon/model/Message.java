@@ -6,6 +6,7 @@ import lombok.Builder;
 public class Message {
     private long id;
     private String text;
+    private String date;
     private long senderId;
     private long receiverId;
     private long conversationId;
@@ -13,12 +14,14 @@ public class Message {
     public Message() {
     }
 
-    public Message(long id, String text, long senderId, long receiverId, long conversationId) {
+    public Message(long id, String text, String date, long senderId, long receiverId, long conversationId) {
         this.id = id;
         this.text = text;
+        this.date = date;
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.conversationId = conversationId;
+        this.date = date;
     }
 
     public long getId() {
@@ -35,6 +38,14 @@ public class Message {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public long getSenderId() {

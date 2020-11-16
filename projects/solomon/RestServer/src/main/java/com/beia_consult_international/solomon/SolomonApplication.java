@@ -33,7 +33,7 @@ public class SolomonApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*
+
 
 
         List<User> users = List.of(
@@ -659,6 +659,6 @@ public class SolomonApplication implements CommandLineRunner {
         campaignService.saveAll(campaignsBeia);
         campaignService.saveAll(campaignsIzvor);
         parkingSpaceRepository.saveAll(parkingSpaces);
-         */
+
     }
 }

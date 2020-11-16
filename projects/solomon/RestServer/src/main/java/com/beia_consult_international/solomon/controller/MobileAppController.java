@@ -3,8 +3,6 @@ package com.beia_consult_international.solomon.controller;
 import com.beia_consult_international.solomon.dto.*;
 import com.beia_consult_international.solomon.exception.WrongUserDetailsException;
 import com.beia_consult_international.solomon.model.BeaconLocalizationData;
-import com.beia_consult_international.solomon.model.ConversationStatus;
-import com.beia_consult_international.solomon.model.Message;
 import com.beia_consult_international.solomon.service.*;
 import com.beia_consult_international.solomon.service.mapper.BeaconMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -137,21 +135,13 @@ public class MobileAppController {
 
     @PostMapping("/findChatAgent")
     public void findChatAgent(@RequestParam long userId) throws FirebaseMessagingException {
-        userService.sendChatNotificationsToAllAgents(userId);
+        conversationService.sendChatNotificationsToAllAgents(userId);
     }
 
     @PostMapping("/startConversation")
     public ConversationDto startConversation(@RequestParam long agentId, @RequestParam long userId) throws FirebaseMessagingException {
-        UserDto agent = userService.findById(agentId);
-        UserDto user = userService.findById(userId);
-        ConversationDto conversation = ConversationDto
-                .builder()
-                .status(ConversationStatus.STARTED)
-                .user1(agent)
-                .user2(user)
-                .build();
         return conversationService
-                .startConversation(conversation);
+                .startConversation(agentId, userId);
     }
 
     @GetMapping("/getConversation")

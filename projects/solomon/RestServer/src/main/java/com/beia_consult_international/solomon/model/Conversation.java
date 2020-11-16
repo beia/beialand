@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.model;
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,7 @@ public class Conversation {
     private User user2;
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 
     public Conversation() {
     }

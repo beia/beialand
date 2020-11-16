@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -21,6 +22,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
+import com.beia.solomon.adapters.ConversationRecyclerViewAdapter;
 import com.beia.solomon.model.Conversation;
 import com.beia.solomon.model.Message;
 import com.beia.solomon.model.Role;
@@ -38,9 +40,10 @@ public class AskUsActivity extends AppCompatActivity {
     private Conversation conversation;
 
     private RecyclerView recyclerView;
+    private ConversationRecyclerViewAdapter mAdapter;
     private LinearLayout animationLayout;
     private ImageView loadingImage;
-    private ConstraintLayout messageInputLayout;
+    private LinearLayout messageInputLayout;
     private EditText messageEditText;
     private Button messageButton;
 
@@ -62,8 +65,8 @@ public class AskUsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         fetchUser(intent);
+        fetchConversation();
         handleIntentType(intent);
-
         initUI();
     }
 
@@ -71,10 +74,12 @@ public class AskUsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         createLoadingAnimation();
-        if(user != null
-                && user.getRole().equals(Role.AGENT.name())
-                && conversation == null) {
-            requestAgentChat(user.getId());
+        if(conversation == null) {
+            if(!user.getRole().equals(Role.AGENT.name()))
+                requestAgentChat(user.getId());
+        } else {
+            loadConversationUI();
+            //TODO::request conversation thread
         }
     }
 
@@ -91,6 +96,10 @@ public class AskUsActivity extends AppCompatActivity {
         animationLayout.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         messageInputLayout.setVisibility(View.VISIBLE);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        mAdapter = new ConversationRecyclerViewAdapter(conversation, user.getId());
+        recyclerView.setAdapter(mAdapter);
     }
 
     public void createLoadingAnimation() {
@@ -118,6 +127,12 @@ public class AskUsActivity extends AppCompatActivity {
                 Conversation.class);
     }
 
+    public void saveConversation(Conversation conversation) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("conversation", gson.toJson(conversation));
+        editor.apply();
+    }
+
     public void handleIntentType(Intent intent) {
         String intentType = intent.getStringExtra("intentType");
         if(intentType != null) {
@@ -130,13 +145,7 @@ public class AskUsActivity extends AppCompatActivity {
                     if(conversationId != -1)
                         getConversation(conversationId);
                     break;
-                case "MESSAGE":
-                    fetchConversation();
-                    getConversationMessages(conversation.getId());
-                    break;
                 default:
-                    fetchConversation();
-                    loadConversationUI();
                     break;
             }
         }
@@ -187,6 +196,7 @@ public class AskUsActivity extends AppCompatActivity {
                 headers,
                 response -> {
                     this.conversation = response;
+                    saveConversation(conversation);
                     loadConversationUI();
                 },
                 error -> {
@@ -216,6 +226,8 @@ public class AskUsActivity extends AppCompatActivity {
                 headers,
                 response -> {
                     conversation = response;
+                    saveConversation(conversation);
+                    loadConversationUI();
                 },
                 error -> {
                     if(error.networkResponse != null) {

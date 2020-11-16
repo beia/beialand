@@ -4,12 +4,11 @@ import com.beia_consult_international.solomon.dto.ConversationDto;
 import com.beia_consult_international.solomon.dto.MessageDto;
 import com.beia_consult_international.solomon.exception.ConversationAlreadyStartedException;
 import com.beia_consult_international.solomon.exception.ConversationNotFoundException;
-import com.beia_consult_international.solomon.model.Conversation;
-import com.beia_consult_international.solomon.model.ConversationStatus;
-import com.beia_consult_international.solomon.model.FcmMessageType;
-import com.beia_consult_international.solomon.model.Message;
+import com.beia_consult_international.solomon.exception.UserNotFoundException;
+import com.beia_consult_international.solomon.model.*;
 import com.beia_consult_international.solomon.repository.ConversationRepository;
 import com.beia_consult_international.solomon.repository.MessageRepository;
+import com.beia_consult_international.solomon.repository.UserRepository;
 import com.beia_consult_international.solomon.service.mapper.ConversationMapper;
 import com.beia_consult_international.solomon.service.mapper.MessageMapper;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -17,6 +16,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,23 +24,50 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class ConversationService {
+    private final UserRepository userRepository;
     private final ConversationRepository conversationRepository;
     private final ConversationMapper conversationMapper;
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
 
 
-    public ConversationService(ConversationRepository conversationRepository, ConversationMapper conversationMapper, MessageRepository messageRepository, MessageMapper messageMapper) {
+    public ConversationService(UserRepository userRepository, ConversationRepository conversationRepository, ConversationMapper conversationMapper, MessageRepository messageRepository, MessageMapper messageMapper) {
+        this.userRepository = userRepository;
         this.conversationRepository = conversationRepository;
         this.conversationMapper = conversationMapper;
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
     }
 
-    public ConversationDto startConversation(ConversationDto conversationDto) throws FirebaseMessagingException {
-        Conversation conversation = conversationMapper.mapToModel(conversationDto);
+    public void sendChatNotificationsToAllAgents(long userId) throws FirebaseMessagingException {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        com.google.firebase.messaging.Message message = com.google.firebase.messaging.Message
+                .builder()
+                .putData("messageType", FcmMessageType.AGENT_REQUEST.name())
+                .putData("title", user.getUsername() + " wants to chat with you...")
+                .putData("message", "Click to respond")
+                .putData("userId", Long.toString(userId))
+                .setTopic(Topic.AGENT.name())
+                .build();
+        FirebaseMessaging.getInstance().send(message);
+    }
+
+    public ConversationDto startConversation(long agentId, long userId) throws FirebaseMessagingException {
+        User agent = userRepository
+                .findById(agentId)
+                .orElseThrow(UserNotFoundException::new);
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        Conversation conversation = Conversation
+                .builder()
+                .status(ConversationStatus.STARTED)
+                .user1(agent)
+                .user2(user)
+                .messages(new ArrayList<>())
+                .build();
         List<Conversation> previousConversations = conversationRepository
-                .findByUser1AndUser2(conversation.getUser1(), conversation.getUser2())
+                .findByUser2(conversation.getUser2())
                 .orElse(new ArrayList<>())
                 .stream()
                 .filter(c -> c.getStatus().equals(ConversationStatus.STARTED))
@@ -51,12 +78,13 @@ public class ConversationService {
                     .sender(conversation.getUser1())
                     .receiver(conversation.getUser2())
                     .text("Hello " + conversation.getUser2().getFirstName() + ", how can I help you?")
+                    .date(LocalDateTime.now())
                     .conversation(conversation)
                     .build()));
             conversationRepository.save(conversation);
             com.google.firebase.messaging.Message message = com.google.firebase.messaging.Message
                     .builder()
-                    .putData("messageType", FcmMessageType.MESSAGE.name())
+                    .putData("messageType", FcmMessageType.CONVERSATION.name())
                     .putData("conversationId", Long.toString(conversation.getId()))
                     .setToken(conversation.getUser2().getFcmToken())
                     .build();

@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.dto;
 import com.beia_consult_international.solomon.model.ConversationStatus;
 import lombok.Builder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -11,7 +12,7 @@ public class ConversationDto {
     private ConversationStatus status;
     private UserDto user1;
     private UserDto user2;
-    private List<MessageDto> messages;
+    private List<MessageDto> messages = new ArrayList<>();
 
     public ConversationDto() {
     }

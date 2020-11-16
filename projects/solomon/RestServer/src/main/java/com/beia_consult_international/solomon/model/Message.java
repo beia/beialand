@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.model;
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Builder
@@ -13,6 +14,9 @@ public class Message {
 
     @Column(nullable = false)
     private String text;
+
+    @Column(nullable = false)
+    private LocalDateTime date;
 
     @ManyToOne
     @JoinColumn(name = "sender_id", nullable = false)
@@ -29,9 +33,10 @@ public class Message {
     public Message() {
     }
 
-    public Message(long id, String text, User sender, User receiver, Conversation conversation) {
+    public Message(long id, String text, LocalDateTime date, User sender, User receiver, Conversation conversation) {
         this.id = id;
         this.text = text;
+        this.date = date;
         this.sender = sender;
         this.receiver = receiver;
         this.conversation = conversation;
@@ -51,6 +56,14 @@ public class Message {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public User getSender() {

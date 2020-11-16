@@ -8,6 +8,8 @@ import com.beia_consult_international.solomon.repository.ConversationRepository;
 import com.beia_consult_international.solomon.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 public class MessageMapper {
     private final UserRepository userRepository;
@@ -23,6 +25,7 @@ public class MessageMapper {
                 .builder()
                 .id(model.getId())
                 .text(model.getText())
+                .date(model.getDate().toString())
                 .senderId(model.getSender().getId())
                 .receiverId(model.getReceiver().getId())
                 .conversationId(model.getConversation().getId())
@@ -34,6 +37,7 @@ public class MessageMapper {
                 .builder()
                 .id(dto.getId())
                 .text(dto.getText())
+                .date(LocalDateTime.parse(dto.getDate()))
                 .sender(userRepository
                         .findById(dto.getSenderId())
                         .orElseThrow(UserNotFoundException::new))
