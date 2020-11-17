@@ -3,6 +3,7 @@ package com.beia_consult_international.solomon.controller;
 import com.beia_consult_international.solomon.dto.*;
 import com.beia_consult_international.solomon.exception.WrongUserDetailsException;
 import com.beia_consult_international.solomon.model.BeaconLocalizationData;
+import com.beia_consult_international.solomon.model.Message;
 import com.beia_consult_international.solomon.service.*;
 import com.beia_consult_international.solomon.service.mapper.BeaconMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -152,5 +153,10 @@ public class MobileAppController {
     @GetMapping("/getConversationMessages")
     public List<MessageDto> getConversationMessages(@RequestParam long conversationId) {
         return conversationService.findMessagesByConversationId(conversationId);
+    }
+
+    @PostMapping("/sendMessage")
+    public MessageDto sendMessage(@RequestBody MessageDto message) {
+        return conversationService.saveMessage(message);
     }
 }

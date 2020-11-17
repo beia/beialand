@@ -48,6 +48,7 @@
     <string name="startConversationUrl">http://&domainName;/mobileApp/startConversation</string>
     <string name="getConversationUrl">http://&domainName;/mobileApp/getConversation</string>
     <string name="getConversationMessagesUrl">http://&domainName;/mobileApp/getConversationMessages</string>
+    <string name="sendMessageUrl">http://&domainName;/mobileApp/sendMessage</string>
 
     <string name="defaultChannelId">CHANNEL_DEFAULT</string>
 </resources>

@@ -59,17 +59,18 @@ public class ConversationRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         MessageViewHolder messageViewHolder = (MessageViewHolder) holder;
         Message message = conversation.getMessages().get(position);
-        if(!messageViewHolder.text.getText().toString().equals("Message")) {
-            initProfilePicture(messageViewHolder, message);
-            initUsername(messageViewHolder, message);
-            initText(messageViewHolder, message);
-            initDate(messageViewHolder, message);
-        }
+        initProfilePicture(messageViewHolder, message);
+        initUsername(messageViewHolder, message);
+        initText(messageViewHolder, message);
+        initDate(messageViewHolder, message);
     }
 
     private void initProfilePicture(MessageViewHolder holder, Message message) {
-        holder.profilePicture
-                .setImageBitmap(getSenderImageAsBitmap(message));
+        Bitmap image = getSenderImageAsBitmap(message);
+        if(image != null) {
+            holder.profilePicture
+                    .setImageBitmap(getSenderImageAsBitmap(message));
+        }
     }
 
     private void initUsername(MessageViewHolder holder, Message message) {
@@ -89,11 +90,15 @@ public class ConversationRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
     }
 
     private Bitmap getSenderImageAsBitmap(Message message) {
-        byte[] image = Base64
-                .getDecoder()
-                .decode(getSender(message).getImage());
-        return BitmapFactory
-                .decodeByteArray(image, 0, image.length);
+        User sender = getSender(message);
+        if(sender.getImage() != null) {
+            byte[] image = Base64
+                    .getDecoder()
+                    .decode(getSender(message).getImage());
+            return BitmapFactory
+                    .decodeByteArray(image, 0, image.length);
+        }
+        return null;
     }
 
     private User getSender(Message message) {

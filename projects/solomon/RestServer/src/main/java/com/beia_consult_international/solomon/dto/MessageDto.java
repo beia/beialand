@@ -2,6 +2,8 @@ package com.beia_consult_international.solomon.dto;
 
 import lombok.Builder;
 
+import java.util.Objects;
+
 @Builder
 public class MessageDto {
     private long id;
@@ -69,5 +71,23 @@ public class MessageDto {
 
     public void setConversationId(long conversationId) {
         this.conversationId = conversationId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MessageDto that = (MessageDto) o;
+        return id == that.id &&
+                senderId == that.senderId &&
+                receiverId == that.receiverId &&
+                conversationId == that.conversationId &&
+                Objects.equals(text, that.text) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, text, date, senderId, receiverId, conversationId);
     }
 }

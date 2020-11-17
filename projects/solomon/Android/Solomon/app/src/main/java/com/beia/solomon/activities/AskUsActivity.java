@@ -7,10 +7,13 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -30,6 +33,7 @@ import com.beia.solomon.model.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +43,16 @@ public class AskUsActivity extends AppCompatActivity {
     private User user;
     private Conversation conversation;
 
+    private LinearLayout toolbar;
+    private TextView toolbarText;
+    private TextView leaveChatButton;
     private RecyclerView recyclerView;
     private ConversationRecyclerViewAdapter mAdapter;
     private LinearLayout animationLayout;
     private ImageView loadingImage;
     private LinearLayout messageInputLayout;
     private EditText messageEditText;
-    private Button messageButton;
+    private Button sendMessageButton;
 
     private SharedPreferences sharedPref;
     private Gson gson;
@@ -56,6 +63,10 @@ public class AskUsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ask_us);
 
@@ -78,28 +89,116 @@ public class AskUsActivity extends AppCompatActivity {
             if(!user.getRole().equals(Role.AGENT.name()))
                 requestAgentChat(user.getId());
         } else {
-            loadConversationUI();
-            //TODO::request conversation thread
+            loadConversationUI(conversation);
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
     public void initUI() {
+        toolbar = findViewById(R.id.toolbar);
+        toolbarText = findViewById(R.id.toolbarText);
+        leaveChatButton = findViewById(R.id.leaveChatButton);
         recyclerView = findViewById(R.id.recyclerView);
         animationLayout = findViewById(R.id.animationLayout);
         loadingImage = findViewById(R.id.loadingAnimationImage);
         messageInputLayout = findViewById(R.id.messageInputView);
         messageEditText = findViewById(R.id.messageEditText);
-        messageButton = findViewById(R.id.messageButton);
+        sendMessageButton = findViewById(R.id.messageButton);
+
+        setConversationPadding();
+        scrollToConversationEndOnLayoutChange();
+        setupClickListeners();
     }
 
-    public void loadConversationUI() {
+    private void setConversationPadding() {
+        ViewTreeObserver messageTreeObserver = messageInputLayout.getViewTreeObserver();
+        ViewTreeObserver toolbarTreeObserver = toolbar.getViewTreeObserver();
+
+        if (messageTreeObserver.isAlive()) {
+            messageTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    messageInputLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    float viewHeight = messageInputLayout.getHeight();
+                    recyclerView.setPadding(0, recyclerView.getPaddingTop(), 0, (int) viewHeight);
+                }
+            });
+        }
+
+        if (toolbarTreeObserver.isAlive()) {
+            toolbarTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    toolbar.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    float viewHeight = toolbar.getHeight();
+                    recyclerView.setPadding(0, (int) viewHeight, 0, recyclerView.getPaddingBottom());
+                }
+            });
+        }
+    }
+
+    private void setupClickListeners() {
+        sendMessageButton.setOnClickListener(v -> {
+            User sender, receiver;
+            if(user.getRole().equals("AGENT")) {
+                sender = conversation.getUser1();
+                receiver = conversation.getUser2();
+            } else {
+                sender = conversation.getUser2();
+                receiver = conversation.getUser1();
+            }
+            if(!messageEditText.getText().toString().trim().equals("")) {
+                sendMessage(Message.builder()
+                        .senderId(sender.getId())
+                        .receiverId(receiver.getId())
+                        .text(messageEditText.getText().toString())
+                        .date(LocalDateTime.now().toString())
+                        .conversationId(conversation.getId())
+                        .build());
+            }
+        });
+    }
+
+    private void scrollToConversationEndOnLayoutChange() {
+        recyclerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if(conversation != null
+                    && conversation.getMessages() != null
+                    && !conversation.getMessages().isEmpty()) {
+                recyclerView.scrollToPosition(conversation.getMessages().size() - 1);
+            }
+        });
+    }
+
+    public void loadConversationUI(Conversation conversation) {
         animationLayout.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         messageInputLayout.setVisibility(View.VISIBLE);
+        if(user.getRole().equals("AGENT")) {
+            leaveChatButton.setVisibility(View.VISIBLE);
+            toolbarText.setText("Chatting with user");
+        } else {
+            toolbarText.setText("Chatting with agent");
+        }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mAdapter = new ConversationRecyclerViewAdapter(conversation, user.getId());
         recyclerView.setAdapter(mAdapter);
+
+        new Thread(() -> {
+            while (true) {
+                try {
+                    getConversationMessages(conversation.getId());
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void createLoadingAnimation() {
@@ -196,8 +295,8 @@ public class AskUsActivity extends AppCompatActivity {
                 headers,
                 response -> {
                     this.conversation = response;
+                    loadConversationUI(conversation);
                     saveConversation(conversation);
-                    loadConversationUI();
                 },
                 error -> {
                     if(error.networkResponse != null) {
@@ -225,9 +324,9 @@ public class AskUsActivity extends AppCompatActivity {
                 Conversation.class,
                 headers,
                 response -> {
-                    conversation = response;
+                    this.conversation = response;
+                    loadConversationUI(conversation);
                     saveConversation(conversation);
-                    loadConversationUI();
                 },
                 error -> {
                     if(error.networkResponse != null) {
@@ -255,10 +354,50 @@ public class AskUsActivity extends AppCompatActivity {
                 List.class,
                 headers,
                 response -> {
-                    conversation
-                            .setMessages(gson.fromJson(gson.toJson(response),
-                                    new TypeToken<List<Message>>(){}.getType()));
-                    loadConversationUI();
+                    List<Message> messages = gson.fromJson(gson.toJson(response),
+                            new TypeToken<List<Message>>(){}.getType());
+                    if(areNewMessages(messages, conversation.getMessages())) {
+                        conversation.setMessages(messages);
+                        mAdapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(messages.size() - 1);
+                        saveConversation(conversation);
+                    }
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                });
+        volleyQueue.add(request);
+    }
+
+    private boolean areNewMessages(List<Message> updatedMessages, List<Message> messages) {
+        return updatedMessages.stream()
+                .anyMatch(updatedMessage -> messages.stream()
+                        .noneMatch(message -> message.equals(updatedMessage)));
+    }
+
+    public void sendMessage(Message message) {
+        String url = getResources().getString(R.string.sendMessageUrl);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Message> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                message,
+                Message.class,
+                headers,
+                response -> {
+                    conversation.getMessages().add(response);
+                    mAdapter.notifyItemInserted(conversation.getMessages().size() - 1);
+                    recyclerView.scrollToPosition(conversation.getMessages().size() - 1);
+                    saveConversation(conversation);
                 },
                 error -> {
                     if(error.networkResponse != null) {

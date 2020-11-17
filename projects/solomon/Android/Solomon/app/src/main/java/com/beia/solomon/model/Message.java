@@ -1,5 +1,7 @@
 package com.beia.solomon.model;
 
+import java.util.Objects;
+
 import lombok.Builder;
 
 @Builder
@@ -70,5 +72,23 @@ public class Message {
 
     public void setConversationId(long conversationId) {
         this.conversationId = conversationId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message that = (Message) o;
+        return id == that.id &&
+                senderId == that.senderId &&
+                receiverId == that.receiverId &&
+                conversationId == that.conversationId &&
+                Objects.equals(text, that.text) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, text, date, senderId, receiverId, conversationId);
     }
 }

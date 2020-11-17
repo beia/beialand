@@ -102,6 +102,24 @@ public class ConversationService {
     }
 
     public List<MessageDto> findMessagesByConversationId(long id) {
-        return findById(id).getMessages();
+        return conversationRepository
+                .findById(id)
+                .orElseThrow(ConversationNotFoundException::new)
+                .getMessages()
+                .stream()
+                .map(messageMapper::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public MessageDto saveMessage(MessageDto messageDto) {
+        Message message = messageMapper.mapToModel(messageDto);
+        Conversation conversation = conversationRepository
+                .findById(messageDto.getConversationId())
+                .orElseThrow(ConversationNotFoundException::new);
+        conversation
+                .getMessages()
+                .add(message);
+        conversationRepository.save(conversation);
+        return messageMapper.mapToDto(message);
     }
 }
