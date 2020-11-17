@@ -46,7 +46,7 @@ Requests are authenticated using http basic.
 | RST stage 4 | [Raport științific și tehnic etapa 4][rst4] |
 
 ### Todos
- - Users will be able to ask shopping mall agents for help
+ - Bug fixes
  - Docker deployment
 
    [WPep]: <https://docs.google.com/document/d/1gcilXmE5tOGrd5z3LERwDX6mZpSFRWUgoJU9NAUz3Ag/edit?usp=sharing>
