@@ -150,6 +150,16 @@ public class MobileAppController {
         return conversationService.findById(conversationId);
     }
 
+    @GetMapping("/getConversationByUserId")
+    public ConversationDto getConversationByUserId(@RequestParam long userId) {
+        return conversationService.findByUserId(userId);
+    }
+
+    @GetMapping("/getConversationByAgentId")
+    public ConversationDto getConversationByAgentId(@RequestParam long agentId) {
+        return conversationService.findByAgentId(agentId);
+    }
+
     @GetMapping("/getConversationMessages")
     public List<MessageDto> getConversationMessages(@RequestParam long conversationId) {
         return conversationService.findMessagesByConversationId(conversationId);
@@ -158,5 +168,10 @@ public class MobileAppController {
     @PostMapping("/sendMessage")
     public MessageDto sendMessage(@RequestBody MessageDto message) {
         return conversationService.saveMessage(message);
+    }
+
+    @PostMapping("/finishConversation")
+    public void finishConversation(@RequestParam long conversationId) {
+        conversationService.finishConversation(conversationId);
     }
 }

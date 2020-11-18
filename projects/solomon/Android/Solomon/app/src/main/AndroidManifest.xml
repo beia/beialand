@@ -24,7 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activities.AskUsActivity"></activity>
+        <activity android:name=".activities.AskUsActivity"
+            android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".activities.StatsActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

@@ -27,6 +27,7 @@ import com.beia.solomon.GsonRequest;
 import com.beia.solomon.R;
 import com.beia.solomon.adapters.ConversationRecyclerViewAdapter;
 import com.beia.solomon.model.Conversation;
+import com.beia.solomon.model.ConversationStatus;
 import com.beia.solomon.model.Message;
 import com.beia.solomon.model.Role;
 import com.beia.solomon.model.User;
@@ -85,12 +86,6 @@ public class AskUsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         createLoadingAnimation();
-        if(conversation == null) {
-            if(!user.getRole().equals(Role.AGENT.name()))
-                requestAgentChat(user.getId());
-        } else {
-            loadConversationUI(conversation);
-        }
     }
 
     @Override
@@ -160,7 +155,13 @@ public class AskUsActivity extends AppCompatActivity {
                         .date(LocalDateTime.now().toString())
                         .conversationId(conversation.getId())
                         .build());
+                messageEditText.setText("");
             }
+        });
+
+        leaveChatButton.setOnClickListener(v -> {
+            if(conversation != null)
+                finishConversation(conversation);
         });
     }
 
@@ -224,12 +225,28 @@ public class AskUsActivity extends AppCompatActivity {
         conversation = gson.fromJson(
                 sharedPref.getString("conversation", null),
                 Conversation.class);
+        if(conversation != null) {
+            getConversation(conversation.getId());
+        } else {
+            if(user.getRole().equals("USER")) {
+                getConversationByUserId(user.getId());
+            } else {
+                getConversationByAgentId(user.getId());
+            }
+        }
     }
 
     public void saveConversation(Conversation conversation) {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("conversation", gson.toJson(conversation));
         editor.apply();
+    }
+
+    public void clearConversation() {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove("conversation");
+        editor.apply();
+        conversation = null;
     }
 
     public void handleIntentType(Intent intent) {
@@ -324,9 +341,18 @@ public class AskUsActivity extends AppCompatActivity {
                 Conversation.class,
                 headers,
                 response -> {
-                    this.conversation = response;
-                    loadConversationUI(conversation);
-                    saveConversation(conversation);
+                    if(response.getStatus().equals(ConversationStatus.FINISHED)) {
+                        clearConversation();
+                        if(user.getRole().equals("USER")) {
+                            getConversationByUserId(user.getId());
+                        } else {
+                            getConversationByAgentId(user.getId());
+                        }
+                    } else {
+                        this.conversation = response;
+                        loadConversationUI(conversation);
+                        saveConversation(conversation);
+                    }
                 },
                 error -> {
                     if(error.networkResponse != null) {
@@ -335,6 +361,55 @@ public class AskUsActivity extends AppCompatActivity {
                     else {
                         error.printStackTrace();
                     }
+                });
+        volleyQueue.add(request);
+    }
+
+    public void getConversationByUserId(long userId) {
+        String url = getResources().getString(R.string.getConversationByUserIdUrl)
+                + "?userId=" + userId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Conversation> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                Conversation.class,
+                headers,
+                response -> {
+                    this.conversation = response;
+                    loadConversationUI(conversation);
+                    saveConversation(conversation);
+                },
+                error -> {
+                    requestAgentChat(user.getId());
+                });
+        volleyQueue.add(request);
+    }
+
+    public void getConversationByAgentId(long agentId) {
+        String url = getResources().getString(R.string.getConversationByAgentIdUrl)
+                + "?agentId=" + agentId;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Conversation> request = new GsonRequest<>(
+                Request.Method.GET,
+                url,
+                null,
+                Conversation.class,
+                headers,
+                response -> {
+                    this.conversation = response;
+                    loadConversationUI(conversation);
+                    saveConversation(conversation);
+                },
+                error -> {
                 });
         volleyQueue.add(request);
     }
@@ -356,7 +431,7 @@ public class AskUsActivity extends AppCompatActivity {
                 response -> {
                     List<Message> messages = gson.fromJson(gson.toJson(response),
                             new TypeToken<List<Message>>(){}.getType());
-                    if(areNewMessages(messages, conversation.getMessages())) {
+                    if(conversation != null && areNewMessages(messages, conversation.getMessages())) {
                         conversation.setMessages(messages);
                         mAdapter.notifyDataSetChanged();
                         recyclerView.scrollToPosition(messages.size() - 1);
@@ -398,6 +473,35 @@ public class AskUsActivity extends AppCompatActivity {
                     mAdapter.notifyItemInserted(conversation.getMessages().size() - 1);
                     recyclerView.scrollToPosition(conversation.getMessages().size() - 1);
                     saveConversation(conversation);
+                },
+                error -> {
+                    if(error.networkResponse != null) {
+                        Log.d("ERROR", new String(error.networkResponse.data));
+                    }
+                    else {
+                        error.printStackTrace();
+                    }
+                });
+        volleyQueue.add(request);
+    }
+
+    public void finishConversation(Conversation conversation) {
+        String url = getResources().getString(R.string.finishConversationUrl)
+                + "?conversationId=" + conversation.getId();
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-type", "application/json");
+        headers.put("Authorization", getResources().getString(R.string.universal_user));
+
+        GsonRequest<Object> request = new GsonRequest<>(
+                Request.Method.POST,
+                url,
+                null,
+                Object.class,
+                headers,
+                response -> {
+                    clearConversation();
+                    finish();
                 },
                 error -> {
                     if(error.networkResponse != null) {

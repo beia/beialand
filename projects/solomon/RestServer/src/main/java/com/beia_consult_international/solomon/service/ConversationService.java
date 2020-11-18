@@ -4,6 +4,7 @@ import com.beia_consult_international.solomon.dto.ConversationDto;
 import com.beia_consult_international.solomon.dto.MessageDto;
 import com.beia_consult_international.solomon.exception.ConversationAlreadyStartedException;
 import com.beia_consult_international.solomon.exception.ConversationNotFoundException;
+import com.beia_consult_international.solomon.exception.UserHasNoConversationsException;
 import com.beia_consult_international.solomon.exception.UserNotFoundException;
 import com.beia_consult_international.solomon.model.*;
 import com.beia_consult_international.solomon.repository.ConversationRepository;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,6 +103,38 @@ public class ConversationService {
                 .orElseThrow(ConversationNotFoundException::new));
     }
 
+    public ConversationDto findByUserId(long userId) {
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        return conversationMapper.maptoDto(conversationRepository
+                .findByUser2(user)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(conversation -> conversation
+                        .getStatus()
+                        .equals(ConversationStatus.STARTED))
+                .findFirst()
+                .orElseThrow(ConversationNotFoundException::new));
+    }
+
+    public ConversationDto findByAgentId(long userId) {
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        return conversationMapper.maptoDto(conversationRepository
+                .findByUser1(user)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(conversation -> conversation
+                        .getStatus()
+                        .equals(ConversationStatus.STARTED))
+                .findFirst()
+                .orElseThrow(ConversationNotFoundException::new));
+    }
+
     public List<MessageDto> findMessagesByConversationId(long id) {
         return conversationRepository
                 .findById(id)
@@ -121,5 +155,21 @@ public class ConversationService {
                 .add(message);
         conversationRepository.save(conversation);
         return messageMapper.mapToDto(message);
+    }
+
+    public void finishConversation(long conversationId) {
+        Conversation conversation = conversationRepository
+                .findById(conversationId)
+                .orElseThrow(ConversationNotFoundException::new);
+        conversation.getMessages().add(Message
+                .builder()
+                .sender(conversation.getUser1())
+                .receiver(conversation.getUser2())
+                .text("Good bye! The conversation ended!")
+                .date(LocalDateTime.now())
+                .conversation(conversation)
+                .build());
+        conversation.setStatus(ConversationStatus.FINISHED);
+        conversationRepository.save(conversation);
     }
 }
