@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/almostBlack"
     tools:context=".activities.MainActivity">
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -13,7 +14,7 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardBackgroundColor="@color/almostBlackLighter"
         card_view:cardElevation="0dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,7 +38,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="17dp"
                 android:gravity="center"
-                android:textColor="@android:color/black"
+                android:textColor="@color/greyLight"
                 android:textSize="@dimen/dimen8sp"
                 android:fontFamily="@font/open_sans_regular"
                 android:text="Username"/>
@@ -48,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
+        android:background="@color/lightGray"/>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profileSettingsCardView"
@@ -57,7 +58,7 @@
         android:layout_weight="10"
         android:layout_gravity="center"
         card_view:cardElevation="0dp"
-        card_view:cardBackgroundColor="@android:color/white">
+        card_view:cardBackgroundColor="@color/almostBlackLighter">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -67,7 +68,8 @@
                 android:layout_height="35dp"
                 android:src="@drawable/user_icon"
                 android:layout_gravity="center"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginLeft="20dp"
+                app:tint="@color/lightGray"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -80,14 +82,14 @@
                     android:text="Profile"
                     android:textSize="@dimen/dimen8sp"
                     android:fontFamily="@font/open_sans_bold"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/greyLight"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Picture, Username, Password, Age"
                     android:fontFamily="@font/open_sans_regular"
                     android:textSize="@dimen/dimen5sp"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/greyLight"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -96,7 +98,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
+        android:background="@color/lightGray"/>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/statsCardView"
@@ -104,7 +106,7 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardBackgroundColor="@color/almostBlackLighter"
         card_view:cardElevation="0dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -115,7 +117,8 @@
                 android:layout_height="35dp"
                 android:src="@drawable/stats_icon"
                 android:layout_gravity="center"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginLeft="20dp"
+                app:tint="@color/lightGray"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -128,14 +131,14 @@
                     android:text="Malls"
                     android:textSize="@dimen/dimen8sp"
                     android:fontFamily="@font/open_sans_bold"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/lightGray"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Parking spaces availability"
                     android:textSize="@dimen/dimen5sp"
                     android:fontFamily="@font/open_sans_regular"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/lightGray"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -144,7 +147,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
+        android:background="@color/lightGray"/>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/askUsAgentCardView"
@@ -152,7 +155,7 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardBackgroundColor="@color/almostBlackLighter"
         card_view:cardElevation="0dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -163,7 +166,8 @@
                 android:layout_height="35dp"
                 android:src="@drawable/notifications_icon"
                 android:layout_gravity="center"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginLeft="20dp"
+                app:tint="@color/lightGray"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -176,14 +180,14 @@
                     android:text="Ask us"
                     android:textSize="@dimen/dimen8sp"
                     android:fontFamily="@font/open_sans_bold"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/lightGray"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Chat with an agent"
                     android:textSize="@dimen/dimen5sp"
                     android:fontFamily="@font/open_sans_regular"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/lightGray"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -192,7 +196,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
+        android:background="@color/lightGray"/>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/preferencesCardView"
@@ -200,7 +204,7 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardBackgroundColor="@color/almostBlackLighter"
         card_view:cardElevation="0dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -211,7 +215,8 @@
                 android:layout_height="35dp"
                 android:src="@drawable/preferences"
                 android:layout_gravity="center"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginLeft="20dp"
+                app:tint="@color/lightGray"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -224,14 +229,14 @@
                     android:text="Preferences"
                     android:textSize="@dimen/dimen8sp"
                     android:fontFamily="@font/open_sans_bold"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/lightGray"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Product discounts, Personal interests"
                     android:textSize="@dimen/dimen5sp"
                     android:fontFamily="@font/open_sans_regular"
-                    android:textColor="@android:color/background_dark"/>
+                    android:textColor="@color/lightGray"/>
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -240,7 +245,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
+        android:background="@color/lightGray"/>
 
     <androidx.cardview.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/logoutButton"
@@ -248,7 +253,7 @@
         android:layout_height="0dp"
         android:layout_weight="10"
         android:layout_gravity="center"
-        card_view:cardBackgroundColor="@android:color/white"
+        card_view:cardBackgroundColor="@color/almostBlackLighter"
         card_view:cardElevation="0dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -259,13 +264,14 @@
                 android:layout_height="35dp"
                 android:src="@drawable/logout"
                 android:layout_gravity="center"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginLeft="20dp"
+                app:tint="@color/lightGray"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginStart="20dp"
                 android:gravity="center"
-                android:textColor="@android:color/black"
+                android:textColor="@color/lightGray"
                 android:textSize="@dimen/dimen8sp"
                 android:fontFamily="@font/open_sans_regular"
                 android:text="Log out"/>
@@ -276,7 +282,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
-        android:background="@color/darkgray"/>
+        android:background="@color/lightGray"/>
 
     <View
         android:layout_width="match_parent"

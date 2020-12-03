@@ -26,4 +26,11 @@
 
     <color name="mallAlertsColor">#ff3d40</color>
     <color name="normalNotificationsColor">#4f9eff</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="almostBlack">#FF0A0A0A</color>
+    <color name="almostBlackLighter">#FF1A1A1A</color>
+    <color name="greyDark">#7F7F7F</color>
+    <color name="greyLight">#B3B3B3</color>
 </resources>
