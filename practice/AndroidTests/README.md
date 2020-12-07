@@ -4,6 +4,6 @@ Created a stories app for testing some design patterns, libraries and Android SD
 
 We also created a REST server using the Spring Boot 2.3.2 framework, Spring Boot Rest services and Spring Data Jpa(Hibernate ORM) for communicating to a MySQL database.
 
-![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/AndroidTests/storiesApp/media/Screenshot_20201207-181113.png?raw=true)<br/><br/>
+![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/AndroidTests/StoriesApp/media/Screenshot_20201207-181113.png?raw=true)<br/><br/>
 
 ![Alt text](https://github.com/beia/beialand/blob/CristianBalanean/practice/AndroidTests/storiesApp/media/Screenshot_20201207-181147.png?raw=true)<br/><br/>
