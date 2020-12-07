@@ -1,0 +1,12 @@
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="colorPrimary">@android:color/white</item>
+        <item name="colorPrimaryDark">@android:color/white</item>
+        <item name="colorAccent">@color/greyDark</item>
+        <!-- enable window content transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+</resources>
