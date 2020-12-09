@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Stories</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="storiesTabName">stories</string>
+    <string name="categoriesTabName">categories</string>
+    <string name="settingsTabName">settings</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_categories_fragment">Categories fragment!</string>
+    <string name="hello_settings_fragment">Settings fragment!</string>
 </resources>
