@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:21385913656:android:66add263ee8600126fcdcd",
         "android_client_info": {
-          "package_name": "com.beia.solomon"
+          "package_name": "com.beia.solomon_smart_shopping"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "21385913656-tg9vt58k0dkg49nqrmkabu0kbd2kkgv5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.beia.solomon",
+            "package_name": "com.beia.solomon_smart_shopping",
             "certificate_hash": "1aa9afdfb27934ca035b535462eda8c0c3233986"
           }
         },

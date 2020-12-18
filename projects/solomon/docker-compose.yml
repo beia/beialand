@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=solomon
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+    ports:
+      - 3307:3307
+
+  solomon-server:
+    image: beia/solomon-server
+    ports:
+       - 8000:8000
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3307/solomon?autoReconnect=true&useSSL=false
+    depends_on:
+       - db

@@ -4,10 +4,10 @@ apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.beia.solomon"
+        applicationId "com.beia.solomon_smart_shopping"
         minSdkVersion 26
         targetSdkVersion 29
-        versionCode 10
+        versionCode 1
         multiDexEnabled true
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
