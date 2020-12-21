@@ -1,21 +1,32 @@
 version: '3'
 
 services:
+
   db:
     image: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=solomon
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_USER=beia
+      - MYSQL_PASSWORD=beiatapi
     ports:
-      - 3307:3307
+      - 3307:3306
+    volumes:
+      - solomon-data-db
 
-  solomon-server:
+  server:
     image: beia/solomon-server
-    ports:
-       - 8000:8000
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3307/solomon?autoReconnect=true&useSSL=false
+    restart: on-failure
     depends_on:
-       - db
+      - db
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=beia
+      - DATABASE_PASSWORD=beiatapi
+      - DATABASE_NAME=solomon
+      - DATABASE_PORT=3307
+
+volumes:
+  solomon-data-db:
