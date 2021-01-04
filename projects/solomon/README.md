@@ -2,7 +2,7 @@
 
 In SOLOMON the main target is to improve the customer experience in bricks-and-mortar stores. SOLOMON’s innovation is to define a “shop operations & experience” platform connecting different technologies and information sources into seamless services for interaction with the retailers, shop personnel and consumers. Platform requirements are set by retail stores and technology providers who define the use cases that are demonstrated and evaluated during the course of the project in bricks-and-mortar stores.<br/><br/>
 
-Get it on Google Play: https://play.google.com/store/apps/details?id=com.beia.solomon_smart_shopping<br/><br/>
+Get the app from Google Play: https://play.google.com/store/apps/details?id=com.beia.solomon_smart_shopping<br/><br/>
 
 BEIA's contributions to the project:
   - Android app
