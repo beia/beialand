@@ -51,7 +51,7 @@ Requests are authenticated using http basic.
 | Documentation | Links |
 | ------ | ------ |
 | Docker tutorial | https://docs.google.com/document/d/1x2phPoIYIDglzmJGs2kNF2U6AhKjP2Y-noseYG8JkdU/edit?usp=sharing |
-| Solomon Docker Deployment | https://docs.google.com/document/d/101yhIOJOtRuCk47MxSwQg12NO9Q3FL3yHloWus14hjY/edit?usp=sharing |
+| Solomon Docker deployment | https://docs.google.com/document/d/101yhIOJOtRuCk47MxSwQg12NO9Q3FL3yHloWus14hjY/edit?usp=sharing |
 
 ### Todos
  - Bug fixes
