@@ -4,7 +4,7 @@ In SOLOMON the main target is to improve the customer experience in bricks-and-m
 
 Get it on Google Play: https://play.google.com/store/apps/details?id=com.beia.solomon_smart_shopping<br/><br/>
 
-BEIA contribution to the project:
+BEIA's contributions to the project:
   - Android app
   - Web platform
   - REST server<br/><br/>
