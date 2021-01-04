@@ -41,7 +41,6 @@ Requests are authenticated using http basic.
 | Web platform | [Web platform endpoints][WPep] |
 | Android App | [Android app endpoints][APep] |
 
-### Documentation
 | Research Documents | Links |
 | ------ | ------ |
 | Bachelor Thessis | [Cristian-Ioan Balanean Bachelor Thessis][Lcb] |
