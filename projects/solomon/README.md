@@ -7,7 +7,7 @@ Get it on Google Play: https://play.google.com/store/apps/details?id=com.beia.so
 BEIA contribution to the project:
   - Android app
   - Web platform
-  - REST server
+  - REST server<br/><br/>
 
 # Android app
 ### Features
