@@ -1,0 +1,81 @@
+version: '3.6'
+
+services:
+  broker:
+    image: emqx/emqx
+    volumes:
+      - emqtt_data:/opt/emqttd/data
+      - emqtt_etc:/opt/emqttd/etc
+      - emqtt_lib:/opt/emqttd/lib
+      - emqtt_log:/opt/emqttd/log
+      - ./certs:/certs:ro
+    ports:
+     - "1883:1883"
+     - "8883:8883"
+    
+    environment:
+      EMQX_auth__http__auth_req: 'http://broker-auth/api/mqtt/auth'
+      EMQX_NAME: 'broker1'
+      EMQX_HOST: 'mqtt.dfilip.xyz'
+      EMQX_auth__http__acl_req: 'http://broker-auth/api/mqtt/acl'
+      EMQX_auth__http__super_req: 'http://broker-auth/api/mqtt/superuser'
+      EMQX_LOADED_PLUGINS: 'emqx_management,emqx_recon,emqx_retainer,emqx_auth_http'
+      EMQX_listener__ssl__external__keyfile: '/certs/key.pem'
+      EMQX_listener__ssl__external__certfile: '/certs/cert.pem'
+      EMQX_listener__ssl__external__cacertfile: '/certs/ca.crt'
+    #sysctls:
+      #fs.file-max: '2097152'
+      #fs.nr_open: '2097152'
+      #net.core.somaxconn: '32768'
+      #net.ipv4.tcp_max_syn_backlog: '16384'
+      #net.core.netdev_max_backlog: '16384'
+      #net.ipv4.ip_local_port_range: '1000 65535'
+      #net.core.rmem_default: '262144'
+      #net.core.wmem_default: '262144'
+      #net.core.rmem_max: '16777216'
+      #net.core.wmem_max: '16777216'
+      #net.core.optmem_max: '16777216'
+      #net.ipv4.tcp_rmem: '1024 4096 16777216'
+      #net.ipv4.tcp_wmem: '1024 4096 16777216'
+      #net.ipv4.tcp_max_tw_buckets: '1048576'
+      #net.ipv4.tcp_fin_timeout: '15'      
+
+    networks:
+     - broker
+  
+  broker-auth:
+    image: beia/mqtt-auth
+    environment:
+      VIRTUAL_HOST: 'mqtt.dfilip.xyz'
+      LETSENCRYPT_HOST: 'mqtt.dfilip.xyz'
+      LETSENCRYPT_EMAIL: 'contact@dfilip.xyz'
+    volumes:
+      - auth_migrations:/app/app/migrations
+    networks:
+      - broker
+      - db
+      - proxy_net
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: 'postgres'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - db
+  
+volumes:
+  emqtt_data:
+  emqtt_etc:
+  emqtt_lib:
+  emqtt_log:
+  db_data:
+  auth_migrations:
+networks:
+  broker:
+  db:
+  proxy_net:
+    external: true
