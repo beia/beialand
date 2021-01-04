@@ -47,15 +47,14 @@ Requests are authenticated using http basic.
 | Bachelor Thessis | [Cristian-Ioan Balanean Bachelor Thessis][Lcb] |
 | RST stage 4 | [Raport științific și tehnic etapa 4][rst4] |
 
-### Docker
+# Docker
 | Documentation | Links |
 | ------ | ------ |
-| Docker tutorial | [https://docs.google.com/document/d/1x2phPoIYIDglzmJGs2kNF2U6AhKjP2Y-noseYG8JkdU/edit?usp=sharing] |
-| Solomon Docker Deployment | [https://docs.google.com/document/d/101yhIOJOtRuCk47MxSwQg12NO9Q3FL3yHloWus14hjY/edit?usp=sharing] |
+| Docker tutorial | https://docs.google.com/document/d/1x2phPoIYIDglzmJGs2kNF2U6AhKjP2Y-noseYG8JkdU/edit?usp=sharing |
+| Solomon Docker Deployment | https://docs.google.com/document/d/101yhIOJOtRuCk47MxSwQg12NO9Q3FL3yHloWus14hjY/edit?usp=sharing |
 
 ### Todos
  - Bug fixes
- - Docker deployment
 
    [WPep]: <https://docs.google.com/document/d/1gcilXmE5tOGrd5z3LERwDX6mZpSFRWUgoJU9NAUz3Ag/edit?usp=sharing>
    [APep]: <https://docs.google.com/document/d/1gcilXmE5tOGrd5z3LERwDX6mZpSFRWUgoJU9NAUz3Ag/edit?usp=sharing>
