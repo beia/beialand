@@ -1,11 +1,13 @@
 # SOLOMON
 
-In SOLOMON the main target is to improve the customer experience in bricks-and-mortar stores. SOLOMON’s innovation is to define a “shop operations & experience” platform connecting different technologies and information sources into seamless services for interaction with the retailers, shop personnel and consumers. Platform requirements are set by retail stores and technology providers who define the use cases that are demonstrated and evaluated during the course of the project in bricks-and-mortar stores.  
+In SOLOMON the main target is to improve the customer experience in bricks-and-mortar stores. SOLOMON’s innovation is to define a “shop operations & experience” platform connecting different technologies and information sources into seamless services for interaction with the retailers, shop personnel and consumers. Platform requirements are set by retail stores and technology providers who define the use cases that are demonstrated and evaluated during the course of the project in bricks-and-mortar stores.<br/><br/>
 
-BEIA contribution to the project:
+Get the app from Google Play: https://play.google.com/store/apps/details?id=com.beia.solomon_smart_shopping<br/><br/>
+
+BEIA's contributions to the project:
   - Android app
   - Web platform
-  - REST server
+  - REST server<br/><br/>
 
 # Android app
 ### Features
@@ -39,15 +41,19 @@ Requests are authenticated using http basic.
 | Web platform | [Web platform endpoints][WPep] |
 | Android App | [Android app endpoints][APep] |
 
-### Documentation
 | Research Documents | Links |
 | ------ | ------ |
 | Bachelor Thessis | [Cristian-Ioan Balanean Bachelor Thessis][Lcb] |
 | RST stage 4 | [Raport științific și tehnic etapa 4][rst4] |
 
+# Docker
+| Documentation | Links |
+| ------ | ------ |
+| Docker tutorial | https://docs.google.com/document/d/1x2phPoIYIDglzmJGs2kNF2U6AhKjP2Y-noseYG8JkdU/edit?usp=sharing |
+| Solomon Docker deployment | https://docs.google.com/document/d/101yhIOJOtRuCk47MxSwQg12NO9Q3FL3yHloWus14hjY/edit?usp=sharing |
+
 ### Todos
  - Bug fixes
- - Docker deployment
 
    [WPep]: <https://docs.google.com/document/d/1gcilXmE5tOGrd5z3LERwDX6mZpSFRWUgoJU9NAUz3Ag/edit?usp=sharing>
    [APep]: <https://docs.google.com/document/d/1gcilXmE5tOGrd5z3LERwDX6mZpSFRWUgoJU9NAUz3Ag/edit?usp=sharing>
