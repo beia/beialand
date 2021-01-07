@@ -21,7 +21,7 @@ public class StoriesActivity extends AppCompatActivity {
 
     private StoriesViewModel storiesViewModel;
     private BottomNavigationView bottomNavigationView;
-    private ViewStoriesFragment viewStoriesFragment;
+    private ViewStoriesFragment  viewStoriesFragment;
     private CategoriesFragment categoriesFragment;
     private SettingsFragment settingsFragment;
 
