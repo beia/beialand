@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">BeiaSensors</string>
+    <string name="beia_mqtt_broker_url">tcp://mqtt.beia-telemetrie.ro:1883</string>
+    <string name="mqtt_client_id">cristian.balanean</string>
+    <string name="phone_battery_topic">meshliumfa30/android/battery</string>
+    <string name="mqtt_test_payload">
+        {
+            "id": "samsung_a8_2018",
+            "id_wasp": "",
+            "id_secret": "",
+            "sensor": "battery",
+            "value": "97",
+            "timestamp": "2021–01–19T17:00:03+02:00"
+        }
+    </string>
+</resources>
