@@ -1,9 +1,14 @@
-package com.example.beiasensors;
+package com.example.beiasensors.activities;
 
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.beiasensors.R;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -67,8 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     client.setBufferOpts(disconnectedBufferOptions);
                     subscribeToTopic(getResources().getString(R.string.phone_battery_topic));
-                    publishValue(getResources().getString(R.string.mqtt_test_payload),
-                            getResources().getString(R.string.phone_battery_topic));
+
                 }
 
                 @Override
@@ -81,6 +85,18 @@ public class MainActivity extends AppCompatActivity {
         } catch (MqttException ex){
             ex.printStackTrace();
         }
+
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = getApplicationContext()
+                .registerReceiver(null, ifilter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        // How are we charging?
+        int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
     }
 
 

@@ -16,7 +16,7 @@
         android:theme="@style/Theme.BeiaSensors">
         <service android:name="org.eclipse.paho.android.service.MqttService">
         </service>
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
