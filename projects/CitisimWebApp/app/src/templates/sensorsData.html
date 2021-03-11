@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+      <title>Scenario {{scenarioID}}</title>
+      <script src="/static/scripts/jquery-3.3.1.js"></script>
+
+      <script src="/static/scripts/ChartJS/Chart.bundle.js"></script>
+      <script src="/static/scripts/ChartJS/samples/utils.js"></script>
+
+      <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+      <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+      <script src="/static/scripts/FormanticUI/semantic.min.js"></script>
+      <link rel="stylesheet" href="/static/scripts/FormanticUI/semantic.min.css">
+
+      <link rel="stylesheet" href="/static/style.css">
+      <script src="/static/scripts/Custom/tablePage.js"></script>
+
+    </head>
+
+    <body class="wideBody">
+
+      <div class="ui grid">
+          <div class="eight wide column" align="left"  >
+              <p style="font-size: 75px; padding-top: 2%; "><strong style="cursor:pointer" onclick="javascript:window.location.href = '/'">
+                  <span style="color: gray">Citi</span>Sim
+              </strong></p>
+          </div>
+          <div class="eight wide column" align="right" >
+            <table>
+              <td style="vertical-align:top; text-align:right;">
+                Connected user<br>
+                <span style="color: gray; font-size: 25px; font-weight: bold;">{{current_user.username}}</span><br>
+                <div style=" cursor: pointer;" onclick="javascript:window.location.href='/logout'">
+                  <i class="sign out icon" ></i> LogOut
+                </div><br>
+                <div data-content="Help" onclick="javascript:window.location.href = '/help'" style="width:25px; height:25px; background-color:#0C9; color:#FFF; border-radius:50px;cursor: pointer; float:right;">
+                    <i class="question icon" style="margin-top:5px; margin-left: 3px; font-size:15px;"></i>
+                </div>
+              </td>
+              <td>
+                <img src="/static/logo_citisim_cut.png" alt="CitiSim Logo" style="width:120px; height:120px; cursor:pointer;" onclick="javascript:window.location.href = '/'">
+              </td>
+            </table>
+          </div>
+      </div>
+      <br>
+      <div class="ui inverted horizontal divider">
+          <strong style="font-size: 24px;">
+                  Sensors Data
+          </strong>
+      </div>
+
+
+      <div class="" align="center">
+          <p align="left" style="width: 80%">Select sensor to be displayed</p>
+          <select id="select_sensor" class="ui search dropdown" onchange="changedSensor()" >
+              <option value="" selected="selected">Select Dataset</option>
+              {% for elem in datasets %}
+                <option value="{{elem.ID}}">{{elem.DatasetName}}</option>
+              {% endfor %}
+          </select>
+          <br>
+
+          <div class="ui divider" style="width:80%;"></div>
+          <p id="timePeriodMessage" hidden align="left" style="width: 80%">Select time interval</p>
+          <div class="ui form" style="width:80%;" id="timePeriodForm" hidden>
+            <div class="three fields">
+              <div class="field">
+                <select id="displayModeSelect" class="ui selection dropdown">
+                    <option value="daycalendarfield">1 Day</option>
+                    <option value="monthcalendarfield" selected="selected">1 Month</option>
+                    <option value="multiplemonthsfield">Multiple Months</option>
+                </select>
+              </div>
+              <div class="field" hidden id="daycalendarfield">
+                <div class="ui calendar" id="daycalendar">
+                  <div class="ui input left icon">
+                    <i class="calendar icon"></i>
+                    <input type="text" placeholder="Select Day">
+                  </div>
+                </div>
+              </div>
+              <div class="field" id="monthcalendarfield">
+                <div class="ui calendar" id="monthcalendar">
+                  <div class="ui input left icon">
+                    <i class="calendar icon"></i>
+                    <input type="text" placeholder="Select Month">
+                  </div>
+                </div>
+              </div>
+                <div class="field" hidden id="startmonthcalendarfield">
+                  <div class="ui calendar" id="rangestart">
+                    <div class="ui input left icon">
+                      <i class="calendar icon"></i>
+                      <input type="text" placeholder="Start">
+                    </div>
+                  </div>
+                </div>
+                <div class="field" hidden id="endmonthcalendarfield">
+                  <div class="ui calendar" id="rangeend">
+                    <div class="ui input left icon">
+                      <i class="calendar icon"></i>
+                      <input type="text" placeholder="End">
+                    </div>
+                  </div>
+                </div>
+                <div class="field" style="width:10%">
+                  <button class="ui icon button" onclick="getData()">
+                    <i class="search icon"></i>
+                  </button>
+                </div>
+            </div>
+            <div class="ui checkbox" style="width: 100%;" align="left" id="deltaCheck" >
+              <input type="checkbox" tabindex="0" class="hidden">
+              <label style="color: white;">Plot data as Delta values</label>
+            </div>
+            <br>
+            <div class="ui divider"></div>
+          </div>
+
+          <div style="width:80%;" id="forecastingMessage" hidden>
+              <p  align="left">Future consumption forecasting is available in Multiple Months view.</p>
+          </div>
+          <div class="ui form" style="width:80%;" id="forecastingForm" hidden>
+            <p  align="left">You need at least 24 previous values in order to make a proper future prediction.</p>
+            <div class="three fields">
+              <div class="field">
+                <input type="number" placeholder="Number of predictions" id="predNumInput">
+              </div>
+              <div class="field"  align="left" >
+                <button class="ui  button" onclick="forecast()">
+                  Forecast
+                </button>
+              </div>
+            </div>
+            <div class="ui divider"></div>
+          </div>
+
+
+
+          <div id="plotArea" hidden>
+            <br><br>
+            <div style="width:100%;" >
+              <canvas id="data-canvas"></canvas>
+            </div>
+
+
+            <br><br>
+            <div style="width: 50%;">
+              <p  align="left">Energy consumption.</p>
+              <br>
+              <div style="max-height:300px; overflow-y: auto;">
+                <table class="ui stripped celled selectable inverted table" >
+                  <thead>
+                    <tr>
+                      <th>Value (kWh)</th>
+                      <th>Time</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dataTableBody">
+                  </tbody>
+                </table>
+              </div>
+              <br><br>
+            </div>
+
+
+            <div style="width: 50%;" id="forecastedTableDiv" hidden>
+              <p  align="left">Forecasted Energy consumption.</p>
+              <br>
+              <div style="max-height:300px; overflow-y: auto;">
+                <table class="ui stripped celled selectable inverted table" >
+                  <thead>
+                    <tr>
+                      <th>Value (kWh)</th>
+                      <th>Time</th>
+                    </tr>
+                  </thead>
+                  <tbody id="forecastedDataTableBody">
+                  </tbody>
+                </table>
+              </div>
+              <br><br>
+            </div>
+
+
+          </div>
+
+          <div id="exportArea" style="width:80%;" hidden>
+            <div class="ui divider"></div>
+            <p  align="left">Export data as Baseline Bill for scenarios</p>
+
+            <div class="ui form" style="width:80%;" id="timePeriodForm">
+              <div class="three fields">
+                <div class="field">
+                  <select id="scenarioSelect" class="ui selection dropdown">
+                      <option value="" selected="selected">Select Scenario</option>
+                      {% for elem in scenarios %}
+                        <option value="{{elem.ID}}">{{elem.Name}}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                <div class="field">
+                  <input type="text" placeholder="Price/ kWh" onkeyup="checkNumber()" id="kwhPrice">
+                </div>
+                <div class="field">
+                  <button class="ui button" onclick="prepareData()">
+                    Prepare Data
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br><br><br>
+      </div>
+
+      <!-- Modal -->
+      <div class="ui basic modal EXP">
+          <div class="ui icon header">
+              <i class="paper plane icon"></i>
+              <div id="modalScenarioName">Export</div>
+          </div>
+          <div class="content" align="center">
+              <input id="modalScenarioID" type="hidden">
+              <br><br>
+              <table class="ui stripped celled selectable inverted table">
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Consumption (kWh)</th>
+                    <th>Baseline Bill</th>
+                  </tr>
+                </thead>
+                <tbody id="baseTableBdy">
+
+                </tbody>
+              </table>
+          </div>
+          <div class="actions">
+              <div class="ui red basic cancel inverted button">
+                  <i class="remove icon"></i>
+                  Cancel
+              </div>
+              <div id="expAddBtn" class="ui green ok inverted button" onclick="expModalExport()">
+                  <i class="checkmark icon"></i>
+                  Export
+              </div>
+          </div>
+      </div>
+
+      <script type="text/javascript">
+          var json = null;
+          var forecasted = null;
+          var toExport = null;
+          var tableLabel;
+
+          $('.dropdown').dropdown();
+          $('.checkbox').checkbox();
+          $('.checkbox').change(function() {
+            if(json != null)
+              putDataInPlotArea();
+          });
+
+          function checkNumber(){
+            var input = document.getElementById("kwhPrice").value;
+            var char = input[input.length-1];
+            if(!"0123456789.".includes(char)){
+               document.getElementById("kwhPrice").value = input.substring(0, input.length-1);
+            }
+          }
+
+          function expModalExport(){
+
+            var scenarioID = document.getElementById("modalScenarioID").value;
+            postData = {}
+            postData["scenarioID"] = scenarioID;
+            postData["bils"] = toExport;
+
+            var request = $.ajax({
+              type: "post",
+              url: "/sensorsData/exportBaselineBills",
+              contentType: "application/json",
+              data: JSON.stringify(postData)
+            });
+
+            request.fail(function(jqXHR,textStatus,errorThrown){
+              alert("The following error occurred: " + errorThrown);
+            });
+
+            request.done(function(response, textStatus, jqXHR){
+            });
+          }
+
+          function prepareData(){
+            var scenarioID = document.getElementById("scenarioSelect").value;
+            if(scenarioID == ""){
+               alert("Please select a scenario!");
+               return;
+            }
+            var price = document.getElementById("kwhPrice").value;
+            if(price == ""){
+               alert("Please enter the price per kWh!");
+               return;
+            }
+
+            var request = $.ajax({
+              type: "get",
+              url: "/sensorsData/getScenarioDetails",
+              data: {
+                       "scenarioID": scenarioID
+                     }
+            });
+
+            request.fail(function(jqXHR,textStatus,errorThrown){
+              alert("The following error occurred: " + errorThrown);
+            });
+
+            request.done(function(response, textStatus, jqXHR){
+                resp = JSON.parse(response);
+
+                document.getElementById("modalScenarioID").value = scenarioID;
+                document.getElementById("modalScenarioName").innerHTML = resp["Name"] + "<br>" +
+                                                                resp["StartDate"] + "   <->   " + resp["EndDate"];
+
+                var tbl = document.getElementById("baseTableBdy");
+                tbl.innerHTML = "";
+
+                toExport = []
+                if(json != null){
+                  for(i=1;i<json.length;i++){
+                    if(json[i].label >= resp["StartDate"] && json[i].label <= resp["EndDate"]){
+                      var row = {}
+                      row["month"] = json[i].label;
+                      row["consumption"] = json[i].delta;
+                      row["bill"] = json[i].delta * price;
+                      toExport.push(row);
+
+                      var month = document.createElement("td");
+                      month.innerHTML = row["month"];
+                      var consumption = document.createElement("td");
+                      consumption.innerHTML = row["consumption"];
+                      var bill = document.createElement("td");
+                      bill.innerHTML = row["bill"];
+
+                      var tr = document.createElement("tr");
+                      tr.appendChild(month);
+                      tr.appendChild(consumption);
+                      tr.appendChild(bill);
+
+                      tbl.appendChild(tr);
+                    }
+                  }
+                }
+
+                if(forecasted != null){
+                  for(i=1;i<forecasted.length;i++){
+                    if(forecasted[i].label >= resp["StartDate"] && forecasted[i].label <= resp["EndDate"]){
+                      var row = {}
+                      row["month"] = forecasted[i].label;
+                      row["consumption"] = forecasted[i].delta;
+                      row["bill"] = forecasted[i].delta * price;
+                      toExport.push(row);
+
+                      var month = document.createElement("td");
+                      month.innerHTML = row["month"];
+                      var consumption = document.createElement("td");
+                      consumption.innerHTML = row["consumption"];
+                      var bill = document.createElement("td");
+                      bill.innerHTML = row["bill"];
+
+                      var tr = document.createElement("tr");
+                      tr.appendChild(month);
+                      tr.appendChild(consumption);
+                      tr.appendChild(bill);
+
+                      tbl.appendChild(tr);
+                    }
+                  }
+                }
+
+
+                $('.ui.basic.modal.EXP').modal('show');
+
+            });
+          }
+
+          function forecast(){
+            if(json.length < 25){
+              alert("You need at least 24 preliminary values in order to make future predictions!");
+              return;
+            }
+
+            var predNum = parseInt(document.getElementById("predNumInput").value);
+            if(predNum < 1){
+              predNum = 1;
+            }
+
+            requestParameters = {
+              "predNum": predNum,
+              "dataset" : json
+            }
+            var request = $.ajax({
+              type: "post",
+              url: "/sensorsData/forecast",
+              contentType: "application/json",
+              data: JSON.stringify(requestParameters)
+            });
+
+            request.fail(function(jqXHR,textStatus,errorThrown){
+              alert("The following error occurred: " + errorThrown);
+            });
+
+            request.done(function(response, textStatus, jqXHR){
+              forecasted = JSON.parse(response);
+              putDataInPlotArea()
+            });
+          }
+
+          function changedSensor(){
+            document.getElementById("timePeriodMessage").removeAttribute("hidden")
+            document.getElementById("timePeriodForm").removeAttribute("hidden")
+            // var selectValue =document.getElementById("select_sensor").value;
+            // window.location.replace("/sensorsData?sensorID=" + selectValue);
+          }
+
+          $('#daycalendar').calendar({
+            type: 'date'
+          });
+          $('#monthcalendar').calendar({
+            type: 'month',
+            initialDate: new Date()
+          });
+          $('#rangestart').calendar({
+            type: 'month',
+            endCalendar: $('#rangeend')
+          });
+          $('#rangeend').calendar({
+            type: 'month',
+            startCalendar: $('#rangestart')
+          });
+          $('#displayModeSelect').change(function() {
+            document.getElementById("daycalendarfield").setAttribute("hidden","");
+            document.getElementById("monthcalendarfield").setAttribute("hidden","");
+            document.getElementById("startmonthcalendarfield").setAttribute("hidden","");
+            document.getElementById("endmonthcalendarfield").setAttribute("hidden","");
+
+            var displayMode = document.getElementById("displayModeSelect").value;
+            if(displayMode == "multiplemonthsfield"){
+              document.getElementById("startmonthcalendarfield").removeAttribute("hidden");
+              document.getElementById("endmonthcalendarfield").removeAttribute("hidden");
+            } else {
+              document.getElementById(displayMode).removeAttribute("hidden");
+            }
+          });
+
+          function getData(){
+            var subscriptionID = document.getElementById("select_sensor").value;
+            var displayMode = document.getElementById("displayModeSelect").value;
+
+            if(displayMode == "daycalendarfield"){
+              var selDate = $("#daycalendar").calendar('get date');
+              if(selDate == null){
+                return;
+              }
+
+              var dd = String(selDate.getDate()).padStart(2, '0');
+              var mm = String(selDate.getMonth() + 1).padStart(2, '0');
+              var yyyy = selDate.getFullYear();
+
+              var day = yyyy + "-" + mm + "-" + dd;
+              tableLabel = day + " H";
+              var request = $.ajax({
+                type: "get",
+                url: "/sensorsData/getOneDay",
+                data: {
+                         "subscriptionID": subscriptionID,
+                         "date": day
+                       }
+              });
+
+
+              request.fail(function(jqXHR,textStatus,errorThrown){
+                alert("The following error occurred: " + errorThrown);
+              });
+
+              request.done(function(response, textStatus, jqXHR){
+                  json = JSON.parse(response);
+                  forecasted = null;
+
+                  document.getElementById("forecastingForm").setAttribute("hidden","");
+                  document.getElementById("forecastingMessage").removeAttribute("hidden");
+                  document.getElementById("exportArea").setAttribute("hidden","");
+
+                  putDataInPlotArea()
+              });
+
+            }
+
+            if(displayMode == "monthcalendarfield"){
+              var selMonth = $("#monthcalendar").calendar('get date');
+              if(selMonth == null){
+                return;
+              }
+
+              var mm = String(selMonth.getMonth() + 1).padStart(2, '0');
+              var yyyy = selMonth.getFullYear();
+
+              var month = yyyy + "-" + mm + "-";
+              tableLabel = month;
+
+              var request = $.ajax({
+                type: "get",
+                url: "/sensorsData/getOneMonth",
+                data: {
+                         "subscriptionID": subscriptionID,
+                         "date": month
+                       }
+              });
+
+
+              request.fail(function(jqXHR,textStatus,errorThrown){
+                alert("The following error occurred: " + errorThrown);
+              });
+
+              request.done(function(response, textStatus, jqXHR){
+                  json = JSON.parse(response);
+                  forecasted = null;
+
+                  document.getElementById("forecastingForm").setAttribute("hidden","");
+                  document.getElementById("forecastingMessage").removeAttribute("hidden");
+                  document.getElementById("exportArea").setAttribute("hidden","");
+
+                  putDataInPlotArea()
+              });
+            }
+
+            if(displayMode == "multiplemonthsfield"){
+              var start = $("#rangestart").calendar('get date');
+              var end = $("#rangeend").calendar('get date');
+              if(start == null || end == null){
+                return;
+              }
+
+              var mm = String(start.getMonth() + 1).padStart(2, '0');
+              var yyyy = start.getFullYear();
+              var startDate = yyyy + "-" + mm + "-";
+
+              mm = String(end.getMonth() + 1).padStart(2, '0');
+              yyyy = end.getFullYear();
+              var endDate = yyyy + "-" + mm + "-";
+              tableLabel = "";
+
+              var request = $.ajax({
+                type: "get",
+                url: "/sensorsData/getMultipleMonths",
+                data: {
+                         "subscriptionID": subscriptionID,
+                         "startDate": startDate,
+                         "endDate": endDate
+                       }
+              });
+
+
+              request.fail(function(jqXHR,textStatus,errorThrown){
+                alert("The following error occurred: " + errorThrown);
+              });
+
+              request.done(function(response, textStatus, jqXHR){
+                  json = JSON.parse(response);
+                  forecasted = null;
+
+                  document.getElementById("forecastingMessage").setAttribute("hidden","");
+                  document.getElementById("forecastingForm").removeAttribute("hidden");
+                  document.getElementById("exportArea").removeAttribute("hidden");
+
+                  putDataInPlotArea();
+              });
+            }
+          }
+
+          function putDataInPlotArea(){
+              var isDelta = $('#deltaCheck').find('input').is(':checked');
+              putDataInTable(isDelta);
+              if(isDelta){
+                plotDelta();
+              } else {
+                plotValues();
+              }
+          }
+
+
+          function putDataInTable(isDelta){
+            var tbdy = document.getElementById("dataTableBody");
+            tbdy.innerHTML = "";
+            for(index=1; index<json.length; index++){
+              var row = document.createElement("tr");
+              if(isDelta){
+                row.innerHTML = "<td>"+ json[index].delta +"</td><td>"+ tableLabel + json[index].label +"</td>";
+              } else {
+                row.innerHTML = "<td>"+ json[index].Value +"</td><td>"+ tableLabel + json[index].label +"</td>";
+              }
+
+              tbdy.appendChild(row);
+            }
+
+            if(forecasted != null){
+              document.getElementById("forecastedTableDiv").hidden = false;
+
+              var ftbdy = document.getElementById("forecastedDataTableBody");
+              ftbdy.innerHTML = "";
+              for(index=0; index<forecasted.length; index++){
+                var row = document.createElement("tr");
+                if(isDelta){
+                  row.innerHTML = "<td>"+ forecasted[index].delta +"</td><td>"+ tableLabel + forecasted[index].label +"</td>";
+                } else {
+                  row.innerHTML = "<td>"+ forecasted[index].Value +"</td><td>"+ tableLabel + forecasted[index].label +"</td>";
+                }
+
+                ftbdy.appendChild(row);
+              }
+            } else {
+              document.getElementById("forecastedTableDiv").hidden = true;
+            }
+
+            document.getElementById("plotArea").hidden = false;
+          }
+
+
+          function plotValues(){
+            var labels = [];
+            var dataset = [];
+            for(var index=1; index<json.length; index++){
+              labels.push(json[index].label);
+              dataset.push(json[index].Value);
+            }
+
+            var chartDatasets = [{
+                label: "Energy Consumption (kWh)",
+                backgroundColor: 'rgb(255, 205, 86, 0.5)',
+                borderColor: 'rgb(255, 205, 86)',
+                borderWidth: 3,
+                fill: "start",
+                data: dataset
+            }]
+
+            if(forecasted != null){
+              forecastedDataset = dataset.slice(0);
+              for(var index = 0; index<forecasted.length; index++){
+                labels.push(forecasted[index].label);
+                forecastedDataset.push(forecasted[index].Value);
+              }
+
+              var forcastedChartDataset = {
+                  label: "Forecasted Energy Consumption (kWh)",
+                  backgroundColor: 'rgb(102, 102, 255, 0.5)',
+                  borderColor: 'rgb(102, 102, 255)',
+                  borderWidth: 3,
+                  fill: "start",
+                  data: forecastedDataset
+              }
+              chartDatasets.push(forcastedChartDataset);
+            }
+
+            if(window.barChart){
+              window.barChart.destroy();
+            }
+
+            var dataCtx = document.getElementById('data-canvas').getContext('2d');
+            window.barChart = new Chart(dataCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: chartDatasets
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                      labels: {
+                        fontColor: "white"
+                      }
+                    },
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                fontColor: "white",
+                                fontSize: 14
+                            },
+                            gridLines: {
+                                color: "grey"
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                fontColor: "white",
+                                fontSize: 14
+                            },
+                            gridLines: {
+                                color: "grey"
+                            }
+                        }]
+                    }
+                }
+            });
+          }
+
+          function plotDelta(){
+            var labels = [];
+            var dataset = [];
+            for(index=1; index<json.length; index++){
+              labels.push(json[index].label);
+              dataset.push(json[index].delta);
+            }
+
+            var chartDatasets = [{
+                label: "Energy Consumption (kWh)",
+                backgroundColor: 'rgb(255, 205, 86, 0.5)',
+                borderColor: 'rgb(255, 205, 86)',
+                borderWidth: 3,
+                fill: "start",
+                data: dataset
+            }]
+
+            if(forecasted != null){
+              forecastedDataset = dataset.slice(0);
+              for(var index = 0; index<forecasted.length; index++){
+                labels.push(forecasted[index].label);
+                forecastedDataset.push(forecasted[index].delta);
+              }
+
+              var forcastedChartDataset = {
+                  label: "Forecasted Energy Consumption (kWh)",
+                  backgroundColor: 'rgb(102, 102, 255, 0.5)',
+                  borderColor: 'rgb(102, 102, 255)',
+                  borderWidth: 3,
+                  fill: "start",
+                  data: forecastedDataset
+              }
+              chartDatasets.push(forcastedChartDataset);
+            }
+
+            if(window.barChart){
+              window.barChart.destroy();
+            }
+
+            var dataCtx = document.getElementById('data-canvas').getContext('2d');
+            window.barChart = new Chart(dataCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: chartDatasets
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                      labels: {
+                        fontColor: "white"
+                      }
+                    },
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                fontColor: "white",
+                                fontSize: 14
+                            },
+                            gridLines: {
+                                color: "grey"
+                            },
+                            stacked: true
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: "white",
+                                fontSize: 14
+                            },
+                            gridLines: {
+                                color: "grey"
+                            }
+                        }]
+                    }
+                }
+            });
+          }
+
+
+
+      </script>
+    </body>
+
+</html>

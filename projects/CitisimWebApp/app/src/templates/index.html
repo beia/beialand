@@ -1,0 +1,400 @@
+<html>
+    <head>
+        <title>CitiSIM</title>
+        <script src="/static/scripts/jquery-3.3.1.js"></script>
+        <script src="/static/scripts/ChartJS/Chart.bundle.js"></script>
+        <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+        <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+        <script src="/static/scripts/FormanticUI/semantic.min.js"></script>
+        <link rel="stylesheet" href="/static/scripts/FormanticUI/semantic.min.css">
+
+        <link rel="stylesheet" href="/static/style.css">
+
+
+        <script src="/static/scripts/Custom/newScenario.js"></script>
+        <script src="/static/scripts/Custom/newRule.js"></script>
+    </head>
+
+
+
+    <!-- <body onload="getScenarios(); getRules();"> -->
+    <body>
+      <div class="ui grid">
+          <div class="eight wide column" align="left"  >
+              <p style="font-size: 75px; padding-top: 2%; "><strong style="cursor:pointer" onclick="javascript:window.location.href = '/'">
+                  <span style="color: gray">Citi</span>Sim
+              </strong></p>
+          </div>
+          <div class="eight wide column" align="right" >
+            <table>
+              <td style="vertical-align:top; text-align:right;">
+                Connected user<br>
+                <span style="color: gray; font-size: 25px; font-weight: bold;">{{current_user.username}}</span><br>
+                <div style=" cursor: pointer;" onclick="javascript:window.location.href='/logout'">
+                  <i class="sign out icon" ></i> LogOut
+                </div><br>
+                <div data-content="Help" onclick="javascript:window.location.href = '/help'" style="width:25px; height:25px; background-color:#0C9; color:#FFF; border-radius:50px;cursor: pointer; float:right;">
+                    <i class="question icon" style="margin-top:5px; margin-left: 3px; font-size:15px;"></i>
+                </div>
+              </td>
+              <td>
+                <img src="/static/logo_citisim_cut.png" alt="CitiSim Logo" style="width:120px; height:120px; cursor:pointer;" onclick="javascript:window.location.href = '/'">
+              </td>
+            </table>
+          </div>
+      </div>
+
+        <div class="ui inverted horizontal divider">
+            <strong style="font-size: 24px;">
+                Scenarios
+            </strong>
+        </div>
+        <br>
+
+        <div class="floating-right-button" data-content="Add New Scenario" onclick="launchNSModal()">
+            <i class="plus icon" style="margin-top:20px; margin-left: 10px; font-size:35px;"></i>
+        </div>
+
+        <div class="floating-right-button" style="bottom: 120px;" data-content="View Datasets" onclick="javascript:window.location.href = '/datasets'">
+            <i class="archive icon" style="margin-top:20px; margin-left: 10px; font-size:35px;"></i>
+        </div>
+
+        <div class="floating-left-button" data-content="Compare Scenarios" onclick="launchComparePage()">
+            <i class="exchange icon" style="margin-top:20px; margin-left: 10px; font-size:35px;"></i>
+        </div>
+
+
+        <div id="scenariosSegment">
+            {% for item in scenarios %}
+                <div id="scenario_{{item.ID}}">
+                    <i  class='close icon pointed'  data-content='Remove Scenario' onclick='launchRMVSModal({{item.ID}});'></i>
+                    <i  class='edit icon pointed'  data-content='Edit Scenario' onclick='launchNSModalToEdit({{item.ID}});'></i>
+                    <div class='ui segment' style='color:black'>
+                        <div class='ui two column very relaxed divided grid'>
+                            <div id='details_{{item.ID}}' class='pointed column' style='width:30%' onclick='enterScenario({{item.ID}})'>
+                                <h4 ><strong>{{item.Name}}</strong></h4>
+                                Value: {{item.Value}} {{item.ValueType}}<br>
+                                Duration: {{item.Duration}} {{item.DurationType}}<br>
+                                Start Date: {{item.StartDate}}<br>
+                                {{item.Description}}
+                            </div>
+                            <div class='column' style='width:70%'>
+                                <div class='ui grid'>
+                                    <div id='rulesCol_{{item.ID}}' class='fourteen wide column' style='padding-left:0; padding-right:0;'>
+                                        <h4><strong>Rules</strong></h4>
+                                        {% for rule in rules %}
+                                            {% if item.ID ==  rule.ScenarioID %}
+                                                <div id='rule_{{rule.RuleID}}'>
+                                                    <i  class='close icon pointed'  data-content='Remove {{rule.RuleName}}' onclick='launchRMVRModal({{rule.RuleID}},{{rule.ScenarioID}});'></i>
+                                                    <strong>{{rule.RuleName}}</strong>
+                                                    - If the savings are between
+                                                    {{rule.RuleMin}}% and {{rule.RuleMax}}% then
+                                                    {{rule.RuleEsco}}% sharing ESCO and
+                                                    {{rule.RuleClient}}% sharing client.
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class='two wide column' align='right' style='padding-left:0'>
+                                        <i  id='addRuleButton' class='plus icon' data-content='Add New Rule' onclick='launchRLSModal({{item.ID}})'></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                </div>
+            {% endfor %}
+            <!-- Aici se vor adauga automat toate scenariile -->
+            <!--<div class="" id="scenario_0" >
+              <i  class='close icon pointed'  data-content="Remove Scenario" onclick="launchRMVSModal(0);"></i>
+                      <i  class='edit icon pointed'  data-content="Edit Scenario" onclick='launchRLSModal(0)'></i>
+                    <div  id="scenario_0" class="ui segment" style="color:black">
+                              <div class='ui two column very relaxed divided grid'>
+                                  <div class='column' style='width:30%'>
+                                      <h4 ><strong> name </strong></h4>
+                                      Value:  value  valueType<br>
+                                      Duration:  duration  durationType <br>
+                                      description
+                                  </div>
+                                  <div class='column' style='width:70%'>
+                                      <div class='ui grid'>
+                                          <div id='rulesCol_0' class='fourteen wide column' style='padding-left:0; padding-right:0;'>
+                                              <h4><strong>Rules</strong></h4>
+                                          </div>
+                                          <div class='two wide column' align='right' style='padding-left:0'>
+                                              <i  id='addRuleButton' class='plus icon'  data-content="Add New Rule" onclick='launchRLSModal(0)'></i>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                  </div>
+            <br> -->
+
+        </div>
+
+
+
+        <div class="ui basic modal RLS">
+            <div class="ui icon header">
+                <i class="balance scale icon"></i>
+                Add New Rule
+            </div>
+            <div class="content" align="center">
+                <input id="nrID" type="hidden">
+                <div class="ui labeled inverted input" style="margin: 10px;">
+                    <div class="ui label" style="width:90px">Name *</div>
+                    <input id="nrName" type="text" placeholder="Rule Name" style="width:410px">
+                </div>
+                <br>
+                <div class="ruleInput" >
+                  <strong style="font-size:20px">If the savings are between</strong>
+                  <div class="ui right labeled inverted input" style="margin: 10px;">
+                      <input id="nrMin" type="text" placeholder="Min" style="width:60px">
+                      <div class="ui basic label">%</div>
+                  </div>
+                  <strong style="font-size:20px">and</strong>
+                  <div class="ui right labeled inverted input" style="margin: 10px;">
+                      <input id="nrMax" type="text" placeholder="Max" style="width:60px">
+                      <div class="ui basic label">%</div>
+                  </div>
+                  <br>
+                  <strong style="font-size:20px">then</strong>
+                  <div class="ui right labeled inverted input" style="margin: 10px;">
+                      <input id="nrEsco" type="text" placeholder="Sharing ESCO" style="width:120px">
+                      <div class="ui basic label">%</div>
+                  </div>
+                  <strong style="font-size:20px">and</strong>
+                  <div class="ui right labeled inverted input" style="margin: 10px;">
+                      <input id="nrClient" type="text" placeholder="Sharing Client" style="width:120px">
+                      <div class="ui basic label">%</div>
+                  </div>
+                </div>
+                <p>
+                  * All fields are required
+                </p>
+            </div>
+            <div class="actions">
+                <div class="ui red basic cancel inverted button" onclick="nrModalCancel()">
+                    <i class="remove icon"></i>
+                    Cancel
+                </div>
+                <div class="ui green ok inverted button" onclick="nrModalAdd()">
+                    <i class="checkmark icon"></i>
+                    Add
+                </div>
+            </div>
+      </div>
+
+
+
+
+        <!-- Modal -->
+        <div class="ui basic modal NS">
+            <div class="ui icon header">
+                <i class="chart line icon"></i>
+                Add New Scenario
+            </div>
+            <div class="content" align="center">
+                <input id="nsID" type="hidden">
+                <div class="ui labeled inverted input" style="margin: 10px;">
+                    <div class="ui label" style="width:100px">Name *</div>
+                    <input id="nsName" type="text" placeholder="Scenario Name" style="width:400px">
+                </div>
+                <br>
+                <div class="ui right labeled inverted input" style="margin: 10px;">
+                    <div class="ui label" style="width:100px">Value *</div>
+                    <input id="nsValue" type="number" step="0.01" placeholder="Value of initial investment" style="width:305px">
+                    <div class="ui dropdown label" style="width:95px;">
+                        <div id="nsValueType" class="text">RON</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <div class="item">RON</div>
+                            <div class="item">EUR</div>
+                            <div class="item">USD</div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="ui right labeled inverted input" style="margin: 10px;">
+                    <div class="ui label" style="width:100px">Duration *</div>
+                    <input id="nsDuration" type="number" step="1" placeholder="Duration of the contract" style="width:305px">
+                    <div class="ui dropdown label" style="width:95px">
+                        <div id="nsDurationType" class="text">Months</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <div class="item">Days</div>
+                            <div class="item">Months</div>
+                            <div class="item">Years</div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                  <div class="ui labeled inverted input" style="margin: 10px;">
+                      <div class="ui label" style="width:100px">Start Date *</div>
+                      <div class="ui calendar" id="monthcalendar" style="width:400px">
+                        <div class="ui input" style="width: 100%;">
+                          <input type="text" placeholder="Select Month" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                        </div>
+                      </div>
+                  </div>
+                <br>
+                <div class="ui inverted input" style="margin: 10px;">
+                    <textarea id="nsDescription" class="ui" rows="5" placeholder="Type a brief description" style="width:500px; resize:none; border-radius: .28571429rem;"> </textarea>
+                </div>
+                <p>
+                  * Required fields
+                </p>
+            </div>
+            <div class="actions">
+                <div class="ui red basic cancel inverted button" onclick="nsModalCancel()">
+                    <i class="remove icon"></i>
+                    Cancel
+                </div>
+                <div id="nsAddBtn" class="ui green ok inverted button" onclick="nsModalAdd()">
+                    <i class="checkmark icon"></i>
+                    Add
+                </div>
+                <div id="nsSaveBtn" class="ui green ok inverted button" onclick="nsModalSave()">
+                    <i class="checkmark icon"></i>
+                    Save
+                </div>
+            </div>
+        </div>
+
+
+        <div class="ui basic modal RMVS">
+            <div class="ui icon header">
+                <i class="close icon"></i>
+                Are you sure you want to remove this scenario?
+            </div>
+            <div class="content" align="center">
+                <input id="rmvID" type="hidden">
+            </div>
+            <div class="actions">
+                <div class="ui green ok inverted button" onclick="rmvModalYes()">
+                    <i class="checkmark icon"></i>
+                    YES
+                </div>
+                <div class="ui red basic cancel inverted button">
+                    <i class="remove icon"></i>
+                    NO
+                </div>
+            </div>
+        </div>
+
+
+        <div class="ui basic modal RMVR">
+            <div class="ui icon header">
+                <i class="close icon"></i>
+                Are you sure you want to remove this rule?
+            </div>
+            <div class="content" align="center">
+                <input id="rmvrID" type="hidden">
+                <input id="rmvrSID" type="hidden">
+            </div>
+            <div class="actions">
+                <div class="ui green ok inverted button" onclick="rmvrModalYes()">
+                    <i class="checkmark icon"></i>
+                    YES
+                </div>
+                <div class="ui red basic cancel inverted button">
+                    <i class="remove icon"></i>
+                    NO
+                </div>
+            </div>
+        </div>
+
+        <div class="ui basic modal HELP">
+            <div class="ui header" align="center">
+                <i class="question circle icon"></i>
+                Scenarios Page
+            </div>
+            <div class="content" align="center" >
+              <table>
+                <tr>
+                  <td style="cursor: pointer;" onclick="switchSlideLeft()">
+                    <i class="angle left icon"  style="font-size:60px;"></i>
+                  </td>
+                  <td>
+                    <div id="helpDiv1" align="center">
+                      <img src="/static/helpim/scenarios1.png" style="width:100%; height:auto;">
+                      <br><br>
+                      <p align="left">
+                        The platform allows you to simulate ESCO investments.
+                        Based on the consumption trend in the past months and on the estimated energy savings that will be gained,
+                        different scenarios can be implemented to see wich type of investment suits you better.
+                      </p>
+                    </div>
+                    <div id="helpDiv2" align="center" hidden>
+                      <img src="/static/helpim/scenarios2.png" style="width:100%; height:auto;">
+                      <br><br>
+                      <p align="left">
+                        A new Simulation scenario can be created using the plus sign in the bottom-right corner. <br>
+                        In the form that shows up, add data regarding the offer received from ESCO. <br>
+                        By clicking the "Add" button, the scenario is created an can be visualized and edited.
+                      </p>
+                    </div>
+                    <div id="helpDiv3" align="center" hidden>
+                      <img src="/static/helpim/scenarios3.png" style="width:100%; height:auto;">
+                      <br><br>
+                      <p align="left">
+                        The new scenario is added to the list on main page. <br>
+                        To remove/ edit the scenario use the buttons on the top-left corner of the specific white square. <br>
+                        Each scenario is divided in two sections.
+                        The left one displays the details of the investment. You can click on it to acces the page with simulation data.
+                        The right section contains the rules for ESCO investment return.
+                      </p>
+                    </div>
+                    <div id="helpDiv4" align="center" hidden>
+                      <img src="/static/helpim/scenarios4.png" style="width:100%; height:auto;">
+                      <br><br>
+                      <p align="left">
+                        To add a new rule click on the plus sign on the top right corner of the scenario. <br>
+                        Each rule defines how the savings are shared between ESCO and the client.
+                      </p>
+                    </div>
+                  </td>
+                  <td style="cursor: pointer;" onclick="switchSlideRight()">
+                    <i class="angle right icon"  style="font-size:60px;"></i>
+                  </td>
+                </tr>
+              </table>
+            </div>
+        </div>
+
+        <script>
+            $('.ui.dropdown').dropdown();
+            $('i').popup({on: 'hover'});
+            $('div').popup({on: 'hover'});
+
+            var count=1
+            function switchSlideRight(){
+              document.getElementById('helpDiv' + count).hidden = true;
+              count = count + 1;
+              if(count == 5)
+                count = 1;
+
+              document.getElementById('helpDiv' + count).hidden = false;
+            }
+
+            function switchSlideLeft(){
+              document.getElementById('helpDiv' + count).hidden = true;
+              count = count - 1;
+              if(count == 0)
+                count = 4;
+
+              document.getElementById('helpDiv' + count).hidden = false;
+            }
+
+            function showHelpModal(){
+              document.getElementById('helpDiv' + count).hidden = true;
+              count = 1;
+              document.getElementById('helpDiv' + count).hidden = false;
+              $('.ui.basic.modal.HELP').modal('show');
+            }
+        </script>
+    </body>
+</html>

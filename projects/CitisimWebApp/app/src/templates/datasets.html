@@ -1,0 +1,151 @@
+<html>
+  <head>
+    <title>Datasets</title>
+
+    <script src="/static/scripts/jquery-3.3.1.js"></script>
+    <script src="/static/scripts/ChartJS/Chart.bundle.js"></script>
+    <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    <script src="/static/scripts/Custom/datasets.js"></script>
+  </head>
+
+
+  <body>
+      <div class="ui grid">
+          <div class="eight wide column" align="left"  >
+              <p style="font-size: 75px; padding-top: 2%; "><strong style="cursor:pointer" onclick="javascript:window.location.href = '/'">
+                  <span style="color: gray">Citi</span>Sim
+              </strong></p>
+          </div>
+          <div class="eight wide column" align="right" >
+            <table>
+              <td style="vertical-align:top; text-align:right;">
+                Connected user<br>
+                <span style="color: gray; font-size: 25px; font-weight: bold;">{{current_user.username}}</span><br>
+                <div style=" cursor: pointer;" onclick="javascript:window.location.href='/logout'">
+                  <i class="sign out icon" ></i> LogOut
+                </div><br>
+                <div data-content="Help" onclick="javascript:window.location.href = '/help'" style="width:25px; height:25px; background-color:#0C9; color:#FFF; border-radius:50px;cursor: pointer; float:right;">
+                    <i class="question icon" style="margin-top:5px; margin-left: 3px; font-size:15px;"></i>
+                </div>
+              </td>
+              <td>
+                <img src="/static/logo_citisim_cut.png" alt="CitiSim Logo" style="width:120px; height:120px; cursor:pointer;" onclick="javascript:window.location.href = '/'">
+              </td>
+            </table>
+          </div>
+      </div>
+
+      <div class="ui inverted horizontal divider">
+          <strong style="font-size: 24px;">
+              Datasets
+          </strong>
+      </div>
+      <br><br>
+
+      <div class="floating-right-button" data-content="View Datasets" onclick="javascript:window.location.href = '/sensorsData'">
+          <i class="chart line icon" style="margin-top:20px; margin-left: 3px; font-size:35px;"></i>
+      </div>
+
+      <div class="ui grid" style="color: black; padding-left: 15%; padding-right:15%;">
+        <div class="two column row">
+
+          {% for elem in datasets %}
+            <div class="column" style="padding:1rem;" id="dataset_{{elem.ID}}">
+              <div class="ui segment" style="height: 100%;">
+                <div align="right" style="width: 100%;">
+                  <i  class='close icon pointed'  data-content='Remove Dataset'  onclick="removeDataset({{elem.ID}})"></i>
+                  <i  class='edit icon pointed'  data-content='Edit Dataset' onclick="launchNDSEditModal({{elem.ID}})"></i>
+                </div>
+                <strong>{{elem.DatasetName}}</strong><br>
+                Libcitisim sensor: {{elem.SensorID}}<br>
+                {{elem.DatasetDescription}}
+                <div align="right" style="width: 100%;">
+                  <i  class='upload icon pointed'  data-content='Export Data'  onclick="exportData({{elem.ID}})"></i>
+                  <i  class='download icon pointed'  data-content='Import Data' onclick="launchIMPModal({{elem.ID}})"></i>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+
+
+          <div class="column" style="padding:1rem;" id="newDatasetBtn">
+            <div  data-content="Add New Dataset" style="width:60px; height:60px; background-color:#0C9; color:#FFF; border-radius:50px; cursor: pointer;" onclick="launchNDSModal()">
+              <div>
+                  <i class="plus icon" style="margin-top:20px; margin-left: 10px; font-size:35px;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+
+
+      <div class="ui basic modal NDS">
+          <div class="ui icon header">
+              <i class="chart line icon"></i>
+              Add New Dataset
+          </div>
+          <div class="content" align="center">
+              <input id="ndsID" type="hidden">
+              <div class="ui labeled inverted input" style="margin: 10px;">
+                  <div class="ui label" style="width:90px">Name *</div>
+                  <input id="ndsName" type="text" placeholder="Dataset Name" style="width:410px">
+              </div>
+              <br>
+              <div class="ui right labeled inverted input" style="margin: 10px;">
+                  <div class="ui label" style="width:90px">Sensor </div>
+                  <input id="ndsSensor" type="text"  placeholder="Libcitisim Sensor ID" style="width:410px">
+              </div>
+              <br>
+              <div class="ui inverted input" style="margin: 10px;">
+                  <textarea id="ndsDescription" class="ui" rows="5" placeholder="Type a brief description" style="width:500px; resize:none; border-radius: .28571429rem;"></textarea>
+              </div>
+              <p>
+                * Required fields
+              </p>
+          </div>
+          <div class="actions">
+              <div class="ui red basic cancel inverted button" onclick="ndsModalCancel()">
+                  <i class="remove icon"></i>
+                  Cancel
+              </div>
+              <div id="ndsAddBtn" class="ui green ok inverted button" onclick="ndsModalAdd()">
+                  <i class="checkmark icon"></i>
+                  Add
+              </div>
+              <div id="ndsSaveBtn" class="ui green ok inverted button" onclick="ndsModalSave()">
+                  <i class="checkmark icon"></i>
+                  Save
+              </div>
+          </div>
+      </div>
+
+      <div class="ui basic modal IMP">
+          <div class="ui icon header">
+              <i class="download icon"></i>
+              Import Data
+          </div>
+          <div class="content" align="center">
+              <form id="importForm" action="/datasets/import" method="POST" enctype=multipart/form-data><p>
+                  <input id="impID" name="datasetID" type="hidden">
+                  <input type="file" name="file">
+              </form>
+          </div>
+          <div class="actions">
+              <div id="ndsAddBtn" class="ui green ok inverted button" onclick="javascript:document.getElementById('importForm').submit()">
+                  <i class="download icon"></i>
+                  Import
+              </div>
+              <div class="ui red basic cancel inverted button">
+                  <i class="remove icon"></i>
+                  Cancel
+              </div>
+          </div>
+      </div>
+
+  </body>
+</html>
