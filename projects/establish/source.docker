@@ -1,0 +1,3 @@
+DOCKER_FOLDER=src
+IMAGE_NAME=beia/establish_garmin
+IMAGE_VERSION_FIXED=latest
