@@ -46,7 +46,7 @@ services:
       - influxdb
 
   grafana:
-    image: grafana/grafana:7.1.5
+    image: grafana/grafana:8.1.0
     environment:
       GF_SECURITY_ADMIN_PASSWORD__FILE: '/run/secrets/grafana_password'
       GF_SMTP_ENABLED: "true"
