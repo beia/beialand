@@ -14,6 +14,7 @@ from flatten_json import flatten
 
 from utils.exceptions import RestException
 from utils.functions import resolve_mapping
+from utils.libelium_decoder import decode_libelium
 
 app = Flask(__name__)
 
@@ -37,7 +38,6 @@ def publish_data():
         raise RestException(400, "Bad request", "Payload is not a valid JSON.")
 
     try:
-        metrics = data['payload_fields']
         metic_time = data['metadata']['time']
         app_id = data['app_id']
         dev_id = data['dev_id']
@@ -49,9 +49,19 @@ def publish_data():
         raise RestException(401, 'Not authorized', 'token authorization HTTP header is missing.')
 
     mqtt_topic = resolve_mapping(app.config['mapping']['applications'], app_id, dev_id, authorization)
+    format = request.args.get('format')
+    if not format:
+        try:
+            metrics = data['payload_fields']
+            result = flatten(metrics)
+            result['timestamp'] = metic_time
+        except KeyError:
+            raise RestException(400, 'Bad request', 'Mandatory key is missing from the JSON.')
+    elif format == 'libelium':
+        # Define result
+        result = decode_libelium(data)
 
-    result = flatten(metrics)
-    result['timestamp'] = metic_time
+
     payload = json.dumps(result)
 
     app.logger.info('New topic: {}\nPayload: {}'.format(mqtt_topic, payload))
@@ -98,6 +108,24 @@ def __get_config(silent=False, timeout=5):
     when the Exception becomes silent and None is returned in case of error
     :return: the decoded config. None if there is an error.
     """
+    return {
+    "applications": {
+
+        "pysensetest": {
+            "devices": {
+                "fakedevice1": {
+                    "mqtt_topic": "lora/fakedevice1"
+                },
+                "lopy1": {
+                    "mqtt_topic": "lora/lopy1"
+                }
+            },
+            "tokens": [
+                "betapasswordbeia"
+            ]
+        }
+    }
+}
     try:
         r = requests.get(CONFIG_URL, timeout=timeout)
         return r.json()
@@ -144,4 +172,4 @@ def clean_app(app):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False, port=80)
+    app.run(host='0.0.0.0', debug=True, port=80)
