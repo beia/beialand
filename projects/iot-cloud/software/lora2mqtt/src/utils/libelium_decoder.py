@@ -1,3 +1,6 @@
+import base64
+# de importat log
+
 def decode_libelium(ttn_json):
     authorization_header = ttn_json.headers['authorization']
     if authorization_header == "beiawasp29032021":
