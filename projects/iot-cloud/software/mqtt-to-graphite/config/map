@@ -63,6 +63,9 @@ j altfactor/meshlium/#
 j altfactor/microrae/#
 j garmin/#
 j urad/#
+j telecontact/#
+j smartsense/#
+j pimeo/#
 n $SYS/brokers/+/stats/#
 n $SYS/brokers/+/metrics/#
 n sgs/#
