@@ -66,8 +66,8 @@ j urad/#
 j telecontact/#
 j smartsense/#
 j pimeo/#
+j safecare/#
 n $SYS/brokers/+/stats/#
 n $SYS/brokers/+/metrics/#
 n sgs/#
 n android/#
-
