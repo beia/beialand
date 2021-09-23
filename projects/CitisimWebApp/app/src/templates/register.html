@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CitiSIM Register</title>
+    <script src="/static/scripts/jquery-3.3.1.js"></script>
+    <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="floating-left-button" data-content="Help" onclick="javascript:window.location.href = '/help'">
+        <i class="question icon" style="margin-top:20px; margin-left: 10px; font-size:35px;"></i>
+    </div>
+
+
+    <div class="ui middle aligned center aligned grid" style="padding-left:20%; padding-right:20%;">
+      <div class="column">
+        <h2 class="ui teal image header">
+          <img src="/static/logo_citisim.png" class="image">
+          <div class="content" style="color:#0C9;">
+            Create a new account
+          </div>
+        </h2>
+        <form class="ui form"  id="register-form" action="" method="POST">
+          <div class="ui stacked segment">
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="user icon"></i>
+                <input type="text" id="nameField" name="name" placeholder="User Name">
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="envelope icon"></i>
+                <input type="text" id="emailField" name="email" placeholder="E-mail address">
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="lock icon"></i>
+                <input type="password" id="passField" name="password" placeholder="Password">
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="lock icon"></i>
+                <input type="password" id="confirmField" name="confirm" placeholder="Confirm Password">
+              </div>
+            </div>
+            <div class="ui fluid teal submit button" onclick="checkFields()" style="background-color:#0C9;">Register</div>
+          </div>
+
+        </form>
+
+        <br>
+
+        <div id="messageDiv">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="ui negative message">
+                  <div class="header">
+                      Authentication error
+                  </div>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+
+    <div class="ui basic modal HELP">
+        <div class="ui header" align="center">
+            <i class="question circle icon"></i>
+            Register Page
+        </div>
+        <div class="content" align="center">
+            <img src="/static/helpim/Register.png" style="width:100%; height:auto;">
+        </div>
+    </div>
+
+    <script>
+      function checkFields(){
+        messageText = "<div class='ui negative message'><div class='header'>Registration error </div>";
+        if(document.getElementById("nameField").value.length == 0){
+          document.getElementById("messageDiv").innerHTML = messageText + "User Name field is empty!</div>";
+          return;
+        }
+        if(document.getElementById("emailField").value.length == 0){
+          document.getElementById("messageDiv").innerHTML = messageText + "Email field is empty!</div>";
+          return;
+        }
+        if(document.getElementById("passField").value.length == 0){
+          document.getElementById("messageDiv").innerHTML = messageText + "Password field is empty!</div>";
+          return;
+        }
+        if(document.getElementById("confirmField").value.length == 0){
+          document.getElementById("messageDiv").innerHTML = messageText + "Confirm password field is empty!</div>";
+          return;
+        }
+
+        if(document.getElementById("passField").value != document.getElementById("confirmField").value){
+          document.getElementById("messageDiv").innerHTML = messageText + "Password is not corectly confirmed!</div>";
+          return;
+        }
+
+
+        document.getElementById('register-form').submit();
+      }
+    </script>
+  </body>
+</html>

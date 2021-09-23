@@ -5,8 +5,11 @@ import uuid
 import json
 from time import time
 from threading import Lock
+from urllib.parse import urlparse, urlunparse, urlencode
+from collections import OrderedDict
 
 from redis import Redis
+import requests
 
 from sanic import Sanic, response
 from sanic.log import logger
@@ -18,6 +21,8 @@ from google.cloud.language import types
 
 DEFAULT_SA_LANG = "en"
 ALL_METHODS = frozenset(["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+
+BERT_BASE_URL = os.environ.get("BERT_BASE_URL")
 
 class TokenBucket:
     """
@@ -126,6 +131,18 @@ class Application:
         # TODO: check Google API connectivity?
         return response.text(None, status=200)
 
+    def get_sa_handler(self, request, default_engine="google"):
+        ENGINES = {
+                "google": self.sa_with_google,
+                "bert": self.sa_with_bert
+                }
+        if default_engine not in ENGINES:
+            default_engine = engines.keys()[0]
+        hint = request.json.get("engine-hint")
+        if hint not in ENGINES:
+            hint = default_engine
+        return ENGINES[hint]
+
     def sentimentanalysis(self, request):
         result = self.verify_request(request)
         if result:
@@ -138,13 +155,52 @@ class Application:
                 "message": "The request is missing the 'content' parameter"
             }, status=400)
         job_id = str(uuid.uuid4())
-        self.app.add_task(self.long_running(language, content, job_id))
+        sa_handler = self.get_sa_handler(request)
+        self.app.add_task(sa_handler(language, content, job_id))
         return response.json({
                 "status": "pending",
                 "job-id": str(job_id)
             })
 
-    async def long_running(self, language, content, job_id):
+
+    async def sa_with_bert(self, language, content, job_id):
+        self.kvstore.set(job_id, {"status": "pending"})
+        try:
+            self.logger.info("[Job %s]: Starting communication with BERT", job_id)
+            url = urlparse(BERT_BASE_URL)
+            url = url._replace(query = urlencode(OrderedDict(text=content)))
+            r = requests.get(str(urlunparse(url)))
+            self.logger.info("[Job %s]: Got result from BERT", job_id)
+            if int(r.status_code) != 200:
+                correlation_id = self.get_uuid()
+                self.logger.debug("[Job %s]: We encountered an error. Correlation id '%s'. Output: '%s'", job_id, correlation_id, r)
+                self.kvstore.set(job_id, {
+                    "status": "server-error",
+                    "message": r.text,
+                    "correlation_id": correlation_id
+                    })
+                return
+            # parsing the output " Label: N (0.97) " / " Label: P (0.15) "
+            result = r.text.split(" ")
+            score = -1 if result[2] == 'N' else 1
+            score *= float(result[3][1:-1])
+            self.logger.debug("[Job %s]: Score: %s", job_id, score)
+            self.kvstore.set(job_id, {
+                "status": "success",
+                "sentiment-score": score
+                })
+            self.logger.info("[Job %s]: Finishing the request", job_id)
+        except Exception as ex:
+            correlation_id = self.get_uuid()
+            self.logger.exception("[Job %s]: We encountered an error. Correlation id '%s'", job_id, correlation_id)
+            self.kvstore.set(job_id, {
+                "status": "server-error",
+                "message": "Encountered an error while processing request",
+                "correlation-id": correlation_id
+                })
+
+
+    async def sa_with_google(self, language, content, job_id):
         self.kvstore.set(job_id, { "status": "pending" })
         try:
             self.logger.info("[Job %s]: Starting communication with Google", job_id)

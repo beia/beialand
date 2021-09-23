@@ -1,0 +1,21 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          mock data for MQTT
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Random data generator for MQTT server testing
+### END INIT INFO
+
+while true; do
+    mosquitto_pub -h mqtt.beia-telemetrie.ro -t "training/RPi/Cristi-Condruz" -m "{
+        \"BAT\" : $((50 + $RANDOM % 10)),
+        \"HUM\" : 41,
+        \"CO2\" : $((1 + $RANDOM % 100)),
+        \"NO2\" : $((2000 + $RANDOM % 100)),
+        \"O2\" : 235.3
+        }";
+    sleep 600;
+done

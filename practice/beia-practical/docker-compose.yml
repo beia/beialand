@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  message-adapter:
+    build: ./message-adapter
+    volumes: 
+      - ./message-adapter/src/:/var/app/src/
+    networks:
+      - db_broker_network
+      - broker_adapter_network
+      - blockchain_adapter_network
+    environment:
+      - DEBUG_DATA_FLOW=true
+      - DAI_ADDRESS=0x85B174e3F8E168E084035EA0dfaB4De9a32Eb314
+      
+  mqtt-broker:
+    image: eclipse-mosquitto:1.6
+    ports:
+      - 1883:1883
+    networks: 
+      - broker_adapter_network
+    restart: always
+
+  influxdb:
+    image: influxdb:1.7.10
+    env_file: 
+      - database/config.env
+    networks:
+      - db_broker_network
+    volumes: 
+      - db_data:/var/lib/influxdb
+      - ./database/init.iql:/docker-entrypoint-initdb.d/init.iql
+
+networks:
+  broker_adapter_network:
+  db_broker_network:
+  blockchain_adapter_network:
+volumes:
+  db_data: {}

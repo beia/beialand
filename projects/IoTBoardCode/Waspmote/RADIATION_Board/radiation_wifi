@@ -1,0 +1,328 @@
+#include <WaspFrame.h>
+#include <WaspWIFI_PRO.h>
+#include "WaspSensorRadiation.h"
+
+
+// choose socket (SELECT USER'S SOCKET)
+///////////////////////////////////////
+uint8_t socket = SOCKET0;
+///////////////////////////////////////
+
+// WiFi AP settings (CHANGE TO USER'S AP)
+///////////////////////////////////////
+char ESSID[] = "SSID";
+char PASSW[] = "password";
+///////////////////////////////////////
+
+
+// choose URL settings
+///////////////////////////////////////
+char type[] = "http";
+char host[] = "82.78.81.171";
+char port[] = "80";
+///////////////////////////////////////
+
+uint8_t error;
+uint8_t status;
+unsigned long previous;
+
+
+
+// CO Sensor must be connected physically in SOCKET_2
+//CO2SensorClass CO2Sensor(SOCKET_2);
+
+// VOC Sensor must be connected in SOCKET_5
+//VOCSensorClass VOCSensor(SOCKET_5);
+
+
+
+// Concentratios used in calibration process
+//#define POINT1_PPM_VOC 100.0 //  <--- Ro value at this concentration
+//#define POINT2_PPM_VOC 300.0
+//#define POINT3_PPM_VOC 1000.0
+
+// Calibration resistances obtained during calibration process
+//#define POINT1_RES_VOC 230.30 // <-- Ro Resistance at 100 ppm. Necessary value.
+//#define POINT2_RES_VOC 40.665 //
+//#define POINT3_RES_VOC 20.300 //
+
+// Concentratios used in calibration process (PPM Values)
+//#define POINT1_PPM_CO2 350.0 //   <-- Normal concentration in air
+//#define POINT2_PPM_CO2 1000.0
+//#define POINT3_PPM_CO2 3000.0
+
+// Calibration vVoltages obtained during calibration process (Volts)
+//#define POINT1_VOLT_CO2 0.300
+//#define POINT2_VOLT_CO2 0.350
+//#define POINT3_VOLT_CO2 0.380
+
+// Define the number of calibration points
+//#define numPoints 3
+//float temperature; // Stores the temperature in ºC
+//float humidity;    // Stores the realitve humidity in %RH
+//float pressure;    // Stores the pressure in Pa
+
+//float VOCconcentrations[] = {POINT1_PPM_VOC, POINT2_PPM_VOC, POINT3_PPM_VOC};
+//float VOCresValues[] = {POINT1_RES_VOC, POINT2_RES_VOC, POINT3_RES_VOC};
+//float concentrations[] = {POINT1_PPM_CO2, POINT2_PPM_CO2, POINT3_PPM_CO2};
+//float voltages[] = {POINT1_VOLT_CO2, POINT2_VOLT_CO2, POINT3_VOLT_CO2};
+
+
+
+// define the Waspmote ID
+char node_ID[] = "RADIATION_WiFi";
+
+
+// 2. Read sensors
+
+//////////////////////////////////////////
+
+// Turn on the sensor board
+
+void setup() {
+
+  // Starting USB
+  USB.ON();
+  USB.println(F("Starting Waspmote..."));
+
+  // Starting Radiation Board
+  RadiationBoard.ON();
+
+  //CO2Sensor.setCalibrationPoints(voltages, concentrations, numPoints);
+  // Calculate the slope and the intersection of the logarithmic function
+  //VOCSensor.setCalibrationPoints(VOCresValues, VOCconcentrations, numPoints);
+  // turn on gas and sensors
+
+  //Gases.ON();
+  //delay(100);
+  //CO2Sensor.ON();
+  //VOCSensor.ON();
+  //APPSensor.ON();
+
+    //////////////////////////////////////////////////
+  // 1. Switch ON the WiFi module
+  //////////////////////////////////////////////////
+  error = WIFI_PRO.ON(socket);
+
+  if (error == 0)
+  {    
+    USB.println(F("1. WiFi switched ON"));
+  }
+  else
+  {
+    USB.println(F("1. WiFi did not initialize correctly"));
+  }
+
+
+  //////////////////////////////////////////////////
+  // 2. Reset to default values
+  //////////////////////////////////////////////////
+  error = WIFI_PRO.resetValues();
+
+  if (error == 0)
+  {    
+    USB.println(F("2. WiFi reset to default"));
+  }
+  else
+  {
+    USB.println(F("2. WiFi reset to default ERROR"));
+  }
+
+
+  //////////////////////////////////////////////////
+  // 3. Set ESSID
+  //////////////////////////////////////////////////
+  error = WIFI_PRO.setESSID(ESSID);
+
+  if (error == 0)
+  {    
+    USB.println(F("3. WiFi set ESSID OK"));
+  }
+  else
+  {
+    USB.println(F("3. WiFi set ESSID ERROR"));
+  }
+
+
+  //////////////////////////////////////////////////
+  // 4. Set password key (It takes a while to generate the key)
+  // Authentication modes:
+  //    OPEN: no security
+  //    WEP64: WEP 64
+  //    WEP128: WEP 128
+  //    WPA: WPA-PSK with TKIP encryption
+  //    WPA2: WPA2-PSK with TKIP or AES encryption
+  //////////////////////////////////////////////////
+  error = WIFI_PRO.setPassword(WPA2, PASSW);
+
+  if (error == 0)
+  {    
+    USB.println(F("4. WiFi set AUTHKEY OK"));
+  }
+  else
+  {
+    USB.println(F("4. WiFi set AUTHKEY ERROR"));
+  }
+
+
+  //////////////////////////////////////////////////
+  // 5. Software Reset 
+  // Parameters take effect following either a 
+  // hardware or software reset
+  //////////////////////////////////////////////////
+  error = WIFI_PRO.softReset();
+
+  if (error == 0)
+  {    
+    USB.println(F("5. WiFi softReset OK"));
+  }
+  else
+  {
+    USB.println(F("5. WiFi softReset ERROR"));
+  }
+
+
+  USB.println(F("*******************************************"));
+  USB.println(F("Once the module is configured with ESSID"));
+  USB.println(F("and PASSWORD, the module will attempt to "));
+  USB.println(F("join the specified Access Point on power up"));
+  USB.println(F("*******************************************\n"));
+
+  // get current time
+  previous = millis();
+}
+
+
+
+
+
+void loop() {
+
+  // get actual time
+  previous = millis();
+  //////////////////////////////////////////////////
+  // 1. Switch ON
+  //////////////////////////////////////////////////
+  error = WIFI_PRO.ON(socket);
+  if (error == 0) {
+    USB.println(F("WiFi switched ON"));
+  } else {
+    USB.println(F("WiFi did not initialize correctly"));
+  }
+  //////////////////////////////////////////////////
+  // 2. Join AP
+  //////////////////////////////////////////////////
+
+  // check connectivity
+  status = WIFI_PRO.isConnected();
+  // check if module is connected
+  if (status == true) {
+    USB.print(F("WiFi is connected OK"));
+    USB.print(F(" Time(ms):"));
+    USB.println(millis() - previous);
+
+
+    // Read the concentration value
+    //temperature = Gases.getTemperature();
+    //humidity = Gases.getHumidity();
+    //pressure = Gases.getPressure();
+
+
+    //float CO2Vol = CO2Sensor.readVoltage();
+    //float CO2PPM = CO2Sensor.readConcentration();
+    //float vocVol = VOCSensor.readVoltage();
+    //float vocRes = VOCSensor.readResistance(vocVol); // Resistance of the senso
+    //float vocPPM = VOCSensor.readConcentration(vocRes); // PPM value of VOC
+
+
+    // Print of the results
+    //USB.print(F(" Temperature: "));
+    //USB.print(temperature);
+    //USB.println(F(" Celsius Degrees |"));
+    //USB.print(F(" Humidity : "));
+    //USB.print(humidity);
+    //USB.println(F(" %RH"));
+    //USB.print(F(" Pressure : "));
+    //USB.print(pressure);
+    //USB.println(F(" Pa"));
+    //USB.print(F("CO2 Sensor Voltage: "));
+    //USB.print(CO2Vol);
+    //USB.print(F("volts |"));
+    //USB.print(F(" VOC Sensor Voltage: "));
+    //USB.print(vocVol);
+    //USB.println(F(" V |"));
+    //USB.print(F(" VOC Sensor Resistance: "));
+    //USB.print(vocRes);
+    //USB.println(F(" Ohms |"));
+    //USB.print(F(" CO2 concentration estimated: "));
+    //USB.print(CO2PPM);
+    //USB.println(F(" ppm"));
+    //USB.print(F(" VOC concentration Estimated: "));
+    //USB.print(vocPPM);
+    //USB.println(F(" ppm"));
+    //USB.println();
+
+// Variable to store measured radiation
+  float radiation;
+  
+  // 1. Measure radiation during default time (10 s)
+  USB.println(F("Measuring radiation levels."));
+  radiation = RadiationBoard.getRadiation();
+  USB.print(F("radiation[uSv/h]: "));
+  USB.println(radiation);
+  USB.println();
+  delay(2000);
+
+  // 2. Measure radiation during 25 s
+  USB.println(F("Measuring during 25s."));
+  radiation = RadiationBoard.getRadiationInt(25000);
+  USB.print(F("radiation[uSv/h]: "));
+  USB.println(radiation);
+  USB.println();
+  delay(2000);
+
+    
+    ///////////////////////////////////////////
+    // 3. Create BINARY frame
+    ///////////////////////////////////////////
+    frame.createFrame(BINARY, node_ID);
+    frame.addSensor(SENSOR_RAD, radiation);
+    //frame.addSensor(SENSOR_GASES_TC, Gases.getTemperature());
+    //frame.addSensor(SENSOR_GASES_HUM, Gases.getHumidity());
+    //frame.addSensor(SENSOR_GASES_PRES, Gases.getPressure());
+    //frame.addSensor(SENSOR_GASES_CO2, CO2PPM);
+    //frame.addSensor(SENSOR_GASES_VOC, VOCSensor.readConcentration(vocRes));
+    frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());
+    ///////////////////////////////
+    // 3.1. Create a new Frame
+    ///////////////////////////////
+    // print frame
+    frame.showFrame();
+    ///////////////////////////////
+    // 3.2. Send Frame to Meshlium
+    ///////////////////////////////
+
+    // http frame
+    error = WIFI_PRO.sendFrameToMeshlium(type, host, port, frame.buffer, frame.length);
+    // check response
+    if (error == 0) {
+      USB.println(F("HTTP OK"));
+      USB.print(F("HTTP Time from OFF state (ms):"));
+      USB.println(millis() - previous);
+    } else {
+      USB.println(F("Error calling 'getURL' function"));
+      WIFI_PRO.printErrorCode();
+    }
+  } else {
+    USB.print(F("WiFi is connected ERROR"));
+    USB.print(F(" Time(ms):"));
+    USB.println(millis() - previous);
+  }
+  
+  //////////////////////////////////////////////////
+  // 3. Switch OFF
+  //////////////////////////////////////////////////
+  WIFI_PRO.OFF(socket);
+  USB.println(F("WiFi switched OFF\n\n"));
+  delay(900000);
+}

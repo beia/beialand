@@ -1,0 +1,4 @@
+CREATE DATABASE statistics;
+USE statistics;
+
+CREATE RETENTION POLICY "forever" ON "statistics" DURATION INF REPLICATION 1

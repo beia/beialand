@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+      <title>Scenario {{scenarioID}}</title>
+      <script src="/static/scripts/jquery-3.3.1.js"></script>
+      <script src="/static/scripts/ChartJS/Chart.bundle.js"></script>
+      <script src="/static/scripts/ChartJS/samples/utils.js"></script>
+      <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+      <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+      <link rel="stylesheet" href="/static/style.css">
+      <script src="/static/scripts/Custom/tablePage.js"></script>
+    </head>
+
+    <body class="wideBody">
+      <div class="ui grid">
+          <div class="eight wide column" align="left"  >
+              <p style="font-size: 75px; padding-top: 2%; "><strong style="cursor:pointer" onclick="javascript:window.location.href = '/'">
+                  <span style="color: gray">Citi</span>Sim
+              </strong></p>
+          </div>
+          <div class="eight wide column" align="right" >
+            <table>
+              <td style="vertical-align:top; text-align:right;">
+                Connected user<br>
+                <span style="color: gray; font-size: 25px; font-weight: bold;">{{current_user.username}}</span><br>
+                <div style=" cursor: pointer;" onclick="javascript:window.location.href='/logout'">
+                  <i class="sign out icon" ></i> LogOut
+                </div><br>
+                <div data-content="Help" onclick="javascript:window.location.href = '/help'" style="width:25px; height:25px; background-color:#0C9; color:#FFF; border-radius:50px;cursor: pointer; float:right;">
+                    <i class="question icon" style="margin-top:5px; margin-left: 3px; font-size:15px;"></i>
+                </div>
+              </td>
+              <td>
+                <img src="/static/logo_citisim_cut.png" alt="CitiSim Logo" style="width:120px; height:120px; cursor:pointer;" onclick="javascript:window.location.href = '/'">
+              </td>
+            </table>
+          </div>
+      </div>
+
+
+        <div class="ui inverted horizontal divider">
+            <strong style="font-size: 24px;">
+                {{scenarioName}}
+            </strong>
+        </div>
+
+
+        <table class="ui stripped celled selectable inverted table">
+            <thead align="center">
+                <tr>
+                    <th colspan="4"></th>
+                    <th colspan="7">Key Performance Indicator</th>
+                    <th colspan="2">Sharings</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th>Month</th>
+                    <th>Baseline Bill</th>
+                    <th>Current Bill</th>
+                    <th>Savings Achieved <br> (monetary units)</th>
+                    <th>Savings Achieved <br> (percent)</th>
+                    <th>Amount returned</th>
+                    <th>Amount yet to be returned</th>
+                    <th>Return of Investement <br> (ROI)</th>
+                    <th>Internal Rate of Return <br> (IRR)</th>
+                    <th>Net Present Value <br> (NPV)</th>
+                    <th>Sharings ESCO</th>
+                    <th>Sharings Client</th>
+                </tr>
+            </thead>
+            <tbody align="center">
+                {% if rows|length > 0 %}
+                    <tr>
+                      <td></td>
+                      <td></td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayBaseCurrBillChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayBaseCurrBillChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displaySavingsMUChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displaySavingsPercentChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayAmountReturnedChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayAmountReturnedChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayROIChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayIRRChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displayNPVChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displaySharingsChart({{scenarioID}})"></i>
+                      </td>
+                      <td class="edittableCell">
+                          <i  class='chart bar pointed icon' data-content='Display chart' onclick="displaySharingsChart({{scenarioID}})"></i>
+                      </td>
+                    </tr>
+                {% endif %}
+                {% for row in rows %}
+                    <tr id="bill_{{row.OutputID}}">
+                        <td id="billActions_{{row.OutputID}}">
+                            <!-- <i  class='close pointed icon' data-content='Remove Bill' onclick="removeBill({{row.OutputID}})"></i> -->
+                            <i  class='edit pointed icon' data-content='Edit Bill' onclick="editBill({{row.OutputID}})"></i>
+                            <!-- <i  class='save icon' data-content='Save Changes' style="display:none"></i> -->
+                            <!-- <i  class='plus icon' data-content='Add Bill' style="display:none"></i> -->
+                        </td>
+                        <td id="billName_{{row.OutputID}}" class="nameCell">{{row.BillName}}</td>
+                        <td id="billBase_{{row.OutputID}}">{{row.BaselineBill}}</td>
+                        <td id="billCurr_{{row.OutputID}}">{{row.CurrentBill}}</td>
+                        <td>{{row.SavingsMU}}</td>
+                        <td>{{row.SavingsPercent}} %</td>
+                        <td>{{row.AmountReturned}}</td>
+                        <td>{{row.AmountYetToBeReturned}}</td>
+                        <td>{{row.ROI}} %</td>
+                        <td>{{row.IRR}} %</td>
+                        <td>{{row.NPV}}</td>
+                        <td>{{row.ESCO}}</td>
+                        <td>{{row.Client}}</td>
+                    </tr>
+                {% endfor %}
+
+                    <!-- <tr id="newBillRow">
+                        <td class="edittableCell">
+                            <i  class='plus pointed icon' data-content='Add Bill' onclick="addNewBill({{scenarioID}})"></i>
+                        </td>
+                        <td class="edittableCell">
+                            <input id="newBillName" class="billInput" type="text" name="" value="">
+                        </td>
+                        <td class="edittableCell">
+                            <input id="newBillBaseline"  class="billInput" type="number" step="0.01">
+                        </td>
+                        <td class="edittableCell">
+                            <input id="newBillCurrent" class="billInput" type="number" step="0.01">
+                        </td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                        <td class="edittableCell"></td>
+                    </tr> -->
+            </tbody>
+        </table>
+
+        <div class="ui basic modal RMVBILL">
+            <div class="ui icon header">
+                <i class="close icon"></i>
+                Are you sure you want to remove this bill?
+            </div>
+            <div class="content" align="center">
+                <input id="rmvbID" type="hidden">
+            </div>
+            <div class="actions">
+                <div class="ui green ok inverted button" onclick="rmvbModalYes()">
+                    <i class="checkmark icon"></i>
+                    YES
+                </div>
+                <div class="ui red basic cancel inverted button">
+                    <i class="remove icon"></i>
+                    NO
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="ui basic modal SAVE">
+            <div class="ui icon header">
+                <i class="close icon"></i>
+                Are you sure you want to overwrite this bill?
+            </div>
+            <div class="content" align="center">
+                <input id="saveScenarioID" type="hidden" value="{{scenarioID}}">
+                <input id="saveID" type="hidden">
+            </div>
+            <div class="actions">
+                <div class="ui green ok inverted button" onclick="saveModalYes()">
+                    <i class="checkmark icon"></i>
+                    YES
+                </div>
+                <div class="ui red basic cancel inverted button">
+                    <i class="remove icon"></i>
+                    NO
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="ui basic modal CHART">
+            <div class="ui icon header">
+                <i class="chart bar icon"></i>
+                <div id="chartTitle"></div>
+            </div>
+            <div class="content" align="center">
+                  <div class='ui grid'>
+                      <div id="modalTable" class="five wide column" style="padding-top: 50px">
+
+                      </div>
+                      <div class="eleven wide column">
+                          <canvas id="bar-chart-canvas"></canvas>
+                          <script type="text/javascript">
+                            var barCtx = document.getElementById('bar-chart-canvas').getContext('2d');
+
+                          </script>
+                      </div>
+                  </div>
+            </div>
+        </div>
+
+        <div class="ui basic modal HELP">
+            <div class="ui header" align="center">
+                <i class="question circle icon"></i>
+                Log In Page
+            </div>
+            <div class="content" align="center">
+                <img src="/static/helpim/table.png" style="width:100%; height:auto;">
+                <br><br>
+                <p align="left">
+                  By clicking on the created scenario, the baseline bill (consumption history average) and the simulated bill cab ve added for each month of contract. <br>
+                  Several Key Performance Indicators are automatically computed for each new bill
+                  and the performance of the scenario is determined by these indicators. <br>
+                  For a graphical visualisation of the simulation results, press on the diagram like buttons beneath the table header.
+                </p>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            $('i').popup({on: 'hover'});
+        </script>
+    </body>
+</html>

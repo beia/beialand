@@ -1,0 +1,12 @@
+[Unit]
+Description=Mock Data daemon
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/etc/init.d/mock_data_generator_daemon
+
+[Install]
+WantedBy=multi-user.target 

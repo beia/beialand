@@ -1,0 +1,3 @@
+<plugin>
+   <file name="BeiaDeviceDriver_GlassBreak.dll" debug="true" />
+</plugin>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CitiSIM LogIN</title>
+    <script src="/static/scripts/jquery-3.3.1.js"></script>
+    <script src="/static/scripts/SemanticUI/semantic.min.js"></script>
+    <link rel="stylesheet" href="/static/scripts/SemanticUI/semantic.min.css">
+
+
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+
+
+    <div class="floating-left-button" data-content="Help" onclick="javascript:window.location.href = '/help'">
+        <i class="question icon" style="margin-top:20px; margin-left: 10px; font-size:35px;"></i>
+    </div>
+
+    <div class="ui middle aligned center aligned grid" style="padding-left:20%; padding-right:20%;">
+      <div class="column">
+        <h2 class="ui teal image header">
+          <img src="/static/logo_citisim.png" class="image">
+          <div class="content" style="color:#0C9;">
+            Log-in to your account
+          </div>
+        </h2>
+        <form class="ui form" id="login-form" action="" method="POST">
+          <div class="ui stacked segment">
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="envelope icon"></i>
+                <input type="text" id="emailField" name="email"  placeholder="E-mail address">
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="lock icon"></i>
+                <input type="password" id="passField" name="password" placeholder="Password">
+              </div>
+            </div>
+            <div onclick="checkFields()" class="ui fluid teal submit button" style="background-color:#0C9;">
+              Login
+            </div>
+          </div>
+
+          <div class="ui error message"></div>
+
+        </form>
+
+        <div id="messageDiv">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="ui negative message">
+                  <div class="header">
+                      Authentication error
+                  </div>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+
+        <div class="ui message">
+          Not registered yet? <a href="/register">Join Now</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui basic modal HELP">
+        <div class="ui header" align="center">
+            <i class="question circle icon"></i>
+            Log In Page
+        </div>
+        <div class="content" align="center">
+            <img src="/static/helpim/Login.png" style="width:100%; height:auto;">
+            <p>You can use the demo user: email=test@mail.ro, pass=testing</p>
+        </div>
+    </div>
+
+    <script>
+        $('div').popup({on: 'hover'});
+        $('#emailField').keyup(function(e){
+          if(e.keyCode == 13){
+            checkFields();
+          }
+        });
+        $('#passField').keyup(function(e){
+          if(e.keyCode == 13){
+            checkFields();
+          }
+        });
+
+      function checkFields(){
+        if(document.getElementById("emailField").value.length == 0){
+          document.getElementById("messageDiv").innerHTML = "<div class='ui negative message'>" +
+                                                              "<div class='header'>Authentication error </div>" +
+                                                              "Email field is empty!" +
+                                                             "</div>";
+          return;
+        }
+        if(document.getElementById("passField").value.length == 0){
+          document.getElementById("messageDiv").innerHTML = "<div class='ui negative message'>" +
+                                                              "<div class='header'>Authentication error </div>" +
+                                                              "Password field is empty!" +
+                                                             "</div>";
+          return;
+        }
+
+        document.getElementById('login-form').submit();
+      }
+    </script>
+  </body>
+</html>
