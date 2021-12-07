@@ -87,7 +87,11 @@ services:
       - emqtt_lib:/opt/emqttd/lib
       - emqtt_log:/opt/emqttd/log
     ports:
-     - "1883:1883"
+      - target: 1883
+        published: 1883
+        protocol: tcp
+        mode: host
+        
     environment:
       EMQ_LOADED_PLUGINS: 'emq_recon,emq_modules,emq_retainer'
     networks:
