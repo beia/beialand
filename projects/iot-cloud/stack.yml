@@ -16,7 +16,7 @@ services:
      - proxy_net
 
   influxdb:
-    image: influxdb
+    image: influxdb:1.8
     environment:
       - INFLUXDB_GRAPHITE_ENABLED=true
     volumes:
