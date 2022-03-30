@@ -214,13 +214,15 @@ void readSensors() {
 void CreateDataFrame(uint8_t frame_type) {
   USB.println(F("..CREATING FRAME PROCESS "));
 
-  frame.createFrame(BINARY, MOTE_ID);
+  frame.createFrame(frame_type, MOTE_ID);
   frame.addTimestamp();
   // set frame fields (Sensors Values)
   //  frame.createFrame(BINARY, node_ID); // frame2
   frame.setFrameType(INFORMATION_FRAME_WTR_XTR);
   frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());
-  frame.addSensor(SENSOR_TIME, RTC.getTimestamp());
+//  frame.addSensor(SENSOR_TIME, RTC.getTimestamp());
+//  USB.println(F("..error1 "));
+
   // add Socket B sensor values
   frame.addSensor(WTRX_PHEHT_TC2_B, myPHEHT_B.sensorPHEHT.temperature);
   frame.addSensor(WTRX_PHEHT_PH_B, myPHEHT_B.sensorPHEHT.pH);
@@ -421,6 +423,7 @@ void loop() {
     }
 
     // Step 4.1: Send using 4G
+    CreateDataFrame(BINARY);
     send4G();
   } else {
     USB.println(F("Skip seding data... battery under 30%"));
