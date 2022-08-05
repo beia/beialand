@@ -11,6 +11,8 @@ services:
       VIRTUAL_PORT: 80
       LETSENCRYPT_HOST: 'graphite.beia-telemetrie.ro,graphite.beia-consult.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
+    deploy:
+      replicas: 0
     networks:
      - graphite
      - proxy_net
@@ -75,6 +77,8 @@ services:
     image: vladwing/statsd
     environment:
       GRAPHITE_HOST: 'graphite'
+    deploy:
+      replicas: 0
     networks:
      - graphite
      - statsd_net
@@ -102,6 +106,8 @@ services:
       # - CARBON_PORT=2003
       - MQTT_HOST=broker
       # -MQTT_PORT=1883
+    deploy:
+      replicas: 0
     networks:
      - broker
      - graphite
@@ -125,6 +131,7 @@ services:
       VIRTUAL_PORT: 80
       LETSENCRYPT_HOST: 'lora-aggregator.beia-telemetrie.ro'
       LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
+
     networks:
      - proxy_net
 
