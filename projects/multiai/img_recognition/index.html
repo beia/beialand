@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Tensorflow.js furniture classification</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.0/js/swiper.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/0.14.2/tf.min.js"></script>
+	<!-- <script src="https://adrianodennanni.github.io/furniture_classifier/labels.js"></script> -->
+</head>
+
+<body>
+	<style src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.0/css/swiper.min.css"></style>
+
+	<div class="main">
+		<div class="container">
+			<article>
+				<h1 class="center">Clasificare mobila folosind image recognition</h1>
+				<h2 class="subtitle center">cu Tensorflow.js</h2>
+				<br />
+			</article>
+			<div class="product-gallery">
+				<div class="product-photo-main">
+					<div class="swiper-container">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/1.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/2.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/3.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/4.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/5.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/6.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/7.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/8.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/9.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/10.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/11.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/12.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<img id="imageFromUser">
+								<div id="textInfoSendImage">
+									Use the menu on the right to use a photo from your computer!
+								</div>
+							</div>
+						</div>
+						<div class="swiper-pagination"></div>
+					</div>
+				</div>
+				<div class="tf-results">
+					Select a image on the left
+					<br>
+					<b>OR</b>
+					<br>
+					<input type="file" id="userImageInput" onchange="startUserImage()"
+						accept="image/x-png,image/jpg,image/jpeg" />
+					<br>
+					<br>
+					<h1 id="results_title">Processing...</h1>
+					<h2 id="first_place"></h2>
+					<h4 id="second_place"></h4>
+					<h4 id="third_place"></h4>
+					<h4 id="fourth_place"></h4>
+					<h4 id="fifth_place"></h4>
+				</div>
+				<div class="product-photos-side">
+					<div class="swiper-container">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/1.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/2.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/3.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/4.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/5.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/6.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/7.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/8.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/9.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/10.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/11.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/12.jpg">
+								</div>
+							</div>
+							<div class="swiper-slide">
+								<div class="swiper-zoom-container">
+									<img src="imgs/upload_icon.png" style="padding:15px;">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<style>
+		*,
+		*:after,
+		*:before {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			word-wrap: break-word;
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		html,
+		body {
+			min-height: 90vh;
+			margin: 10px;
+		}
+
+		html {
+			background-color: #FFF;
+			text-rendering: optimizeLegibility;
+			-webkit-text-size-adjust: 100%;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+
+		body {
+			color: #444;
+			background-attachment: fixed;
+			font-family: "Noto Sans", sans-serif;
+			font-weight: normal;
+			font-style: normal;
+		}
+
+		.container {
+			margin: auto;
+			padding: 25px 0;
+			max-width: 1025px;
+		}
+
+		h1,
+		h2,
+		p {
+			margin-bottom: 15px;
+		}
+
+		h1,
+		h2 {
+			line-height: 1em;
+		}
+
+		.center {
+			text-align: center;
+		}
+
+		h2.subtitle {
+			font-size: inherit;
+			font-style: italic;
+			font-weight: normal;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+
+		.swiper-container,
+		.swiper-container * {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+		}
+
+		.swiper-container .swiper-no-swiping .swiper-button-prev,
+		.swiper-container .swiper-no-swiping .swiper-button-next {
+			opacity: 0;
+		}
+
+		.swiper-button-next.swiper-button-disabled,
+		.swiper-button-prev.swiper-button-disabled {
+			opacity: .1;
+		}
+
+		.product-gallery .product-photos-side,
+		.product-gallery .product-photo-main {
+			position: relative;
+			width: 48%;
+		}
+
+		.tf-results {
+			position: relative;
+			height: 100%;
+			float: right;
+			width: 48%;
+			padding: 20px;
+		}
+
+		.product-gallery .product-photo-main {
+			margin-bottom: 30px;
+			float: left;
+			border-style: groove;
+			border-width: thin;
+		}
+
+		.product-gallery .product-photos-side .swiper-container {
+			height: 70px;
+			border-style: groove;
+			border-width: thin;
+		}
+
+		.product-gallery .product-photo-main .swiper-container {
+			height: 320px;
+		}
+
+		.product-gallery .product-photos-side .swiper-slide {
+			width: 70px;
+			opacity: .4;
+			transition: 225ms opacity ease-in-out;
+		}
+
+		.product-gallery .product-photos-side .swiper-slide.swiper-slide-active {
+			opacity: 1;
+		}
+
+		.product-gallery .swiper-container {
+			position: static;
+			width: 100%;
+		}
+
+		.product-gallery .swiper-slide {
+			cursor: pointer;
+			text-align: center;
+		}
+
+		.product-gallery img {
+			max-height: 100%;
+			max-width: 100%;
+		}
+
+		.product-photos-side .swiper-slide img {
+			max-height: 100%;
+			max-width: 100%;
+		}
+
+		@media (max-width: 1025px) {
+			.container {
+				padding: 0;
+			}
+		}
+	</style>
+	<script>
+		labels = [
+			[0, "Recliner chair"],
+			[1, "Double bed"],
+			[2, "Cup set"],
+			[3, "Metal bed"],
+			[4, "Crockery holder"],
+			[5, "Corner table"],
+			[6, "Bar stool"],
+			[7, "Jar"],
+			[8, "Aluminum tray"],
+			[9, "Meat cutting knife"],
+			[10, "Pan"],
+			[11, "Wok"],
+			[12, "Water purifier"],
+			[13, "Plastic plate"],
+			[14, "Screen"],
+			[15, "Ceramic plate"],
+			[16, "TV Stand"],
+			[17, "Metal bowl"],
+			[18, "Wall shelf"],
+			[19, "Coat rack"],
+			[20, "Wooden bunk bed"],
+			[21, "Pan"],
+			[22, "Massage chair"],
+			[23, "Table lamp"],
+			[24, "Puff footrest"],
+			[25, "Wall shelf"],
+			[26, "Coat hanger"],
+			[27, "Scissors"],
+			[28, "Cooled wine Cellars"],
+			[29, "Mug"],
+			[30, "Wooden table"],
+			[31, "Plastic plate"],
+			[32, "Center table"],
+			[33, "Upholstered chest"],
+			[34, "Mirror"],
+			[35, "Wooden chair"],
+			[36, "Rice cooker"],
+			[37, "Puff chair"],
+			[38, "Divan"],
+			[39, "Center table"],
+			[40, "Thermal bottle"],
+			[41, "Glass cup"],
+			[42, "Couch"],
+			[43, "Upholstered chair"],
+			[44, "Leather chair"],
+			[45, "Wooden wardrobe"],
+			[46, "Wooden shelf"],
+			[47, "Plastic chair"],
+			[48, "Ceramic bowl"],
+			[49, "Wooden wardrobe"],
+			[50, "Upholstered chair"],
+			[51, "Office chair"],
+			[52, "LED"],
+			[53, "Wooden nightstand"],
+			[54, "Metal shelf"],
+			[55, "Refrigerator"],
+			[56, "Cabinet"],
+			[57, "Double bed"],
+			[58, "Heater"],
+			[59, "Wall lamp"],
+			[60, "Duvet"],
+			[61, "Frying pan"],
+			[62, "Living room chair"],
+			[63, "Towel holder"],
+			[64, "Portable stove"],
+			[65, "Desk"],
+			[66, "Baby chair"],
+			[67, "Water tap"],
+			[68, "Couch"],
+			[69, "Cutting board"],
+			[70, "Animal decoration"],
+			[71, "LED lamp"],
+			[72, "Ceramic tea cup"],
+			[73, "Pan"],
+			[74, "Plastic cup"],
+			[75, "Geometrical ceiling lamp"],
+			[76, "Computer"],
+			[77, "Ceiling lamp"],
+			[78, "Plastic water bottle"],
+			[79, "Suspended chair"],
+			[80, "Toilet"],
+			[81, "Knife set"],
+			[82, "Child chair"],
+			[83, "Laptop support"],
+			[84, "Rocking chair"],
+			[85, "Spice container"],
+			[86, "Cabinet"],
+			[87, "Dresser"],
+			[88, "Chair"],
+			[89, "Wine cup"],
+			[90, "Wine cellar"],
+			[91, "Kitchen stand"],
+			[92, "TV Stand"],
+			[93, "Clock"],
+			[94, "Soymilk Machine"],
+			[95, "Television"],
+			[96, "Wooden bed"],
+			[97, "Cabinet"],
+			[98, "Vegetable peeler"],
+			[99, "Yixing clay teapot"],
+			[100, "Plastic bowl"],
+			[101, "Bookshelf"],
+			[102, "Round rug"],
+			[103, "Air filter"],
+			[104, "Microwave oven"],
+			[105, "Knife"],
+			[106, "Dining table"],
+			[107, "Center table"],
+			[108, "Air Conditioner"],
+			[109, "Plastic bowl"],
+			[110, "Bar Table"],
+			[111, "Squared ceiling lamp"],
+			[112, "Plastic cabinet"],
+			[113, "Sofa bed"],
+			[114, "Frying pan"],
+			[115, "Thermal bottle"],
+			[116, "Chandelier"],
+			[117, "Swiss knife"],
+			[118, "Sink"],
+			[119, "Wooden sofa"],
+			[120, "Pillow"],
+			[121, "Tall lamp"],
+			[122, "Straw sofa"],
+			[123, "Round cutting board"],
+			[124, "Garden table"],
+			[125, "Sophisticated ceiling lamp"],
+			[126, "Thermal food storage"],
+			[127, "Squared rug"]
+		]
+	</script>
+	<script>
+		$(document).ready(function () {
+			tf = window.tf;
+
+			async function loadMobilenet() {
+				const modelWeigths = await tf.loadModel('https://adrianodennanni.github.io/furniture_classifier/model/model.json');
+
+				// Return a model that outputs an internal activation.
+				const layer = modelWeigths.getLayer('dense');
+				model = await tf.model({ inputs: modelWeigths.inputs, outputs: layer.output });
+			};
+
+			canvas = document.createElement('canvas');
+			canvas.width = 224;
+			canvas.height = 224;
+			ctx = canvas.getContext("2d");
+			loadMN = loadMobilenet();
+
+			swiperSide = new Swiper('.product-photos-side .swiper-container', {
+				direction: 'horizontal',
+				centeredSlides: true,
+				spaceBetween: 30,
+				slidesPerView: 'auto',
+				touchRatio: 0.2,
+				slideToClickedSlide: true,
+			})
+			swiperProduct = new Swiper('.product-photo-main .swiper-container', {
+				direction: 'horizontal',
+				pagination: '.swiper-pagination',
+				paginationClickable: true,
+			})
+
+			swiperSide.params.control = swiperProduct;
+			swiperProduct.params.control = swiperSide;
+
+			swiperSide.on('transitionEnd', function () {
+				if (swiperSide.activeIndex == 12) {
+					if ($("#imageFromUser")[0].src != "") {
+						inferImage($("#imageFromUser")[0]);
+					}
+					else {
+						$("#results_title").text("");
+						$("#first_place").text("");
+						$("#second_place").text("");
+						$("#third_place").text("");
+						$("#fourth_place").text("");
+						$("#fifth_place").text("");
+					}
+				} else {
+					inferImage($('.swiper-slide-active img')[0]);
+				}
+			});
+
+			loadMN.then(function () {
+				inferImage($('.swiper-slide-active img')[0]);
+			});
+		});
+
+		async function startUserImage(imageFilePath) {
+			$("#textInfoSendImage").remove();
+			var imgDataURL = window.URL.createObjectURL(document.getElementById('userImageInput').files[0]);
+			$("#imageFromUser")[0].src = imgDataURL;
+			if (swiperProduct.activeIndex == 12) {
+				await new Promise(resolve => setTimeout(resolve, 10));
+				inferImage($("#imageFromUser")[0]);
+			} else {
+				swiperProduct.slideTo(12);
+			};
+		};
+
+		async function inferImage(image) {
+			// Set text as "Processing" and erase old results
+			$("#results_title").text("Processing...");
+			$("#first_place").text("");
+			$("#second_place").text("");
+			$("#third_place").text("");
+			$("#fourth_place").text("");
+			$("#fifth_place").text("");
+
+			// Deep Learning Inference
+			ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, 0, 0, 224, 224);
+			imageData = ctx.getImageData(0, 0, 224, 224);
+			imagePixels = tf.fromPixels(imageData).expandDims(0).toFloat().div(tf.scalar(255));
+			predictedArray = await model.predict(imagePixels).as1D().data();
+
+			response = {}
+
+			for (i = 0; i <= 127; i++) {
+				if (Number.isFinite(response[labels[i][1]])) {
+					response[labels[i][1]] += predictedArray[i];
+				}
+				else {
+					response[labels[i][1]] = predictedArray[i];
+				}
+			};
+
+			response = Object.keys(response).map(item => [item, response[item]]);
+
+			response.sort(function (a, b) {
+				return a[1] < b[1] ? 1 : -1;
+			});
+
+			// Print top 5 on html elements
+			$("#results_title").text("Results");
+			$("#first_place").text(buldLabel(response, 0));
+			$("#second_place").text(buldLabel(response, 1));
+			$("#third_place").text(buldLabel(response, 2));
+			$("#fourth_place").text(buldLabel(response, 3));
+			$("#fifth_place").text(buldLabel(response, 4));
+
+		}
+
+		function buldLabel(response, index) {
+			return response[index][0] + ": " + response[index][1].toFixed(4);
+		}
+	</script>
+
+	<style>
+		/**
+ * Swiper 3.4.0
+ * Most modern mobile touch slider and framework with hardware accelerated transitions
+ * 
+ * http://www.idangero.us/swiper/
+ * 
+ * Copyright 2016, Vladimir Kharlampidi
+ * The iDangero.us
+ * http://www.idangero.us/
+ * 
+ * Licensed under MIT
+ * 
+ * Released on: October 16, 2016
+ */
+		.swiper-container {
+			margin-left: auto;
+			margin-right: auto;
+			position: relative;
+			overflow: hidden;
+			z-index: 1
+		}
+
+		.swiper-container-no-flexbox .swiper-slide {
+			float: left
+		}
+
+		.swiper-container-vertical>.swiper-wrapper {
+			-webkit-box-orient: vertical;
+			-moz-box-orient: vertical;
+			-ms-flex-direction: column;
+			-webkit-flex-direction: column;
+			flex-direction: column
+		}
+
+		.swiper-wrapper {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-transition-property: -webkit-transform;
+			-moz-transition-property: -moz-transform;
+			-o-transition-property: -o-transform;
+			-ms-transition-property: -ms-transform;
+			transition-property: transform;
+			-webkit-box-sizing: content-box;
+			-moz-box-sizing: content-box;
+			box-sizing: content-box
+		}
+
+		.swiper-container-android .swiper-slide,
+		.swiper-wrapper {
+			-webkit-transform: translate3d(0, 0, 0);
+			-moz-transform: translate3d(0, 0, 0);
+			-o-transform: translate(0, 0);
+			-ms-transform: translate3d(0, 0, 0);
+			transform: translate3d(0, 0, 0)
+		}
+
+		.swiper-container-multirow>.swiper-wrapper {
+			-webkit-box-lines: multiple;
+			-moz-box-lines: multiple;
+			-ms-flex-wrap: wrap;
+			-webkit-flex-wrap: wrap;
+			flex-wrap: wrap
+		}
+
+		.swiper-container-free-mode>.swiper-wrapper {
+			-webkit-transition-timing-function: ease-out;
+			-moz-transition-timing-function: ease-out;
+			-ms-transition-timing-function: ease-out;
+			-o-transition-timing-function: ease-out;
+			transition-timing-function: ease-out;
+			margin: 0 auto
+		}
+
+		.swiper-slide {
+			-webkit-flex-shrink: 0;
+			-ms-flex: 0 0 auto;
+			flex-shrink: 0;
+			width: 100%;
+			height: 100%;
+			position: relative
+		}
+
+		.swiper-container-autoheight,
+		.swiper-container-autoheight .swiper-slide {
+			height: auto
+		}
+
+		.swiper-container-autoheight .swiper-wrapper {
+			-webkit-box-align: start;
+			-ms-flex-align: start;
+			-webkit-align-items: flex-start;
+			align-items: flex-start;
+			-webkit-transition-property: -webkit-transform, height;
+			-moz-transition-property: -moz-transform;
+			-o-transition-property: -o-transform;
+			-ms-transition-property: -ms-transform;
+			transition-property: transform, height
+		}
+
+		.swiper-container .swiper-notification {
+			position: absolute;
+			left: 0;
+			top: 0;
+			pointer-events: none;
+			opacity: 0;
+			z-index: -1000
+		}
+
+		.swiper-wp8-horizontal {
+			-ms-touch-action: pan-y;
+			touch-action: pan-y
+		}
+
+		.swiper-wp8-vertical {
+			-ms-touch-action: pan-x;
+			touch-action: pan-x
+		}
+
+		.swiper-button-next,
+		.swiper-button-prev {
+			position: absolute;
+			top: 50%;
+			width: 27px;
+			height: 44px;
+			margin-top: -22px;
+			z-index: 10;
+			cursor: pointer;
+			-moz-background-size: 27px 44px;
+			-webkit-background-size: 27px 44px;
+			background-size: 27px 44px;
+			background-position: center;
+			background-repeat: no-repeat
+		}
+
+		.swiper-button-next.swiper-button-disabled,
+		.swiper-button-prev.swiper-button-disabled {
+			opacity: .35;
+			cursor: auto;
+			pointer-events: none
+		}
+
+		.swiper-button-prev,
+		.swiper-container-rtl .swiper-button-next {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M0%2C22L22%2C0l2.1%2C2.1L4.2%2C22l19.9%2C19.9L22%2C44L0%2C22L0%2C22L0%2C22z'%20fill%3D'%23007aff'%2F%3E%3C%2Fsvg%3E");
+			left: 10px;
+			right: auto
+		}
+
+		.swiper-button-prev.swiper-button-black,
+		.swiper-container-rtl .swiper-button-next.swiper-button-black {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M0%2C22L22%2C0l2.1%2C2.1L4.2%2C22l19.9%2C19.9L22%2C44L0%2C22L0%2C22L0%2C22z'%20fill%3D'%23000000'%2F%3E%3C%2Fsvg%3E")
+		}
+
+		.swiper-button-prev.swiper-button-white,
+		.swiper-container-rtl .swiper-button-next.swiper-button-white {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M0%2C22L22%2C0l2.1%2C2.1L4.2%2C22l19.9%2C19.9L22%2C44L0%2C22L0%2C22L0%2C22z'%20fill%3D'%23ffffff'%2F%3E%3C%2Fsvg%3E")
+		}
+
+		.swiper-button-next,
+		.swiper-container-rtl .swiper-button-prev {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M27%2C22L27%2C22L5%2C44l-2.1-2.1L22.8%2C22L2.9%2C2.1L5%2C0L27%2C22L27%2C22z'%20fill%3D'%23007aff'%2F%3E%3C%2Fsvg%3E");
+			right: 10px;
+			left: auto
+		}
+
+		.swiper-button-next.swiper-button-black,
+		.swiper-container-rtl .swiper-button-prev.swiper-button-black {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M27%2C22L27%2C22L5%2C44l-2.1-2.1L22.8%2C22L2.9%2C2.1L5%2C0L27%2C22L27%2C22z'%20fill%3D'%23000000'%2F%3E%3C%2Fsvg%3E")
+		}
+
+		.swiper-button-next.swiper-button-white,
+		.swiper-container-rtl .swiper-button-prev.swiper-button-white {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2027%2044'%3E%3Cpath%20d%3D'M27%2C22L27%2C22L5%2C44l-2.1-2.1L22.8%2C22L2.9%2C2.1L5%2C0L27%2C22L27%2C22z'%20fill%3D'%23ffffff'%2F%3E%3C%2Fsvg%3E")
+		}
+
+		.swiper-pagination {
+			position: absolute;
+			text-align: center;
+			-webkit-transition: .3s;
+			-moz-transition: .3s;
+			-o-transition: .3s;
+			transition: .3s;
+			-webkit-transform: translate3d(0, 0, 0);
+			-ms-transform: translate3d(0, 0, 0);
+			-o-transform: translate3d(0, 0, 0);
+			transform: translate3d(0, 0, 0);
+			z-index: 10
+		}
+
+		.swiper-pagination.swiper-pagination-hidden {
+			opacity: 0
+		}
+
+		.swiper-container-horizontal>.swiper-pagination-bullets,
+		.swiper-pagination-custom,
+		.swiper-pagination-fraction {
+			bottom: 10px;
+			left: 0;
+			width: 100%
+		}
+
+		.swiper-pagination-bullet {
+			width: 8px;
+			height: 8px;
+			display: inline-block;
+			border-radius: 100%;
+			background: #000;
+			opacity: .2
+		}
+
+		button.swiper-pagination-bullet {
+			border: none;
+			margin: 0;
+			padding: 0;
+			box-shadow: none;
+			-moz-appearance: none;
+			-ms-appearance: none;
+			-webkit-appearance: none;
+			appearance: none
+		}
+
+		.swiper-pagination-clickable .swiper-pagination-bullet {
+			cursor: pointer
+		}
+
+		.swiper-pagination-white .swiper-pagination-bullet {
+			background: #fff
+		}
+
+		.swiper-pagination-bullet-active {
+			opacity: 1;
+			background: #007aff
+		}
+
+		.swiper-pagination-white .swiper-pagination-bullet-active {
+			background: #fff
+		}
+
+		.swiper-pagination-black .swiper-pagination-bullet-active {
+			background: #000
+		}
+
+		.swiper-container-vertical>.swiper-pagination-bullets {
+			right: 10px;
+			top: 50%;
+			-webkit-transform: translate3d(0, -50%, 0);
+			-moz-transform: translate3d(0, -50%, 0);
+			-o-transform: translate(0, -50%);
+			-ms-transform: translate3d(0, -50%, 0);
+			transform: translate3d(0, -50%, 0)
+		}
+
+		.swiper-container-vertical>.swiper-pagination-bullets .swiper-pagination-bullet {
+			margin: 5px 0;
+			display: block
+		}
+
+		.swiper-container-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet {
+			margin: 0 5px
+		}
+
+		.swiper-pagination-progress {
+			background: rgba(0, 0, 0, .25);
+			position: absolute
+		}
+
+		.swiper-pagination-progress .swiper-pagination-progressbar {
+			background: #007aff;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			-webkit-transform: scale(0);
+			-ms-transform: scale(0);
+			-o-transform: scale(0);
+			transform: scale(0);
+			-webkit-transform-origin: left top;
+			-moz-transform-origin: left top;
+			-ms-transform-origin: left top;
+			-o-transform-origin: left top;
+			transform-origin: left top
+		}
+
+		.swiper-container-rtl .swiper-pagination-progress .swiper-pagination-progressbar {
+			-webkit-transform-origin: right top;
+			-moz-transform-origin: right top;
+			-ms-transform-origin: right top;
+			-o-transform-origin: right top;
+			transform-origin: right top
+		}
+
+		.swiper-container-horizontal>.swiper-pagination-progress {
+			width: 100%;
+			height: 4px;
+			left: 0;
+			top: 0
+		}
+
+		.swiper-container-vertical>.swiper-pagination-progress {
+			width: 4px;
+			height: 100%;
+			left: 0;
+			top: 0
+		}
+
+		.swiper-pagination-progress.swiper-pagination-white {
+			background: rgba(255, 255, 255, .5)
+		}
+
+		.swiper-pagination-progress.swiper-pagination-white .swiper-pagination-progressbar {
+			background: #fff
+		}
+
+		.swiper-pagination-progress.swiper-pagination-black .swiper-pagination-progressbar {
+			background: #000
+		}
+
+		.swiper-container-3d {
+			-webkit-perspective: 1200px;
+			-moz-perspective: 1200px;
+			-o-perspective: 1200px;
+			perspective: 1200px
+		}
+
+		.swiper-container-3d .swiper-cube-shadow,
+		.swiper-container-3d .swiper-slide,
+		.swiper-container-3d .swiper-slide-shadow-bottom,
+		.swiper-container-3d .swiper-slide-shadow-left,
+		.swiper-container-3d .swiper-slide-shadow-right,
+		.swiper-container-3d .swiper-slide-shadow-top,
+		.swiper-container-3d .swiper-wrapper {
+			-webkit-transform-style: preserve-3d;
+			-moz-transform-style: preserve-3d;
+			-ms-transform-style: preserve-3d;
+			transform-style: preserve-3d
+		}
+
+		.swiper-container-3d .swiper-slide-shadow-bottom,
+		.swiper-container-3d .swiper-slide-shadow-left,
+		.swiper-container-3d .swiper-slide-shadow-right,
+		.swiper-container-3d .swiper-slide-shadow-top {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 10
+		}
+
+		.swiper-container-3d .swiper-slide-shadow-left {
+			background-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, .5)), to(rgba(0, 0, 0, 0)));
+			background-image: -webkit-linear-gradient(right, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -moz-linear-gradient(right, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -o-linear-gradient(right, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: linear-gradient(to left, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0))
+		}
+
+		.swiper-container-3d .swiper-slide-shadow-right {
+			background-image: -webkit-gradient(linear, right top, left top, from(rgba(0, 0, 0, .5)), to(rgba(0, 0, 0, 0)));
+			background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -moz-linear-gradient(left, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -o-linear-gradient(left, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: linear-gradient(to right, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0))
+		}
+
+		.swiper-container-3d .swiper-slide-shadow-top {
+			background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, .5)), to(rgba(0, 0, 0, 0)));
+			background-image: -webkit-linear-gradient(bottom, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -moz-linear-gradient(bottom, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -o-linear-gradient(bottom, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: linear-gradient(to top, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0))
+		}
+
+		.swiper-container-3d .swiper-slide-shadow-bottom {
+			background-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, .5)), to(rgba(0, 0, 0, 0)));
+			background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -moz-linear-gradient(top, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: -o-linear-gradient(top, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
+			background-image: linear-gradient(to bottom, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0))
+		}
+
+		.swiper-container-coverflow .swiper-wrapper,
+		.swiper-container-flip .swiper-wrapper {
+			-ms-perspective: 1200px
+		}
+
+		.swiper-container-cube,
+		.swiper-container-flip {
+			overflow: visible
+		}
+
+		.swiper-container-cube .swiper-slide,
+		.swiper-container-flip .swiper-slide {
+			pointer-events: none;
+			-webkit-backface-visibility: hidden;
+			-moz-backface-visibility: hidden;
+			-ms-backface-visibility: hidden;
+			backface-visibility: hidden;
+			z-index: 1
+		}
+
+		.swiper-container-cube .swiper-slide .swiper-slide,
+		.swiper-container-flip .swiper-slide .swiper-slide {
+			pointer-events: none
+		}
+
+		.swiper-container-cube .swiper-slide-active,
+		.swiper-container-cube .swiper-slide-active .swiper-slide-active,
+		.swiper-container-flip .swiper-slide-active,
+		.swiper-container-flip .swiper-slide-active .swiper-slide-active {
+			pointer-events: auto
+		}
+
+		.swiper-container-cube .swiper-slide-shadow-bottom,
+		.swiper-container-cube .swiper-slide-shadow-left,
+		.swiper-container-cube .swiper-slide-shadow-right,
+		.swiper-container-cube .swiper-slide-shadow-top,
+		.swiper-container-flip .swiper-slide-shadow-bottom,
+		.swiper-container-flip .swiper-slide-shadow-left,
+		.swiper-container-flip .swiper-slide-shadow-right,
+		.swiper-container-flip .swiper-slide-shadow-top {
+			z-index: 0;
+			-webkit-backface-visibility: hidden;
+			-moz-backface-visibility: hidden;
+			-ms-backface-visibility: hidden;
+			backface-visibility: hidden
+		}
+
+		.swiper-container-cube .swiper-slide {
+			visibility: hidden;
+			-webkit-transform-origin: 0 0;
+			-moz-transform-origin: 0 0;
+			-ms-transform-origin: 0 0;
+			transform-origin: 0 0;
+			width: 100%;
+			height: 100%
+		}
+
+		.swiper-container-cube.swiper-container-rtl .swiper-slide {
+			-webkit-transform-origin: 100% 0;
+			-moz-transform-origin: 100% 0;
+			-ms-transform-origin: 100% 0;
+			transform-origin: 100% 0
+		}
+
+		.swiper-container-cube .swiper-slide-active,
+		.swiper-container-cube .swiper-slide-next,
+		.swiper-container-cube .swiper-slide-next+.swiper-slide,
+		.swiper-container-cube .swiper-slide-prev {
+			pointer-events: auto;
+			visibility: visible
+		}
+
+		.swiper-container-cube .swiper-cube-shadow {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			height: 100%;
+			background: #000;
+			opacity: .6;
+			-webkit-filter: blur(50px);
+			filter: blur(50px);
+			z-index: 0
+		}
+
+		.swiper-container-fade.swiper-container-free-mode .swiper-slide {
+			-webkit-transition-timing-function: ease-out;
+			-moz-transition-timing-function: ease-out;
+			-ms-transition-timing-function: ease-out;
+			-o-transition-timing-function: ease-out;
+			transition-timing-function: ease-out
+		}
+
+		.swiper-container-fade .swiper-slide {
+			pointer-events: none;
+			-webkit-transition-property: opacity;
+			-moz-transition-property: opacity;
+			-o-transition-property: opacity;
+			transition-property: opacity
+		}
+
+		.swiper-container-fade .swiper-slide .swiper-slide {
+			pointer-events: none
+		}
+
+		.swiper-container-fade .swiper-slide-active,
+		.swiper-container-fade .swiper-slide-active .swiper-slide-active {
+			pointer-events: auto
+		}
+
+		.swiper-zoom-container {
+			width: 100%;
+			height: 100%;
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-box-pack: center;
+			-moz-box-pack: center;
+			-ms-flex-pack: center;
+			-webkit-justify-content: center;
+			justify-content: center;
+			-webkit-box-align: center;
+			-moz-box-align: center;
+			-ms-flex-align: center;
+			-webkit-align-items: center;
+			align-items: center;
+			text-align: center
+		}
+
+		.swiper-zoom-container>canvas,
+		.swiper-zoom-container>img,
+		.swiper-zoom-container>svg {
+			max-width: 100%;
+			max-height: 100%;
+			object-fit: contain
+		}
+
+		.swiper-scrollbar {
+			border-radius: 10px;
+			position: relative;
+			-ms-touch-action: none;
+			background: rgba(0, 0, 0, .1)
+		}
+
+		.swiper-container-horizontal>.swiper-scrollbar {
+			position: absolute;
+			left: 1%;
+			bottom: 3px;
+			z-index: 50;
+			height: 5px;
+			width: 98%
+		}
+
+		.swiper-container-vertical>.swiper-scrollbar {
+			position: absolute;
+			right: 3px;
+			top: 1%;
+			z-index: 50;
+			width: 5px;
+			height: 98%
+		}
+
+		.swiper-scrollbar-drag {
+			height: 100%;
+			width: 100%;
+			position: relative;
+			background: rgba(0, 0, 0, .5);
+			border-radius: 10px;
+			left: 0;
+			top: 0
+		}
+
+		.swiper-scrollbar-cursor-drag {
+			cursor: move
+		}
+
+		.swiper-lazy-preloader {
+			width: 42px;
+			height: 42px;
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			margin-left: -21px;
+			margin-top: -21px;
+			z-index: 10;
+			-webkit-transform-origin: 50%;
+			-moz-transform-origin: 50%;
+			transform-origin: 50%;
+			-webkit-animation: swiper-preloader-spin 1s steps(12, end) infinite;
+			-moz-animation: swiper-preloader-spin 1s steps(12, end) infinite;
+			animation: swiper-preloader-spin 1s steps(12, end) infinite
+		}
+
+		.swiper-lazy-preloader:after {
+			display: block;
+			content: "";
+			width: 100%;
+			height: 100%;
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%20120%20120'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20xmlns%3Axlink%3D'http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink'%3E%3Cdefs%3E%3Cline%20id%3D'l'%20x1%3D'60'%20x2%3D'60'%20y1%3D'7'%20y2%3D'27'%20stroke%3D'%236c6c6c'%20stroke-width%3D'11'%20stroke-linecap%3D'round'%2F%3E%3C%2Fdefs%3E%3Cg%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(30%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(60%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(90%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(120%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(150%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.37'%20transform%3D'rotate(180%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.46'%20transform%3D'rotate(210%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.56'%20transform%3D'rotate(240%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.66'%20transform%3D'rotate(270%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.75'%20transform%3D'rotate(300%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.85'%20transform%3D'rotate(330%2060%2C60)'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+			background-position: 50%;
+			-webkit-background-size: 100%;
+			background-size: 100%;
+			background-repeat: no-repeat
+		}
+
+		.swiper-lazy-preloader-white:after {
+			background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%20120%20120'%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20xmlns%3Axlink%3D'http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink'%3E%3Cdefs%3E%3Cline%20id%3D'l'%20x1%3D'60'%20x2%3D'60'%20y1%3D'7'%20y2%3D'27'%20stroke%3D'%23fff'%20stroke-width%3D'11'%20stroke-linecap%3D'round'%2F%3E%3C%2Fdefs%3E%3Cg%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(30%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(60%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(90%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(120%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.27'%20transform%3D'rotate(150%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.37'%20transform%3D'rotate(180%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.46'%20transform%3D'rotate(210%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.56'%20transform%3D'rotate(240%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.66'%20transform%3D'rotate(270%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.75'%20transform%3D'rotate(300%2060%2C60)'%2F%3E%3Cuse%20xlink%3Ahref%3D'%23l'%20opacity%3D'.85'%20transform%3D'rotate(330%2060%2C60)'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")
+		}
+
+		@-webkit-keyframes swiper-preloader-spin {
+			100% {
+				-webkit-transform: rotate(360deg)
+			}
+		}
+
+		@keyframes swiper-preloader-spin {
+			100% {
+				transform: rotate(360deg)
+			}
+		}
+	</style>
+</body>
+
+</html>
