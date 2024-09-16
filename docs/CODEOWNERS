@@ -6,4 +6,7 @@
 **/dirs @beia/Platform
 **/source.stack @beia/Platform
 
+/projects/establish @vladwing
+/projects/somedi @vladwing
+
 /practice @beia/Junior-reviewers

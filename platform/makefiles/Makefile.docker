@@ -5,10 +5,13 @@ include $(THIS_DIR)/common.mak
 .EXPORT_ALL_VARIABLES:
 
 build: prebuild
-	@$(DOCKER) build -f $(DOCKER_FILE) -t $(IMAGE_NAME):$(IMAGE_VERSION_FIXED) $(DOCKER_FOLDER)
+	@$(DOCKER) build -f $(DOCKER_FOLDER)/$(DOCKER_FILE) -t $(IMAGE_NAME):$(IMAGE_VERSION_FIXED) $(DOCKER_FOLDER)
 
 push:
 	@$(DOCKER) push $(IMAGE_NAME):$(IMAGE_VERSION_FIXED)
+
+
+all: build push
 
 include $(DOCKER_SOURCE)
 .PHONY: $(DOCKER_PREBUILD)

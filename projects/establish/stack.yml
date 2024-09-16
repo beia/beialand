@@ -1,0 +1,34 @@
+version: '3.6'
+
+services:
+  garmin:
+    image: beia/establish_garmin
+    environment:
+      VIRTUAL_HOST: 'establish.beia.cloud,establish.beia-consult.ro'
+      VIRTUAL_PORT: 8080
+      LETSENCRYPT_HOST: 'establish.beia-consult.ro'
+      LETSENCRYPT_EMAIL: 'ssl-contact@beia.ro'
+      CLIENT_KEY__FILE: '/run/secrets/establish_client_key'
+      CLIENT_SECRET__FILE: '/run/secrets/establish_client_secret'
+      DB_LOCATION: '/srv/establish/garmin/db/user.json'
+    networks:
+     - proxy_net
+    volumes:
+     - establish_db:/srv/establish/garmin/db
+    secrets:
+     - establish_client_key
+     - establish_client_secret
+
+networks:
+  proxy_net:
+    external: true
+
+secrets:
+  establish_client_key:
+    external: true
+  establish_client_secret:
+    external: true
+
+volumes:
+  establish_db:
+    external: true
